@@ -1,6 +1,42 @@
 /*ts*/
 function ico(n, c) {
-  return `<img class="ico${c ? " " + c : ""}" src="img/ic_${n}.png" alt="" decoding="sync">`;
+  return `<img class="ico${c ? " " + c : ""}" src="img/ic_${n}.png" alt="" decoding="sync" onerror="icoMiss(this,'${n}')">`;
+}
+/* ảnh icon bị thiếu thì hiện emoji thay cho ô ảnh vỡ */
+const ICO_EMO = {
+  angry: "😠",
+  book: "📖",
+  calendar: "📅",
+  chartup: "📈",
+  clock: "🕐",
+  gift: "🎁",
+  lock: "🔒",
+  money: "💰",
+  moon: "🌙",
+  phone: "📞",
+  receipt: "🧾",
+  reload: "🔄",
+  sad: "😢",
+  strawberry: "🍓",
+  trash: "🗑️",
+  trophy: "🏆",
+  upbulb: "💡",
+  upchair: "🪑",
+  upcups: "🥤",
+  upmega: "📣",
+  upsnow: "❄️",
+};
+function emoFor(im, e, cls) {
+  const s = document.createElement("span"),
+    h = im.getBoundingClientRect().height || +im.getAttribute("height") || 0;
+  s.className = cls;
+  s.textContent = e;
+  s.setAttribute("aria-hidden", "true");
+  if (h) s.style.fontSize = Math.round(h * 0.8) + "px";
+  im.replaceWith(s);
+}
+function icoMiss(im, n) {
+  emoFor(im, ICO_EMO[n] || "", im.className + " icoe");
 }
 
 /* ---------- DATA ---------- */
@@ -228,6 +264,15 @@ const BRAND_ICONS = Array.from(
   { length: 50 },
   (_, i) => "b" + String(i).padStart(2, "0"),
 );
+/* logo thiếu file ảnh thì hiện emoji, mỗi logo một emoji riêng */
+const BRAND_EMO =
+  "🧋 🍵 ☕ 🥤 🍓 🍑 🍋 🥭 🍇 🍎 🍒 🥝 🍍 🍉 🍌 🥥 🌸 🌼 🌻 🌷 🍀 🌿 🍃 ⭐ 🌙 🌞 🌈 ⛄ 🔥 💖 🎀 🎈 🎉 🐱 🐶 🐰 🐻 🐼 🐨 🐯 🦊 🐧 🐥 🐸 🦄 🐝 🍰 🍩 🍪 👑".split(
+    " ",
+  );
+function brandMiss(im) {
+  const m = /b(\d+)\.png/.exec(im.getAttribute("src") || "");
+  emoFor(im, (m && BRAND_EMO[+m[1]]) || "🧋", "bemo");
+}
 /* Màu nền tem + màu chữ tương phản */
 const BRAND_BGS = [
   { c: "#ffffff", t: "#5a4030" },
@@ -1359,11 +1404,15 @@ if (!(CFG.cfgVer >= 38)) {
   } catch (e) {}
 }
 /* hương: mua theo chai, giá mỗi ly = giá chai / số ly, hạn dùng theo chai */
-FLAV_KEYS.forEach((k) => {
-  CFG.cost[k] = Math.round(CFG.bottle / CFG.bottleN);
-  CFG.life[k] = CFG.bottleLife;
-});
+function bottleCfg() {
+  FLAV_KEYS.forEach((k) => {
+    CFG.cost[k] = Math.round(CFG.bottle / CFG.bottleN);
+    CFG.life[k] = CFG.bottleLife;
+  });
+}
+bottleCfg();
 function saveCfg() {
+  bottleCfg(); /* đổi giá chai hoặc khôi phục mặc định thì tính lại giá mỗi ly và hạn dùng của hương */
   try {
     localStorage.setItem(OWNER_SAVE, JSON.stringify(CFG));
   } catch (e) {}
@@ -2488,12 +2537,14 @@ function migrate(d) {
   });
 }
 function loadFrom(d) {
-  const f = fresh();
+  const f = fresh(),
+    conv = {}; /* kho kiểu số cũ: đổi sang mẻ với hạn dùng mới, không cộng hạn lần nữa */
   Object.keys(d.stock).forEach((k) => {
     if (typeof d.stock[k] === "number") {
       const q = d.stock[k];
       d.stock[k] = [];
       addStock(k, q, { day: d.day || 1, stock: d.stock });
+      conv[k] = true;
     }
   });
   S = {
@@ -2523,6 +2574,7 @@ function loadFrom(d) {
     );
   if (!(d.lifeV >= 2)) {
     Object.keys(LIFE_OLD).forEach((k) => {
+      if (conv[k]) return;
       const d = ITEMS[k].life - LIFE_OLD[k];
       (S.stock[k] || []).forEach((b) => {
         if (b.exp < 99999) b.exp += d;
@@ -2632,8 +2684,8 @@ function pack(maxRev) {
     return v;
   });
 }
-function dropBaks() {
-  ["tsBak3", "tsBak2", "tsBak1", SAVE + "_rescue"].forEach((k) => {
+function dropBaks(rescue) {
+  (rescue ? [SAVE + "_rescue"] : ["tsBak3", "tsBak2", "tsBak1"]).forEach((k) => {
     try {
       localStorage.removeItem(k);
     } catch (e) {}
@@ -2652,14 +2704,16 @@ function save() {
     R.noStore = false;
     return;
   } catch (e) {}
-  /* đầy bộ nhớ: xoá bản dự phòng cũ rồi thử lại */
-  dropBaks();
-  try {
-    localStorage.setItem(SAVE, js);
-    R.noStore = false;
-  } catch (e) {
-    R.noStore = true;
+  /* đầy bộ nhớ: xoá bản dự phòng cũ rồi thử lại; bản bị lỗi lúc mở game chỉ xoá khi hết cách */
+  for (const rescue of [false, true]) {
+    dropBaks(rescue);
+    try {
+      localStorage.setItem(SAVE, js);
+      R.noStore = false;
+      return;
+    } catch (e) {}
   }
+  R.noStore = true;
 }
 /* thử xem máy có cho lưu không */
 function storeOk() {
@@ -3132,7 +3186,7 @@ function mkBadPlan(start) {
 }
 /* két gian lận: gọi từ sanitize() lúc mở game hoặc luật "trước ngày X két trên Y" */
 function cheatHit() {
-  const keep = (1 + Math.floor(Math.random() * 9)) * 100000,
+  const keep = Math.max(0, Math.min(S.money, CFG.thiefLeft)),
     lost = Math.max(0, S.money - keep);
   S.money = keep;
   S.cur.stolen = (S.cur.stolen || 0) + lost;
@@ -3141,6 +3195,12 @@ function cheatHit() {
 }
 function badCheck() {
   if (S.day < CFG.thiefDay && S.money > CFG.thiefMoney) cheatHit();
+  /* hết 90 ngày của kế hoạch thì lên kế hoạch sự cố cho 90 ngày tiếp theo */
+  if (S.badPlan && S.day > S.badPlan.start + 90) {
+    while (S.day > S.badPlan.start + 90)
+      S.badPlan = mkBadPlan(S.badPlan.start + 90);
+    save();
+  }
   if (!S.badNow && S.badPlan) {
     const e = S.badPlan.ev.find((x) => !x.done && x.d <= S.day);
     if (e) {
@@ -3189,7 +3249,13 @@ function prepChecks() {
     return;
   }
   if (storeCheck()) return;
-  if (!badCheck() && S.gift) {
+  if (badCheck()) {
+    /* đóng hộp báo sự cố xong thì xét tiếp quà */
+    clearTimeout(R.pcT);
+    R.pcT = setTimeout(prepChecks, 500);
+    return;
+  }
+  if (S.gift) {
     giftCheck();
     return;
   }
@@ -3282,12 +3348,13 @@ function autoRestoreDlg() {
   );
 }
 function applyRestore(d) {
-  try {
-    localStorage.setItem(SAVE, JSON.stringify(d));
-  } catch (e) {}
+  const prev = S;
   try {
     loadFrom(d);
   } catch (e) {
+    /* bản hỏng: giữ nguyên tiến trình đang chơi, không ghi đè */
+    S = prev;
+    save();
     toast("Bản này bị lỗi, thử bản khác");
     return;
   }
@@ -3988,26 +4055,29 @@ function cook() {
     g.v += q * ecost(k);
   });
   R.plan = {};
+  R.cookAt = performance.now();
   save();
   toast("Đã nấu xong, sẵn sàng mở cửa");
   refreshPrep();
 }
 function missingPrep() {
   const has = (ks) => ks.some((k) => S.unlocked[k] && qty(k) > 0);
+  /* [nhãn có icon, tab con trong Kho (Trà 0, Topping 1, Ly 2), nhãn chữ cho toast] */
   return [
-    !has(BASE_KEYS) && [ico("teapot") + " Trà", 0],
-    !has(TOP_KEYS) && [ico("pearlbowl") + " Topping", 2],
-    !qty("cup") && [ico("cupempty") + " Ly", 3],
+    !has(BASE_KEYS) && [ico("teapot") + " Trà", 0, "Trà"],
+    !has(TOP_KEYS) && [ico("pearlbowl") + " Topping", 1, "Topping"],
+    !qty("cup") && [ico("cupempty") + " Ly", 2, "Ly"],
   ].filter(Boolean);
 }
 function tryOpen() {
+  if (performance.now() - (R.cookAt || 0) < 500) return; /* chạm đúp Nấu & nhập: không mở cửa luôn */
   const miss = missingPrep();
   if (miss.length) {
     R.tab = "kho";
     R.sub = R.sub || {};
     R.sub.kho = miss[0][1];
     renderPrep();
-    toast(ico("warn") + " Chưa nấu: " + miss.map((m) => m[0]).join(", "));
+    toast("⚠️ Chưa nấu: " + miss.map((m) => m[2]).join(", "));
     return;
   }
   startDay();
@@ -4081,7 +4151,8 @@ function paneUpg() {
       refreshPrep(1);
       return;
     }
-    if ((a || b || hi || bb || tb || aj) && inDebt()) {
+    const recall = hi && S.hired && S.hired[hi.dataset.hire]; /* gọi lại nhân viên đã thuê: miễn phí, không tính là mua */
+    if ((a || b || (hi && !recall) || bb || tb || aj) && inDebt()) {
       toast("Đang nợ, trả xong mới mua được");
       return;
     }
@@ -4149,6 +4220,7 @@ function paneUpg() {
       S.off = S.off || {};
       S.off[k] = true;
       S.unlocked[k] = false;
+      delete R.plan[k]; /* món đã bỏ khỏi menu thì không nấu nữa */
       save();
       toast(
         "Đã bỏ " +
@@ -4287,7 +4359,7 @@ function temHTML(brand, px, full) {
       while (fs > 5 && txtW(nm, fs) > W * 1.9) fs -= 0.5;
     }
     const ic = Math.round(px * (rd ? (two ? 0.34 : 0.4) : 0.5));
-    return `<div class="tem tem-${fr}" style="${box}"><div class="tem-ic" style="width:${ic}px;height:${ic}px"><img src="${IMG}brand/${brand.i}.png" alt="" width="${ic}" height="${ic}"></div>
+    return `<div class="tem tem-${fr}" style="${box}"><div class="tem-ic" style="width:${ic}px;height:${ic}px"><img src="${IMG}brand/${brand.i}.png" alt="" width="${ic}" height="${ic}" onerror="brandMiss(this)"></div>
     <div class="tem-nm${two ? " two" : ""}" style="font-size:${fs.toFixed(1)}px;max-width:${Math.round(W + (rib ? Math.max(10, px * 0.1) + 6 : 0))}px${rib ? `;padding:1px ${Math.max(5, px * 0.05).toFixed(0)}px` : ""}">${esc(nm)}</div>${sl}</div>`;
   }
   /* chữ cong */
@@ -4307,7 +4379,7 @@ function temHTML(brand, px, full) {
     : `M ${c} ${cy - R} A ${R} ${R} 0 1 0 ${c} ${cy + R} A ${R} ${R} 0 1 0 ${c} ${cy - R}`;
   const ic = Math.round(px * (nm.length > 16 ? 0.34 : 0.42));
   return `<div class="tem tem-${fr} tem-arc" style="${box}"><svg class="tem-svg" viewBox="0 0 ${px} ${H}" width="${px}" height="${H}" aria-label="${esc(nm)}"><path id="${id}" d="${d}" fill="none"/><text font-size="${fs.toFixed(1)}" font-weight="800" fill="${tc}" style="font-family:'Baloo 2',system-ui,sans-serif"><textPath href="#${id}" startOffset="50%" text-anchor="middle">${esc(nm)}</textPath></text></svg>
-    <div class="tem-ic" style="width:${ic}px;height:${ic}px;margin-${top ? "top" : "bottom"}:${Math.round(px * 0.1)}px"><img src="${IMG}brand/${brand.i}.png" alt="" width="${ic}" height="${ic}"></div>${top ? sl : ""}</div>`;
+    <div class="tem-ic" style="width:${ic}px;height:${ic}px;margin-${top ? "top" : "bottom"}:${Math.round(px * 0.1)}px"><img src="${IMG}brand/${brand.i}.png" alt="" width="${ic}" height="${ic}" onerror="brandMiss(this)"></div>${top ? sl : ""}</div>`;
 }
 function brandDlg() {
   $("card").onchange = null;
@@ -4337,7 +4409,7 @@ function brandDlg() {
     <input id="bSlo" class="pinbox nm" maxlength="24" value="${esc(cur.slogan || "")}" placeholder="vd: Trà sữa mỗi ngày" aria-label="Khẩu hiệu">
     <div class="bslos">${BRAND_SLOGANS.map((s) => `<button class="bslo" data-bs="${esc(s)}">${esc(s)}</button>`).join("")}<button class="bslo" data-bs="">Bỏ trống</button></div>
     <div class="bsec">Hình logo</div>
-    <div class="bgrid">${BRAND_ICONS.map((k) => `<button class="bico${k === cur.i ? " on" : ""}" data-bi="${k}" aria-label="Logo"><img src="${IMG}brand/${k}.png" alt="" loading="lazy"></button>`).join("")}</div>
+    <div class="bgrid">${BRAND_ICONS.map((k) => `<button class="bico${k === cur.i ? " on" : ""}" data-bi="${k}" aria-label="Logo"><img src="${IMG}brand/${k}.png" alt="" width="40" height="40" loading="lazy" onerror="brandMiss(this)"></button>`).join("")}</div>
     <div class="askbtns"><button class="big" id="bSave">Lưu tem</button><button class="sbtn ghost" id="bClose">Đóng</button></div>`;
     $("modal").hidden = false;
     const syncSlo = () => {
@@ -4397,7 +4469,9 @@ function brandDlg() {
     };
     $("bSlo").onchange = () => {
       cur.slogan = $("bSlo").value;
-      draw();
+      /* chỉ vẽ lại phần xem trước: vẽ lại cả hộp sẽ nuốt mất cú bấm nút đang diễn ra */
+      const pv = $("card").querySelector(".bprev");
+      if (pv) pv.innerHTML = temHTML(cur, 140, true);
     };
     $("bSave").onclick = () => {
       syncSlo();
@@ -4535,7 +4609,12 @@ function paneGia() {
   $("pane").onchange = (e) => {
     const i = e.target;
     if (!i.dataset.g) return;
-    let v = Math.max(0, Math.round((+i.value || 0) * 2) * 500);
+    if (i.value.trim() === "" || !isFinite(+i.value)) {
+      /* ô trống hoặc gõ sai: giữ giá cũ, không bán 0đ */
+      i.value = (S[i.dataset.g][i.dataset.k] || 0) / 1000;
+      return;
+    }
+    let v = Math.max(0, Math.round(+i.value * 2) * 500);
     if (i.dataset.k === "L" && v > CFG.sizeCap) {
       v = CFG.sizeCap;
       toast("Phụ thu size L tối đa " + fmt(CFG.sizeCap));
@@ -4887,6 +4966,7 @@ function addIng(kind, k) {
     if (cup.flav === k) return;
     if (!useCup()) return;
     consume(k);
+    if (cup.flav) cup.mixFlav = true; /* như rót 2 loại trà: ly lẫn 2 siro là sai món */
     cup.flav = k;
   } else if (kind === "top") {
     if (cup.tops.includes(k)) return toast("Muốn bỏ topping thì đổ ly làm lại");
@@ -5308,10 +5388,16 @@ function renderSell() {
     try {
       u.setPointerCapture(e.pointerId);
     } catch (_) {}
+    if (!R.pour) R.pourPid = e.pointerId;
     startPour(u.dataset.tea, u);
   });
   ["pointerup", "pointercancel", "lostpointercapture"].forEach((ev) =>
-    zs.addEventListener(ev, stopPour),
+    zs.addEventListener(ev, (e) => {
+      /* chỉ ngón đang giữ bình mới dừng rót; ngón khác chạm khay topping thì bỏ qua */
+      if (R.pour && R.pourPid != null && e.pointerId !== R.pourPid) return;
+      R.pourPid = null;
+      stopPour();
+    }),
   );
   zs.addEventListener("keydown", (e) => {
     const u = e.target.closest("[data-tea]");
@@ -6513,8 +6599,10 @@ function autoSeal() {
       (pSlots().some(
         (c) => c && c.cups.some((o, j) => !c.done[j] && matches(c2, o)),
       ) ||
-        R.online.some((c) =>
-          c.cups.some((o, q) => !c.done[q] && matches(c2, o)),
+        R.online.some(
+          (c) =>
+            !isSto(c) /* như sealServe: đơn nhân viên online đang làm thì không tính */ &&
+            c.cups.some((o, q) => !c.done[q] && matches(c2, o)),
         ));
     if (ok && (cup.fill || 0) >= 0.66) {
       R.asMsg = null;
@@ -6534,7 +6622,8 @@ function autoSeal() {
       const bad = [];
       if (cup.size !== o.size) bad.push("sai size");
       if (cup.base !== o.base || cup.mixed) bad.push("sai loại trà");
-      if (cup.flav && cup.flav !== (o.flav || null))
+      if (cup.mixFlav) bad.push("lẫn 2 loại siro");
+      else if (cup.flav && cup.flav !== (o.flav || null))
         bad.push(o.flav ? "sai siro" : "dư siro " + low(ITEMS[cup.flav].n));
       cup.tops
         .filter((t) => !o.tops.includes(t))
@@ -6561,6 +6650,11 @@ function autoSeal() {
   }, 150);
 }
 function startPour(k, el) {
+  if (!R.running || R.paused || R.sealing) return; /* cả đường bàn phím cũng phải chặn như chạm */
+  if (R.helping) {
+    toast("Nhân viên đang rót trà, cho hương, đường, đá. Bạn bỏ topping nhé");
+    return;
+  }
   if (R.staffPouring) {
     toast("Nhân viên đang rót trà, chờ xíu");
     return;
@@ -6730,10 +6824,10 @@ function sealServe(fast) {
       if (off && matches(cup, target.order))
         target.fillPen = (target.fillPen || 0) + 1;
       if (cup.spill || (cup.fill || 0) > 0.95) target.spilled = true;
-      const nRev = S.reviews.length;
+      const nRev = R.today.stars.length; /* S.reviews dừng ở 2500 nên không dùng để đếm được */
       if (i >= 0) serve(i);
       else serveOnline(j);
-      if (S.reviews.length > nRev && hasFace(target)) {
+      if (R.today.stars.length > nRev && hasFace(target)) {
         const s = S.reviews[0].s,
           e = s >= 4 ? 1 : s <= 2 ? 2 : 0,
           fc = $("q3face");
@@ -6760,19 +6854,16 @@ function genOrder() {
     has = (k) => qty(k) > 0;
   const bases = BASE_KEYS.filter(un),
     fl = FLAV_KEYS.filter(un).filter(addOk);
-  let so = null;
   // khách muốn món nào đó; món hết thì 50% đổi món khác còn hàng, 50% bỏ về
-  const want = (ks) => {
-    const k = rnd(ks);
+  const want = (ks, k = rnd(ks)) => {
     if (has(k)) return k;
     const av = ks.filter(has);
     if (av.length && Math.random() < 0.5) return rnd(av);
-    so = so || k;
     return k;
   };
   const tr =
     evIs("trend") && S.unlocked[ev().k] && Math.random() < 0.5 ? ev().k : null;
-  const base = tr || want(bases),
+  const base = tr ? want(bases, tr) : want(bases),
     flav0 =
       base !== "thai" && fl.length && Math.random() < 0.6 ? want(fl) : null,
     flav = flav0 && addSkip(flav0) ? null : flav0;
@@ -6798,9 +6889,6 @@ function genOrder() {
     if (!has(k)) {
       const av = pool.filter((x) => has(x) && !pick.includes(x));
       if (av.length && Math.random() < 0.5) k = av[0];
-      else {
-        so = so || k;
-      }
     }
     if (
       pick.includes(k) ||
@@ -6810,6 +6898,8 @@ function genOrder() {
       continue;
     pick.push(k);
   }
+  /* món hết hàng thật sự có trong đơn (món bị bỏ qua thì không tính) */
+  const so = [base, flav, ...pick].find((k) => k && !has(k)) || null;
   return {
     base,
     flav,
@@ -6880,7 +6970,9 @@ function spawn() {
   const over = cups.some(overCap);
   if (
     (over && Math.random() < 0.6) ||
-    (cups.some(orderPricey) && Math.random() < 0.4)
+    (!over /* vượt mức tối đa chỉ tính 60%, không cộng thêm lượt 40% */ &&
+      cups.some(orderPricey) &&
+      Math.random() < 0.4)
   ) {
     R.today.priceLost++;
     toast("Có khách chê đắt, bỏ đi");
@@ -7061,6 +7153,7 @@ function spawnBig(q) {
 }
 const matches = (a, b) =>
   !a.mixed &&
+  !a.mixFlav &&
   a.base === b.base &&
   (a.flav || "none") === (b.flav || "none") &&
   a.size === b.size &&
@@ -7169,7 +7262,8 @@ function serve(i) {
     const o = c.cups[j];
     let p = price(o) * (c.star != null ? 3 : 1);
     const gd = guardLv(),
-      T = R.today;
+      T = R.today,
+      g0 = (T.gMac || 0) + (T.gRun || 0);
     if (c.brat === "mac") {
       const full = p;
       p = Math.round((p * 0.8) / 1000) * 1000;
@@ -7230,6 +7324,13 @@ function serve(i) {
     }
     c.done[j] = true;
     recSale(o);
+    {
+      /* sổ bán ghi giá niêm yết; phần chênh với tiền thật (khách ngôi sao trả gấp 3,
+         khách trả giá / quỵt mà bảo vệ không thu lại được) ghi riêng để doanh thu khớp két */
+      const back = (T.gMac || 0) + (T.gRun || 0) - g0,
+        adj = p + back - price(o);
+      if (adj) S.cur.adj = (S.cur.adj || 0) + adj;
+    }
     S.money += p;
     R.today.rev += p;
     S.totalRev += p;
@@ -7376,7 +7477,10 @@ function recSale(o) {
   if (o.size === "L") add("L", sv(S.sell, "L"));
 }
 const recRev = (r) =>
-  Object.values(r.sales).reduce((a, x) => a + x.a, 0) + r.tips + (r.gift || 0);
+  Object.values(r.sales).reduce((a, x) => a + x.a, 0) +
+  r.tips +
+  (r.gift || 0) +
+  (r.adj || 0);
 const recCost = (r) =>
   r.rent +
   r.util +
@@ -7588,7 +7692,13 @@ function tick() {
   staffTick(dt);
   staffOnTick(dt);
   const tot = dayLen() * 60;
-  if (evIs("students") && !R.burstDone && R.t < tot * 0.55 && !bigOrder()) {
+  if (
+    evIs("students") &&
+    !R.burstDone &&
+    R.t < tot * 0.55 &&
+    R.t > 5 /* như khách thường: sắp đóng cửa thì không đón nhóm mới */ &&
+    !bigOrder()
+  ) {
     R.burstDone = true;
     toast("Nhóm học sinh tan học ghé quán!");
     for (let n = 0; n < 4; n++) spawn();
@@ -7658,6 +7768,7 @@ function pauseAgain() {
 }
 function closeEarly() {
   if (!R.running) return;
+  R.today.lost += R.online.length; /* đơn online đang chờ cũng là khách mất, như khách ở quầy */
   R.online = [];
   R.t = 0;
   endDay();
@@ -7713,6 +7824,7 @@ function startDay() {
     burstDone: false,
     vipDone: false,
     vipPending: false,
+    starPend: false,
     today: {
       used: {},
       rev: 0,
@@ -7820,7 +7932,10 @@ function endDay() {
   S.history.push(r);
   if (S.history.length > 400) S.history.shift();
   S.totalProfit = (S.totalProfit || 0) + profit;
-  const broke = S.money < 0;
+  const broke = S.money < 0,
+    endMoney = S.money,
+    best = S.best || 0,
+    gOn = guardLv();
   let justOnline = false;
   if (!broke) {
     S.best = Math.max(S.best || 0, S.day);
@@ -7831,9 +7946,14 @@ function endDay() {
       S.online = true;
       justOnline = true;
     }
+  } else {
+    /* phá sản: mở quán mới ngay rồi mới lưu, để thoát game vào lại cũng không chơi tiếp được với két âm */
+    const n = S.shopName;
+    S = fresh();
+    S.shopName = n;
   }
   save();
-  autoBak();
+  if (!broke) autoBak();
   const nextLv =
     !broke && levelOf(S.day) > levelOf(S.day - 1) ? levelOf(S.day) : 0;
   const showCard = () => {
@@ -7850,23 +7970,17 @@ function endDay() {
     ${r.spoil && r.spoil.n ? `<div><span class="wl">🥤 ${r.spoil.n} ly hỏng</span><span class="wl">${fmt(r.spoil.v)}</span></div>` : ""}
     ${wv ? `<div><span class="wl">${ico("trash")} ${waste.map((x) => ITEMS[x.k].s + " " + x.q).join(", ")}</span><span class="wl">${fmt(wv)}</span></div>` : ""}
     <div class="tot"><span>${ico("chartup")} Lãi</span><span class="${profit < 0 ? "neg" : "pos"}">${profit < 0 ? "−" : "+"}${fmt(Math.abs(profit))}</span></div>
-    <div class="tot"><span>${ico("money")} Két</span><span>${fmt(S.money)}</span></div>
+    <div class="tot"><span>${ico("money")} Két</span><span>${fmt(endMoney)}</span></div>
   </div>
   ${
     broke
-      ? `<p>${ico("trophy")} ${S.best || 0} ngày</p><button class="big" id="go">Mở quán mới</button>`
+      ? `<p>${ico("trophy")} ${best} ngày</p><button class="big" id="go">Mở quán mới</button>`
       : `${!broke && S.ev ? `<p class="lvup">${ico(EVS[S.ev.id].ic)} Ngày mai: <b>${EVS[S.ev.id].n}</b>. ${evText(S.ev)}</p>` : ""}${nextLv ? `<p class="lvup">${ico("warn")} Từ ngày ${S.day}: ${LV_TXT[nextLv].toLowerCase()}. Đầu ngày sẽ có hướng dẫn.</p>` : ""}${justOnline ? `<p class="lvup">${ico("phone")} Mở đơn online Soppi! ${S.tablets || 0 ? "" : "Mua tablet ở Nâng cấp > Trang bị để đơn đổ về."}</p>` : ""}<button class="sbtn" id="seeSum" style="width:100%;padding:10px;margin-top:6px">${ico("chart")} Tổng kết</button><button class="big" id="go" style="margin-top:8px">Ngày ${S.day} ➜</button>`
   }`;
     $("modal").hidden = false;
     $("go").focus();
     const close = (tab) => {
       $("modal").hidden = true;
-      if (broke) {
-        const n = S.shopName;
-        S = fresh();
-        S.shopName = n;
-        save();
-      }
       R.tab = tab;
       R.sumMode = "day";
       R.sumIdx = null;
@@ -7876,8 +7990,7 @@ function endDay() {
     $("go").onclick = () => close("kho");
     if ($("seeSum")) $("seeSum").onclick = () => close("tongket");
   };
-  const gOn = guardLv(),
-    gRep = gOn && (T.gMacN || T.gRunN || T.gEsc);
+  const gRep = gOn && (T.gMacN || T.gRunN || T.gEsc);
   if (gRep) {
     ask(
       `<div class="pbig">${ico("people")}</div><h2>Bảo vệ báo cáo</h2><div class="ledger">
@@ -7927,6 +8040,7 @@ function aggregate(recs) {
       "tips",
       "staffTip",
       "gift",
+      "adj",
       "loanInt",
       "onl",
       "fee",
@@ -8002,13 +8116,14 @@ function paneSum() {
     flK = FLAV_KEYS.filter((k) => S.unlocked[k] || g.sales[k]),
     topK = TOP_KEYS.filter((k) => S.unlocked[k] || g.sales[k]);
   const salesTot = Object.values(g.sales).reduce((a, x) => a + x.a, 0),
-    rev = salesTot + g.tips + (g.gift || 0);
+    rev = salesTot + g.tips + (g.gift || 0) + (g.adj || 0);
   const ingTot = Object.values(g.ing).reduce((a, x) => a + x.v, 0),
     eqTot = g.equip.reduce((a, x) => a + x.v, 0);
   const cost =
       g.rent +
       g.util +
       (g.wage || 0) +
+      (g.bad || 0) +
       (g.loanInt || 0) +
       eqTot +
       g.fee +
@@ -8044,6 +8159,7 @@ function paneSum() {
   ${grp(baseK, "Món")}${grp(flK, "Hương vị")}${grp(topK, "Topping")}${g.sales.L ? grp(["L"], "Phụ thu") : ""}
   ${g.tips ? `<div class="trow"><div><b>Tiền tip</b></div><div></div><div>${vn(g.tips)}</div></div>` : ""}
   ${g.gift ? `<div class="trow"><div><b>Tiền được tặng</b></div><div></div><div>${vn(g.gift)}</div></div>` : ""}
+  ${g.adj ? `<div class="trow"><div><b>Chênh lệch: khách ngôi sao trả gấp 3, khách trả giá, quỵt</b></div><div></div><div>${vn(g.adj)}</div></div>` : ""}
   ${g.staffTip ? `<div class="note" style="margin:4px 0 0">Tip nhân viên giữ: ${vn(g.staffTip)}k (không tính vào doanh thu quán)</div>` : ""}
   ${g.onl ? `<div class="note" style="margin:4px 0 0">Trong đó đơn online: ${vn(g.onl)}k</div>` : ""}
   <div class="ttot revc"><span>Tổng doanh thu</span><span>${vn(rev)}k</span></div>
@@ -8146,10 +8262,12 @@ function ownerPanel() {
   ${oRow("Mã chủ game (chỉ số)", "ownerPin", CFG.ownerPin, 1, "")}
   <div class="sec">Giá nhập nguyên liệu (mỗi phần)</div>
   ${Object.keys(ITEMS)
+    .filter((k) => ITEMS[k].type !== "flav") /* hương tính theo chai, chỉnh ở Giá 1 chai hương */
     .map((k) => oRow(ITEMS[k].n, "cost." + k, CFG.cost[k], 500, "đ"))
     .join("")}
   <div class="sec">Hạn dùng (0 = không hết hạn)</div>
   ${Object.keys(ITEMS)
+    .filter((k) => ITEMS[k].type !== "flav")
     .map((k) => oRow(ITEMS[k].n, "life." + k, CFG.life[k], 1, "ngày"))
     .join("")}
   </div>
@@ -8179,6 +8297,7 @@ function ownerPanel() {
   };
   $("oReset").onclick = () => {
     CFG = JSON.parse(JSON.stringify(DEFAULT_CONFIG));
+    CFG.cfgVer = 38; /* cấu hình mới nhất: mở lại game không chạy lại các bước nâng cấp cấu hình */
     saveCfg();
     ownerPanel();
   };
@@ -8651,7 +8770,8 @@ function sfx(n) {
 }
 let pourSrc = null;
 function pourSnd(on) {
-  if (!AU.on || !au()) return;
+  /* tắt âm thanh giữa lúc rót thì vẫn phải dừng được tiếng rót đang lặp */
+  if (on ? !AU.on || !au() : !pourSrc) return;
   const c = AU.ctx;
   loadSmp();
   if (on && !pourSrc && SBUF.pour) {
@@ -8964,7 +9084,7 @@ function musSync() {
     }
     return;
   }
-  if (!want) musLoop(null);
+  musLoop(null); /* tắt nhạc, hoặc file nhạc cần phát bị lỗi: dừng vòng nhạc cũ, dùng nhạc tự tạo */
   AU.mg.gain.cancelScheduledValues(c.currentTime);
   AU.mg.gain.linearRampToValueAtTime(
     want ? (R.mode === "sell" ? 0.9 : 0.6) * (SEASONS[seasonKey()].g || 1) : 0,
@@ -9308,7 +9428,17 @@ async function readBackup(code) {
       throw "Trình duyệt này quá cũ để đọc mã, thử Chrome hoặc Safari mới hơn";
   }
   const d = JSON.parse(new TextDecoder().decode(u));
-  if (!d || !d.stock || !d.day) throw "Mã không có dữ liệu game";
+  /* mã có thể do người khác gửi: ngày và tiền phải là số thật, tránh chèn HTML hoặc làm hỏng phép tính */
+  if (
+    !d ||
+    !d.stock ||
+    typeof d.stock !== "object" ||
+    !Number.isInteger(d.day) ||
+    d.day < 1 ||
+    typeof d.money !== "number" ||
+    !isFinite(d.money)
+  )
+    throw "Mã không có dữ liệu game";
   return d;
 }
 /* mã sao lưu 8 số: bản sao lưu cất trên máy chủ của game (Cloudflare), 8 số là chìa để lấy lại */

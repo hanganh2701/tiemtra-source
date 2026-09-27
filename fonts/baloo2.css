@@ -3,26 +3,26 @@
   font-style: normal;
   font-weight: 500;
   font-display: swap;
-  src: url(fonts/baloo2_0.ttf) format('truetype');
+  src: url(baloo2_0.ttf) format('truetype');
 }
 @font-face {
   font-family: 'Baloo 2';
   font-style: normal;
   font-weight: 600;
   font-display: swap;
-  src: url(fonts/baloo2_1.ttf) format('truetype');
+  src: url(baloo2_1.ttf) format('truetype');
 }
 @font-face {
   font-family: 'Baloo 2';
   font-style: normal;
   font-weight: 700;
   font-display: swap;
-  src: url(fonts/baloo2_2.ttf) format('truetype');
+  src: url(baloo2_2.ttf) format('truetype');
 }
 @font-face {
   font-family: 'Baloo 2';
   font-style: normal;
   font-weight: 800;
   font-display: swap;
-  src: url(fonts/baloo2_3.ttf) format('truetype');
+  src: url(baloo2_3.ttf) format('truetype');
 }
