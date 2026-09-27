@@ -1,8 +1,11 @@
 /*ts*/
 function ico(n, c) {
+  if (ICO_GONE.has(n))
+    return `<span class="ico${c ? " " + c : ""} icoe" aria-hidden="true">${ICO_EMO[n] || ""}</span>`;
   return `<img class="ico${c ? " " + c : ""}" src="img/ic_${n}.png" alt="" decoding="sync" onerror="icoMiss(this,'${n}')">`;
 }
-/* ảnh icon bị thiếu thì hiện emoji thay cho ô ảnh vỡ */
+/* ảnh icon bị thiếu thì hiện emoji thay cho ô ảnh vỡ; đã biết thiếu thì lần sau vẽ emoji luôn, không tải lại */
+const ICO_GONE = new Set();
 const ICO_EMO = {
   angry: "😠",
   book: "📖",
@@ -36,6 +39,7 @@ function emoFor(im, e, cls) {
   im.replaceWith(s);
 }
 function icoMiss(im, n) {
+  ICO_GONE.add(n);
   emoFor(im, ICO_EMO[n] || "", im.className + " icoe");
 }
 
@@ -269,8 +273,15 @@ const BRAND_EMO =
   "🧋 🍵 ☕ 🥤 🍓 🍑 🍋 🥭 🍇 🍎 🍒 🥝 🍍 🍉 🍌 🥥 🌸 🌼 🌻 🌷 🍀 🌿 🍃 ⭐ 🌙 🌞 🌈 ⛄ 🔥 💖 🎀 🎈 🎉 🐱 🐶 🐰 🐻 🐼 🐨 🐯 🦊 🐧 🐥 🐸 🦄 🐝 🍰 🍩 🍪 👑".split(
     " ",
   );
+const BRAND_GONE = new Set();
+function brandImg(k, px, lazy) {
+  if (BRAND_GONE.has(k))
+    return `<span class="bemo" aria-hidden="true" style="font-size:${Math.round(px * 0.8)}px">${BRAND_EMO[+String(k).slice(1)] || "🧋"}</span>`;
+  return `<img src="${IMG}brand/${k}.png" alt="" width="${px}" height="${px}"${lazy ? ' loading="lazy"' : ""} onerror="brandMiss(this)">`;
+}
 function brandMiss(im) {
   const m = /b(\d+)\.png/.exec(im.getAttribute("src") || "");
+  if (m) BRAND_GONE.add("b" + m[1]);
   emoFor(im, (m && BRAND_EMO[+m[1]]) || "🧋", "bemo");
 }
 /* Màu nền tem + màu chữ tương phản */
@@ -1339,6 +1350,7 @@ try {
     };
   }
 } catch (e) {}
+const CFG_VER = 39; /* phiên bản cấu hình mới nhất: thêm bước nâng cấp mới thì tăng số này */
 if (!(CFG.cfgVer >= 31)) {
   CFG.dayMin = 4;
 }
@@ -1399,6 +1411,15 @@ if (!(CFG.cfgVer >= 38)) {
   Object.keys(LIFE_OLD).forEach((k) => (CFG.life[k] = ITEMS[k].life));
   CFG.wage2 = 200000;
   CFG.cfgVer = 38;
+  try {
+    localStorage.setItem(OWNER_SAVE, JSON.stringify(CFG));
+  } catch (e) {}
+}
+if (!(CFG.cfgVer >= 39)) {
+  /* 3.11: vay ngân hàng tối đa 1 triệu, lãi 25%/năm (cấu hình đã lưu từ bản cũ vẫn giữ mức cũ nếu không nâng) */
+  CFG.bankMax = 1000000;
+  CFG.bankRate = 25;
+  CFG.cfgVer = CFG_VER;
   try {
     localStorage.setItem(OWNER_SAVE, JSON.stringify(CFG));
   } catch (e) {}
@@ -2486,6 +2507,7 @@ function fresh() {
     off: {},
     badPlan: mkBadPlan(1),
     money: CFG.startMoney,
+    startMoney: CFG.startMoney /* vốn lúc mở quán: chủ game đổi vốn sau đó thì két cũ không bị coi là gian lận */,
     day: 1,
     stock: {},
     unlocked: {},
@@ -2782,18 +2804,28 @@ const price = (o, sell = S.sell) =>
   o.tops.reduce((a, t) => a + sv(sell, t), 0) +
   (o.cheese ? sv(sell, "cheese") : 0) +
   (o.size === "L" ? sv(sell, "L") : 0);
+/* giá trần cao nhất từng áp dụng cho bản lưu này: chủ game hạ trần thì các ngày đã bán trước đó không bị coi là gian lận */
+function noteCaps() {
+  const c = S.capHi || {};
+  S.capHi = {
+    i: Math.max(c.i || 0, CFG.itemCap),
+    s: Math.max(c.s || 0, CFG.sizeCap),
+  };
+}
+const capHiMax = (k) => (k === "L" ? S.capHi.s : S.capHi.i * 2);
 function sanitize() {
   Object.keys(S.sell).forEach((k) => {
     let v = +S.sell[k];
     if (!isFinite(v) || v < 0) v = DEF_SELL[k] || 0;
     S.sell[k] = Math.min(v, sellMax(k));
   });
+  noteCaps();
   let bad = false;
   const fix = (r) => {
     if (!r || !r.sales) return;
     let f = false;
     Object.entries(r.sales).forEach(([k, x]) => {
-      if (x && x.q > 0 && !(x.a / x.q <= sellMax(k))) {
+      if (x && x.q > 0 && !(x.a / x.q <= capHiMax(k))) {
         x.a = x.q * Math.min(DEF_SELL[k] || sellMax(k), sellMax(k));
         f = true;
       }
@@ -2811,7 +2843,7 @@ function sanitize() {
   };
   (S.history || []).forEach(fix);
   fix(S.cur);
-  const cap = CFG.startMoney + S.day * 15000000;
+  const cap = (S.startMoney || CFG.startMoney) + S.day * 15000000;
   if (bad || !isFinite(S.money) || S.money > cap) {
     const H = S.history || [],
       prof = H.reduce((a, r) => a + recRev(r) - recCost(r), 0);
@@ -3430,19 +3462,26 @@ const RX = {
     mon: /nhầm|một đằng|sai vị|món khác/,
   },
 };
+/* cụm từ dễ bị đọc nhầm: "mong đợi" là kỳ vọng chứ không phải chờ, "nhanh hơn" / "cho nhanh" là mong muốn chứ không phải khen nhanh,
+   "ví mỏng vẫn", "giá này mà" là khen rẻ, "giá mềm hơn" là chê đắt, "để lâu", "tan chậm"... không nói về chờ đợi */
+const RX_SAFE =
+  /mong đợi|để lâu|thơm miệng lâu|tan chậm|đá tan hơi nhanh|chúc quán đông khách|nhanh (tay )?hơn|cho nhanh|ví mỏng vẫn|giá này mà|size nhỏ giá mềm hơn|ổn so với giá/g;
 function reviewFits(t, why, c) {
   const f = c && c.rf;
   if (!f) return true;
-  const L = t.toLowerCase();
+  const L = t.toLowerCase().replace(RX_SAFE, " ");
+  /* 4 sao / 3 sao: chờ hơi lâu hoặc giá hơi cao thì được nhắc nhẹ */
+  const soft = why === "ok" || why === "meh" || why === "bad";
   if (RX.fast.test(L)) {
-    if (f.wait) return false;
+    if (f.wait || f.slow) return false;
   } else if (
     RX.wait.test(L) &&
     !f.wait &&
+    !(soft && f.slow) &&
     !["wait", "timeout", "late"].includes(why)
   )
     return false;
-  if (RX.pNeg.test(L) && !f.pricey) return false;
+  if (RX.pNeg.test(L) && !f.pricey && !(soft && f.dear)) return false;
   if (RX.pPos.test(L) && f.pricey) return false;
   if (RX.wrong.test(L) && !f.wrong) return false;
   if (/đổ ra|rỉ ra|dính (hết )?tay|tràn/.test(L) && !f.spill) return false;
@@ -3458,7 +3497,10 @@ function reviewFits(t, why, c) {
     /đá (hơi nhiều|nhiều quá|tan|vừa đủ|viên)|ít đá như/.test(L)
   )
     return false;
-  if (
+  if (/lần sau[^.,]*size l/.test(L)) {
+    /* "lần sau gọi size L": khách lần này chưa gọi size L */
+    if (c.cups && c.cups.some((o) => o.size === "L")) return false;
+  } else if (
     /size l|ly to|ly nhỏ/.test(L) &&
     c.cups &&
     !c.cups.some((o) => o.size === "L")
@@ -4359,7 +4401,7 @@ function temHTML(brand, px, full) {
       while (fs > 5 && txtW(nm, fs) > W * 1.9) fs -= 0.5;
     }
     const ic = Math.round(px * (rd ? (two ? 0.34 : 0.4) : 0.5));
-    return `<div class="tem tem-${fr}" style="${box}"><div class="tem-ic" style="width:${ic}px;height:${ic}px"><img src="${IMG}brand/${brand.i}.png" alt="" width="${ic}" height="${ic}" onerror="brandMiss(this)"></div>
+    return `<div class="tem tem-${fr}" style="${box}"><div class="tem-ic" style="width:${ic}px;height:${ic}px">${brandImg(brand.i, ic)}</div>
     <div class="tem-nm${two ? " two" : ""}" style="font-size:${fs.toFixed(1)}px;max-width:${Math.round(W + (rib ? Math.max(10, px * 0.1) + 6 : 0))}px${rib ? `;padding:1px ${Math.max(5, px * 0.05).toFixed(0)}px` : ""}">${esc(nm)}</div>${sl}</div>`;
   }
   /* chữ cong */
@@ -4379,7 +4421,7 @@ function temHTML(brand, px, full) {
     : `M ${c} ${cy - R} A ${R} ${R} 0 1 0 ${c} ${cy + R} A ${R} ${R} 0 1 0 ${c} ${cy - R}`;
   const ic = Math.round(px * (nm.length > 16 ? 0.34 : 0.42));
   return `<div class="tem tem-${fr} tem-arc" style="${box}"><svg class="tem-svg" viewBox="0 0 ${px} ${H}" width="${px}" height="${H}" aria-label="${esc(nm)}"><path id="${id}" d="${d}" fill="none"/><text font-size="${fs.toFixed(1)}" font-weight="800" fill="${tc}" style="font-family:'Baloo 2',system-ui,sans-serif"><textPath href="#${id}" startOffset="50%" text-anchor="middle">${esc(nm)}</textPath></text></svg>
-    <div class="tem-ic" style="width:${ic}px;height:${ic}px;margin-${top ? "top" : "bottom"}:${Math.round(px * 0.1)}px"><img src="${IMG}brand/${brand.i}.png" alt="" width="${ic}" height="${ic}" onerror="brandMiss(this)"></div>${top ? sl : ""}</div>`;
+    <div class="tem-ic" style="width:${ic}px;height:${ic}px;margin-${top ? "top" : "bottom"}:${Math.round(px * 0.1)}px">${brandImg(brand.i, ic)}</div>${top ? sl : ""}</div>`;
 }
 function brandDlg() {
   $("card").onchange = null;
@@ -4409,7 +4451,7 @@ function brandDlg() {
     <input id="bSlo" class="pinbox nm" maxlength="24" value="${esc(cur.slogan || "")}" placeholder="vd: Trà sữa mỗi ngày" aria-label="Khẩu hiệu">
     <div class="bslos">${BRAND_SLOGANS.map((s) => `<button class="bslo" data-bs="${esc(s)}">${esc(s)}</button>`).join("")}<button class="bslo" data-bs="">Bỏ trống</button></div>
     <div class="bsec">Hình logo</div>
-    <div class="bgrid">${BRAND_ICONS.map((k) => `<button class="bico${k === cur.i ? " on" : ""}" data-bi="${k}" aria-label="Logo"><img src="${IMG}brand/${k}.png" alt="" width="40" height="40" loading="lazy" onerror="brandMiss(this)"></button>`).join("")}</div>
+    <div class="bgrid">${BRAND_ICONS.map((k) => `<button class="bico${k === cur.i ? " on" : ""}" data-bi="${k}" aria-label="Logo">${brandImg(k, 40, true)}</button>`).join("")}</div>
     <div class="askbtns"><button class="big" id="bSave">Lưu tem</button><button class="sbtn ghost" id="bClose">Đóng</button></div>`;
     $("modal").hidden = false;
     const syncSlo = () => {
@@ -6497,7 +6539,8 @@ function staffOnTick(dt) {
     return;
   }
   const cand = R.online
-    .filter((c) => c.id !== R.focus || !cup.used)
+    /* không giành đơn người chơi đã bắt đầu làm (đã lấy ly, đang được phụ quầy pha) */
+    .filter((c) => c.id !== R.focus || (!cup.used && !cup.size && !R.helping))
     .sort((a, b) => a.pat / a.max - b.pat / b.max)[0];
   if (cand) {
     if (cand.id === R.focus) R.focus = null;
@@ -7200,7 +7243,9 @@ function stars(c, online) {
     why = "great";
   c.rf = {
     wait: w > 0.5,
+    slow: w > 0.3 /* chờ hơi lâu, chưa tới mức bị trừ sao */,
     pricey,
+    dear: !pricey && idx > 1.1 /* giá hơi cao hơn gợi ý, chưa tới mức đắt */,
     wrong: !!c.wrong,
     cheap: !pricey && idx < 0.9,
     spill: !!c.spilled,
@@ -7929,6 +7974,7 @@ function endDay() {
     profit = rev - cost,
     avg = r.starN ? r.starSum / r.starN : 0,
     wv = waste.reduce((a, x) => a + x.v, 0);
+  noteCaps();
   S.history.push(r);
   if (S.history.length > 400) S.history.shift();
   S.totalProfit = (S.totalProfit || 0) + profit;
@@ -8276,6 +8322,7 @@ function ownerPanel() {
   $("card").onchange = (e) => {
     const i = e.target;
     if (!i.dataset.o) return;
+    noteCaps(); /* nhớ giá trần trước khi chủ game đổi */
     const [a, b] = i.dataset.o.split(".");
     let v = +i.value * (i.dataset.m ? 1000 : 1);
     if (a === "ownerPin") {
@@ -8297,7 +8344,7 @@ function ownerPanel() {
   };
   $("oReset").onclick = () => {
     CFG = JSON.parse(JSON.stringify(DEFAULT_CONFIG));
-    CFG.cfgVer = 38; /* cấu hình mới nhất: mở lại game không chạy lại các bước nâng cấp cấu hình */
+    CFG.cfgVer = CFG_VER; /* cấu hình mới nhất: mở lại game không chạy lại các bước nâng cấp cấu hình */
     saveCfg();
     ownerPanel();
   };
