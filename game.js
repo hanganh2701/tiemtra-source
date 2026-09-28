@@ -284,7 +284,9 @@ const BRAND_GONE = new Set();
 function brandImg(k, px, lazy) {
   if (BRAND_GONE.has(k))
     return `<span class="bemo" aria-hidden="true" style="font-size:${Math.round(px * 0.8)}px">${BRAND_EMO[+String(k).slice(1)] || "🧋"}</span>`;
-  return `<img src="${IMG}brand/${k}.png" alt="" width="${px}" height="${px}"${lazy ? ' loading="lazy"' : ""} onerror="brandMiss(this)">`;
+  /* logo vẽ bằng SVG trong data/logo.js; thiếu thì thử ảnh cũ trong img/brand/, rồi tới emoji */
+  const svg = typeof logoSvg === "function" ? logoSvg(+String(k).slice(1)) : "";
+  return `<img src="${svg || IMG + "brand/" + k + ".png"}" alt="" width="${px}" height="${px}"${lazy && !svg ? ' loading="lazy"' : ""} onerror="brandMiss(this)">`;
 }
 function brandMiss(im) {
   const m = /b(\d+)\.png/.exec(im.getAttribute("src") || "");

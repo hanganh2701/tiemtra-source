@@ -148,3 +148,14 @@ test("mời cài: từ ngày 4, hỏi đúng một lần, bấm Cài ngay thì g
     g.close();
   }
 });
+
+test("logo thương hiệu: đủ 50 logo vẽ bằng SVG, tem dùng logo SVG thay vì ảnh thiếu", () => {
+  const g = boot();
+  try {
+    assert.equal(g.run("LOGO_SVG.length"), g.run("BRAND_ICONS.length"));
+    assert.equal(g.run("BRAND_ICONS.every((k, i) => logoSvg(i).startsWith('data:image/svg+xml'))"), true);
+    assert.match(g.run("brandImg('b21', 40)"), /src="data:image\/svg\+xml/);
+  } finally {
+    g.close();
+  }
+});
