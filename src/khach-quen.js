@@ -25,6 +25,7 @@ function sapGhe(k, ngay) {
   const q = KHACH_QUEN[k],
     d = ngay == null ? S.day : ngay,
     last = TT().ghe[k];
+  if (vangMat(k)) return false;
   return d >= q.tuNgay && (last == null || d - last >= q.cach);
 }
 /* món quen nếu đang có đủ hàng, không thì gọi món khác như khách thường */
@@ -98,7 +99,7 @@ function quenBo(c) {
 }
 /* ưu đãi từ sổ công thức: khách chờ lâu hơn */
 /* cộng thêm đồ trang trí (src/trang-tri.js) */
-const heSoCho = () => 1 + (coTrang(1) ? 0.05 : 0) + (coTrang(2) ? 0.05 : 0) + choTri();
+const heSoCho = () => 1 + (coTrang(1) ? 0.05 : 0) + (coTrang(2) ? 0.05 : 0) + choTri() + (S && S.day <= 2 ? 0.4 : 0); /* hai ngày khai trương khách dễ tính */
 
 /* ---------- món đã pha và kỷ lục ---------- */
 const khoaMon = (o) => [o.base, o.flav || "", [...o.tops].sort().join("+"), o.cheese ? "cheese" : ""].join("|");
@@ -168,6 +169,7 @@ function goiYThan() {
   const T = TT();
   let best = null;
   for (const k of Object.keys(KHACH_QUEN)) {
+    if (KHACH_QUEN[k].tuNgay > S.day || vangMat(k)) continue;
     const can = MAU_CHUYEN.filter((m) => T.xem[m.id] == null && m.dieuKien && m.dieuKien.than && m.dieuKien.than[k] != null)
       .map((m) => m.dieuKien.than[k])
       .sort((a, b) => a - b)[0];
@@ -197,7 +199,7 @@ function paneQuen() {
         if (!gap)
           return `<div class="kq an"><span class="trf">?</span><div><b>Chưa gặp</b><small>Thường ghé từ ngày ${q.tuNgay}</small></div></div>`;
         const ts = q.tieuSu.filter((_, i) => than >= [0, 3, 6][i]);
-        return `<div class="kq"><span class="trf" style="${nv.ngoiSao != null ? starBg(nv.ngoiSao, than >= 6 ? 1 : 0, 64, 63) : faceBg(nv.mat, than >= 6 ? 1 : 0, 64, 63)}"></span><div><b>${esc(nv.ten)}</b> ${timThan(than)}<small>Đã ghé ${T.lan[k]} lần · thân ${than}/10</small>${ts.map((t) => `<p>${esc(t)}</p>`).join("")}${
+        return `<div class="kq"><span class="trf" style="${nv.ngoiSao != null ? starBg(nv.ngoiSao, than >= 6 ? 1 : 0, 64, 63) : faceBg(nv.mat, than >= 6 ? 1 : 0, 64, 63)}"></span><div><b>${esc(nv.ten)}</b> ${timThan(than)}<small>Đã ghé ${T.lan[k]} lần · thân ${than}/10${vangMat(k) ? " · đang học ở Đà Lạt" : ""}</small>${ts.map((t) => `<p>${esc(t)}</p>`).join("")}${
           T.lan[k] >= 2 ? `<p class="kqmon">Món quen: ${esc(moTaMon(q.mon))}</p>` : ""
         }</div></div>`;
       })

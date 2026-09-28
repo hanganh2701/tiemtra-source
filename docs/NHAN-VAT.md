@@ -40,7 +40,7 @@ Cột "Mặt" là hàng trong `img/faces.webp` (mỗi hàng 3 biểu cảm: bìn
 ## Giọng từng người
 
 - **Bà Sáu:** xưng "bà", gọi người chơi là "con". Câu ngắn, nói ngược để thương ("Trễ một bữa bà hông la… trễ hai bữa thì la."). Không bao giờ nói thẳng là mình quý ai.
-- **Chú Tư:** xưng "chú", gọi "{ban}" hoặc "con". Hay càm ràm công nghệ, nhưng tốt bụng. Thích trà đá, ghét ngọt.
+- **Chú Tư:** xưng "chú", gọi "{ban}" hoặc "con". Hay càm ràm công nghệ, nhưng tốt bụng. Món quen là trà sữa ít ngọt, ghét ngọt; trà đá miễn phí của tiệm thì uống hoài.
 - **Linh:** xưng "em", gọi "{ban}". Lễ phép, hay lo, nói nhanh rồi tự trấn an. Gọi món "trà đào ít đá như cũ".
 - **Khoa:** xưng "em", gọi "{ban}". Luôn vội, nói tắt, hay đùa để giấu mệt. Nhắc tiền xăng, nắng, mưa.
 - **Cô Hạnh:** xưng "cô" với người chơi, gọi "{ban}" hoặc "con". Sắc sảo, soi giá, khen kiểu chê ("Ly cũng được… mà hơi mắc.").

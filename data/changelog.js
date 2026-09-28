@@ -1,7 +1,21 @@
 /* Phiên bản và danh sách "Có gì mới". Mỗi lần cập nhật: tăng GAME_VERSION và thêm một mục lên ĐẦU CHANGELOG. */
 /* ===== PHIÊN BẢN GAME: mỗi lần cập nhật, tăng số và thêm một mục lên ĐẦU danh sách ===== */
-const GAME_VERSION = "4.6";
+const GAME_VERSION = "4.7";
 const CHANGELOG = [
+  {
+    v: "4.7",
+    d: "28/09/2026",
+    items: [
+      "Ngày đầu dễ thở hơn: hai ngày khai trương khách kiên nhẫn hơn, một đánh giá xấu lúc mới mở không kéo tiệm xuống 1 sao",
+      "Hướng dẫn đầu game gọn còn 4 trang, các bước pha đã có chỉ dẫn ngay trên quầy. Nút Tiếp không còn phải bấm hai lần",
+      "Ly pha cho khách đã bỏ về không bị giao nhầm cho khách sau",
+      "Đơn đặc biệt trong truyện: pha theo gợi ý lúc khách chưa tới lượt vẫn giao đúng người; gợi ý nằm luôn trên bong bóng thoại",
+      "Về quê ăn Tết: nút thành Lên xe về quê, báo trước hàng trong kho vẫn hết hạn",
+      "Thử thách hôm nay có lời nhắc ngay màn chuẩn bị",
+      "Phố Trà khó hơn: tiệm máy mạnh lên, chơi tốt và ra mặt tiền mới lên hạng 1",
+      "Sửa: nhắc Hana trước khi gặp, Linh đi học Đà Lạt vẫn ghé tiệm, nhãn Ngã rẽ đè chữ, khách vãng lai trùng tên nhân vật truyện, vài câu thoại",
+    ],
+  },
   {
     v: "4.6",
     d: "28/09/2026",

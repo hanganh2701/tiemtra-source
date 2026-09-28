@@ -323,3 +323,21 @@ document.addEventListener("click", (e) => {
     ],
   );
 });
+
+/* ---------- sửa sau đợt chơi thử ---------- */
+/* khách quen vắng mặt vì nhánh truyện: Linh đi học Đà Lạt */
+const vangMat = (k) => k === "linh" && nhanh("linh") === "B";
+/* cảnh mở cửa kế tiếp là ngày nghỉ về quê: nút Mở cửa thành nút lên xe, không đòi nấu hàng */
+const veQueSap = () => !!(S && S.tr && typeof canhKe === "function" && (canhKe("mo_cua") || {}).nghi);
+/* ly đang pha trúng một phương án của đơn truyện này không (dùng khi dán nắp để tìm đúng khách) */
+function lyTruyenKhop(c) {
+  if (!c || !c.dt || c.done[0] || typeof DON_TRUYEN === "undefined") return false;
+  const dt = DON_TRUYEN.find((d) => d.id === c.dt),
+    ly = dt && lyTruyen(dt);
+  return !!(ly && ly.some((p) => matches(cup, p.o)));
+}
+/* gợi ý của đơn truyện, hiện luôn trên bong bóng thoại để không lỡ khi toast đã tắt */
+function goiYTruyenHTML(c) {
+  const dt = typeof DON_TRUYEN !== "undefined" && DON_TRUYEN.find((d) => d.id === c.dt);
+  return dt ? `<small class="goiyb">💭 ${esc(thayTen(dt.goiY, true))}</small>` : "";
+}

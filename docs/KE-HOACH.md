@@ -141,6 +141,21 @@ Kết quả mô phỏng (người chơi máy pha đúng mọi ly, nghìn đồng
 
 Mây Tea và Hana chênh nhau trong vài phần trăm. Về quê hụt vì nghỉ 3 ngày không bán: giữ có chủ ý (trang 11 “Tết thì bán ít lại”), đã nói rõ trong câu báo trước và bù một phần bằng lì xì 500k và 3 ngày khách quen mừng mở lại. Hai dòng cuối chạy sau khi cân lại, ba dòng đầu chạy trước.
 
+### Sau đợt chơi thử của Claude (bản 4.7) — xong 28/09
+
+Chơi bản 4.6 trên khung điện thoại (ngày 1–3, 6 chơi thật; tua tới ngày 16, 50, 62, 67 để thử truyện). Đã sửa:
+
+- [x] Đơn truyện: ly phương án thứ hai giao đúng khách dù khách chưa đứng đầu hàng (`lyTruyenKhop` trong `sealServe`); gợi ý trên bong bóng (`goiYTruyenHTML`)
+- [x] Thẻ Ngày mai không gợi ý khách chưa xuất hiện; Linh đi Đà Lạt không ghé tiệm (`vangMat`)
+- [x] Nhãn Ngã rẽ không đè nút Bỏ qua; câu Khoa ngày 3 viết hoa; khách vãng lai không trùng tên nhân vật (`TEN_TRUYEN`)
+- [x] Điểm sao có đệm lúc mới mở; hai ngày đầu khách kiên nhẫn hơn 40%
+- [x] Ly của khách đã về không giao nhầm (`cup.cho`)
+- [x] Hướng dẫn người mới 4 trang, nút Tiếp ghi trang đích ngay khi bấm
+- [x] Về quê: nút Lên xe về quê, không đòi nấu hàng (`veQueSap`); câu báo trước nói hàng vẫn hết hạn
+- [x] Nhắc thử thách ở màn chuẩn bị (`ttNhacNho`)
+- [x] Phố Trà: tiệm máy mạnh hơn và có trần điểm (`tran`)
+- [x] Thoại: chú Tư uống trà sữa ít ngọt, câu hồi âm chú Tư đặt sau câu đùa, câu mở đầu bà Sáu đủ ý
+
 ## Cổng quyết định
 
 | Cổng | Ngày | Đi tiếp khi |

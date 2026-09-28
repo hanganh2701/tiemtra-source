@@ -342,3 +342,20 @@ function ttGan() {
       if (ttNhapMa(ma)) renderPrep();
     };
 }
+
+/* nhắc thử thách hôm nay ở màn chuẩn bị: từ ngày 3, khi hôm nay chưa có kết quả */
+function ttNhacNho() {
+  if (!S || S.day < 3 || R.challenge || (S.ttKq || {})[homNayVN()]) return "";
+  return `<button class="ttnhac" data-ttnhac>🎯 Thử thách hôm nay · Chơi ›</button>`;
+}
+document.addEventListener("click", (e) => {
+  const b = e.target.closest && e.target.closest("[data-ttnhac]");
+  if (!b || typeof S === "undefined" || !S) return;
+  e.stopPropagation();
+  R.tab = "hem";
+  R.sub = R.sub || {};
+  R.sub.hem = HEM_TAB.findIndex((x) => x[1] === paneThuThach);
+  renderPrep();
+  const p = document.querySelector(".tabs");
+  if (p) p.scrollIntoView({ behavior: "smooth", block: "start" });
+});

@@ -13,7 +13,7 @@ function diemTiem() {
 function diemMay(t, ngay) {
   let d = t.goc + t.tang * ngay;
   if (t.mot) d += t.mot.cao * Math.exp(-(((ngay - t.mot.dinh) / t.mot.rong) ** 2));
-  return Math.round(d);
+  return Math.round(Math.min(t.tran || 999, d));
 }
 /* danh sách xếp hạng: tiệm máy, bạn bè (điểm lúc chia sẻ danh thiếp) và tiệm của mình */
 function bangPhoTra() {

@@ -36,6 +36,8 @@
                mo: "olong", hang: { olong: 20 }, goi: "tenHam" }   // mở nguyên liệu, thêm hàng, gọi hàm của game
    }
 */
+/* tên riêng của nhân vật truyện: khách vãng lai không được đặt trùng */
+const TEN_TRUYEN = new Set(["Linh", "Hạnh", "Vy", "Khoa", "Tư", "Sáu", "Hana", "Mướp"]);
 const NHAN_VAT = {
   meo: { ten: "Mướp", anh: "cathead" },
   sau: { ten: "Bà Sáu", mat: 6 },
@@ -59,7 +61,7 @@ const MAU_CHUYEN = [
     dieuKien: { ngay: 1 },
     uuTien: 10,
     thoai: [
-      ["sau", "Chìa khoá nè. Tiền nhà bà thu mỗi tối. Trễ một bữa bà hông la…"],
+      ["sau", "Chìa khoá nè. Trễ tiền nhà một bữa bà hông la… hai bữa thì la."],
       ["_", "(Mướp nhảy lên quầy, nằm chình ình.)"],
       ["sau", "Con Mướp chịu nằm chỗ nào là chỗ đó hên. Bán đắt hàng nghen."],
     ],
@@ -78,7 +80,7 @@ const MAU_CHUYEN = [
     uuTien: 10,
     thoai: [
       ["tu", "Chú chạy xe ôm đầu hẻm hai chục năm. Giờ ai cũng bấm app."],
-      ["tu", "Cho chú ly trà đá. Trà sữa ngọt quá chú hổng chịu."],
+      ["tu", "Cho chú ly trà sữa, ít ngọt thôi. Ngọt quá chú hổng chịu."],
       ["tu", "Mà thôi, mở tiệm là gan rồi. Chú ghé ủng hộ hoài."],
     ],
     ketQua: { than: { tu: 1 } },
@@ -91,7 +93,7 @@ const MAU_CHUYEN = [
     dieuKien: { ngay: 3 },
     uuTien: 10,
     thoai: [
-      ["khoa", "{ban} ơi cho em xin miếng nước, em chạy đơn từ sáng tới giờ."],
+      ["khoa", "{Ban} ơi, cho em xin miếng nước, em chạy đơn từ sáng tới giờ."],
       ["khoa", "Tiệm mới hả? Sau này lên app đi, em nhận đơn cho."],
       ["khoa", "Nắng muốn xỉu luôn á. Thôi em chạy tiếp nha!"],
     ],
@@ -738,7 +740,7 @@ MAU_CHUYEN.push(
     tomTat: "Sài Gòn vắng Tết, Khoa không có tiền về quê, mẹ hỏi Tết này có về không.",
     dieuKien: { ngay: 62 },
     uuTien: 8,
-    reRe: "Chọn một lần. Về quê: tiệm nghỉ 3 ngày, không tốn tiền nhà. Ở lại: bán ngày Tết đông khách.",
+    reRe: "Chọn một lần. Về quê: tiệm nghỉ 3 ngày, không tốn tiền nhà, hàng trong kho vẫn hết hạn. Ở lại: bán ngày Tết đông khách.",
     thoai: [
       ["_", "(Sài Gòn những ngày giáp Tết vắng hoe. Hẻm 42 chỉ còn vài nhà.)"],
       ["khoa", "Năm nay em không về quê. Vé xe lên gấp ba, em để dành gửi mẹ."],
@@ -847,8 +849,8 @@ MAU_CHUYEN.push(
     thoai: [
       ["_", "(Năm giờ sáng, xe tải nhỏ của Mây Tea đậu đầu hẻm lấy trân châu.)"],
       ["tu", "Con nấu cho tụi nó hả? Vậy mai chú uống trà ở đâu?"],
-      ["tu", "Từ bữa con pha ít ngọt, chú bớt đường thiệt đó nghen.", { co: { tu_ly: "it" } }],
       ["tu", "Chú giỡn thôi. Có mối đều là mừng rồi, con làm cho kỹ nghen."],
+      ["tu", "Mà từ bữa con pha ít ngọt, chú bớt đường thiệt đó nghen.", { co: { tu_ly: "it" } }],
     ],
   },
   {
@@ -1271,8 +1273,8 @@ const HAU_TRUYEN = [
     [{ co: { tu_ly: "it" } }, "Chú Tư bớt ngọt được nửa năm, bác sĩ khen. Chú khoe cả hẻm là nhờ tiệm."],
     [{ co: { hana_ghe: "giu" } }, "Cái ghế đẩu có tên chú Tư vẫn đứng đầu quầy. Khách lạ tới chỉ dám chụp hình, không dám ngồi."],
     [{ co: { tu_app: "som" } }, "Chú Tư thành tài xế app năm sao. Chở khách nào chú cũng vòng qua tiệm."],
-    [{ xem: "tu_1" }, "Chú Tư bấm app chậm rì mà khách đầu hẻm vẫn chờ chú. Ly trà đá không đường vẫn để sẵn."],
-    [{}, "Chú Tư vẫn chạy xe ôm đầu hẻm, sáng nào cũng ghé ly trà đá không đường."],
+    [{ xem: "tu_1" }, "Chú Tư bấm app chậm rì mà khách đầu hẻm vẫn chờ chú. Ly trà sữa ít ngọt vẫn để sẵn."],
+    [{}, "Chú Tư vẫn chạy xe ôm đầu hẻm, sáng nào cũng ghé một ly trà sữa ít ngọt."],
   ]],
   ["khoa", [
     [{ co: { khoa_tet: "trong" } }, "Khoa trông tiệm ba ngày Tết, bán sạch trà đá, để lại tờ giấy: \"Em giữ tiệm kỹ lắm nha.\""],
