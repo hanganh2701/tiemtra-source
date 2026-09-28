@@ -156,6 +156,38 @@ Chơi bản 4.6 trên khung điện thoại (ngày 1–3, 6 chơi thật; tua t�
 - [x] Phố Trà: tiệm máy mạnh hơn và có trần điểm (`tran`)
 - [x] Thoại: chú Tư uống trà sữa ít ngọt, câu hồi âm chú Tư đặt sau câu đùa, câu mở đầu bà Sáu đủ ý
 
+### Sau lần chơi thử thứ hai của Claude (bản 4.8) — xong 28/09
+
+Chơi lại bản 4.7 đủ 68 ngày trên khung điện thoại, rồi thử thách, góp ý, Sổ tay, Huy hiệu và Hẻm 42 lần nữa tới ngày 7 của lượt 2. Đã sửa:
+
+- [x] Thẻ sự kiện không gắn món giữ dấu % (`evText`)
+- [x] Nhãn chương theo ngày xem (`chuongLuc`, Chương 1 từ ngày 7): cảnh trôi theo độ thân hay theo lúc ra mặt tiền không làm nhật ký lùi chương
+- [x] Trung Thu ngày 41; cảnh của Vy cần trang 7 nên trang 8 luôn tới sau
+- [x] Linh học Đà Lạt: câu của Linh trong cảnh chung thành tin nhắn (điều kiện mới `khongNhanh`); cảnh lễ theo lịch thật không chen vào tuần đầu (`ngay: 7`)
+- [x] Lượt 2: câu bà Sáu về Mướp theo lựa chọn ngày 1
+- [x] Hẻm 42 lần nữa giữ thời gian bán mỗi ngày, chỉ dẫn và các câu đã hỏi (cài lên màn hình, sao lưu, góp ý)
+- [x] Sự cố thường không còn "chủ quán tự đầu tư tiền ảo" (`gianLan`, thay bằng tủ mát hư); câu công an trả tiền khách bùng nói "hôm nọ"
+- [x] Nhắc sao lưu thưa dần 7 → 14 → 28 ngày, có nút Đừng nhắc nữa (`bakSkip`, `bakOff`); chữ Khôi phục bản tự lưu
+- [x] Góp sức cho Hẻm 42 (`GOP_HEM`, Hẻm 42 › Góp hẻm): 6 việc, tổng 38 triệu, mở theo truyện, ưu đãi nhỏ, lời cảm ơn, hiện trước tiệm, 2 huy hiệu
+- [x] Mặt tiền có giao diện riêng (`giaoDienTiem`: mái hiên xanh cả lúc bán, bảng hiệu hộp đèn; góp đèn thì có dây bóng đèn); khách ×1,4 thay ×1,8, khách bớt sốt ruột (0,92 thay 0,85); tiền nhà 220k/ngày, cọc 12 ngày
+- [x] Hệ quả nhánh vẫn thấy khi quầy kín: khách xem video và khách Tết chịu chờ lâu hơn (`heSoChoNhanh`), ở lại Tết tip ×1,3, thẻ Ngày mai nói rõ
+- [x] Đơn online mở từ ngày 40 (cấu hình bản 41 chuyển cả bản lưu cũ); tablet chỉ bán khi đã mở online
+- [x] Nhân viên lên nghề chậm hơn: cần kinh nghiệm gấp 9 lần bậc hiện tại thay vì 6 (Linh thành thợ cả khoảng ngày 50)
+- [x] Mô phỏng kiểu người chơi thật: `node tools/mo-phong-kinh-te.mjs nguoi`
+
+Người chơi máy cũ pha mọi ly ngay lập tức, kể cả đơn 5 ly, nên số tiền đo trong đợt chơi thử và bảng ở bản 4.6 cao hơn người thật nhiều. Bảng 4.6 chỉ dùng để so các nhánh với nhau. Khách mất ở mặt tiền trong đợt chơi thử phần lớn là do máy nấu thiếu hàng, không phải do quầy.
+
+Kiểu người chơi thật (mỗi lúc pha một ly, 7 hoặc 11 giây mỗi ly, thuê phụ quầy thì nhanh hơn 30%; nấu theo cột hôm qua dùng; tự mua trang bị, trang trí, góp hẻm, ra mặt tiền, thuê Linh, nhân viên pha chế và nhân viên online; Linh ở lại, Hana ghi tên, giữ hẻm, ở lại Tết). Nghìn đồng:
+
+| Người chơi | Két ngày 30 | Két ngày 50 | Két ngày 70 | Mua xong mọi thứ | Ly/ngày 41–70 |
+|---|---|---|---|---|---|
+| Giỏi, mặt tiền, thuê người | 4.233 | 26.400 | 93.900 | ngày 49 | 131 |
+| Vừa, mặt tiền, thuê người | 4.207 | 13.189 | 52.221 | ngày 52 | 105 |
+| Giỏi, ở trong hẻm, không thuê | 6.383 | 4.371 | 38.357 | ngày 49 | 42 |
+| Giỏi, mặt tiền, Hana giữ kín | 3.425 | 22.694 | 89.709 | ngày 49 | 128 |
+
+Trước khi cân lại (bản 4.7, cùng kiểu người chơi): người chơi giỏi mua hết mọi thứ trừ tablet ở ngày 30, rồi không còn gì để mua. Giờ tiền còn ý nghĩa tới khoảng ngày 50. Sau đó vẫn dư nhiều, vì mỗi ly lãi cao theo giá gốc của game. Chưa đụng giá vì Phố Trà vừa cân theo doanh thu ở bản 4.7; chờ số liệu chơi thử thật (cổng C3) rồi mới quyết.
+
 ## Cổng quyết định
 
 | Cổng | Ngày | Đi tiếp khi |

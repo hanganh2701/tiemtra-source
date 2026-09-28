@@ -1,7 +1,20 @@
 /* Phiên bản và danh sách "Có gì mới". Mỗi lần cập nhật: tăng GAME_VERSION và thêm một mục lên ĐẦU CHANGELOG. */
 /* ===== PHIÊN BẢN GAME: mỗi lần cập nhật, tăng số và thêm một mục lên ĐẦU danh sách ===== */
-const GAME_VERSION = "4.7";
+const GAME_VERSION = "4.8";
 const CHANGELOG = [
+  {
+    v: "4.8",
+    d: "28/09/2026",
+    items: [
+      "Góp sức cho Hẻm 42 (Hẻm 42 › Góp hẻm): 6 việc chung của xóm như đèn hẻm, mái che mưa, ghế đá cho chú Tư, dựng lại quán nước của bà Sáu. Góp một lần, có ưu đãi nhỏ, lời cảm ơn và hiện trước tiệm",
+      "Ra mặt tiền thì tiệm đổi áo: mái hiên sọc xanh, bảng hiệu hộp đèn. Góp đèn cho hẻm thì có dây bóng đèn trước tiệm",
+      "Mặt tiền đỡ quá tải: khách vãng lai đông hơn 40% (trước gần gấp đôi), khách bớt sốt ruột; tiền nhà 220k/ngày, cọc 12 ngày",
+      "Khách tới vì video của Hana chịu xếp hàng chờ lâu hơn; ngày Tết ở lại mở cửa và mấy ngày mừng mở lại cũng vậy",
+      "Đơn online mở từ ngày 40. Tablet chỉ bán khi đã mở online",
+      "Nhân viên lên nghề chậm hơn. Nhắc sao lưu thưa dần, có nút Đừng nhắc nữa. Hẻm 42 lần nữa giữ thời gian bán mỗi ngày và chỉ dẫn",
+      "Sửa: thẻ sự kiện mất dấu %, nhãn chương nhảy lùi, trang 8 tới trước trang 7, Linh học ở Đà Lạt mà vẫn có mặt dịp lễ, cảnh lễ chen vào tuần đầu, sự cố đổ cho chủ quán tự đầu tư tiền ảo",
+    ],
+  },
   {
     v: "4.7",
     d: "28/09/2026",
