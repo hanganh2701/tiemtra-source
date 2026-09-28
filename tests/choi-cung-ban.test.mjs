@@ -45,6 +45,9 @@ test("chơi thử thách không đụng tiệm thật, ra kết quả chính th�
     assert.equal(doc.chuan, 40);
     assert.equal(JSON.parse(g.w.localStorage.getItem("tsShop2")).money, JSON.parse(truoc).money);
     assert.match(g.w.document.getElementById("card").textContent, /40\/40/);
+    /* có nút chia sẻ ảnh; máy không vẽ được canvas thì báo nhẹ, không lỗi */
+    assert.ok(g.run("[...document.querySelectorAll('#card button')].some((b) => /Chia sẻ ảnh/.test(b.textContent))"));
+    await g.run("anhThuThach(ttDoc(S.ttKq[homNayVN()].ma), S.ttKq[homNayVN()].ma)");
     assert.deepEqual(g.errors.map(String), []);
   } finally {
     g.close();

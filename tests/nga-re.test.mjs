@@ -69,7 +69,8 @@ test("nhánh giữ hẻm: 14 ngày phá giá khách lạ ít hơn, khách quen g
     assert.equal(g.run("heSoQuenNhanh()"), 1.3);
     assert.equal(g.run("heSoTipNhanh()"), 1);
     g.run("S.day = 65; TT().xem.c2_ket = 56");
-    assert.equal(g.run("heSoKhachNhanh()"), 1);
+    /* hết phá giá: phiếu giới thiệu của cả xóm kéo thêm khách */
+    assert.equal(g.run("heSoKhachNhanh()"), 1.05);
     assert.equal(g.run("heSoTipNhanh()"), 1.1);
   } finally {
     g.close();
@@ -162,7 +163,9 @@ test("ngã rẽ Tết về quê: ba ngày nghỉ không tốn tiền nhà, cản
     assert.ok(!g.run("R.running"), "không mở bán ngày nào");
     assert.ok(g.run("TT().trang.includes(11)"));
     assert.equal(g.run("S.history.slice(-3).every((r) => r.nghi)"), true);
-    assert.equal(g.run("S.money") - m0, 300000);
+    assert.equal(g.run("S.money") - m0, 500000);
+    assert.equal(g.run("heSoKhachNhanh()"), 1.25);
+    assert.match(g.run("ngayMaiNhanh()"), /mở lại sau Tết/);
     assert.deepEqual(g.errors.map(String), []);
   } finally {
     g.close();

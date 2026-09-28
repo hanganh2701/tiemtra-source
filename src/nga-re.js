@@ -21,13 +21,19 @@ const dangPhaGia = () => {
 };
 /* số ngày kể từ ngã rẽ (null nếu chưa tới) */
 const sauRe = (id) => (ngayRe(id) == null ? null : S.day - ngayRe(id));
+/* ngày tiệm mở lại sau khi về quê ăn Tết */
+const ngayVeLai = () => (S && S.tr && S.tr.xem && S.tr.xem.que_3 != null ? S.tr.xem.que_3 + 1 : null);
+const dangMungMoLai = () => nhanh("tet") === "A" && ngayVeLai() != null && S.day >= ngayVeLai() && S.day < ngayVeLai() + 3;
 /* nhân vào lượng khách vãng lai (qua heSoKhachTruyen):
-   Mây Tea phá giá 14 ngày; video ghi tên tiệm: 3 ngày đầu rất đông rồi đông hơn mãi; Tết ở lại mở cửa: 4 ngày khách đi chơi Tết */
+   Mây Tea phá giá 14 ngày, hết phá giá thì phiếu giới thiệu của cả xóm kéo thêm khách;
+   video ghi tên tiệm: 3 ngày đầu rất đông rồi đông hơn mãi;
+   Tết ở lại mở cửa: 4 ngày khách đi chơi Tết; về quê: 3 ngày đầu mở lại khách quen mừng ghé */
 function heSoKhachNhanh() {
   const h = sauRe("hana"),
     t = sauRe("tet");
   return (
-    (dangPhaGia() ? PHA_GIA.khach : 1) *
+    (dangPhaGia() ? PHA_GIA.khach : nhanhMay() === "B" && S.tr.xem.c2_ket != null ? 1.05 : 1) *
+    (dangMungMoLai() ? 1.25 : 1) *
     (nhanh("hana") === "A" && h > 0 ? (h <= 3 ? 1.3 : 1.1) : 1) *
     (nhanh("tet") === "B" && t > 0 && t <= 4 ? 1.4 : 1)
   );
@@ -68,6 +74,7 @@ function ngayMaiNhanh() {
   if (nhanh("linh") === "A" && !TT().co.linh_da_lam) return "🎒 Linh chờ bạn thuê làm phụ quầy (Nâng cấp › Nhân viên)";
   if (nhanhMay() === "A" && ngayReMay() != null)
     return `🚚 Sáng mai xe Mây Tea lấy ${SI_MAY.n} phần trân châu đen (${fmt(SI_MAY.gia)}/phần). Nhớ nấu dư`;
+  if (dangMungMoLai()) return `🏮 Khách quen mừng tiệm mở lại sau Tết: còn ${ngayVeLai() + 3 - S.day} ngày đông hơn`;
   if (dangPhaGia()) return `🏷️ Mây Tea còn phá giá ${ngayReMay() + PHA_GIA.ngay - S.day} ngày: khách lạ ít hơn, khách quen ghé nhiều hơn`;
   return "";
 }
@@ -118,6 +125,13 @@ function hienKetCuc(xong) {
 
 /* bản lưu từ trước khi có ngã rẽ: cảnh cũ đã xem thì xếp vào nhánh khớp với chữ đã đọc; đã hết truyện thì ghi kết */
 function chuyenBanLuuNhanh(T) {
+  /* cảnh lễ cũ gắn năm trong id: đổi sang cảnh lặp mỗi năm, nhớ năm đã xem */
+  [["le_noel_2026", "le_noel@2026"], ["le_ong_tao_2027", "le_ong_tao@2027"], ["le_tet_2027", "le_tet@2027"]].forEach(([cu, moi]) => {
+    if (T.xem[cu] == null) return;
+    T.xem[moi] = T.xem[cu];
+    T.xem[moi.split("@")[0]] = T.xem[cu];
+    delete T.xem[cu];
+  });
   if (T.xem.c2_ket != null && !T.nhanh.may) {
     T.nhanh.may = "B";
     if (T.xem.c2_nga_re == null) T.xem.c2_nga_re = T.xem.c2_ket;

@@ -77,7 +77,7 @@ Chưa làm ảnh chia sẻ vẽ bằng canvas (để mốc 4 cùng thẻ khoe ti
 - [x] Đơn nhóm (`DON_NHOM`, `S.dnHom`)
 - [x] Noel và "Tết ở Hẻm 42" theo lịch thật (`src/le-hoi.js`, `LICH_LE`); `window.__ngay` để thử ngày lễ khi test
 
-Lịch lễ `LICH_LE` trong `src/truyen.js` có Tết và Trung Thu tới 2030; cảnh lễ có năm trong id (`le_noel_2026`, `le_tet_2027`), năm sau cần thêm cảnh mới.
+Lịch lễ `LICH_LE` trong `src/truyen.js` có Tết và Trung Thu tới 2030. Từ bản 4.6 cảnh lễ lặp lại mỗi năm (`moiNam`, `thoaiLai`), xem mục Hoàn thiện.
 
 ### Mốc 4 · Gắn bó dài hạn (bản 4.3) — xong 28/09
 
@@ -122,6 +122,25 @@ Khác đề xuất: trang 8 vẫn ở cảnh chung `c2_vy` trước ngã rẽ (l
 Khác đề xuất: ngã rẽ Hana chỉ có khi đủ thân với Hana (cảnh `hana_3` cần độ thân 5); không có thì kết truyện tính như tiệm chưa lên video.
 Chọn bằng ly pha làm 3 đơn, dùng mức đường thay cho “thêm trân châu mới nấu” vì game không có loại trân châu nấu sẵn để so.
 
+### Hoàn thiện (bản 4.6) — xong 28/09
+
+- [x] Góp ý cho đợt chơi thử (`src/gop-y.js`): câu hỏi ngắn, tóm tắt tiến trình không kèm tên tiệm, chép hoặc chia sẻ; mời một lần khi hết truyện
+- [x] Cảnh lễ lặp mỗi năm: `le_noel`, `le_ong_tao`, `le_tet` (theo `quanhTet`), thêm `le_trung_thu`; bản lưu cũ chuyển id
+- [x] Ảnh chia sẻ kết quả thử thách (`veAnhThuThach`, dùng chung `chiaSeAnh` với ảnh khoe tiệm)
+- [x] Mô phỏng tiền trong két 70 ngày (`tools/mo-phong-kinh-te.mjs`) và cân lại nhánh
+
+Kết quả mô phỏng (người chơi máy pha đúng mọi ly, nghìn đồng, ngày 70; mỗi lần chạy lệch nhau tới khoảng 5%):
+
+| Tổ hợp | Két ngày 60 | Két ngày 70 |
+|---|---|---|
+| Bắt tay · Hana ghi tên · ở lại Tết | 121.734 | 147.476 |
+| Bắt tay · Hana giữ kín · ở lại Tết | 120.565 | 147.035 |
+| Giữ hẻm · Hana ghi tên · ở lại Tết | 117.946 | 143.201 |
+| Giữ hẻm · Hana giữ kín · ở lại Tết | 118.375 | 142.625 |
+| Giữ hẻm · Hana giữ kín · về quê | 114.536 | 132.626 |
+
+Mây Tea và Hana chênh nhau trong vài phần trăm. Về quê hụt vì nghỉ 3 ngày không bán: giữ có chủ ý (trang 11 “Tết thì bán ít lại”), đã nói rõ trong câu báo trước và bù một phần bằng lì xì 500k và 3 ngày khách quen mừng mở lại. Hai dòng cuối chạy sau khi cân lại, ba dòng đầu chạy trước.
+
 ## Cổng quyết định
 
 | Cổng | Ngày | Đi tiếp khi |
@@ -133,5 +152,6 @@ Chọn bằng ly pha làm 3 đơn, dùng mức đường thay cho “thêm trân
 
 ## Việc còn để ý
 
-- Cảnh lễ gắn với năm (`le_noel_2026`, `le_ong_tao_2027`, `le_tet_2027`): mỗi năm cần viết thêm cảnh mới, không thì lễ vẫn có trang trí và hệ số nhưng không có chuyện.
+- `LICH_LE` chỉ có ngày Tết và Trung Thu tới 2030: trước Tết 2031 cần thêm ngày.
+- Game vẫn không có service worker (tác giả gốc cố ý gỡ để tránh kẹt bản cũ), nên chưa chơi được khi mất mạng hẳn.
 - Câu đánh giá "Cảm ơn nhân viên đã làm lại đúng ý mình" không bao giờ được chọn (khách bị làm sai luôn đánh giá tiêu cực). Giữ nguyên có chủ ý.

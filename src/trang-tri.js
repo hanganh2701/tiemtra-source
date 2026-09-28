@@ -249,16 +249,12 @@ async function veAnhKhoe() {
   g.fillText("Tiệm Trà Nhỏ · " + (location.host + location.pathname).replace(/index\.html$/, "").replace(/\/$/, ""), 540, n ? 1300 : 1220);
   return cv;
 }
-async function khoeTiem() {
-  const cv = await veAnhKhoe();
+/* chia sẻ một ảnh canvas: Web Share có tệp thì gửi thẳng, không thì hiện ảnh để nhấn giữ lưu hoặc tải */
+async function chiaSeAnh(cv, ten, chu, tieuDe) {
   if (!cv) return toast("Máy này chưa vẽ được ảnh", 3000, 1);
   const blob = await new Promise((r) => cv.toBlob(r, "image/png"));
   if (!blob) return toast("Máy này chưa vẽ được ảnh", 3000, 1);
-  const d = soLieuKhoe(),
-    ten = "tiem-tra-" + (d.ten.normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/đ/gi, "d").replace(/[^a-z0-9]+/gi, "-").toLowerCase() || "nho") + ".png",
-    file = typeof File === "function" ? new File([blob], ten, { type: "image/png" }) : null,
-    chu = `Tiệm ${d.ten} 🧋 ngày ${d.ngay} · ${d.sao}★ · hạng ${d.hang} Phố Trà. Ghé tiệm mình trong Tiệm Trà Nhỏ: ${linkQuan()}`;
-  if (typeof track === "function") track("khoe-tiem");
+  const file = typeof File === "function" ? new File([blob], ten, { type: "image/png" }) : null;
   if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
     try {
       await navigator.share({ files: [file], text: chu });
@@ -268,7 +264,7 @@ async function khoeTiem() {
     }
   }
   const url = URL.createObjectURL(blob);
-  ask(`<h2>Ảnh khoe tiệm</h2><img src="${url}" alt="Ảnh khoe tiệm" style="width:100%;border-radius:12px;border:2px solid var(--line)"><p class="note">Nhấn giữ ảnh để lưu hoặc gửi. Trên máy tính bấm Tải ảnh.</p>`, [
+  ask(`<h2>${esc(tieuDe)}</h2><img src="${url}" alt="${esc(tieuDe)}" style="width:100%;border-radius:12px;border:2px solid var(--line)"><p class="note">Nhấn giữ ảnh để lưu hoặc gửi. Trên máy tính bấm Tải ảnh.</p>`, [
     ["Đóng", () => URL.revokeObjectURL(url)],
     [
       "Tải ảnh",
@@ -284,4 +280,84 @@ async function khoeTiem() {
       1,
     ],
   ]);
+}
+const tenTep = (x) => x.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/gi, "d").replace(/[^a-z0-9]+/gi, "-").toLowerCase();
+async function khoeTiem() {
+  const d = soLieuKhoe(),
+    chu = `Tiệm ${d.ten} 🧋 ngày ${d.ngay} · ${d.sao}★ · hạng ${d.hang} Phố Trà. Ghé tiệm mình trong Tiệm Trà Nhỏ: ${linkQuan()}`;
+  if (typeof track === "function") track("khoe-tiem");
+  chiaSeAnh(await veAnhKhoe(), "tiem-tra-" + (tenTep(d.ten) || "nho") + ".png", chu, "Ảnh khoe tiệm");
+}
+
+/* ---------- ảnh kết quả thử thách hôm nay ---------- */
+const MAU_O = ["#4fa883", "#f0b43c", "#e2574c", "#d8cbb8"]; /* chuẩn, tạm, sai, bỏ về: cùng thứ tự với TT_O */
+function nenAnh(g) {
+  g.fillStyle = "#fdf3e4";
+  g.fillRect(0, 0, 1080, 1350);
+  for (let x = 0; x < 1080; x += 60) {
+    g.fillStyle = (x / 60) % 2 ? "#fff" : "#ef6f8e";
+    g.fillRect(x, 0, 60, 70);
+    g.beginPath();
+    g.arc(x + 30, 70, 30, 0, Math.PI);
+    g.fill();
+  }
+}
+async function veAnhThuThach(kq) {
+  const cv = document.createElement("canvas");
+  cv.width = 1080;
+  cv.height = 1350;
+  const g = cv.getContext && cv.getContext("2d");
+  if (!g || typeof g.arcTo !== "function") return null;
+  try {
+    if (document.fonts && document.fonts.load) await Promise.all([document.fonts.load('800 80px "Baloo 2"'), document.fonts.load('600 40px "Baloo 2"')]);
+  } catch (e) {}
+  nenAnh(g);
+  g.textAlign = "center";
+  g.fillStyle = "#c24c69";
+  g.font = '800 44px "Baloo 2", system-ui, sans-serif';
+  g.fillText("THỬ THÁCH HÔM NAY · " + ttNgayDep(kq.ngay).toUpperCase(), 540, 170);
+  g.fillStyle = "#fff7e8";
+  g.strokeStyle = "#8a5a3b";
+  g.lineWidth = 10;
+  oTron(g, 140, 205, 800, 120, 28);
+  g.fill();
+  g.stroke();
+  g.fillStyle = "#8a3a50";
+  chuVua(g, kq.ten || shopName(), 540, 290, 740, 76);
+  g.fillStyle = "#3b2a20";
+  g.font = '800 170px "Baloo 2", system-ui, sans-serif';
+  g.fillText(`${kq.chuan}/${TT_SO}`, 540, 520);
+  g.fillStyle = "#6b4e38";
+  g.font = '600 44px "Baloo 2", system-ui, sans-serif';
+  g.fillText(`ly chuẩn · ${kq.tam} tạm · ${ttGio(kq.giay)}`, 540, 590);
+  /* lưới 5 hàng x 8 ô, mỗi ô một khách */
+  const o = 96,
+    kc = 14,
+    x0 = 540 - (8 * o + 7 * kc) / 2,
+    y0 = 650;
+  kq.kq.forEach((x, i) => {
+    g.fillStyle = MAU_O[x.kq] || MAU_O[3];
+    oTron(g, x0 + (i % 8) * (o + kc), y0 + Math.floor(i / 8) * (o + kc), o, o, 20);
+    g.fill();
+  });
+  g.font = '600 34px "Baloo 2", system-ui, sans-serif';
+  const chu = ["chuẩn", "tạm", "sai", "bỏ về"];
+  chu.forEach((c, i) => {
+    const x = 170 + i * 250;
+    g.fillStyle = MAU_O[i];
+    oTron(g, x - 70, 1232, 36, 36, 8);
+    g.fill();
+    g.fillStyle = "#6b4e38";
+    g.textAlign = "left";
+    g.fillText(c, x - 22, 1262);
+  });
+  g.textAlign = "center";
+  g.fillStyle = "#a07a5a";
+  g.font = '600 32px "Baloo 2", system-ui, sans-serif';
+  g.fillText("Chơi rồi so với mình · Tiệm Trà Nhỏ", 540, 1320);
+  return cv;
+}
+async function anhThuThach(kq, ma) {
+  if (typeof track === "function") track("anh-thu-thach");
+  chiaSeAnh(await veAnhThuThach(kq), "thu-thach-" + kq.ngay + ".png", ttChuChiaSe(kq, ma), "Ảnh thử thách");
 }

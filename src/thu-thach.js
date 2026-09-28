@@ -251,6 +251,7 @@ function ttHienKetQua(kq, ma, lanDau) {
     } 🟩 chuẩn · 🟨 tạm · 🟥 sai · ⬜ bỏ về</p><textarea id="ttChu" class="rpin" readonly style="min-height:80px;font-size:12px!important">${esc(chu)}</textarea>`,
     [
       ["Để sau", () => {}],
+      ["Chia sẻ ảnh", () => anhThuThach(kq, ma)],
       ["Chia sẻ kết quả", () => chiaSe(chu, "Thử thách Tiệm Trà Nhỏ"), 1],
     ],
   );
@@ -308,7 +309,7 @@ function paneThuThach() {
   return `<div class="ttcard"><b>Thử thách ${ttNgayDep(ngay)}</b><p>${TT_SO} khách giống nhau cho mọi người, cùng vốn và menu. Không ảnh hưởng tiệm của bạn.</p>${
     minh ? `<p class="ttdiem"><b>${minh.chuan}/${TT_SO}</b> ly chuẩn · ${minh.tam} tạm · ${ttGio(minh.giay)}</p>` : ""
   }<div class="askbtns"><button class="big" id="ttGo">${minh ? "Chơi lại để luyện tay" : "Bắt đầu thử thách"}</button>${
-    minh ? '<button class="sbtn ghost" id="ttShare">Chia sẻ kết quả</button>' : ""
+    minh ? '<button class="sbtn ghost" id="ttShare">Chia sẻ kết quả</button><button class="sbtn ghost" id="ttAnh">Chia sẻ ảnh</button>' : ""
   }</div></div>
   <div class="sec">Bảng hôm nay</div>${hom.length ? hom.map(dongBang).join("") : '<p class="note">Chưa có ai. Chơi xong rồi rủ bạn bè dán mã vào đây.</p>'}
   <div class="sec">Tuần này</div>${
@@ -328,6 +329,11 @@ function ttGan() {
     $("ttShare").onclick = () => {
       const m = S.ttKq[homNayVN()];
       chiaSe(ttChuChiaSe(ttDoc(m.ma), m.ma), "Thử thách Tiệm Trà Nhỏ");
+    };
+  if ($("ttAnh"))
+    $("ttAnh").onclick = () => {
+      const m = S.ttKq[homNayVN()];
+      anhThuThach(ttDoc(m.ma), m.ma);
     };
   if ($("ttNhap"))
     $("ttNhap").onclick = () => {

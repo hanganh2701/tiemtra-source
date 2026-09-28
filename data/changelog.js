@@ -1,7 +1,17 @@
 /* Phiên bản và danh sách "Có gì mới". Mỗi lần cập nhật: tăng GAME_VERSION và thêm một mục lên ĐẦU CHANGELOG. */
 /* ===== PHIÊN BẢN GAME: mỗi lần cập nhật, tăng số và thêm một mục lên ĐẦU danh sách ===== */
-const GAME_VERSION = "4.5";
+const GAME_VERSION = "4.6";
 const CHANGELOG = [
+  {
+    v: "4.6",
+    d: "28/09/2026",
+    items: [
+      "Góp ý cho tiệm (Cài đặt): trả lời vài câu, game ghép thành đoạn chữ để gửi qua Zalo hoặc Messenger. Không kèm tên tiệm, không có gì tự gửi đi",
+      "Cảnh Noel, ông Táo, Tết giờ có mỗi năm, năm sau có chuyện khác năm trước. Thêm cảnh Trung Thu theo lịch thật",
+      "Chia sẻ ảnh kết quả thử thách hôm nay: lưới 40 ô màu và số ly chuẩn",
+      "Ngã rẽ nói rõ hệ quả trước khi chọn. Giữ hẻm: hết phá giá thì khách giới thiệu tăng. Về quê: lì xì 500k, mở lại thì 3 ngày khách quen đông hơn",
+    ],
+  },
   {
     v: "4.5",
     d: "28/09/2026",

@@ -242,7 +242,8 @@ test("cốt truyện: id không trùng, nhân vật có thật, câu vừa màn 
         if (ids.has(m.id)) out.push("trùng id " + m.id);
         ids.add(m.id);
         if (!["mo_cua", "dong_cua"].includes(m.luc)) out.push(m.id + ": luc sai");
-        const lines = [...m.thoai, ...(m.luaChon || []).flatMap((c) => c.thoai || [])];
+        const lines = [...m.thoai, ...(m.thoaiLai || []), ...(m.luaChon || []).flatMap((c) => c.thoai || [])];
+        if ((m.thoaiLai || []).length > 6) out.push(m.id + ": thoaiLai quá 6 câu");
         if (m.chuong === 0 && m.thoai.length > 3) out.push(m.id + ": chương 0 quá 3 câu");
         /* câu có điều kiện trên cùng một cờ là các phương án thay nhau, chỉ hiện một câu */
         const nhom = new Set(m.thoai.filter((d) => d[2]).map((d) => JSON.stringify(Object.entries(d[2]).map(([k, v]) => [k, Object.keys(v).sort()]))));
