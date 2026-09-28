@@ -1361,6 +1361,7 @@ function prepChecks() {
   if (nvSuKien()) return xetTiep();
   if (donNhomCheck()) return xetTiep();
   if (moiCai()) return xetTiep();
+  if (moiGopY()) return xetTiep();
   bakRemind();
 }
 function storeCheck() {
@@ -7835,6 +7836,7 @@ function showSettings() {
     <button class="setb" id="sNews"><span>${ico("gift")}</span>Có gì mới<small>v${GAME_VERSION}</small></button>
     <button class="setb" id="sStory"><span>${ico("book")}</span>Cốt truyện Hẻm 42<small>${CHE_DO_TEN[cheDo()]}${cheDo() === "gon" ? " · gộp cả cảnh vào một khung" : cheDo() === "tat" ? " · không hiện cảnh, vẫn nhận trang sổ" : " · từng câu, bỏ qua được"}</small></button>
     <button class="setb" id="sRelax"><span>${ico("moon")}</span>Chế độ Thư giãn<small>${S.thuGian ? "Đang bật · khách không bỏ về, không sự cố, không khách khó" : "Đang tắt · bấm để chơi thong thả"}</small></button>
+    <button class="setb" id="sGopY"><span>${ico("pen")}</span>Góp ý cho tiệm<small>Trả lời vài câu, gửi qua Zalo hoặc Messenger</small></button>
     <button class="setb" id="sXung"><span>${ico("people")}</span>Khách gọi bạn là<small>${hoaDau(xung())} · bấm để đổi</small></button>
     <button class="setb" id="sCoach"><span>${ico("book")}</span>Chỉ dẫn từng bước<small>${S.coach === true ? "Luôn bật" : S.coach === false ? "Tắt" : "Tự động"}</small></button>
     <button class="setb" id="sLen"><span>${ico("clock")}</span>Thời gian bán mỗi ngày<small>${S.dayLen || CFG.dayMin} phút${R.running ? " · áp dụng từ ngày sau" : ""}</small></button>
@@ -7868,6 +7870,7 @@ function showSettings() {
       $("modal").hidden = true;
       hienCai();
     };
+  $("sGopY").onclick = () => moGopY();
   $("sRelax").onclick = () => {
     S.thuGian = !S.thuGian;
     save();

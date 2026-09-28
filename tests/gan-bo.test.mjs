@@ -159,3 +159,38 @@ test("logo thương hiệu: đủ 50 logo vẽ bằng SVG, tem dùng logo SVG th
     g.close();
   }
 });
+
+test("góp ý: chọn và viết câu trả lời, đoạn chữ có tóm tắt tiến trình, không có tên tiệm", () => {
+  const g = boot();
+  try {
+    g.run("S.shopName = 'Quán Bí Mật'; S.day = 34; TT().nhanh.linh = 'B'; showSettings(); document.getElementById('sGopY').click()");
+    assert.match(g.w.document.getElementById("card").textContent, /Góp ý cho tiệm/);
+    g.run(`document.querySelector('[data-gyc="ai"][data-v="Sinh viên"]').click(); document.querySelector('[data-gyc="diem"][data-v="4"]').click()`);
+    g.run(`(() => { const t = document.querySelector('[data-gy="thich"]'); t.value = 'Mướp dễ thương'; t.dispatchEvent(new Event('input')); })()`);
+    const chu = g.run("chuGopY()");
+    assert.match(chu, /Bạn là: Sinh viên/);
+    assert.match(chu, /Chấm điểm game: 4/);
+    assert.match(chu, /Mướp dễ thương/);
+    assert.match(chu, /Linh thi xong: Đi học Đà Lạt/);
+    assert.match(chu, /ngày 34/);
+    assert.doesNotMatch(chu, /Quán Bí Mật/);
+    assert.equal(g.run("S.gopY.ai"), "Sinh viên");
+    assert.deepEqual(g.errors.map(String), []);
+  } finally {
+    g.close();
+  }
+});
+
+test("góp ý: đi hết truyện thì mời đúng một lần", () => {
+  const g = boot();
+  try {
+    assert.equal(g.run("moiGopY()"), false);
+    g.run("TT().ket = { id: 'tiem_cua_xom', ngay: 67 }");
+    assert.equal(g.run("moiGopY()"), true);
+    assert.match(g.w.document.getElementById("card").textContent, /đi hết Hẻm 42/);
+    g.run("document.getElementById('modal').hidden = true");
+    assert.equal(g.run("moiGopY()"), false);
+  } finally {
+    g.close();
+  }
+});
