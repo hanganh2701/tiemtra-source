@@ -284,7 +284,9 @@ const BRAND_GONE = new Set();
 function brandImg(k, px, lazy) {
   if (BRAND_GONE.has(k))
     return `<span class="bemo" aria-hidden="true" style="font-size:${Math.round(px * 0.8)}px">${BRAND_EMO[+String(k).slice(1)] || "🧋"}</span>`;
-  return `<img src="${IMG}brand/${k}.png" alt="" width="${px}" height="${px}"${lazy ? ' loading="lazy"' : ""} onerror="brandMiss(this)">`;
+  /* logo vẽ bằng SVG trong data/logo.js; thiếu thì thử ảnh cũ trong img/brand/, rồi tới emoji */
+  const svg = typeof logoSvg === "function" ? logoSvg(+String(k).slice(1)) : "";
+  return `<img src="${svg || IMG + "brand/" + k + ".png"}" alt="" width="${px}" height="${px}"${lazy && !svg ? ' loading="lazy"' : ""} onerror="brandMiss(this)">`;
 }
 function brandMiss(im) {
   const m = /b(\d+)\.png/.exec(im.getAttribute("src") || "");
@@ -1299,7 +1301,7 @@ function badCheck() {
     const e = S.badPlan.ev.find((x) => !x.done && x.d <= S.day);
     if (e) {
       e.done = true;
-      if (S.day - e.d <= 1) {
+      if (S.day - e.d <= 1 && !thuGian()) {
         const v = Math.min(
           Math.round((200000 + Math.random() * 700000) / 50000) * 50000,
           Math.floor(S.money / 3 / 1000) * 1000,
@@ -1357,6 +1359,7 @@ function prepChecks() {
   if (leHoiCheck()) return xetTiep();
   if (nvSuKien()) return xetTiep();
   if (donNhomCheck()) return xetTiep();
+  if (moiCai()) return xetTiep();
   bakRemind();
 }
 function storeCheck() {
@@ -1511,10 +1514,10 @@ function traffic() {
   const e = ev(),
     so =
       (coTrang(6) && evIs("rain") ? 1.15 : 1) *
-      (coTrang(7) && evIs("holiday") ? 1.2 : 1) *
+      (coTrang(7) && (evIs("holiday") || leHoiNay()) ? 1.2 : 1) *
       (coTrang(10) ? 1.05 : 1);
   return (
-    (rf * boost * so * heSoKhachBuoc() * heSoKhachLe() * (e ? EVS[e.id].mul : 1)) /
+    (rf * boost * so * heSoKhachBuoc() * heSoKhachLe() * heSoKhachTruyen() * heSoKhachTri() * (e ? EVS[e.id].mul : 1)) /
     Math.max(0.85, Math.min(1, avgIdx) ** 2)
   );
 }
@@ -1769,7 +1772,7 @@ function menuBoard() {
           ks.map((k) => cell(k, 1)).join("")
       : "";
   }).join("");
-  return `<div class="sign"><button id="rename" aria-label="Đổi tên quán">${esc(shopName())}<small>${ico("pen")}</small></button></div><div class="board"><h2>${ico("cupfull")} Menu hôm nay</h2><div class="items">${it}</div>${fl.length ? `<div class="btop">Hương vị</div><div class="items">${fl.map((k) => cell(k, 1)).join("")}</div>` : ""}<div class="btop">Topping</div><div class="items top">${tops}</div><div class="extra">Size L +${kv(S.sell.L)}</div></div>`;
+  return `<div class="sign"><button id="rename" aria-label="Đổi tên quán">${esc(shopName())}<small>${ico("pen")}</small></button></div>${triDai()}<div class="board"><h2>${ico("cupfull")} Menu hôm nay</h2><div class="items">${it}</div>${fl.length ? `<div class="btop">Hương vị</div><div class="items">${fl.map((k) => cell(k, 1)).join("")}</div>` : ""}<div class="btop">Topping</div><div class="items top">${tops}</div><div class="extra">Size L +${kv(S.sell.L)}</div></div>`;
 }
 const levelOf = (d) => {
   const L = CFG.levels;
@@ -2234,7 +2237,8 @@ function paneUpg() {
         `<div class="rowi"><span class="icon">${u.i}</span><div><div class="nm">${u.n}</div><div class="sub">${u.d}</div></div>${S.upg[u.id] ? '<span class="okline">✓</span>' : `<button class="sbtn pri" data-up="${u.id}" ${S.money < u.cost ? "disabled" : ""}><b>${fmt(u.cost)}</b>Mua</button>`}</div>`,
     ).join("") +
     brandRow +
-    tabRow;
+    tabRow +
+    theTrangTri();
   const staff =
     `<div class="note">Thuê một lần, sau đó trả lương mỗi ngày mở cửa. Có nhân viên thì toàn bộ tiền tip của khách là của nhân viên, quán không nhận. Cho nghỉ thì hết trả lương, gọi đi làm lại lúc nào cũng được, không tốn tiền thuê.</div>` +
     STAFF.map(
@@ -3747,15 +3751,17 @@ function focusCust() {
 function shipBg(row, e, w, h) {
   return `background-image:url(${IMG}ship.webp);background-size:${w * 3}px ${h * 2}px;background-position:${-e * w}px ${-row * h}px`;
 }
-const hasFace = (c) => c && (c.who != null || c.ship != null || c.star != null),
+const hasFace = (c) => c && (c.who != null || c.ship != null || c.star != null || c.sf != null),
   faceOf = (c, e, w, h) =>
-    c.star != null
+    c.sf != null
+      ? starBg(c.sf, e, w, h)
+      : c.star != null
       ? starBg(STARS[c.star].f, e, w, h)
       : c.ship != null
         ? shipBg(c.ship, e, w, h)
         : faceBg(c.who, e, w, h),
   faceRow = (c) =>
-    c.star != null ? STARS[c.star].f : c.ship != null ? c.ship : c.who;
+    c.sf != null ? c.sf : c.star != null ? STARS[c.star].f : c.ship != null ? c.ship : c.who;
 function faceBg(who, e, w, h) {
   return `background-image:url(${IMG}faces.webp);background-size:${w * 3}px ${h * 9}px;background-position:${-e * w}px ${-who * h}px`;
 }
@@ -5547,6 +5553,7 @@ function serve(i) {
         (coTrang(4) ? 1.1 : 1) *
         (c.ban ? 2 : 1) *
         heSoTipLe() *
+        heSoTipTri() *
         (coTrang(11) && leHoiNay() === "tet" ? 2 : 1) *
         c.cups.length,
       rv = stars(c, false);
@@ -5647,6 +5654,7 @@ function serveOnline(j) {
     }
     const rv = stars(c, true);
     addReview(rv.s, rv.why, true, c);
+    ghiDonApp(rv.s);
     fl(el, `+${fmt(p - fee)}  ${"★".repeat(rv.s)}`, false);
     if (R.sto && R.sto.id === c.id) R.sto = null;
     R.online.splice(j, 1);
@@ -5780,7 +5788,7 @@ const BRATS = {
   bung: { n: "", c: "" },
 };
 function pickBrat() {
-  if (S.day < 8) return null; /* những ngày đầu chưa có khách khó chiều */
+  if (S.day < 8 || thuGian()) return null; /* những ngày đầu chưa có khách khó chiều */
   if (coTrang(9) && Math.random() < 0.4) return null;
   const bad = S.mood === "kho" && S.evDay === S.day,
     good = S.mood === "vui" && S.evDay === S.day;
@@ -5866,7 +5874,7 @@ function tick() {
   });
   R.slots.forEach((c, i) => {
     if (!c) return;
-    c.pat -= dt;
+    truCho(c, dt);
     if (c.pat <= 0) {
       quenBo(c);
       KL().chuoi = 0;
@@ -5888,7 +5896,7 @@ function tick() {
     } else if (upd) updPat(c);
   });
   R.online = R.online.filter((c) => {
-    c.pat -= dt;
+    truCho(c, dt);
     if (c.pat <= 0) {
       R.today.lost++;
       addReview(1, "late", true, c);
@@ -6119,7 +6127,7 @@ function endDay() {
     before = S.yearRev;
   S.yearRev += rev;
   const taxable = Math.max(0, S.yearRev - Math.max(CFG.taxThreshold, before));
-  r.tax = Math.round((taxable * (CFG.vat + CFG.pit)) / 100);
+  r.tax = thuGian() ? 0 : Math.round((taxable * (CFG.vat + CFG.pit)) / 100);
   r.ev = ev() ? { id: ev().id, k: ev().k } : null;
   {
     const otMin = R.otT < 0 ? (-R.otT / (dayLen() * 60)) * 660 : 0;
@@ -7814,6 +7822,7 @@ function showSettings() {
     <button class="setb" id="sGuide"><span>${ico("book")}</span>Hướng dẫn</button>
     <button class="setb" id="sNews"><span>${ico("gift")}</span>Có gì mới<small>v${GAME_VERSION}</small></button>
     <button class="setb" id="sStory"><span>${ico("book")}</span>Cốt truyện Hẻm 42<small>${CHE_DO_TEN[cheDo()]}${cheDo() === "gon" ? " · gộp cả cảnh vào một khung" : cheDo() === "tat" ? " · không hiện cảnh, vẫn nhận trang sổ" : " · từng câu, bỏ qua được"}</small></button>
+    <button class="setb" id="sRelax"><span>${ico("moon")}</span>Chế độ Thư giãn<small>${S.thuGian ? "Đang bật · khách không bỏ về, không sự cố, không khách khó" : "Đang tắt · bấm để chơi thong thả"}</small></button>
     <button class="setb" id="sXung"><span>${ico("people")}</span>Khách gọi bạn là<small>${hoaDau(xung())} · bấm để đổi</small></button>
     <button class="setb" id="sCoach"><span>${ico("book")}</span>Chỉ dẫn từng bước<small>${S.coach === true ? "Luôn bật" : S.coach === false ? "Tắt" : "Tự động"}</small></button>
     <button class="setb" id="sLen"><span>${ico("clock")}</span>Thời gian bán mỗi ngày<small>${S.dayLen || CFG.dayMin} phút${R.running ? " · áp dụng từ ngày sau" : ""}</small></button>
@@ -7821,6 +7830,7 @@ function showSettings() {
     <button class="setb" id="sMus"><span>${ico("moon")}</span>Nhạc nền<small>${AU.mus ? "Đang bật · bấm để tắt" : "Đang tắt · bấm để bật"}</small></button>
     <button class="setb" id="sSea"><span>${ico("calendar")}</span>Nhạc theo mùa<small>${AU.season ? SEASONS[AU.season].n : "Tự động · " + SEASONS[seasonNow()].n}</small></button>
     <button class="setb" id="sSnd"><span>${ico("pause")}</span>Âm thanh<small>${AU.on ? "Đang bật · bấm để tắt" : "Đang tắt · bấm để bật"}</small></button>
+    ${coTheCai() ? `<button class="setb" id="sCai"><span>${ico("phone")}</span>Cài lên màn hình chính<small>Mở nhanh như ứng dụng</small></button>` : ""}
     <button class="setb" id="sBak"><span>${ico("box")}</span>Sao lưu tiến trình<small>${S.bakDay ? "Lần cuối: ngày " + S.bakDay : "Chưa sao lưu"}</small></button>
     <button class="setb" id="sAuto"><span>${ico("calendar")}</span>Khôi phục bản tự lưu<small>Game tự lưu 3 cuối ngày gần nhất</small></button>
     <button class="setb" id="sRes"><span>${ico("reload")}</span>Khôi phục từ mã</button>
@@ -7839,6 +7849,18 @@ function showSettings() {
     const L = ["day", "gon", "tat"];
     TT().che = L[(L.indexOf(cheDo()) + 1) % L.length];
     save();
+    showSettings();
+  };
+  if ($("sCai"))
+    $("sCai").onclick = () => {
+      $("modal").hidden = true;
+      hienCai();
+    };
+  $("sRelax").onclick = () => {
+    S.thuGian = !S.thuGian;
+    save();
+    if (typeof track === "function") track(S.thuGian ? "thu-gian-bat" : "thu-gian-tat");
+    toast(S.thuGian ? "🌿 Chế độ Thư giãn: khách chờ bao lâu cũng được" : "Đã tắt chế độ Thư giãn");
     showSettings();
   };
   $("sXung").onclick = () => {

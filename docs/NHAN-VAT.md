@@ -31,8 +31,9 @@ Cột "Mặt" là hàng trong `img/faces.webp` (mỗi hàng 3 biểu cảm: bìn
 | **Linh** | 7 | Học sinh lớp 12 | Căng thẳng ôn thi | Thi xong, đi làm thêm ở tiệm | Mùa thi, nhân viên |
 | **Khoa** | 4 | Shipper, 20 tuổi | Chạy đơn giữa nắng mưa | Bạn thân; tiệm có góc trà đá cho shipper | Ngày mưa, đơn app |
 | **Cô Hạnh** | 3 | Bán bánh mì bên kia hẻm | Đối thủ, dòm ngó | Bạn làm ăn, combo bánh mì + trà | Sự kiện đối thủ |
-| **Mẹ** | (tin nhắn) | Mẹ của người chơi, ở quê | "Nghỉ việc thiệt hả con?" | Lên thăm dịp Tết; hoá ra viết đánh giá 5 sao ẩn danh | Đánh giá, cuối ngày |
-| **Hana** | tranh khách ngôi sao | Vlogger nước ngoài | Nói qua nhãn [dịch tự động] | Nhãn dịch rụng dần khi cô học tiếng Việt | Khách ngôi sao |
+| **Mẹ** | tin nhắn; `img/me.svg` khi lên thăm | Mẹ của người chơi, ở quê | "Nghỉ việc thiệt hả con?" | Lên thăm dịp Tết; hoá ra viết đánh giá 5 sao ẩn danh | Đánh giá, cuối ngày |
+| **Hana** | hàng 2 `img/star.webp` | Vlogger nước ngoài, khách quen từ ngày 34 | Nói qua nhãn [Dịch tự động] | Nhãn dịch rụng dần khi cô học tiếng Việt; video làm tiệm nổi | Khách quen, tip |
+| **Vy** | 0 | Quản lý chuỗi Mây Tea đầu hẻm, cháu cô Hạnh | Bị công ty bắt mở cạnh tiệm | Trả lại trang 8, nhớ quán nước bà Sáu | Phố Trà |
 
 ## Giọng từng người
 
@@ -42,6 +43,7 @@ Cột "Mặt" là hàng trong `img/faces.webp` (mỗi hàng 3 biểu cảm: bìn
 - **Khoa:** xưng "em", gọi "{ban}". Luôn vội, nói tắt, hay đùa để giấu mệt. Nhắc tiền xăng, nắng, mưa.
 - **Cô Hạnh:** xưng "cô" với người chơi, gọi "{ban}" hoặc "con". Sắc sảo, soi giá, khen kiểu chê ("Ly cũng được… mà hơi mắc.").
 - **Mẹ:** chỉ qua tin nhắn. Nhắn ngắn, nhiều dấu chấm, lo ăn uống. Không bao giờ nói "mẹ tự hào về con" cho tới cuối Chương 3.
+- **Vy:** xưng "em", gọi "{ban}". Lễ phép, khó xử giữa công ty và xóm cũ. Hay xin lỗi.
 - **Hana:** câu có nhãn [dịch tự động] thì hơi cứng ("Loại trái cây đam mê"). Khi tự nói tiếng Việt thì sai dễ thương ("Chanh… dây! Đúng hông?").
 
 ## Cung truyện theo chương
@@ -50,5 +52,5 @@ Cột "Mặt" là hàng trong `img/faces.webp` (mỗi hàng 3 biểu cảm: bìn
 |---|---|---|---|
 | 0 · Khai trương | 1–6 | Làm quen bà Sáu, Mướp, chú Tư, Khoa, cô Hạnh, tin nhắn của mẹ; ngày 6 đóng tiền nhà lần đầu | 1 |
 | 1 · Người trong hẻm | 6–30 | Thanh thân thiết, mỗi khách quen 3 cảnh; ngày mưa của Khoa; mùa thi của Linh quanh ngày 20; lựa chọn vay ngân hàng hay phong bì của mẹ | 2–5 |
-| 2 · Mùa trăng | 30–60 | Trung Thu; Hana ghé 3 lần; chuỗi mở đầu hẻm (quản lý là cháu cô Hạnh, không phải phản diện); bà Sáu kể chuyện cũ | 6–10 |
+| 2 · Mùa trăng | 30–60 | Trung Thu; Hana ghé 3 lần; chuỗi Mây Tea mở đầu hẻm (quản lý là Vy, cháu cô Hạnh, không phải phản diện); bà Sáu kể chuyện cũ | 6–10 |
 | 3 · Về nhà ăn Tết | 60+ | Ông Táo; thành phố vắng, mở cửa cho người ở lại như Khoa; mẹ lên thăm; đủ 12 trang | 11–12 |

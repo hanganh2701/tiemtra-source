@@ -154,6 +154,7 @@ function ttKetThuc(dung) {
   R.sub.hem = HEM_TAB.findIndex((x) => x[1] === paneThuThach);
   renderPrep();
   ttHienKetQua(kq, ma, lanDau);
+  setTimeout(() => xetHuyHieu(), 2500);
 }
 
 /* ---------- mã chia sẻ ---------- */

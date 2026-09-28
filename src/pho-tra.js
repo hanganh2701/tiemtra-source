@@ -133,7 +133,7 @@ function panePhoTra() {
     )
     .join("")}
   <div class="sec">Danh thiếp tiệm</div><p class="note">Gửi danh thiếp cho bạn bè. Họ dán vào game thì tiệm bạn vào bảng Phố Trà của họ, và bạn thỉnh thoảng ghé tiệm họ làm khách VIP gọi món ruột của bạn.</p>
-  <div class="askbtns"><button class="big" id="qnShare">Gửi danh thiếp tiệm</button></div>
+  <div class="askbtns"><button class="big" id="qnShare">Gửi danh thiếp tiệm</button><button class="big" id="qnKhoe">Khoe ảnh tiệm</button></div>
   <textarea id="qnMa" class="rpin" placeholder="Dán link hoặc mã QN1… của bạn bè" style="min-height:60px;font-size:12px!important"></textarea><div class="askbtns"><button class="sbtn ghost" id="qnNhap">Thêm tiệm bạn bè</button></div>
   ${(S.banBe || []).length ? `<p class="note">Bạn bè: ${S.banBe.map((b) => esc(b.ten)).join(", ")}</p>` : ""}`;
 }
@@ -141,6 +141,7 @@ function phoTraGan() {
   if ($("qnShare"))
     $("qnShare").onclick = () =>
       chiaSe(`Tiệm ${shopName()} 🧋 ngày ${S.day} · ${rating().toFixed(1).replace(".", ",")}★ · hạng ${hangMinh()} Phố Trà\nGhé tiệm mình trong Tiệm Trà Nhỏ: ${linkQuan()}`, "Danh thiếp tiệm");
+  if ($("qnKhoe")) $("qnKhoe").onclick = () => khoeTiem();
   if ($("qnNhap"))
     $("qnNhap").onclick = () => {
       const v = $("qnMa").value,
