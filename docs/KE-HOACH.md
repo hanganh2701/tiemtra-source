@@ -15,6 +15,7 @@ File này là nguồn sự thật cho việc làm game. Mỗi phiên làm việc
 4. Tranh: dùng lại tranh gốc cho nhân vật (`img/faces.webp`, mèo), vẽ vector cho icon và vật phẩm mới.
 5. Nhóm chơi thử gồm học sinh, sinh viên, người đi làm.
 6. Sau lần chơi thử thứ ba của Claude (game dễ, tới ngày 49 là hết việc): chế độ thường khó dần theo chương (Thư giãn giữ nguyên), và làm chi nhánh ngay, không chờ cổng C3.
+7. Tab Đời sống (bản 5.0): có chi phí sinh hoạt nhẹ mỗi ngày (Thư giãn miễn), có cả đồ cho bản thân và quà cho gia đình; không tên thương hiệu thật.
 
 Hệ quả: **không làm tính năng qua máy chủ** (bảng xếp hạng online, kết bạn, tặng quà qua mạng), không quảng cáo, không thanh toán. Mọi thứ chạy trên máy người chơi. Theo Nghị định 147/2024, game có máy chủ cho người chơi tương tác cần giấy phép mà chỉ doanh nghiệp xin được.
 
@@ -232,6 +233,27 @@ Mô phỏng kiểu người chơi thật sau khi sửa (nghìn đồng, chi nhá
 | Vừa, mặt tiền, chi nhánh gần trường | 14.428 | 44.859 | ngày 57 | 4,9★ hạng 1 |
 | Giỏi, ở trong hẻm, không thuê | 17.321 | 33.636 | ngày 51 | 4,2★ hạng 3 |
 | Giỏi, mặt tiền, chi nhánh văn phòng, Hana giữ kín | 21.849 | 79.983 | ngày 55 | 4,9★ hạng 1 |
+
+### Đời sống (bản 5.0) — xong 28/09
+
+Chủ dự án muốn có mua sắm cho bản thân: từ nhà trọ lên nhà, từ xe đạp lên ô tô, điện thoại, đồng hồ. Đã chốt: có chi phí sinh hoạt nhẹ, có cả đồ cho bản thân và quà cho gia đình.
+
+- [x] Tab Đời sống (`data/doi-song.js`, `src/doi-song.js`, biểu tượng `img/ic_home.svg`): chỗ ở 5 nấc (ở ghép phòng trọ → phòng trọ riêng → thuê căn hộ → mua căn hộ 180 triệu → nhà trong Hẻm 42 350 triệu), xe 5 nấc (xe đạp → xe số cũ → tay ga → ô tô cũ → ô tô mới), điện thoại 3 đời; chỉ lên nấc cao hơn, dọn nhà lấy lại cọc, đổi xe hay điện thoại bán lại đồ cũ một nửa
+- [x] Ưu đãi nhỏ: xe máy giá nhập −3% và −5%, ô tô đỡ 10% tiền hàng chi nhánh, điện thoại khách đặt app chờ lâu hơn 10% và khách ghé +3%; đồ cho bản thân không có ưu đãi, có người trong hẻm nhận xét
+- [x] Quà cho gia đình 5 món: mẹ nhắn lại, hậu truyện của mẹ nhắc (cờ `ds_<id>`); có chỗ ở rộng thì cảnh Tết theo lịch thật ba mẹ ngủ lại nhà bạn; về quê thấy mái nhà mới
+- [x] Tiền sinh hoạt mỗi ngày mở tiệm (`doiSongCuoiNgay`, dòng `song` trong sổ): ăn uống 20k + tiền nhà hay phí + xăng; đầu game 40k. Thư giãn và thử thách hôm nay miễn
+- [x] Huy hiệu An cư, Con có hiếu
+- [x] Sửa lỗi cũ: `refreshPrep` thiếu tab Hẻm 42 (góp hẻm xong bấm Tiếp tục bị lỗi); ba bảng chọn trang gom về `vePane`
+
+Mô phỏng kiểu người chơi thật, người chơi máy sắm đời sống khi dư quá 5 triệu (nghìn đồng):
+
+| Người chơi | Két ngày 50 | Két ngày 70 | Két ngày 100 | Đã sắm |
+|---|---|---|---|---|
+| Giỏi, chi nhánh gần trường | 12.898 | 32.081 | – | căn hộ thuê, tay ga, điện thoại chụp đẹp, 4 món quà (ngày 70) |
+| Vừa, chi nhánh gần trường | 8.595 | 10.548 | – | căn hộ thuê, tay ga, 3 món quà (ngày 70) |
+| Giỏi, chơi 100 ngày | 14.644 | 22.755 | 47.338 | thêm mái nhà ở quê (ngày 75), ô tô cũ (ngày 91); chưa đủ tiền mua căn hộ |
+
+Tiền giờ có chỗ tiêu suốt game; mua căn hộ và nhà trong hẻm là mục tiêu sau khi hết truyện.
 
 ## Cổng quyết định
 
