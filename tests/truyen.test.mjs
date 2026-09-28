@@ -259,7 +259,8 @@ test("16 tổ hợp ngã rẽ: đủ 12 trang, đúng kết, không lẫn cảnh
     assert.equal(kq.nhanh.hana, undefined);
     assert.equal(kq.ket, "tiem_cua_xom");
     assert.deepEqual(kq.trang, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
-    const thieu = JSON.parse(g.run("JSON.stringify(MAU_CHUYEN.filter((m) => { const d = m.dieuKien || {}; return !d.le && !d.buoc && !d.luot; }).map((m) => m.id))")).filter(
+    /* cảnh cần gửi tiền về quê ba tháng hay mua nhà (tab Đời sống) không tới trong 75 ngày: có test riêng */
+    const thieu = JSON.parse(g.run("JSON.stringify(MAU_CHUYEN.filter((m) => { const d = m.dieuKien || {}; return !d.le && !d.buoc && !d.luot && !Object.keys(d.co || {}).some((k) => /^(gui_3|ds_)/.test(k)); }).map((m) => m.id))")).filter(
       (id) => !daThay.has(id),
     );
     assert.deepEqual(thieu, []);

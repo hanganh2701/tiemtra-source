@@ -19,7 +19,8 @@
        trang: 4,                    // phải có trang sổ này
        nhanh: { may: "A" },         // đang đi nhánh A của ngã rẽ "may"
        khongCo: { ten: giá trị },   // cờ KHÔNG được khớp
-       chot: 59,                    // hạn chót: từ ngày này bỏ qua điều kiện mềm (than, sau, trang, soTrang, sao, thoiTiet)
+       tienTren: 3000000,           // két có từ bấy nhiêu (điều kiện mềm); tienDuoi: két dưới bấy nhiêu
+       chot: 59,                    // hạn chót: từ ngày này bỏ qua điều kiện mềm (than, sau, trang, soTrang, sao, tienTren, thoiTiet)
        le: "tet", quanhTet: [-10, -2], // dịp lễ theo lịch thật; với Tết: khoảng ngày so với mùng 1
        luot: 2,                     // chỉ có từ lượt chơi thứ 2 (Hẻm 42 lần nữa)
      },
@@ -30,6 +31,7 @@
      uuTien: 5,                     // nhiều mẩu cùng đủ điều kiện thì chọn số lớn nhất
      thoai: [["khoa", "câu"], ["_", "(chú thích hành động)"], ["tin", "Mẹ: tin nhắn"], ["linh", "câu", { co: { x: 1 } }]],
      luaChon: [{ chu: "nút", dat: { ten: giá trị }, nhanh: { may: "A" }, thoai: [[ai, câu]], ketQua: {...} }],
+     macDinh: 2,                    // lựa chọn dùng khi Bỏ qua hay chế độ Tắt (mặc định là lựa chọn đầu)
      Câu thoại có thể kèm điều kiện { co, khongCo, nhanh, than, xem, chuaXem, ketDaThay } ở phần tử thứ ba.
      Câu có điều kiện trên cùng một cờ là các phương án thay nhau; số câu hiện ra tối đa 6.
      ketQua: { than: { khoa: 1 }, trang: 2, co: { ten: giá trị }, tien: 50000,
@@ -1092,6 +1094,7 @@ MAU_CHUYEN.push(
     uuTien: 10,
     thoai: [
       ["_", "(Xe đò về tới bến lúc chạng vạng. Ba đứng chờ, tay cầm cái nón.)"],
+      ["_", "(Lưng ba thẳng lại rồi. Ba giành xách cái giỏ nặng nhất.)", { co: { ba_khoe: true } }],
       ["_", "(Ba xách giùm cái giỏ, chỉ hỏi: \"Tiệm bán được không con?\")"],
       ["tin", "Khoa: Tiệm bình an nha {ban}. Mướp ăn hết nửa con cá rồi."],
     ],
@@ -1329,6 +1332,8 @@ const HAU_TRUYEN = [
   ]],
   ["me_gap", [
     [{ co: { ds_nha_hem: true } }, "Ba mẹ dọn lên căn nhà cuối Hẻm 42. Sáng nào mẹ cũng ra tiệm phụ rửa ly."],
+    [{ co: { gui_so: true } }, "Cuốn sổ tiết kiệm ở bưu điện xã giờ đứng tên con. Mẹ vẫn ghi tay từng tháng con gửi về."],
+    [{ co: { gui_da: true, ba_khoe: true } }, "Lưng ba khỏi hẳn. Chiều nào ba cũng ra chợ xã uống cà phê, kể chuyện tiệm của con."],
     [{ co: { ds_qua_mai_nha: true } }, "Mẹ nhắn: \"Mưa lớn mà ba ngủ ngon, lâu lắm rồi.\" Mái nhà ở quê không còn dột."],
     [{ co: { ds_qua_du_lich: true } }, "Tấm hình ba mẹ đứng ở biển, mẹ để làm hình nền điện thoại."],
     [{ nhanh: { tet: "A" } }, "Mẹ gói cho con túi mứt gừng, dặn: \"Tết sau về nữa nghen. Dẫn Mướp về luôn.\""],
@@ -1387,3 +1392,82 @@ MAU_CHUYEN.push(
     ketQua: { than: { hanh: 1, tu: 1 } },
   },
 );
+
+/* ---------- Bản 5.2: chuyện nhà ở quê · gửi tiền về cho ba mẹ ----------
+   Ba trặc lưng lúc gặt lúa, mẹ nhắn mà dặn đừng gửi tiền. Người chơi chọn gửi mỗi tháng hay để tính sau (chỉnh lại
+   trong tab Đời sống, khối Quà cho ba mẹ). Cờ gui_da, gui_3thang đặt lúc gửi (guiVeCuoiNgay trong src/doi-song.js).
+   Ba khoẻ lại dù có gửi hay không; gửi đủ ba tháng thì quê gửi lên thùng xoài; mua nhà rồi thì mẹ gửi lại một nửa
+   số tiền đã để dành. Không có cảnh trách người chơi không gửi. */
+MAU_CHUYEN.push(
+  {
+    id: "gui_1",
+    chuong: 2,
+    luc: "dong_cua",
+    tomTat: "Ba trặc lưng lúc gặt lúa. Mẹ nhắn, dặn con đừng lo.",
+    dieuKien: { ngay: 36, tienTren: 3000000, chot: 52 },
+    uuTien: 6,
+    thoai: [
+      ["tin", "Mẹ: Con ngủ chưa.. Mẹ nhắn chút."],
+      ["tin", "Mẹ: Ba trặc lưng hôm gặt lúa. Bác sĩ biểu nghỉ làm nặng ít tháng."],
+      ["tin", "Mẹ: Con đừng lo. Lúa trong bồ còn đủ ăn tới mùa sau."],
+      ["tin", "Mẹ: Tiền bữa trước mẹ gửi, con đừng có trả nghen.", { co: { c1_vay: "me" } }],
+      ["tin", "Mẹ: Ba cứng đầu y chang con, đâu chịu đi khám..", { co: { c1_vay: "tu" } }],
+      ["_", "(Bạn đọc lại tin nhắn. Từ hồi nhỏ tới giờ, chưa thấy ba nghỉ làm.)"],
+    ],
+    luaChon: [
+      { chu: "Mỗi tháng gửi về 2 triệu", dat: { gui_ve: "hai" }, ketQua: { goi: "guiVeHai" }, thoai: [["tin", "Mẹ: Gửi chi.. Thôi được, mẹ cất để ba đi châm cứu."]] },
+      { chu: "Mỗi tháng gửi về 5 triệu", dat: { gui_ve: "nam" }, ketQua: { goi: "guiVeNam" }, thoai: [["tin", "Mẹ: Nhiều quá con.. Mẹ giấu ba, ổng biết là la."]] },
+      { chu: "Để con tính đã", dat: { gui_ve: "chua" }, ketQua: { goi: "guiVeMo" }, thoai: [["tin", "Mẹ: Ừ. Con lo cho tiệm trước. Ba mẹ tự lo được."]] },
+    ],
+    macDinh: 2 /* Bỏ qua hay chế độ Tắt thì không tự gửi tiền thay người chơi */,
+  },
+  {
+    id: "gui_2",
+    chuong: 2,
+    luc: "mo_cua",
+    tomTat: "Ba đỡ lưng, ra thăm ruộng lại. Mẹ gửi tấm hình ba cười.",
+    dieuKien: { sau: "gui_1", cachNgay: 18 },
+    uuTien: 5,
+    thoai: [
+      ["tin", "Mẹ: Ba đỡ lưng rồi con. Sáng nay ra thăm ruộng lại."],
+      ["tin", "Mẹ: Tiền con gửi, ba đi châm cứu mười mấy bữa ở trạm xá.", { co: { gui_da: true } }],
+      ["tin", "Mẹ: Chú Năm bên nhà gặt giùm. Ba mẹ nấu cơm đãi mấy bữa.", { khongCo: { gui_da: true } }],
+      ["tin", "Mẹ: Ba biểu nhắn con: ở trên đó ăn uống cho đàng hoàng.."],
+      ["_", "(Mẹ gửi kèm tấm hình: ba đứng giữa ruộng, tay chống hông, cười.)"],
+    ],
+    ketQua: { co: { ba_khoe: true } },
+  },
+  {
+    id: "gui_3",
+    chuong: 3,
+    luc: "mo_cua",
+    tomTat: "Quê gửi lên thùng xoài, hũ mắm. Chú Tư ra bến lấy giùm.",
+    dieuKien: { co: { gui_3thang: true } },
+    uuTien: 5,
+    thoai: [
+      ["tu", "Xe đò gửi lên cho con một thùng nè. Chú chạy ra bến lấy giùm."],
+      ["_", "(Trong thùng: xoài cát, hũ mắm cá linh, bịch bánh phồng.)"],
+      ["tin", "Mẹ: Xoài nhà trồng đó. Con chia bà Sáu với mấy đứa trong hẻm."],
+      ["sau", "Mắm cá linh… Lâu lắm rồi bà mới thấy lại."],
+      ["khoa", "Xoài ngọt dữ {ban}! Pha trà xoài bán luôn đi."],
+    ],
+    ketQua: { mo: "f_xoai", hang: { f_xoai: 30 }, than: { sau: 1, tu: 1 } },
+  },
+  {
+    id: "gui_so",
+    chuong: 3,
+    luc: "dong_cua",
+    tomTat: "Con mua nhà, mẹ gửi lại nửa số tiền con gửi về mà mẹ để dành.",
+    dieuKien: { co: { ds_co_nha: true, gui_3thang: true } },
+    uuTien: 7,
+    thoai: [
+      ["tin", "Mẹ: Con mua nhà rồi hả.. Mẹ đọc tin nhắn mà run tay."],
+      ["tin", "Mẹ: Tiền con gửi mỗi tháng, mẹ để dành một nửa."],
+      ["tin", "Mẹ: Gửi tiết kiệm ở bưu điện xã. Ba cũng không biết."],
+      ["tin", "Mẹ: Giờ mẹ gửi lại, con sắm đồ cho nhà mới. Đừng cãi mẹ."],
+      ["_", "(Điện thoại báo tiền về. Bạn đọc con số hai lần.)"],
+    ],
+    ketQua: { co: { gui_so: true }, goi: "guiVeTraLai" },
+  },
+);
+

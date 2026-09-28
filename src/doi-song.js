@@ -61,11 +61,11 @@ function gopNgay(vay, laiNam, n) {
   const r = laiNam / 360;
   return Math.ceil((vay * r) / (1 - (1 + r) ** -n) / 1000) * 1000;
 }
-/* thu nhập mỗi ngày ngân hàng xét: trung bình 7 ngày gần nhất, không tính tiền mua sắm và tiền góp */
+/* thu nhập mỗi ngày ngân hàng xét: trung bình 7 ngày gần nhất, không tính tiền mua sắm, tiền góp, tiền gửi về quê */
 function thuNhapNgay() {
   const H = (S.history || []).slice(-7);
   if (H.length < 3) return 0;
-  return H.reduce((a, r) => a + recRev(r) - recCost(r) + r.equip.reduce((s, e) => s + Math.max(0, e.v), 0) + (r.gop || 0), 0) / H.length;
+  return H.reduce((a, r) => a + recRev(r) - recCost(r) + r.equip.reduce((s, e) => s + Math.max(0, e.v), 0) + (r.gop || 0) + (r.gui || 0), 0) / H.length;
 }
 
 /* ---------- mua bán ---------- */
@@ -193,6 +193,74 @@ function doiSongCuoiNgay(r) {
       r.gopXong = ((DS_DONG[dong].find((x) => x.id === vay.id) || {}).ten || "") + (r.gopXong ? ", " + r.gopXong : "");
     }
   });
+  guiVeCuoiNgay(r);
+}
+
+/* ---------- gửi tiền về quê mỗi tháng: mở từ cảnh gui_1 (data/cot-truyen.js), chỉnh ở khối Quà cho ba mẹ ----------
+   S.ds.gui = tiền mỗi lần gửi (0 = không gửi), guiToi = ngày mà lúc đóng cửa sẽ gửi, guiThang = số lần đã gửi,
+   guiTong = tổng đã gửi, guiBo = số tháng két không dư nên thôi, guiTraLai = tiền mẹ gửi lại (cảnh gui_so). */
+const dsGuiMo = () => !!(S && S.tr && S.tr.co && S.tr.co.gui_ve);
+/* đặt mức gửi: lần đầu (hay bật lại sau khi quá hẹn) thì gửi lúc đóng cửa hôm nay; tạm dừng rồi bật lại trong tháng thì giữ hẹn cũ */
+function dsGuiDat(v) {
+  const d = dsS();
+  d.gui = v;
+  if (v && !(d.guiToi >= S.day)) d.guiToi = S.day;
+  save();
+}
+const nhacGui = () => setTimeout(() => toast("💌 Chỉnh tiền gửi về quê ở tab Đời sống, khối Quà cho ba mẹ", 4000), 900);
+/* các lựa chọn của cảnh gui_1 (ketQua.goi) */
+function guiVeHai() {
+  dsGuiDat(DS.gui.muc[2]);
+  nhacGui();
+}
+function guiVeNam() {
+  dsGuiDat(DS.gui.muc[4]);
+  nhacGui();
+}
+function guiVeMo() {
+  nhacGui();
+}
+/* tin mẹ nhắn khi nhận lần thứ n; hết danh sách thì xoay vòng ba câu cuối */
+const dsGuiTin = (n) => {
+  const L = DS_GUI_TIN.length,
+    i = n - 1;
+  return DS_GUI_TIN[i < L ? i : L - 3 + ((i - L) % 3)];
+};
+/* lúc đóng cửa: tới hẹn thì gửi; két không còn dư phòng sau khi gửi thì tháng đó thôi, mẹ nhắn không sao */
+function guiVeCuoiNgay(r) {
+  const d = dsS();
+  if (!d.gui || !(S.day >= d.guiToi)) return;
+  d.guiToi = S.day + DS.gui.chuKy;
+  if (S.money - d.gui < DS.gui.duPhong) {
+    d.guiBo = (d.guiBo || 0) + 1;
+    r.guiLo = 1;
+    return;
+  }
+  S.money -= d.gui;
+  r.gui = (r.gui || 0) + d.gui;
+  d.guiThang = (d.guiThang || 0) + 1;
+  d.guiTong = (d.guiTong || 0) + d.gui;
+  r.guiN = d.guiThang;
+  const co = TT().co;
+  co.gui_da = true;
+  if (d.guiThang >= 3) co.gui_3thang = true;
+}
+/* thẻ cuối ngày */
+function dsGuiCuoiNgay(r) {
+  if (r.gui) return `<p class="lvup">💌 Đã gửi về quê ${fmtBig(r.gui)}. ${esc(dsGuiTin(r.guiN || 1))}</p>`;
+  if (r.guiLo) return `<p class="lvup">💌 Két không còn dư để gửi về quê tháng này. ${esc(DS_GUI_KET)}</p>`;
+  return "";
+}
+/* cảnh gui_so: mua nhà rồi thì mẹ gửi lại phần đã để dành */
+function guiVeTraLai() {
+  const d = dsS(),
+    v = Math.round(((d.guiTong || 0) * DS.gui.traLai) / 100000) * 100000;
+  if (!v || d.guiTraLai) return;
+  d.guiTraLai = v;
+  S.money += v;
+  S.cur.gift = (S.cur.gift || 0) + v;
+  head();
+  setTimeout(() => toast("💌 Mẹ gửi lại " + fmtBig(v), 4000, 1), 700);
 }
 
 /* ---------- tab Đời sống ----------
@@ -216,8 +284,8 @@ function dsTinhTrang(dong, x) {
     lyGop: DS.vay[dong] ? dsKhongDuoc(dong, x, true) : null,
   };
 }
-/* tiền để dành được mỗi ngày (thu nhập 7 ngày gần nhất trừ tiền góp); dùng ước lượng số ngày tới mục tiêu */
-const dsTietKiem = () => thuNhapNgay() - dsTienGop();
+/* tiền để dành được mỗi ngày (thu nhập 7 ngày gần nhất trừ tiền góp và tiền gửi về quê); dùng ước lượng số ngày tới mục tiêu */
+const dsTietKiem = () => thuNhapNgay() - dsTienGop() - (dsS().gui || 0) / DS.gui.chuKy;
 const dsSoNgay = (thieu) => (dsTietKiem() > 0 && thieu > 0 ? Math.ceil(thieu / dsTietKiem()) : null);
 /* chữ tình trạng một món: luôn có chữ, không chỉ màu */
 function dsChuTT(dong, x, dai) {
@@ -247,6 +315,16 @@ function dsHang(dong, x) {
     uu = x.gn || x.cn || x.onl || x.khach || ((dong === "tro" || dong === "nha") && x.uuDai) ? '<i class="dsuu">★ ưu đãi</i>' : "";
   return `<button class="dsrow${t.cls === "co" ? " co" : ""}${dsLaMuc(dong, x.id) ? " muc" : ""}" data-dsxem="${dong}:${x.id}"><span class="dsrh">${dsHinh(dong, x)}</span><span class="dsrt"><b>${esc(x.ten)}</b><small>${spec} ${uu}</small></span><span class="dsrg"><b>${x.gia ? fmtBig(x.gia) : x.coc ? fmt(x.ngay) + "/ngày" : "Có sẵn"}</b><small class="st ${t.cls}">${esc(t.chu)}</small></span></button>`;
 }
+/* khung gửi về quê ở đầu khối Quà cho ba mẹ */
+function dsGuiHTML() {
+  const d = dsS(),
+    g = d.gui || 0,
+    toi = Math.max(d.guiToi || 0, S.day),
+    tt = g ? (toi === S.day ? "Gửi lúc đóng cửa hôm nay" : `Lần tới: đóng cửa ngày ${toi}`) : d.guiThang ? "Đang tạm dừng" : "Chưa gửi";
+  return `<div class="dsgui"><b>💌 Gửi về quê mỗi tháng</b><small>${tt}${d.guiThang ? ` · đã gửi ${d.guiThang} lần, tổng ${fmtBig(d.guiTong)}` : ""}</small><div class="dsseg dsseg6" role="group" aria-label="Tiền gửi về quê mỗi tháng">${DS.gui.muc
+    .map((v) => `<button class="${v === g ? "on" : ""}" data-dsgui="${v}" aria-pressed="${v === g}">${v ? v / 1e6 + "tr" : "Không"}</button>`)
+    .join("")}</div><small>Cứ ${DS.gui.chuKy} ngày gửi một lần lúc đóng cửa. Két phải còn ${fmtBig(DS.gui.duPhong)} sau khi gửi, không thì tháng đó thôi.</small></div>`;
+}
 const DS_KHOI = [
   { id: "o", ten: "Chỗ ở", dong: ["tro", "nha"] },
   { id: "xm", ten: "Xe máy", dong: ["xm"] },
@@ -273,10 +351,11 @@ function dsKhoi(k) {
       co = ds.filter((x) => dsS()[k.bst][x.id]).length,
       duoc = ds.filter((x) => !dsS()[k.bst][x.id] && S.money >= x.gia).length;
     hinh = hinhDo(k.ic);
-    dong1 = `${k.bst === "qua" ? "Đã tặng" : "Đã mua"} ${co}/${ds.length}`;
+    dong1 = `${k.bst === "qua" ? "Đã tặng" : "Đã mua"} ${co}/${ds.length}${k.bst === "qua" && dsS().gui ? ` · gửi về quê ${fmtBig(dsS().gui)}/tháng` : ""}`;
     dong2 = duoc ? `${duoc} món ${k.bst === "qua" ? "tặng" : "mua"} được` : "Chưa đủ tiền món nào";
     than = mo
-      ? k.nhom
+      ? (k.bst === "qua" && dsGuiMo() ? dsGuiHTML() : "") +
+        k.nhom
           .map(([n, ten]) => `<div class="dsphan"><b>${esc(ten)}</b></div><div class="dsluoi c3">${ds.filter((x) => x.nhom === n).map((x) => dsTheNho(k.bst, x)).join("")}</div>`)
           .join("")
       : "";
@@ -377,7 +456,7 @@ function paneDoiSong() {
     .join("");
   return `<div class="mtcard on dscard"><div class="dstom"><span class="dstomh">${hinhNha(o)}</span><span class="dstomh">${hinhXe(ot || xm)}</span><div><b>${esc(o.ten)}</b><small>${esc(ot ? ot.ten : xm.ten)} · ${esc(dsDt().ten)}</small><small>${
     tn ? `Mỗi ngày ${fmt(tn)} ăn, ở, đi lại` : "Thư giãn: không tốn sinh hoạt"
-  }${tg ? ` · góp ${fmt(tg)}` : ""}</small></div></div>${vay}${m ? dsMucHTML(m) : ""}</div>${DS_KHOI.map(dsKhoi).join("")}${
+  }${tg ? ` · góp ${fmt(tg)}` : ""}${d.gui ? ` · gửi quê ${fmtBig(d.gui)}/tháng` : ""}</small></div></div>${vay}${m ? dsMucHTML(m) : ""}</div>${DS_KHOI.map(dsKhoi).join("")}${
     m ? "" : `<p class="note dsgoiy">Bấm một món, chọn 🎯 để đặt làm mục tiêu để dành tiền.</p>`
   }`;
 }
@@ -474,7 +553,7 @@ document.addEventListener("keydown", (e) => {
   if (dsBangMo && e.key === "Escape") dongBangDs(true);
 });
 document.addEventListener("click", (e) => {
-  const b = e.target.closest && e.target.closest("[data-dsxem], [data-dstra], [data-dskhoi], [data-dsqua]");
+  const b = e.target.closest && e.target.closest("[data-dsxem], [data-dstra], [data-dskhoi], [data-dsqua], [data-dsgui]");
   if (!b || b.disabled || typeof S === "undefined" || !S) return;
   e.stopPropagation();
   if (b.dataset.dstra) {
@@ -490,6 +569,14 @@ document.addEventListener("click", (e) => {
       window.scrollTo({ top: k.getBoundingClientRect().top + window.scrollY - (h ? h.offsetHeight : 0) - 6 });
     }
     return;
+  }
+  if (b.dataset.dsgui != null) {
+    const cu = dsS().gui || 0,
+      v = +b.dataset.dsgui;
+    if (v === cu) return;
+    dsGuiDat(v);
+    toast(v ? `💌 Gửi về quê ${fmtBig(v)} mỗi tháng` : "Mẹ: Ừ, con lo cho tiệm trước đi..", 3000);
+    return refreshPrep();
   }
   if (b.dataset.dsqua) {
     R.dsQua = R.dsQua || {};

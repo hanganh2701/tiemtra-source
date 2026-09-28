@@ -5730,6 +5730,7 @@ const recCost = (r) =>
   (r.cnChi || 0) +
   (r.song || 0) +
   (r.gop || 0) +
+  (r.gui || 0) +
   r.rent +
   r.util +
   (r.wage || 0) +
@@ -6260,6 +6261,7 @@ function endDay() {
     ${r.staffTip ? `<div><span class="wl">${ico("people")} Tip nhân viên giữ (quán không nhận)</span><span class="wl">${fmt(r.staffTip)}</span></div>` : ""}
     ${r.song ? `<div><span class="wl">🏠 Sinh hoạt: ăn, ở, đi lại</span><span class="wl">${fmt(r.song)}</span></div>` : ""}
     ${r.gop ? `<div><span class="wl">🏦 Trả góp nhà, xe${r.gopXong ? " (trả xong " + esc(r.gopXong) + "!)" : ""}</span><span class="wl">${fmt(r.gop)}</span></div>` : ""}
+    ${r.gui ? `<div><span class="wl">💌 Gửi về quê cho ba mẹ</span><span class="wl">${fmt(r.gui)}</span></div>` : ""}
     ${r.cn ? `<div><span class="wl">🏪 Chi nhánh bán ${r.cn.ly} ly (đã tính ở trên)</span><span class="wl">${r.cn.lai < 0 ? "−" : "+"}${fmt(Math.abs(r.cn.lai))}</span></div>` : ""}
     ${r.spoil && r.spoil.n ? `<div><span class="wl">🥤 ${r.spoil.n} ly hỏng</span><span class="wl">${fmt(r.spoil.v)}</span></div>` : ""}
     ${wv ? `<div><span class="wl">${ico("trash")} ${waste.map((x) => ITEMS[x.k].s + " " + x.q).join(", ")}</span><span class="wl">${fmt(wv)}</span></div>` : ""}
@@ -6269,7 +6271,7 @@ function endDay() {
   ${
     broke
       ? `<p>${ico("trophy")} ${best} ngày</p><p class="note">Câu chuyện Hẻm 42, sổ công thức, độ thân với khách quen và kỷ lục vẫn được giữ.</p><button class="big" id="go">Mở quán mới</button>`
-      : `${khat ? `<p class="lvup">${ico("people")} Két âm ${fmt(khat)}. Bà Sáu cho khất, trả dần bằng một nửa tiền lãi những ngày sau, không tính lãi. Mỗi chương bà chỉ cho khất một lần.</p>` : ""}${!broke && S.ev ? `<p class="lvup">${ico(EVS[S.ev.id].ic)} Ngày mai: <b>${EVS[S.ev.id].n}</b>. ${evText(S.ev)}</p>` : ""}${nextLv ? `<p class="lvup">${ico("warn")} Từ ngày ${S.day}: ${LV_TXT[nextLv].toLowerCase()}. Đầu ngày sẽ có hướng dẫn.</p>` : ""}${justOnline ? `<p class="lvup">${ico("phone")} Mở đơn online Soppi! ${S.tablets || 0 ? "" : "Mua tablet ở Nâng cấp > Trang bị để đơn đổ về."}</p>` : ""}${mtHtml}${doKhoCuoiNgay()}${phoTraCuoiNgay()}${dsMucCuoiNgay()}${ngayMaiHTML()}<button class="sbtn" id="seeSum" style="width:100%;padding:10px;margin-top:6px">${ico("chart")} Tổng kết</button><button class="big" id="go" style="margin-top:8px">Ngày ${S.day} ➜</button>`
+      : `${khat ? `<p class="lvup">${ico("people")} Két âm ${fmt(khat)}. Bà Sáu cho khất, trả dần bằng một nửa tiền lãi những ngày sau, không tính lãi. Mỗi chương bà chỉ cho khất một lần.</p>` : ""}${!broke && S.ev ? `<p class="lvup">${ico(EVS[S.ev.id].ic)} Ngày mai: <b>${EVS[S.ev.id].n}</b>. ${evText(S.ev)}</p>` : ""}${nextLv ? `<p class="lvup">${ico("warn")} Từ ngày ${S.day}: ${LV_TXT[nextLv].toLowerCase()}. Đầu ngày sẽ có hướng dẫn.</p>` : ""}${justOnline ? `<p class="lvup">${ico("phone")} Mở đơn online Soppi! ${S.tablets || 0 ? "" : "Mua tablet ở Nâng cấp > Trang bị để đơn đổ về."}</p>` : ""}${mtHtml}${doKhoCuoiNgay()}${phoTraCuoiNgay()}${dsGuiCuoiNgay(r)}${dsMucCuoiNgay()}${ngayMaiHTML()}<button class="sbtn" id="seeSum" style="width:100%;padding:10px;margin-top:6px">${ico("chart")} Tổng kết</button><button class="big" id="go" style="margin-top:8px">Ngày ${S.day} ➜</button>`
   }`;
     $("modal").hidden = false;
     $("go").focus();
@@ -6348,6 +6350,7 @@ function aggregate(recs) {
       "cnChi",
       "song",
       "gop",
+      "gui",
       "served",
       "lost",
       "starSum",
@@ -6429,7 +6432,8 @@ function paneSum() {
       g.tax +
       (g.cnChi || 0) +
       (g.song || 0) +
-      (g.gop || 0),
+      (g.gop || 0) +
+      (g.gui || 0),
     profit = rev - cost;
   const avg = g.starN
     ? (g.starSum / g.starN).toFixed(1).replace(".", ",")
@@ -6474,6 +6478,7 @@ function paneSum() {
   ${g.cnChi ? `<div class="crow"><span>Chi nhánh: tiền nhà, lương, hàng</span><span>${vn(g.cnChi)}</span></div>` : ""}
   ${g.song ? `<div class="crow"><span>Sinh hoạt của bạn: ăn, ở, đi lại</span><span>${vn(g.song)}</span></div>` : ""}
   ${g.gop ? `<div class="crow"><span>Trả góp nhà, xe</span><span>${vn(g.gop)}</span></div>` : ""}
+  ${g.gui ? `<div class="crow"><span>Gửi về quê cho ba mẹ</span><span>${vn(g.gui)}</span></div>` : ""}
   <div class="crow"><span>Máy móc, trang bị & công thức</span><span>${vn(eqTot)}</span></div>
   ${g.equip.map((e) => `<div class="crow sub"><span>– ${e.n}${mode !== "day" ? " (ngày " + e.d + ")" : ""}</span><span>${vn(e.v)}</span></div>`).join("")}
   ${g.fee || S.online ? `<div class="crow"><span>Phí app giao hàng (${CFG.commission}%)</span><span>${vn(g.fee)}</span></div>` : ""}

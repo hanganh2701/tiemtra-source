@@ -1,7 +1,18 @@
 /* Phiên bản và danh sách "Có gì mới". Mỗi lần cập nhật: tăng GAME_VERSION và thêm một mục lên ĐẦU CHANGELOG. */
 /* ===== PHIÊN BẢN GAME: mỗi lần cập nhật, tăng số và thêm một mục lên ĐẦU danh sách ===== */
-const GAME_VERSION = "5.1";
+const GAME_VERSION = "5.2";
 const CHANGELOG = [
+  {
+    v: "5.2",
+    d: "29/09/2026",
+    items: [
+      "Chuyện nhà ở quê: ba trặc lưng lúc gặt lúa, mẹ nhắn mà dặn con đừng lo. Bạn chọn gửi tiền về mỗi tháng hay để tính sau",
+      "Gửi về quê mỗi tháng từ 1 tới 10 triệu, chỉnh hay tạm dừng ở tab Đời sống, khối Quà cho ba mẹ. Gửi lúc đóng cửa, mẹ nhắn lại mỗi lần",
+      "Két không còn dư thì tháng đó thôi, không ai trách. Có gửi hay không, ba vẫn khoẻ lại",
+      "Gửi đủ ba tháng thì quê gửi lên thùng xoài; mua nhà rồi, mẹ có một bí mật về số tiền con gửi",
+      "Sổ sách và tổng kết có dòng Gửi về quê cho ba mẹ",
+    ],
+  },
   {
     v: "5.1",
     d: "29/09/2026",
