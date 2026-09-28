@@ -1244,6 +1244,9 @@ const KET_CUC = [
     video: false,
     ten: "Tiệm của xóm",
     chu: "Tiệm vẫn nhỏ, vẫn nằm dưới căn gác của bà Sáu. Ai trong hẻm cũng có một ly quen, và ly nào cũng có tên người uống.",
+    /* tiệm đã ra mặt tiền (chuMt) hoặc có chi nhánh (chuCn) */
+    chuMt: "Tiệm ra tới đầu hẻm mà hàng vẫn nấu dưới căn gác của bà Sáu. Ai trong hẻm cũng có một ly quen, và ly nào cũng có tên người uống.",
+    chuCn: "Tiệm có thêm chi nhánh, mà hàng vẫn nấu dưới căn gác của bà Sáu. Ai trong hẻm cũng có một ly quen, và ly nào cũng có tên người uống.",
   },
   {
     id: "len_ban_do",
@@ -1336,11 +1339,11 @@ MAU_CHUYEN.push(
     chuong: 2,
     luc: "mo_cua",
     tomTat: "Vy kể có mấy mặt bằng đang sang nhượng. Bà Sáu dặn hàng vẫn nấu ở tiệm gốc.",
-    /* ưu tiên thấp: tới vào ngày trống đầu tiên giữa các cảnh ngã rẽ Mây Tea */
-    dieuKien: { ngay: 50, buoc: 2 },
+    /* sau khi Vy đã quyết ở lại chuỗi hay ra chợ; ưu tiên thấp: tới vào ngày trống đầu tiên */
+    dieuKien: { ngay: 50, buoc: 2, sau: ["may_a3", "may_b3"] },
     uuTien: 3,
     thoai: [
-      ["vy", "Chạy xe trà ở chợ, em nghe mấy chỗ đang sang nhượng. Ngon lắm {ban}.", { nhanh: { may: "B" } }],
+      ["vy", "Em mới đẩy xe trà ra chợ, nghe mấy chỗ đang sang nhượng. Ngon lắm {ban}.", { nhanh: { may: "B" } }],
       ["vy", "Mây Tea mở thêm kiosk, sếp em hỏi tiệm có muốn giữ một chỗ không.", { khongNhanh: { may: "B" } }],
       ["_", "(Tờ giấy Vy để lại ghi ba chỗ: gần trường, toà văn phòng, kiosk.)"],
       ["sau", "Muốn mở thêm thì mở. Mà tiệm gốc vẫn ở dưới gác bà nghen."],

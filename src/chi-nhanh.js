@@ -76,7 +76,7 @@ function chiNhanhCuoiNgay(r) {
       cnHieu("cauHs", 1) *
       (0.85 + Math.random() * 0.3) +
     cnHieu("cauThem", 0);
-  let cap = (45 + 15 * c.ql.kn + (c.phu ? CHI_NHANH.capPhu : 0)) * cnHieu("capHs", 1) + cnHieu("capThem", 0);
+  let cap = (CHI_NHANH.capGoc + CHI_NHANH.capBac * c.ql.kn + (c.phu ? CHI_NHANH.capPhu : 0)) * cnHieu("capHs", 1) + cnHieu("capThem", 0);
   if (L.capMax) cap = Math.min(cap, L.capMax);
   const ly = Math.max(0, Math.round(Math.min(cau, cap))),
     g = cnGiaLy(),
@@ -102,7 +102,7 @@ function chiNhanhCuoiNgay(r) {
       ? "Cuối tuần vắng khách."
       : quaTai
         ? `Khách đông hơn sức ${c.ql.ten}${c.phu ? "" : ". Thuê thêm người phụ thì bán được nhiều hơn"}.`
-        : du.tra + du.top
+        : du.tra + du.top >= 5
           ? `Hàng dư ở tiệm gốc chở qua ${du.tra + du.top} phần, đỡ tiền nhập.`
           : e && e.id === "rain" && L.mua < 1
             ? "Trời mưa nên vắng."
@@ -118,7 +118,11 @@ function chiNhanhCuoiNgay(r) {
   }
   const ky = d + 1 - c.bd;
   if (!c.viec && ky > 0 && ky % CHI_NHANH.hopDong === 0) c.viec = { id: "nha" };
-  if (!c.viec && d - c.bd >= 2 && Math.random() < 0.25) c.viec = { id: rnd(["may", "hang", "che", L.id]) };
+  /* chuyện ngẫu nhiên: không lặp lại chuyện đã gặp trong CHI_NHANH.lapLai ngày */
+  const gap = c.gap || {},
+    ds = ["may", "hang", "che", L.id].filter((id) => !(d - (gap[id] || -99) < CHI_NHANH.lapLai));
+  if (!c.viec && d - c.bd >= 2 && ds.length && Math.random() < 0.25) c.viec = { id: rnd(ds) };
+  if (c.viec) (c.gap = gap)[c.viec.id] = d;
   c.hieu = (c.hieu || []).filter((h) => h.den > d);
 }
 
@@ -162,6 +166,7 @@ function sangNhuongCN() {
           /* tiền trang trí lấy lại ghi như bán lại đồ (trừ vào chi phí); cọc không ghi sổ, như lúc đặt cọc */
           S.cur.equip.push({ n: "Sang nhượng chi nhánh", v: -lai });
           S.cn = null;
+          delete TT().co.chi_nhanh; /* lời kết và hậu truyện không nhắc chi nhánh đã sang nhượng */
           save();
           head();
           toast("Đã sang nhượng chi nhánh, lấy lại " + fmtBig(v));
@@ -183,7 +188,7 @@ function theChiNhanh() {
       hq = c.hq;
     return `<div class="mtcard on cncard"><b>${L.ic} ${esc(L.ten)}</b><p>Quản lý ${esc(c.ql.ten)} · tay nghề ${"★".repeat(c.ql.kn)}${"☆".repeat(5 - c.ql.kn)} · lương ${fmt(c.ql.luong)}/ngày + ${Math.round(CHI_NHANH.phanTramQl * 100)}% doanh thu</p><p>Tiền nhà ${fmt(c.gia)}/ngày${L.phanTram ? ` + ${Math.round(L.phanTram * 100)}% doanh thu` : ""} · còn ${con} ngày tới kỳ gia hạn · ${String(c.sao.toFixed(1)).replace(".", ",")}★</p>${
       hq ? `<p>Ngày ${hq.ngay}: ${hq.ly} ly · thu ${fmt(hq.thu)} · lãi <b class="${hq.lai < 0 ? "neg" : "pos"}">${hq.lai < 0 ? "−" : "+"}${fmt(Math.abs(hq.lai))}</b></p>` : `<p class="note">Chưa bán ngày nào. Mở tiệm gốc là chi nhánh bán theo.</p>`
-    }<div class="askbtns"><button class="sbtn${c.phu ? "" : " pri"}" data-cnphu>${c.phu ? "Cho người phụ nghỉ" : `Thuê người phụ (+${CHI_NHANH.capPhu} ly/ngày, ${fmt(CHI_NHANH.luongPhu)}/ngày)`}</button><button class="sbtn ghost" data-cnsang>Sang nhượng</button></div></div>`;
+    }<div class="cnnut"><button class="sbtn${c.phu ? " ghost" : " pri"}" data-cnphu>${c.phu ? "Cho người phụ nghỉ" : `Thuê người phụ<small>+${CHI_NHANH.capPhu} ly/ngày · ${fmt(CHI_NHANH.luongPhu)}/ngày</small>`}</button><button class="sbtn ghost" data-cnsang>Sang nhượng</button></div></div>`;
   }
   const dk = dkChiNhanh(),
     du = dk.every((x) => x.ok);
@@ -204,8 +209,9 @@ function chiNhanhSang() {
   const c = S.cn,
     L = cnLoai();
   if (!c || !L || R.challenge) return false;
-  if (c.hq && c.baoNgay !== S.day) {
-    c.baoNgay = S.day;
+  /* mỗi ngày bán chỉ báo một lần: nghỉ về quê mấy ngày thì không báo lại ngày cũ */
+  if (c.hq && c.daBao !== c.hq.ngay) {
+    c.daBao = c.hq.ngay;
     save();
     const h = c.hq;
     ask(

@@ -119,7 +119,8 @@ function ghiKet(k, ngay) {
 const soKetDaThay = () => Object.keys(KL().ket || {}).length;
 function theKetCuc(k) {
   const hau = hauTruyen();
-  return `<small class="trch">Kết truyện Hẻm 42</small><div class="kcten">${esc(k.ten)}</div><p class="kcchu">${thayTen(k.chu)}</p><div class="kchau">${hau
+  const chu = TT().co.chi_nhanh && k.chuCn ? k.chuCn : buoc() >= 2 && k.chuMt ? k.chuMt : k.chu;
+  return `<small class="trch">Kết truyện Hẻm 42</small><div class="kcten">${esc(k.ten)}</div><p class="kcchu">${thayTen(chu)}</p><div class="kchau">${hau
     .map((h) => `<div class="trw">${chanDung(h.ai)}<div><b class="trn2">${esc(NHAN_VAT[h.ai].ten)}</b><p class="trl">${thayTen(h.chu)}</p></div></div>`)
     .join("")}</div><p class="note">Đã thấy ${soKetDaThay()}/${KET_CUC.length} kết. Tiệm vẫn mở cửa mỗi ngày.</p>`;
 }

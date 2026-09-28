@@ -1,7 +1,18 @@
 /* Phiên bản và danh sách "Có gì mới". Mỗi lần cập nhật: tăng GAME_VERSION và thêm một mục lên ĐẦU CHANGELOG. */
 /* ===== PHIÊN BẢN GAME: mỗi lần cập nhật, tăng số và thêm một mục lên ĐẦU danh sách ===== */
-const GAME_VERSION = "4.9";
+const GAME_VERSION = "4.9.1";
 const CHANGELOG = [
+  {
+    v: "4.9.1",
+    d: "28/09/2026",
+    items: [
+      "Chi nhánh bớt lãi quá tay: quản lý ăn 12% doanh thu, hàng mua ngoài đắt hơn, một quản lý bán ít ly hơn. Chi nhánh văn phòng không còn lãi ngang tiệm gốc",
+      "Báo cáo chi nhánh không hiện lại sau mấy ngày về quê. Một chuyện ở chi nhánh không lặp lại trong 7 ngày",
+      "Chi nhánh hiện trước tiệm cạnh đồ trang trí; hai nút trong thẻ chi nhánh gọn lại",
+      "Vy chỉ kể chuyện sang nhượng sau khi đã quyết ở lại chuỗi hay ra chợ",
+      "Kết Tiệm của xóm nói đúng khi tiệm đã ra mặt tiền hay có chi nhánh. Tổng kết đếm chi nhánh theo ly",
+    ],
+  },
   {
     v: "4.9",
     d: "28/09/2026",

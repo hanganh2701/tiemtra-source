@@ -6407,7 +6407,7 @@ function paneSum() {
       rows
         .map(
           (r) =>
-            `<div class="trow${r.q ? "" : " zero"}"><div><b>${name(r.k)}</b>: ${r.q} phần<div class="tbar"><i style="width:${(r.q / mx) * 100}%"></i></div></div><div>${r.q ? vn(r.a / r.q) : "–"}</div><div>${vn(r.a)}</div></div>`,
+            `<div class="trow${r.q ? "" : " zero"}"><div><b>${name(r.k)}</b>: ${r.q} ${r.k === "cn" ? "ly" : "phần"}<div class="tbar"><i style="width:${(r.q / mx) * 100}%"></i></div></div><div>${r.q ? vn(r.a / r.q) : "–"}</div><div>${vn(r.a)}</div></div>`,
         )
         .join("")
     );

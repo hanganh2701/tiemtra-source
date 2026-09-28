@@ -84,6 +84,11 @@ const tetGan = (hom) =>
   }) || null;
 const namLe = (le) => (le === "tet" && tetGan() ? tetGan() : homNayVN()).slice(0, 4);
 const khoaXem = (m) => (m.moiNam ? m.id + "@" + namLe((m.dieuKien || {}).le) : m.id);
+/* ngày đã xem cảnh "sau": một id hoặc danh sách id (cảnh nào xem trước thì tính cảnh đó); chưa xem thì null */
+function ngayXemSau(T, sau) {
+  const ds = [].concat(sau).map((id) => T.xem[id]).filter((x) => x != null);
+  return ds.length ? Math.min(...ds) : null;
+}
 function hopCanh(m, luc) {
   if (m.luc !== luc) return false;
   const T = TT(),
@@ -111,12 +116,12 @@ function hopCanh(m, luc) {
   if (d.sao != null && rating() < d.sao) return false;
   if (d.soTrang != null && T.trang.length < d.soTrang) return false;
   if (d.sau) {
-    const x = T.xem[d.sau];
+    const x = ngayXemSau(T, d.sau);
     if (x == null || (d.cachNgay && dn - x < d.cachNgay)) return false;
   }
   if (d.thoiTiet) {
     const e = luc === "dong_cua" ? (S.history[S.history.length - 1] || {}).ev : ev();
-    const cho = d.sau ? dn - T.xem[d.sau] : 0;
+    const cho = d.sau ? dn - ngayXemSau(T, d.sau) : 0;
     if (!(e && e.id === d.thoiTiet) && cho < 8) return false;
   }
   return true;
