@@ -300,6 +300,12 @@ function choiLai() {
     ttKq: S.ttKq,
     bb: S.bb,
     thuGian: S.thuGian,
+    /* cài đặt và câu đã hỏi của người chơi */
+    dayLen: S.dayLen,
+    coach: S.coach,
+    moiCai: S.moiCai,
+    bakOff: S.bakOff,
+    gopY: S.gopY,
   };
   const tr = { che: T.che, luot: (T.luot || 1) + 1 };
   S = fresh();

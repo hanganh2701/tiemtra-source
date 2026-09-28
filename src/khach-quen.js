@@ -240,7 +240,7 @@ function paneSoTay() {
     xem
       .map(
         (m) =>
-          `<button class="stl" data-canh="${m.id}"><small>Ngày ${T.xem[m.id]} · Chương ${m.chuong}</small>${esc(m.tomTat || m.id)}</button>`,
+          `<button class="stl" data-canh="${m.id}"><small>Ngày ${T.xem[m.id]} · Chương ${chuongLuc(T.xem[m.id])}</small>${esc(m.tomTat || m.id)}</button>`,
       )
       .join("") + `<p class="note">Bấm vào một chuyện để xem lại.</p>`
   );
