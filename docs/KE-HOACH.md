@@ -69,11 +69,15 @@ Khác kế hoạch: thay vì làm cả mô phỏng chạy ra cùng kết quả r
 máy người nhận tạo lại đề và kiểm công thức, thời gian pha, luật 3 chỗ. Gọn hơn nhiều, vẫn chặn được mã bịa bằng mod.
 Chưa làm ảnh chia sẻ vẽ bằng canvas (để mốc 4 cùng thẻ khoe tiệm).
 
-### Mốc 3 · Lớn lên lần đầu và Tết (tuần 11–16)
+### Mốc 3 · Lớn lên lần đầu và Tết (bản 4.2) — xong 28/09
 
-- [ ] Bậc 2: mặt tiền đầu hẻm; nhân viên có đặc điểm, tâm trạng, trưởng ca
-- [ ] Hết Chương 1; đơn nhóm
-- [ ] Noel (21/12); "Tết ở Hẻm 42" lên trước 20/01/2027 (ông Táo 30/01, mùng 1 Tết 06/02)
+- [x] Bậc 2 mặt tiền đầu hẻm (`src/lon-len.js`, `MAT_TIEN`, `S.buoc`, `S.hd`, `S.coc`)
+- [x] Nhân viên có đặc điểm, tay nghề, tâm trạng, kèm cặp, tăng lương, trưởng ca (`src/nhan-vien.js`, `S.nv`, `S.truongCa`)
+- [x] Hết Chương 1: mẹ gửi tiền, sang nhượng góc đầu hẻm, trang 5; khai trương mặt tiền
+- [x] Đơn nhóm (`DON_NHOM`, `S.dnHom`)
+- [x] Noel và "Tết ở Hẻm 42" theo lịch thật (`src/le-hoi.js`, `LICH_LE`); `window.__ngay` để thử ngày lễ khi test
+
+Lịch lễ `LICH_LE` trong `src/truyen.js` có Tết và Trung Thu tới 2030; cảnh lễ có năm trong id (`le_noel_2026`, `le_tet_2027`), năm sau cần thêm cảnh mới.
 
 ### Mốc 4 · Gắn bó dài hạn (tuần 17–22)
 
