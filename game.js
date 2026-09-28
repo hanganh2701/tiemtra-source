@@ -1378,6 +1378,7 @@ function prepChecks() {
   if (nvSuKien()) return xetTiep();
   if (donNhomCheck()) return xetTiep();
   if (chiNhanhSang()) return xetTiep();
+  if (dsBaoHoan()) return xetTiep();
   if (moiGopHem()) return xetTiep();
   if (moiCai()) return xetTiep();
   if (moiGopY()) return xetTiep();
@@ -5727,6 +5728,7 @@ const recRev = (r) =>
 const recCost = (r) =>
   (r.cnChi || 0) +
   (r.song || 0) +
+  (r.gop || 0) +
   r.rent +
   r.util +
   (r.wage || 0) +
@@ -6256,6 +6258,7 @@ function endDay() {
     ${r.traSau ? `<div><span class="wl">${ico("people")} Trả dần tiền bà Sáu cho khất</span><span class="wl">${fmt(r.traSau)}</span></div>` : ""}
     ${r.staffTip ? `<div><span class="wl">${ico("people")} Tip nhân viên giữ (quán không nhận)</span><span class="wl">${fmt(r.staffTip)}</span></div>` : ""}
     ${r.song ? `<div><span class="wl">🏠 Sinh hoạt: ăn, ở, đi lại</span><span class="wl">${fmt(r.song)}</span></div>` : ""}
+    ${r.gop ? `<div><span class="wl">🏦 Trả góp nhà, xe${r.gopXong ? " (trả xong " + esc(r.gopXong) + "!)" : ""}</span><span class="wl">${fmt(r.gop)}</span></div>` : ""}
     ${r.cn ? `<div><span class="wl">🏪 Chi nhánh bán ${r.cn.ly} ly (đã tính ở trên)</span><span class="wl">${r.cn.lai < 0 ? "−" : "+"}${fmt(Math.abs(r.cn.lai))}</span></div>` : ""}
     ${r.spoil && r.spoil.n ? `<div><span class="wl">🥤 ${r.spoil.n} ly hỏng</span><span class="wl">${fmt(r.spoil.v)}</span></div>` : ""}
     ${wv ? `<div><span class="wl">${ico("trash")} ${waste.map((x) => ITEMS[x.k].s + " " + x.q).join(", ")}</span><span class="wl">${fmt(wv)}</span></div>` : ""}
@@ -6343,6 +6346,7 @@ function aggregate(recs) {
       "tax",
       "cnChi",
       "song",
+      "gop",
       "served",
       "lost",
       "starSum",
@@ -6423,7 +6427,8 @@ function paneSum() {
       ingTot +
       g.tax +
       (g.cnChi || 0) +
-      (g.song || 0),
+      (g.song || 0) +
+      (g.gop || 0),
     profit = rev - cost;
   const avg = g.starN
     ? (g.starSum / g.starN).toFixed(1).replace(".", ",")
@@ -6467,6 +6472,7 @@ function paneSum() {
   ${g.loanInt ? `<div class="crow"><span>Lãi vay</span><span>${vn(g.loanInt)}</span></div>` : ""}
   ${g.cnChi ? `<div class="crow"><span>Chi nhánh: tiền nhà, lương, hàng</span><span>${vn(g.cnChi)}</span></div>` : ""}
   ${g.song ? `<div class="crow"><span>Sinh hoạt của bạn: ăn, ở, đi lại</span><span>${vn(g.song)}</span></div>` : ""}
+  ${g.gop ? `<div class="crow"><span>Trả góp nhà, xe</span><span>${vn(g.gop)}</span></div>` : ""}
   <div class="crow"><span>Máy móc, trang bị & công thức</span><span>${vn(eqTot)}</span></div>
   ${g.equip.map((e) => `<div class="crow sub"><span>– ${e.n}${mode !== "day" ? " (ngày " + e.d + ")" : ""}</span><span>${vn(e.v)}</span></div>`).join("")}
   ${g.fee || S.online ? `<div class="crow"><span>Phí app giao hàng (${CFG.commission}%)</span><span>${vn(g.fee)}</span></div>` : ""}

@@ -671,7 +671,12 @@ body:not(.selling)::before{content:'';position:fixed;inset:0;z-index:-1;backgrou
 /* mặt tiền, nhân viên, lễ */
 .mtcard{background:var(--bg);border:2px dashed var(--line);border-radius:14px;padding:10px 12px;margin:0 0 10px;text-align:left}.mtcard.on{border-style:solid;border-color:var(--mint)}.mtcard p{margin:4px 0;font-size:.86rem;line-height:1.4}
 .mtdk{font-size:.84rem;color:var(--soft);font-weight:600}.mtdk.ok{color:var(--mint)}
-.cnloai{border-top:1px dashed var(--line);margin-top:8px;padding-top:8px}.cnloai p{margin:3px 0}.cnloai .sbtn{margin-top:4px}.dsqua{opacity:.55}.dscard b{line-height:1.5}
+.cnloai{border-top:1px dashed var(--line);margin-top:8px;padding-top:8px}.cnloai p{margin:3px 0}.cnloai .sbtn{margin-top:4px}.dsqua{opacity:.5}.dscard b{line-height:1.5}
+.dsthe{display:grid;grid-template-columns:112px 1fr;gap:10px;align-items:start;padding:10px 0;border-bottom:1px solid var(--line)}.dsthe.dsdang{background:color-mix(in srgb,var(--mint) 10%,transparent);border-radius:12px;padding:10px 6px}
+.dsanh{background:#fff8ec;border:1px solid var(--line);border-radius:12px;padding:4px}.dshinh{display:block;width:100%;height:auto}
+.dstt .nm{font-weight:800}.dstt .sub b{color:var(--ink)}.dsnut{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}.dsnut .sbtn{flex:1 1 110px}
+.dsnha{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}.dshinhto{max-width:220px;margin:0 auto 4px}.dshinhto .dshinh{width:100%}
+.dsvay{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:.84rem;margin-top:6px}
 .cnnut{display:flex;gap:8px;margin-top:8px}.cnnut .sbtn{flex:1}.cnnut small{display:block;font-size:.7rem;font-weight:600}
 .nvd{margin-top:3px;line-height:1.5}.nvd small{display:block;font-size:.72rem}.nvd .sbtn{margin-top:4px}
 .nvdd{border-radius:6px;padding:0 6px;font-weight:800;font-size:.72rem}.nvdd.tot{background:color-mix(in srgb,var(--mint) 20%,transparent);color:var(--mint)}.nvdd.xau{background:color-mix(in srgb,var(--warn) 16%,transparent);color:var(--warn)}
@@ -730,6 +735,7 @@ body.hem-den.selling .awning::before{display:none}
 <script src="src/lon-len.js"></script>
 <script src="src/do-kho.js"></script>
 <script src="src/chi-nhanh.js"></script>
+<script src="src/hinh-doi-song.js"></script>
 <script src="src/doi-song.js"></script>
 <script src="src/nhan-vien.js"></script>
 <script src="src/le-hoi.js"></script>
