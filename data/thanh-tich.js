@@ -27,7 +27,7 @@ const HUY_HIEU = [
   { id: "ket_10tr", nhom: "Tiệm", ic: "🏦", ten: "Két dày", mo: "Có 10 triệu trong két", dk: () => S.money >= 10000000 },
   { id: "sao_45", nhom: "Tiệm", ic: "🌸", ten: "Tiệm được thương", mo: "Đánh giá từ 4,5 sao sau ngày 14", dk: () => S.day > 14 && rating() >= 4.5 },
   { id: "mat_tien", nhom: "Tiệm", ic: "🏠", ten: "Ra mặt tiền", mo: "Thuê mặt tiền đầu hẻm", dk: () => buoc() >= 2 },
-  { id: "an_cu", nhom: "Tiệm", ic: "🏡", ten: "An cư", mo: "Mua được nhà của mình", dk: () => !!(S.ds && ["can_ho", "nha_hem"].includes(S.ds.o)) },
+  { id: "an_cu", nhom: "Tiệm", ic: "🏡", ten: "An cư", mo: "Mua được nhà của mình", dk: () => !!(S.ds && S.ds.nha) },
   { id: "hieu_thao", nhom: "Tiệm", ic: "💝", ten: "Con có hiếu", mo: "Gửi 3 món quà về cho ba mẹ", dk: () => Object.keys((S.ds && S.ds.qua) || {}).length >= 3 },
   { id: "chi_nhanh", nhom: "Tiệm", ic: "🏪", ten: "Hai tiệm một chủ", mo: "Mở chi nhánh", dk: () => !!S.cnDaMo },
   { id: "nv_dau", nhom: "Tiệm", ic: "🤝", ten: "Người đồng hành", mo: "Thuê nhân viên đầu tiên", dk: () => Object.keys(S.nv || {}).length >= 1 },

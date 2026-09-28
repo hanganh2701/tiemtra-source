@@ -19,7 +19,7 @@ Tài liệu gốc để viết mọi câu thoại. Viết cảnh mới phải kh
 - Ngã rẽ lớn (`reRe`) mới được tách nhánh thật: hai điều tốt đánh đổi nhau, không có phương án "sai". Mỗi nhánh 3–5 cảnh riêng, đổi cả cách chơi, rồi hợp lại ở cảnh chốt cuối chương. Mỗi nhân vật chỉ có một ngã rẽ đang mở. Cảnh chốt có hạn chót (`chot`) để truyện không kẹt.
 - Kết truyện: một đêm giao thừa chung, tên kết theo các ngã rẽ lớn, rồi mỗi nhân vật một thẻ hậu truyện (`HAU_TRUYEN`). Không có kết xấu.
 - Nhân vật có đời sống riêng không xoay quanh người chơi. Có chuyện người chơi không giải quyết được.
-- Không dùng tên thương hiệu thật. Chuỗi đối thủ là tên hư cấu.
+- Không dùng tên thương hiệu thật cho tiệm, chuỗi, nhãn hàng trong truyện. Chuỗi đối thủ là tên hư cấu. Riêng món mua sắm trong tab Đời sống (xe, điện thoại, máy tính, đồng hồ, túi, quần áo, điện máy làm quà) ghi tên hãng và mẫu thật dạng chữ để giá sát ngoài đời (chủ dự án chốt 29/09/2026), không vẽ logo, không ai trong truyện quảng cáo cho hãng; khu vực nhà là tên gọi quen, không nêu dự án thật.
 
 ## Nhân vật
 

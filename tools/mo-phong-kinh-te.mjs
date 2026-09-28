@@ -74,16 +74,17 @@ function __muaSam(kieu) {
   if (typeof TRANG_TRI !== "undefined") TRANG_TRI.forEach((t) => { if (!coTri(t.id) && mua(t.gia)) { (S.tri = S.tri || []).push(t.id); ghi(t.ten, t.gia); } });
   if (!S.upg.brandKit && S.upg.sealer && mua(BRAND_COST)) { S.upg.brandKit = true; ghi("Thương hiệu", BRAND_COST); window.__muaNgay.brand = S.day; }
   if (kieu.cn && typeof moChiNhanh === "function" && !S.cn && dkChiNhanh().every((x) => x.ok) && S.money >= cnTien(CN_LOAI.find((x) => x.id === kieu.cn)) + chua && moChiNhanh(kieu.cn)) { window.__muaNgay.chiNhanh = S.day; $("modal").hidden = true; }
-  /* đời sống: mua dần khi dư, chừa 5 triệu; không mua đồ đắt cho bản thân */
+  /* đời sống: mua dần khi dư (chừa 5 triệu), ô tô và nhà thì trả góp khi đủ tiền trả trước và ngân hàng cho; không mua đồ đắt cho bản thân */
   if (kieu.ds && typeof muaDs === "function") {
-    const du = (gia) => S.money >= gia + 5000000;
-    [["xe", "xe_so"], ["o", "tro_rieng"], ["dt", "dt_tot"], ["qua", "qua_ao_dai"], ["qua", "qua_dong_ho"], ["do", "dong_ho"], ["xe", "xe_ga"],
-     ["o", "can_ho_thue"], ["dt", "dt_xin"], ["qua", "qua_may_giat"], ["qua", "qua_du_lich"], ["xe", "o_to_cu"], ["qua", "qua_mai_nha"],
-     ["o", "can_ho"], ["xe", "o_to"], ["o", "nha_hem"]].forEach(([loai, id]) => {
-      const ds = loai === "do" ? DS_DO : loai === "qua" ? DS_QUA : DS_DONG[loai], x = ds.find((y) => y.id === id);
-      const can = loai === "do" || loai === "qua" ? x.gia : dsCan(loai, x);
-      if (du(can) && muaDs(loai, id)) { window.__muaNgay[id] = S.day; $("modal").hidden = true; }
-    });
+    const du = (can) => S.money >= can + 5000000,
+      thu = (dong, id, gop) => {
+        const x = (DS_DONG[dong] || (dong === "do" ? DS_DO : DS_QUA)).find((y) => y.id === id);
+        if (dong === "do" || dong === "qua") return !S.ds?.[dong]?.[id] && du(x.gia) && muaDs(dong, id);
+        return !dsKhongDuoc(dong, x, gop) && du(dsTinh(dong, x, gop).can) && muaDs(dong, id, gop);
+      };
+    [["xm", "wave"], ["tro", "tro_rieng"], ["dt", "galaxy_a"], ["qua", "qua_ao_dai"], ["qua", "qua_dong_ho"], ["xm", "vision"], ["tro", "can_ho_thue"], ["dt", "reno"],
+     ["qua", "qua_may_giat"], ["xm", "sh"], ["qua", "qua_du_lich"], ["nha", "noxh", true], ["ot", "morning", true], ["qua", "qua_mai_nha"], ["nha", "ch54", true], ["ot", "cx5", true]]
+      .forEach(([dong, id, gop]) => { if (thu(dong, id, gop)) { window.__muaNgay[id] = S.day; $("modal").hidden = true; } });
   }
   if (typeof GOP_HEM !== "undefined") GOP_HEM.forEach((d) => { if (!daGop(d.id) && gopMo(d) && mua(d.gia)) { (S.gopHem = S.gopHem || {})[d.id] = S.day; ghi(d.ten, d.gia); window.__muaNgay[d.id] = S.day; } });
 }`;
@@ -179,7 +180,8 @@ const NGUOI_CHOI = [
   ["Người chơi vừa (11 giây mỗi ly), mặt tiền, thuê người, chi nhánh gần trường, sắm đời sống", { giay: 11, matTien: true, nv: true, cn: "truong", ds: true }],
   ["Người chơi giỏi (7 giây mỗi ly), ở trong hẻm, không thuê", { giay: 7 }],
   ["Người chơi giỏi, mặt tiền, thuê người, chi nhánh văn phòng, Hana giữ kín", { giay: 7, matTien: true, nv: true, cn: "vp" }, { hana: 1 }],
-  ["Người chơi giỏi 100 ngày, mặt tiền, chi nhánh gần trường, sắm đời sống", { giay: 7, matTien: true, nv: true, cn: "truong", ds: true, ngay: 100 }],
+  ["Người chơi giỏi 200 ngày, mặt tiền, chi nhánh gần trường, sắm đời sống", { giay: 7, matTien: true, nv: true, cn: "truong", ds: true, ngay: 200 }],
+  ["Người chơi vừa 200 ngày, mặt tiền, chi nhánh gần trường, sắm đời sống", { giay: 11, matTien: true, nv: true, cn: "truong", ds: true, ngay: 200 }],
 ];
 const arg = process.argv[2];
 if (arg === "nguoi") {
@@ -188,7 +190,7 @@ if (arg === "nguoi") {
     const kq = await choi(ten, { linh: 0, hana: 0, may: 1, tet: 1, ...doi }, kieu);
     const n = kq.ngay;
     console.log(`${ten}  (${kq.giay}s, ${kq.T.trang} trang, kết ${kq.T.ket || "–"}, cuối cùng ${kq.T.sao}★ hạng ${kq.T.hang} Phố Trà)`);
-    console.log(`  két: ${[10, 20, 30, 40, 50, 60, 70, 85, 100].filter((d) => d <= (kieu.ngay || 70)).map((d) => `ngày${d} ${tienNgay(n, d)}`).join(" · ")}`);
+    console.log(`  két: ${[10, 20, 30, 40, 50, 60, 70, 100, 150, 200].filter((d) => d <= (kieu.ngay || 70)).map((d) => `ngày${d} ${tienNgay(n, d)}`).join(" · ")}`);
     console.log(`  lãi/ngày: 1–20 ${tb(n, 1, 20, "loi")} · 21–40 ${tb(n, 21, 40, "loi")} · 41–60 ${tb(n, 41, 60, "loi")} · 61–70 ${tb(n, 61, 70, "loi")}`);
     console.log(`  ly/ngày: 1–20 ${tb(n, 1, 20, "ban")} · 21–40 ${tb(n, 21, 40, "ban")} · 41–70 ${tb(n, 41, 70, "ban")} (46–55 ${tb(n, 46, 55, "ban")})   khách mất/ngày: 21–40 ${tb(n, 21, 40, "mat")} · 41–70 ${tb(n, 41, 70, "mat")} (vì hết hàng ${tb(n, 41, 70, "het")})`);
     console.log(`  mua (ngày): ${Object.entries(kq.T.mua || {}).map(([k, v]) => k + " " + v).join(", ") || "–"}`);
