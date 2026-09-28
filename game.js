@@ -1299,7 +1299,7 @@ function badCheck() {
     const e = S.badPlan.ev.find((x) => !x.done && x.d <= S.day);
     if (e) {
       e.done = true;
-      if (S.day - e.d <= 1) {
+      if (S.day - e.d <= 1 && !thuGian()) {
         const v = Math.min(
           Math.round((200000 + Math.random() * 700000) / 50000) * 50000,
           Math.floor(S.money / 3 / 1000) * 1000,
@@ -5782,7 +5782,7 @@ const BRATS = {
   bung: { n: "", c: "" },
 };
 function pickBrat() {
-  if (S.day < 8) return null; /* những ngày đầu chưa có khách khó chiều */
+  if (S.day < 8 || thuGian()) return null; /* những ngày đầu chưa có khách khó chiều */
   if (coTrang(9) && Math.random() < 0.4) return null;
   const bad = S.mood === "kho" && S.evDay === S.day,
     good = S.mood === "vui" && S.evDay === S.day;
@@ -5868,7 +5868,7 @@ function tick() {
   });
   R.slots.forEach((c, i) => {
     if (!c) return;
-    c.pat -= dt;
+    truCho(c, dt);
     if (c.pat <= 0) {
       quenBo(c);
       KL().chuoi = 0;
@@ -5890,7 +5890,7 @@ function tick() {
     } else if (upd) updPat(c);
   });
   R.online = R.online.filter((c) => {
-    c.pat -= dt;
+    truCho(c, dt);
     if (c.pat <= 0) {
       R.today.lost++;
       addReview(1, "late", true, c);
@@ -6121,7 +6121,7 @@ function endDay() {
     before = S.yearRev;
   S.yearRev += rev;
   const taxable = Math.max(0, S.yearRev - Math.max(CFG.taxThreshold, before));
-  r.tax = Math.round((taxable * (CFG.vat + CFG.pit)) / 100);
+  r.tax = thuGian() ? 0 : Math.round((taxable * (CFG.vat + CFG.pit)) / 100);
   r.ev = ev() ? { id: ev().id, k: ev().k } : null;
   {
     const otMin = R.otT < 0 ? (-R.otT / (dayLen() * 60)) * 660 : 0;
@@ -7816,6 +7816,7 @@ function showSettings() {
     <button class="setb" id="sGuide"><span>${ico("book")}</span>Hướng dẫn</button>
     <button class="setb" id="sNews"><span>${ico("gift")}</span>Có gì mới<small>v${GAME_VERSION}</small></button>
     <button class="setb" id="sStory"><span>${ico("book")}</span>Cốt truyện Hẻm 42<small>${CHE_DO_TEN[cheDo()]}${cheDo() === "gon" ? " · gộp cả cảnh vào một khung" : cheDo() === "tat" ? " · không hiện cảnh, vẫn nhận trang sổ" : " · từng câu, bỏ qua được"}</small></button>
+    <button class="setb" id="sRelax"><span>${ico("moon")}</span>Chế độ Thư giãn<small>${S.thuGian ? "Đang bật · khách không bỏ về, không sự cố, không khách khó" : "Đang tắt · bấm để chơi thong thả"}</small></button>
     <button class="setb" id="sXung"><span>${ico("people")}</span>Khách gọi bạn là<small>${hoaDau(xung())} · bấm để đổi</small></button>
     <button class="setb" id="sCoach"><span>${ico("book")}</span>Chỉ dẫn từng bước<small>${S.coach === true ? "Luôn bật" : S.coach === false ? "Tắt" : "Tự động"}</small></button>
     <button class="setb" id="sLen"><span>${ico("clock")}</span>Thời gian bán mỗi ngày<small>${S.dayLen || CFG.dayMin} phút${R.running ? " · áp dụng từ ngày sau" : ""}</small></button>
@@ -7841,6 +7842,13 @@ function showSettings() {
     const L = ["day", "gon", "tat"];
     TT().che = L[(L.indexOf(cheDo()) + 1) % L.length];
     save();
+    showSettings();
+  };
+  $("sRelax").onclick = () => {
+    S.thuGian = !S.thuGian;
+    save();
+    if (typeof track === "function") track(S.thuGian ? "thu-gian-bat" : "thu-gian-tat");
+    toast(S.thuGian ? "🌿 Chế độ Thư giãn: khách chờ bao lâu cũng được" : "Đã tắt chế độ Thư giãn");
     showSettings();
   };
   $("sXung").onclick = () => {
