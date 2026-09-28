@@ -354,3 +354,118 @@ MAU_CHUYEN.push(
     ketQua: { than: { linh: 1 }, trang: 4, co: { linh_lam: true } },
   },
 );
+
+/* ---------- Chương 1 (tiếp): tiền nong, mặt tiền, chuyện của bà Sáu ---------- */
+MAU_CHUYEN.push(
+  {
+    id: "c1_vay",
+    chuong: 1,
+    luc: "dong_cua",
+    tomTat: "Két sắp cạn, mẹ nhắn muốn gửi tiền giúp.",
+    dieuKien: { ngay: 10, ngayDen: 45, tienDuoi: 300000 },
+    uuTien: 8,
+    thoai: [
+      ["tin", "Mẹ: Tiệm sao rồi con. Mẹ thấy con ít nhắn."],
+      ["tin", "Mẹ: Mẹ có để dành chút đỉnh. Cần thì mẹ gửi lên."],
+      ["_", "(Két chỉ còn vài trăm nghìn.)"],
+    ],
+    luaChon: [
+      { chu: "Nhận tiền mẹ gửi", dat: { c1_vay: "me" }, ketQua: { tien: 1000000 }, thoai: [["tin", "Mẹ: Ừ. Đừng nói với ba nghen."]] },
+      { chu: "Nói mẹ con tự lo được", dat: { c1_vay: "tu" }, thoai: [["tin", "Mẹ: Cứng đầu y chang ba con. Có gì phải nói mẹ."]] },
+    ],
+  },
+  {
+    id: "c1_sang_nhuong",
+    chuong: 1,
+    luc: "mo_cua",
+    tomTat: "Bà Sáu kể góc mặt tiền đầu hẻm đang sang nhượng.",
+    dieuKien: { ngay: 18, sao: 4.0 },
+    uuTien: 7,
+    thoai: [
+      ["sau", "Cái kiosk trà sữa chuỗi ở đầu hẻm dẹp rồi đó con."],
+      ["sau", "Mặt tiền, người qua lại đông. Chủ nhà là bạn bà."],
+      ["sau", "Muốn ra đó thì để dành tiền cọc. Ở đây bà vẫn cho con nấu hàng."],
+    ],
+    ketQua: { co: { mat_tien_mo: true } },
+  },
+  {
+    id: "c1_ket",
+    chuong: 1,
+    luc: "mo_cua",
+    tomTat: "Bà Sáu kể về quán nước năm xưa và đưa trang sổ thứ 5.",
+    dieuKien: { ngay: 26, soTrang: 3 },
+    uuTien: 8,
+    thoai: [
+      ["sau", "Hồi xưa quán nước của bà đông lắm. Ông nhà nấu trà, bà bán."],
+      ["sau", "Ổng mất, bà dẹp quán. Cuốn sổ ổng viết, bà xé cho mấy đứa trong xóm giữ."],
+      ["_", "(Bà Sáu đưa một trang ghi tên mấy mối trà ở chợ Bà Chiểu.)"],
+      ["sau", "Con gom lại được thì cuốn sổ về đúng chỗ của nó."],
+    ],
+    ketQua: { trang: 5, than: { sau: 1 } },
+  },
+  {
+    id: "c2_mat_tien",
+    chuong: 2,
+    luc: "mo_cua",
+    tomTat: "Ngày đầu ở mặt tiền đầu hẻm, cả xóm ghé mừng.",
+    dieuKien: { buoc: 2 },
+    uuTien: 9,
+    thoai: [
+      ["tu", "Chu choa, ra mặt tiền rồi! Bảng hiệu sáng trưng."],
+      ["khoa", "Tụi shipper em hẹn nhau ghé đây hết đó {ban}."],
+      ["linh", "Em mang hoa qua nè. Chúc tiệm đông khách!"],
+      ["sau", "Nhớ về hẻm nấu hàng. Con Mướp nó theo con ra luôn rồi đó."],
+    ],
+    ketQua: { than: { sau: 1, tu: 1, khoa: 1, linh: 1 } },
+  },
+);
+
+/* ---------- Lễ theo lịch thật: mỗi năm thêm cảnh mới với id có năm ---------- */
+MAU_CHUYEN.push(
+  {
+    id: "le_noel_2026",
+    nhan: "Giáng sinh ở Hẻm 42",
+    chuong: 1,
+    luc: "mo_cua",
+    tomTat: "Noel ở Hẻm 42: Linh treo kim tuyến, Mướp bị đội nón ông già Noel.",
+    dieuKien: { le: "noel" },
+    uuTien: 12,
+    thoai: [
+      ["linh", "{Ban} ơi, Noel nè! Em treo dây kim tuyến lên quầy nha."],
+      ["khoa", "Tối nay nhà thờ Đức Bà kẹt xe dữ lắm, đơn ship chắc nhiều."],
+      ["_", "(Mướp đội cái nón ông già Noel nhỏ xíu, mặt không vui lắm.)"],
+    ],
+    ketQua: { than: { linh: 1, khoa: 1 } },
+  },
+  {
+    id: "le_ong_tao_2027",
+    nhan: "Tết ở Hẻm 42",
+    chuong: 1,
+    luc: "mo_cua",
+    tomTat: "Hai mươi ba tháng Chạp, thả cá chép tiễn ông Táo cùng bà Sáu.",
+    dieuKien: { le: "tet", tuNgayThat: "2027-01-28", denNgayThat: "2027-02-04" },
+    uuTien: 12,
+    thoai: [
+      ["sau", "Hai mươi ba tháng Chạp rồi. Con phụ bà thả cá chép tiễn ông Táo nghen."],
+      ["_", "(Hai bà cháu ra kênh thả ba con cá chép vàng.)"],
+      ["sau", "Năm nay tiệm con làm ăn được. Ông Táo lên trời có chuyện vui mà kể."],
+    ],
+    ketQua: { than: { sau: 1 } },
+  },
+  {
+    id: "le_tet_2027",
+    nhan: "Tết ở Hẻm 42",
+    chuong: 1,
+    luc: "mo_cua",
+    tomTat: "Ba mẹ lên thăm tiệm dịp Tết, chú Tư chở từ bến xe về.",
+    dieuKien: { le: "tet", tuNgayThat: "2027-02-05" },
+    uuTien: 13,
+    thoai: [
+      ["tin", "Mẹ: Tết này con có về không…"],
+      ["tin", "Mẹ: Thôi, ba mẹ lên thăm con. Nhớ để dành bàn cho ba ngồi."],
+      ["_", "(Chú Tư chở hai ông bà từ bến xe về tận Hẻm 42.)"],
+      ["tu", "Ông bà coi, tiệm con mình đông khách lắm đó nghen!"],
+    ],
+    ketQua: { co: { me_len: true }, than: { tu: 1 } },
+  },
+);

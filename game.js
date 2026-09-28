@@ -1085,9 +1085,9 @@ const lPricey = () => S.sell.L > CFG.sizeWarn;
 const lChance = () => (S.sell.L >= CFG.sizeCap ? 0 : lPricey() ? 0.035 : 0.35);
 const upgCount = () => UPG.filter((u) => S.upg[u.id]).length;
 const wageDay = () =>
-  STAFF.reduce((a, x) => a + (S.upg[x.id] ? CFG[x.wage] : 0), 0);
+  STAFF.reduce((a, x) => a + (S.upg[x.id] ? Math.round(CFG[x.wage] * luongNv(x.id)) : 0), 0) * heSoLuongLe();
 const fixed = () => ({
-  rent: CFG.rent,
+  rent: tienNha(),
   util: CFG.utilBase + upgCount() * CFG.utilPerUpg,
 });
 function rating() {
@@ -1354,6 +1354,9 @@ function prepChecks() {
     return xetTiep();
   }
   if (quaMoKhoa()) return xetTiep();
+  if (leHoiCheck()) return xetTiep();
+  if (nvSuKien()) return xetTiep();
+  if (donNhomCheck()) return xetTiep();
   bakRemind();
 }
 function storeCheck() {
@@ -1511,7 +1514,7 @@ function traffic() {
       (coTrang(7) && evIs("holiday") ? 1.2 : 1) *
       (coTrang(10) ? 1.05 : 1);
   return (
-    (rf * boost * so * (e ? EVS[e.id].mul : 1)) /
+    (rf * boost * so * heSoKhachBuoc() * heSoKhachLe() * (e ? EVS[e.id].mul : 1)) /
     Math.max(0.85, Math.min(1, avgIdx) ** 2)
   );
 }
@@ -1963,6 +1966,7 @@ function renderPrep() {
   R.mode = "prep";
   if (AU.ctx) musSync();
   document.body.classList.remove("selling");
+  leHoiTrangTri();
   const tabs = [
     ["kho", "box", "Kho"],
     ["nangcap", "tools", "Nâng cấp"],
@@ -2223,6 +2227,7 @@ function paneUpg() {
   const tbN = S.tablets || 0,
     tabRow = `<div class="rowi"><span class="icon">${ico("phone")}</span><div><div class="nm">Tablet nhận đơn online (${tbN}/${APPS.length})</div><div class="sub">Mỗi tablet chạy 1 app giao hàng. Phải có tablet thì đơn Soppi mới đổ về, shipper mới tới lấy hàng</div></div>${tbN >= APPS.length ? '<span class="okline">✓</span>' : `<button class="sbtn pri" data-tablet="1" ${S.money < CFG.tablet ? "disabled" : ""}><b>${fmtTr(CFG.tablet)}</b>Mua</button>`}</div>`;
   const eq =
+    theMatTien() +
     `<div class="wl" style="text-align:right;margin-bottom:2px">⚡ +${fmt(CFG.utilPerUpg)}/ngày</div>` +
     UPG.map(
       (u) =>
@@ -2234,7 +2239,7 @@ function paneUpg() {
     `<div class="note">Thuê một lần, sau đó trả lương mỗi ngày mở cửa. Có nhân viên thì toàn bộ tiền tip của khách là của nhân viên, quán không nhận. Cho nghỉ thì hết trả lương, gọi đi làm lại lúc nào cũng được, không tốn tiền thuê.</div>` +
     STAFF.map(
       (u) =>
-        `<div class="rowi"><span class="icon">${ico("people")}</span><div><div class="nm">${u.n}</div>${u.d ? `<div class="sub">${u.d}</div>` : ""}<div class="sub">Lương ${fmt(CFG[u.wage])}/ngày</div></div>${S.upg[u.id] ? `<button class="sbtn" data-fire="${u.id}"><b>✓</b>Cho nghỉ</button>` : S.day < u.from ? `<span class="wl">Ngày ${u.from}</span>` : u.need && !u.need() ? `<span class="wl">${u.needT}</span>` : (S.hired || {})[u.id] ? `<button class="sbtn pri" data-hire="${u.id}"><b>Gọi</b>đi làm</button>` : `<button class="sbtn pri" data-hire="${u.id}" ${S.money < u.cost ? "disabled" : ""}><b>${u.cost ? fmt(u.cost) : "Không phí"}</b>Thuê</button>`}</div>`,
+        `<div class="rowi"><span class="icon">${ico("people")}</span><div><div class="nm">${u.n}</div>${u.d ? `<div class="sub">${u.d}</div>` : ""}<div class="sub">Lương ${fmt(Math.round(CFG[u.wage] * luongNv(u.id)))}/ngày</div>${nvDong(u.id)}</div>${S.upg[u.id] ? `<button class="sbtn" data-fire="${u.id}"><b>✓</b>Cho nghỉ</button>` : S.day < u.from ? `<span class="wl">Ngày ${u.from}</span>` : u.need && !u.need() ? `<span class="wl">${u.needT}</span>` : (S.hired || {})[u.id] ? `<button class="sbtn pri" data-hire="${u.id}"><b>Gọi</b>đi làm</button>` : `<button class="sbtn pri" data-hire="${u.id}" ${S.money < u.cost ? "disabled" : ""}><b>${u.cost ? fmt(u.cost) : "Không phí"}</b>Thuê</button>`}</div>`,
     ).join("");
   $("pane").innerHTML = subTabs("upg", [
     [ico("teapot") + " Trà", tea],
@@ -2386,6 +2391,7 @@ function paneUpg() {
       S.cur.equip.push({ n: "Thuê " + u.n, v: u.cost });
       S.upg[u.id] = true;
       S.hired[u.id] = true;
+      nvThue(u.id);
       save();
       toast("Đã thuê " + u.n + rest);
       refreshPrep();
@@ -3345,6 +3351,7 @@ function renderSell() {
   scrollTo(0, 0);
   R.mode = "sell";
   document.body.classList.add("selling");
+  leHoiTrangTri();
   R.focus = null;
   R.sealing = false;
   const zone = (a, x, y, w, h, extra, cls) =>
@@ -4329,6 +4336,7 @@ function coach() {
 }
 function staffHelp() {
   if (!(S.upg.staff1 || S.upg.staff3) || !R.running || R.t <= 0) return;
+  if (!nvRanh(S.upg.staff1 ? "staff1" : "staff3")) return;
   const f = focusCust(),
     o = f && f.order;
   if (!o || o.size !== cup.size || cup.base) return;
@@ -4369,7 +4377,7 @@ function staffHelp() {
       }
       cup.fill = Math.min(
         target,
-        (cup.fill || 0) + ((now - last) / 1000) * 0.7,
+        (cup.fill || 0) + ((now - last) / 1000) * 0.7 * nvToc(S.upg.staff1 ? "staff1" : "staff3"),
       );
       last = now;
       renderCup();
@@ -4508,7 +4516,7 @@ function staffHelp() {
   }, 350);
 }
 function staffTick(dt) {
-  if (!S.upg.staff2) return;
+  if (!S.upg.staff2 || !nvRanh("staff2")) return;
   if (R.st2) {
     const i = R.slots.findIndex((x) => x && x.id === R.st2.id),
       c = R.slots[i];
@@ -4536,7 +4544,7 @@ function staffTick(dt) {
   }
 }
 const st2T = () =>
-  2.5 + Math.random(); /* nhanh như nhân viên phụ quầy: ~3 giây mỗi ly */
+  (2.5 + Math.random()) / nvToc("staff2"); /* nhanh như nhân viên phụ quầy: ~3 giây mỗi ly */
 function stDone() {
   if (R.t < 0) R.otT = Math.min(R.otT || 0, R.t);
   R.st2 = null;
@@ -4580,7 +4588,7 @@ function staffStep(c, i) {
     fill: 0.8,
     used: true,
   });
-  if (Math.random() < 0.005) {
+  if (Math.random() < 0.005 * nvSai("staff2")) {
     const was = cup.tops;
     cup.tops = was.length
       ? []
@@ -4615,7 +4623,7 @@ function staffStep(c, i) {
 }
 /* nhân viên đơn online: nhận trọn 1 đơn online, mỗi ly ~1 giây, 0,5% làm hỏng ly phải đổ bỏ */
 function staffOnTick(dt) {
-  if (!S.upg.staffOn || !R.running) return;
+  if (!S.upg.staffOn || !R.running || !nvRanh("staffOn")) return;
   if (R.sto) {
     const j = R.online.findIndex((x) => x.id === R.sto.id);
     if (j < 0) {
@@ -4634,7 +4642,7 @@ function staffOnTick(dt) {
     .sort((a, b) => a.pat / a.max - b.pat / b.max)[0];
   if (cand) {
     if (cand.id === R.focus) R.focus = null;
-    R.sto = { id: cand.id, t: 1 };
+    R.sto = { id: cand.id, t: 1 / nvToc("staffOn") };
     renderLane();
     renderPanel();
   }
@@ -4676,10 +4684,10 @@ function staffOnStep(c, j) {
     fill: 0.8,
     used: true,
   });
-  if (Math.random() < 0.005) {
+  if (Math.random() < 0.005 * nvSai("staffOn")) {
     spoilCup();
     cup = mine;
-    R.sto.t = 1;
+    R.sto.t = 1 / nvToc("staffOn");
     toast(
       "Nhân viên đơn online làm hỏng 1 ly của đơn #" + c.id + ", đổ bỏ làm lại",
       5000,
@@ -4699,7 +4707,7 @@ function staffOnStep(c, j) {
     renderLane();
     return;
   }
-  R.sto.t = 1;
+  R.sto.t = 1 / nvToc("staffOn");
 }
 function stFinish(c, i) {
   if (R.slots[i] === c) {
@@ -5141,6 +5149,8 @@ function spawn() {
   const max =
     (55 + (level() >= 2 ? 8 : 0)) *
     heSoCho() *
+    heSoChoBuoc() *
+    heSoChoNv() *
     (S.upg.seats ? 1.25 : 1) *
     (1 + 0.8 * (nc - 1)) *
     (1 +
@@ -5536,6 +5546,7 @@ function serve(i) {
         (evIs("holiday") ? 2 : 1) *
         (coTrang(4) ? 1.1 : 1) *
         (c.ban ? 2 : 1) *
+        heSoTipLe() *
         (coTrang(11) && leHoiNay() === "tet" ? 2 : 1) *
         c.cups.length,
       rv = stars(c, false);
@@ -5829,6 +5840,7 @@ function tick() {
     spawn();
     R.spawnT = R.challenge ? 0.5 : (9 / traffic() / rushMul()) * (0.75 + Math.random() * 0.5);
   }
+  donNhomNhip();
   if (onlineActive()) {
     R.onT -= dt;
     if (R.onT <= 0 && R.t > Math.max(8, (dayLen() * 60 * 30) / 660)) {
@@ -6001,7 +6013,7 @@ function startDay() {
   Object.assign(R, {
     s1n: 0,
     s1bad: (() => {
-      const n = rnd([0, 1, 2]),
+      const n = Math.min(3, Math.round(rnd([0, 1, 2]) * nvSai(S.upg.staff3 ? "staff3" : "staff1"))),
         a = [];
       while (a.length < n) {
         const x = 2 + Math.floor(Math.random() * 15);
@@ -6014,7 +6026,7 @@ function startDay() {
     t: (S.dayLen || CFG.dayMin) * 60,
     spawnT: 0.8,
     onT: 6,
-    slots: S.upg.slot4 ? [null, null, null, null] : [null, null, null],
+    slots: Array(soCho()).fill(null),
     online: [],
     st2: null,
     staffPouring: false,
@@ -6042,6 +6054,7 @@ function startDay() {
     },
   });
   R.sto = null;
+  nvDauNgay();
   planBig();
   {
     R.starAt = 0;
@@ -6155,12 +6168,15 @@ function endDay() {
     endMoney = S.money,
     best = S.best || 0,
     gOn = guardLv();
-  let justOnline = false;
+  let justOnline = false,
+    mtHtml = "";
   if (!broke) {
     S.best = Math.max(S.best || 0, S.day);
     S.day++;
     S.cur = newRec(S.day);
     rollDay(S.day);
+    mtHtml = matTienCuoiNgay();
+    nvCuoiNgay(r, profit, avg);
     if (!S.online && onlineCheck().every((x) => x.ok)) {
       S.online = true;
       justOnline = true;
@@ -6204,7 +6220,7 @@ function endDay() {
   ${
     broke
       ? `<p>${ico("trophy")} ${best} ngày</p><p class="note">Câu chuyện Hẻm 42, sổ công thức, độ thân với khách quen và kỷ lục vẫn được giữ.</p><button class="big" id="go">Mở quán mới</button>`
-      : `${khat ? `<p class="lvup">${ico("people")} Két âm ${fmt(khat)}. Bà Sáu cho khất, trả dần bằng một nửa tiền lãi những ngày sau, không tính lãi. Mỗi chương bà chỉ cho khất một lần.</p>` : ""}${!broke && S.ev ? `<p class="lvup">${ico(EVS[S.ev.id].ic)} Ngày mai: <b>${EVS[S.ev.id].n}</b>. ${evText(S.ev)}</p>` : ""}${nextLv ? `<p class="lvup">${ico("warn")} Từ ngày ${S.day}: ${LV_TXT[nextLv].toLowerCase()}. Đầu ngày sẽ có hướng dẫn.</p>` : ""}${justOnline ? `<p class="lvup">${ico("phone")} Mở đơn online Soppi! ${S.tablets || 0 ? "" : "Mua tablet ở Nâng cấp > Trang bị để đơn đổ về."}</p>` : ""}${phoTraCuoiNgay()}${ngayMaiHTML()}<button class="sbtn" id="seeSum" style="width:100%;padding:10px;margin-top:6px">${ico("chart")} Tổng kết</button><button class="big" id="go" style="margin-top:8px">Ngày ${S.day} ➜</button>`
+      : `${khat ? `<p class="lvup">${ico("people")} Két âm ${fmt(khat)}. Bà Sáu cho khất, trả dần bằng một nửa tiền lãi những ngày sau, không tính lãi. Mỗi chương bà chỉ cho khất một lần.</p>` : ""}${!broke && S.ev ? `<p class="lvup">${ico(EVS[S.ev.id].ic)} Ngày mai: <b>${EVS[S.ev.id].n}</b>. ${evText(S.ev)}</p>` : ""}${nextLv ? `<p class="lvup">${ico("warn")} Từ ngày ${S.day}: ${LV_TXT[nextLv].toLowerCase()}. Đầu ngày sẽ có hướng dẫn.</p>` : ""}${justOnline ? `<p class="lvup">${ico("phone")} Mở đơn online Soppi! ${S.tablets || 0 ? "" : "Mua tablet ở Nâng cấp > Trang bị để đơn đổ về."}</p>` : ""}${mtHtml}${phoTraCuoiNgay()}${ngayMaiHTML()}<button class="sbtn" id="seeSum" style="width:100%;padding:10px;margin-top:6px">${ico("chart")} Tổng kết</button><button class="big" id="go" style="margin-top:8px">Ngày ${S.day} ➜</button>`
   }`;
     $("modal").hidden = false;
     $("go").focus();

@@ -57,6 +57,11 @@ function hopCanh(m, luc) {
   if (d.co && !khopCo(d.co)) return false;
   if (d.trang && !T.trang.includes(d.trang)) return false;
   if (d.buoc && (S.buoc || 1) < d.buoc) return false;
+  if (d.tienDuoi != null && !(S.money < d.tienDuoi)) return false;
+  if (d.sao != null && rating() < d.sao) return false;
+  if (d.soTrang != null && T.trang.length < d.soTrang) return false;
+  if (d.tuNgayThat && homNayVN() < d.tuNgayThat) return false;
+  if (d.denNgayThat && homNayVN() > d.denNgayThat) return false;
   if (d.le && !(typeof leHoiNay === "function" && leHoiNay() === d.le)) return false;
   if (d.sau) {
     const x = T.xem[d.sau];
@@ -147,7 +152,7 @@ function truyenLuc(luc, xong) {
 function hienCanh(m, xong, xemLai) {
   const card = $("card"),
     dong = locDong(m.thoai),
-    nhan = `<small class="trch">Chương ${m.chuong} · ${CHUONG_TEN[m.chuong] || ""}</small>`;
+    nhan = `<small class="trch">${m.nhan ? esc(m.nhan) : `Chương ${m.chuong} · ${CHUONG_TEN[m.chuong] || ""}`}</small>`;
   let i = 0;
   const ketThuc = (chon, boQua) => {
     const moi = xemLai ? [] : apDung(m, chon);
@@ -223,7 +228,8 @@ const LICH_LE = {
   tet: ["2027-02-06", "2028-01-26", "2029-02-13", "2030-02-03"],
   trungThu: ["2026-09-25", "2027-09-15", "2028-10-03", "2029-09-22", "2030-09-12"],
 };
-const homNayVN = () => new Date(Date.now() + 7 * 3600e3).toISOString().slice(0, 10);
+/* window.__ngay = "YYYY-MM-DD" để thử lễ Tết, Noel mà không phải đợi tới ngày (chỉ dùng khi test) */
+const homNayVN = () => window.__ngay || new Date(Date.now() + 7 * 3600e3).toISOString().slice(0, 10);
 const cachNgayLich = (a, b) => Math.round((Date.parse(a) - Date.parse(b)) / 864e5);
 /* "tet" từ 17 ngày trước mùng 1 (gần ông Táo) tới mùng 9; "trungThu" 5 ngày quanh rằm; "noel" 20–26/12 */
 function leHoiNay(ngay) {
