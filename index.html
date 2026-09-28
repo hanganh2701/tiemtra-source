@@ -612,6 +612,21 @@ body:not(.selling)::before{content:'';position:fixed;inset:0;z-index:-1;backgrou
 @keyframes q3bob{50%{transform:translateY(-3px)}}
 @keyframes q3wob{from{transform:scale(1.02,1.02)}to{transform:scale(1.06,1.04)}}
 @keyframes q3shake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+/* ---------- Hẻm 42: cảnh truyện, sổ, khách quen ---------- */
+.card{position:relative}
+.trch{display:block;font-size:.72rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--soft);margin-bottom:10px}
+.trskip{position:absolute;right:8px;top:6px;text-decoration:none;font-size:.82rem}
+.trw{display:flex;gap:12px;align-items:flex-start;text-align:left;margin:8px 0}
+.trf{flex:none;width:64px;height:63px;border-radius:50%;background-color:var(--bg);background-size:cover;border:3px solid var(--line);display:inline-flex;align-items:center;justify-content:center}
+.trf-ic .ico{width:34px;height:34px}
+.trn2{display:block;font-size:.85rem;color:var(--pink-d)}
+.trl{margin:2px 0 0;font-size:1.05rem;line-height:1.45;text-align:left}
+.trn{font-style:italic;color:var(--soft);text-align:center;margin:12px 4px}
+.trtin{background:color-mix(in srgb,var(--mint) 18%,var(--bg));border-radius:14px 14px 14px 4px;padding:8px 12px;font-size:.98rem}
+.trdots{display:flex;gap:5px;justify-content:center;margin:12px 0 2px}.trdots i{width:7px;height:7px;border-radius:50%;background:var(--line)}.trdots i.on{background:var(--pink)}
+.big.trc{font-size:1rem;padding:10px 16px}
+.trpg{font-style:italic;font-size:1.05rem;line-height:1.5;background:var(--bg);border-radius:12px;padding:10px 12px;margin:8px 0}
+.xungc{display:flex;gap:6px;align-items:center;justify-content:center;margin-top:10px;font-size:.9rem;font-weight:700;color:var(--soft)}.xungc .chip{flex:none;padding:5px 14px;font-size:.9rem}
 </style>
 </head>
 <body>
@@ -633,6 +648,7 @@ body:not(.selling)::before{content:'';position:fixed;inset:0;z-index:-1;backgrou
 <script src="data/danh-gia.js"></script>
 <script src="data/su-kien.js"></script>
 <script src="data/cot-truyen.js"></script>
+<script src="src/truyen.js"></script>
 <script src="game.js"></script>
 <script>
 if ("serviceWorker" in navigator) {

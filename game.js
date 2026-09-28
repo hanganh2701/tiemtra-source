@@ -1648,7 +1648,7 @@ function setName(v) {
 }
 function renameDlg() {
   ask(
-    `<h2>Đặt tên quán</h2><p>Tối đa 30 ký tự. Tên sẽ hiện trên biển hiệu, đánh giá và tổng kết.</p><input id="nameIn" class="pinbox nm" maxlength="30" value="${esc(S.shopName)}" placeholder="Ví dụ: Trà Sữa Nhà Mèo" aria-label="Tên quán">`,
+    `<h2>Đặt tên quán</h2><p>Tối đa 30 ký tự. Tên sẽ hiện trên biển hiệu, đánh giá và tổng kết.</p><input id="nameIn" class="pinbox nm" maxlength="30" value="${esc(S.shopName)}" placeholder="Ví dụ: Trà Sữa Nhà Mèo" aria-label="Tên quán"><div class="xungc">Khách gọi bạn là <button type="button" class="chip${xung() === "anh" ? " on" : ""}" data-xung="anh">Anh</button><button type="button" class="chip${xung() === "chị" ? " on" : ""}" data-xung="chị">Chị</button></div>`,
     [
       ["Huỷ", () => {}],
       [
@@ -2162,7 +2162,7 @@ function tryOpen() {
     toast("⚠️ Chưa nấu: " + miss.map((m) => m[2]).join(", "));
     return;
   }
-  startDay();
+  truyenLuc("mo_cua", startDay);
 }
 function paneUpg() {
   const row = (k) =>
@@ -5089,7 +5089,7 @@ function spawn() {
     who,
     face: rnd(FACES),
     name: PNAME[who] ? PNAME[who]() : genName(),
-    say: rnd(pp.o),
+    say: xungGoi(rnd(pp.o)),
     end: rnd(pp.e),
     cups,
     done: cups.map(() => false),
@@ -6077,6 +6077,7 @@ function endDay() {
       R.sumIdx = null;
       renderPrep();
       window.scrollTo(0, 0);
+      if (!broke) truyenLuc("dong_cua");
     };
     $("go").onclick = () => close("kho");
     if ($("seeSum")) $("seeSum").onclick = () => close("tongket");
@@ -7413,7 +7414,7 @@ function showTour(isNew, fromGame, after) {
     sl.push([
       "Đặt tên quán",
       "",
-      `<div class="till"><div style="text-align:center"><img class="ico" src="img/ic_cupfull.png" alt="" style="width:64px;height:64px"></div><input id="nameIn" class="pinbox nm" maxlength="30" placeholder="Ví dụ: Trà Sữa Nhà Mèo" aria-label="Tên quán"></div>`,
+      `<div class="till"><div style="text-align:center"><img class="ico" src="img/ic_cupfull.png" alt="" style="width:64px;height:64px"></div><input id="nameIn" class="pinbox nm" maxlength="30" placeholder="Ví dụ: Trà Sữa Nhà Mèo" aria-label="Tên quán"><div class="xungc">Khách gọi bạn là <button type="button" class="chip${xung() === "anh" ? " on" : ""}" data-xung="anh">Anh</button><button type="button" class="chip${xung() === "chị" ? " on" : ""}" data-xung="chị">Chị</button></div></div>`,
       1,
     ]);
   const n = sl.length;
@@ -7658,6 +7659,8 @@ function showSettings() {
   $("card").innerHTML = `<h2>${ico("set")} Cài đặt</h2><div class="setl">
     <button class="setb" id="sGuide"><span>${ico("book")}</span>Hướng dẫn</button>
     <button class="setb" id="sNews"><span>${ico("gift")}</span>Có gì mới<small>v${GAME_VERSION}</small></button>
+    <button class="setb" id="sStory"><span>${ico("book")}</span>Cốt truyện Hẻm 42<small>${CHE_DO_TEN[cheDo()]}${cheDo() === "gon" ? " · gộp cả cảnh vào một khung" : cheDo() === "tat" ? " · không hiện cảnh, vẫn nhận trang sổ" : " · từng câu, bỏ qua được"}</small></button>
+    <button class="setb" id="sXung"><span>${ico("people")}</span>Khách gọi bạn là<small>${hoaDau(xung())} · bấm để đổi</small></button>
     <button class="setb" id="sCoach"><span>${ico("book")}</span>Chỉ dẫn từng bước<small>${S.coach === true ? "Luôn bật" : S.coach === false ? "Tắt" : "Tự động"}</small></button>
     <button class="setb" id="sLen"><span>${ico("clock")}</span>Thời gian bán mỗi ngày<small>${S.dayLen || CFG.dayMin} phút${R.running ? " · áp dụng từ ngày sau" : ""}</small></button>
     <button class="setb" id="sTheme"><span>${ico("pen")}</span>Màu giao diện<small>${(THEMES.find((x) => x.id === THEME) || THEMES[0]).n}</small></button>
@@ -7678,6 +7681,17 @@ function showSettings() {
     showTour(false, true);
   };
   $("sNews").onclick = () => showNews(false);
+  $("sStory").onclick = () => {
+    const L = ["day", "gon", "tat"];
+    TT().che = L[(L.indexOf(cheDo()) + 1) % L.length];
+    save();
+    showSettings();
+  };
+  $("sXung").onclick = () => {
+    S.xung = xung() === "chị" ? "anh" : "chị";
+    save();
+    showSettings();
+  };
   $("sTheme").onclick = themeDlg;
   $("sLen").onclick = () => {
     const L = [4, 5, 6],

@@ -1,0 +1,217 @@
+/* ---------- CỐT TRUYỆN HẺM 42: bộ máy mẩu chuyện ----------
+   Đọc MAU_CHUYEN trong data/cot-truyen.js, chọn cảnh theo điều kiện, hiện từng câu kèm chân dung.
+   Nạp sau data/*.js, trước game.js. Mọi hàm chỉ chạy lúc chơi nên được dùng S, R, $, ask… của game.js. */
+
+const CHUONG_TEN = ["Khai trương", "Người trong hẻm", "Mùa trăng", "Về nhà ăn Tết"];
+
+/* trạng thái truyện trong bản lưu */
+function TT() {
+  if (!S.tr) S.tr = {};
+  const T = S.tr;
+  T.xem = T.xem || {}; /* id cảnh -> ngày đã xem */
+  T.co = T.co || {}; /* cờ do lựa chọn đặt */
+  T.than = T.than || {}; /* độ thân khách quen, 0–10 */
+  T.trang = T.trang || []; /* các trang sổ công thức đã có */
+  T.khat = T.khat || {}; /* chương đã được bà Sáu cho khất tiền nhà */
+  T.ghe = T.ghe || {}; /* khách quen: ngày ghé gần nhất */
+  T.lan = T.lan || {}; /* khách quen: số lần ghé */
+  T.qua = T.qua || {}; /* quà mở khoá đã nhận, theo ngày */
+  T.mon = T.mon || {}; /* món đã pha đúng: khoá -> số ly */
+  return T;
+}
+const cheDo = () => (S.tr && S.tr.che) || "day"; /* day: đầy đủ · gon: gọn · tat: tắt */
+const CHE_DO_TEN = { day: "Đầy đủ", gon: "Gọn", tat: "Tắt" };
+const xung = () => (S.xung === "anh" ? "anh" : "chị");
+const hoaDau = (x) => x.charAt(0).toUpperCase() + x.slice(1);
+const chuongNay = () => (S.day < 6 ? 0 : S.day < 30 ? 1 : S.day < 60 ? 2 : 3);
+const coTrang = (n) => !!(S.tr && S.tr.trang && S.tr.trang.includes(n));
+
+/* chèn cách xưng hô và tên tiệm vào câu; thô = không thoát HTML (dùng trong câu gọi món) */
+function thayTen(t, tho) {
+  const s = tho ? String(t) : esc(t);
+  return s
+    .replace(/\{Ban\}/g, hoaDau(xung()))
+    .replace(/\{ban\}/g, xung())
+    .replace(/\{shop\}/g, tho ? shopName() : esc(shopName()));
+}
+/* khách thường gọi "Chị ơi…" thì đổi theo cách người chơi muốn được gọi */
+const xungGoi = (say) => say.replace(/^Chị ơi/, hoaDau(xung()) + " ơi");
+
+/* ---------- chọn cảnh ---------- */
+/* mở cửa: ngày đang bán; đóng cửa: ngày vừa bán xong (S.day đã sang ngày mới) */
+const ngayCua = (luc) => (luc === "dong_cua" ? S.day - 1 : S.day);
+function khopCo(want) {
+  const T = TT();
+  return Object.entries(want || {}).every(([k, v]) => (v === true ? !!T.co[k] : T.co[k] === v));
+}
+function hopCanh(m, luc) {
+  if (m.luc !== luc) return false;
+  const T = TT(),
+    d = m.dieuKien || {},
+    dn = ngayCua(luc);
+  if (T.xem[m.id] != null) return false;
+  if (d.ngay != null && dn < d.ngay) return false;
+  if (d.ngayDen != null && dn > d.ngayDen) return false;
+  if (d.than && !Object.entries(d.than).every(([k, v]) => (T.than[k] || 0) >= v)) return false;
+  if (d.co && !khopCo(d.co)) return false;
+  if (d.trang && !T.trang.includes(d.trang)) return false;
+  if (d.buoc && (S.buoc || 1) < d.buoc) return false;
+  if (d.le && !(typeof leHoiNay === "function" && leHoiNay() === d.le)) return false;
+  if (d.sau) {
+    const x = T.xem[d.sau];
+    if (x == null || (d.cachNgay && dn - x < d.cachNgay)) return false;
+  }
+  if (d.thoiTiet) {
+    const e = luc === "dong_cua" ? (S.history[S.history.length - 1] || {}).ev : ev();
+    const cho = d.sau ? dn - T.xem[d.sau] : 0;
+    if (!(e && e.id === d.thoiTiet) && cho < 8) return false;
+  }
+  return true;
+}
+function canhKe(luc) {
+  const T = TT();
+  if (T.homNay === ngayCua(luc)) return null; /* tối đa một cảnh mỗi ngày */
+  const ds = MAU_CHUYEN.filter((m) => hopCanh(m, luc));
+  ds.sort(
+    (a, b) =>
+      (b.uuTien || 0) - (a.uuTien || 0) || ((a.dieuKien || {}).ngay || 0) - ((b.dieuKien || {}).ngay || 0),
+  );
+  return ds[0] || null;
+}
+
+/* ---------- áp kết quả ---------- */
+function apKetQua(kq, moi) {
+  if (!kq) return;
+  const T = TT();
+  Object.entries(kq.than || {}).forEach(([k, v]) => (T.than[k] = Math.max(0, Math.min(10, (T.than[k] || 0) + v))));
+  Object.assign(T.co, kq.co || {});
+  if (kq.trang && !T.trang.includes(kq.trang)) {
+    T.trang.push(kq.trang);
+    T.trang.sort((a, b) => a - b);
+    moi.push(kq.trang);
+  }
+  if (kq.tien) {
+    S.money += kq.tien;
+    S.cur.gift = (S.cur.gift || 0) + kq.tien;
+  }
+}
+function apDung(m, chon) {
+  const T = TT(),
+    moi = [];
+  if (chon) Object.assign(T.co, chon.dat || {});
+  apKetQua(m.ketQua, moi);
+  if (chon) apKetQua(chon.ketQua, moi);
+  save();
+  head();
+  return moi;
+}
+
+/* ---------- hiện cảnh ---------- */
+function chanDung(ai) {
+  const nv = NHAN_VAT[ai];
+  if (ai === "tin" || (nv && nv.tinNhan)) return `<span class="trf trf-ic">${ico("phone")}</span>`;
+  if (!nv) return "";
+  if (nv.anh) return `<span class="trf" style="background-image:url(${IMG}${nv.anh}.png)"></span>`;
+  if (nv.mat != null) return `<span class="trf" style="${faceBg(nv.mat, 0, 64, 63)}"></span>`;
+  if (nv.ngoiSao != null && typeof nv.ngoiSao === "number") return `<span class="trf" style="${starBg(nv.ngoiSao, 0, 64, 63)}"></span>`;
+  return "";
+}
+function dongThoai([ai, cau]) {
+  if (ai === "_") return `<p class="trl trn">${thayTen(cau)}</p>`;
+  if (ai === "tin") return `<div class="trw"><span class="trf trf-ic">${ico("phone")}</span><p class="trl trtin">${thayTen(cau)}</p></div>`;
+  const nv = NHAN_VAT[ai] || { ten: ai };
+  return `<div class="trw">${chanDung(ai)}<div><b class="trn2">${esc(nv.ten)}</b><p class="trl">${thayTen(cau)}</p></div></div>`;
+}
+const locDong = (ds) => (ds || []).filter((d) => !d[2] || khopCo(d[2].co));
+
+/* chạy cảnh (nếu có) rồi gọi xong(). luc: "mo_cua" | "dong_cua" */
+function truyenLuc(luc, xong) {
+  xong = xong || (() => {});
+  if (R.challenge || !$("card")) return xong();
+  const m = canhKe(luc);
+  if (!m) return xong();
+  const T = TT();
+  T.xem[m.id] = ngayCua(luc);
+  T.homNay = ngayCua(luc);
+  save();
+  if (typeof track === "function") track("truyen-" + m.id);
+  if (cheDo() === "tat") {
+    const moi = apDung(m, (m.luaChon || [])[0]);
+    return hienTrangMoi(moi, xong);
+  }
+  hienCanh(m, xong, false);
+}
+
+/* xemLai = mở từ Sổ tay: không áp kết quả lần nữa */
+function hienCanh(m, xong, xemLai) {
+  const card = $("card"),
+    dong = locDong(m.thoai),
+    nhan = `<small class="trch">Chương ${m.chuong} · ${CHUONG_TEN[m.chuong] || ""}</small>`;
+  let i = 0;
+  const ketThuc = (chon, boQua) => {
+    const moi = xemLai ? [] : apDung(m, chon);
+    const sau = locDong(chon && chon.thoai);
+    const dong2 = () => {
+      $("modal").hidden = true;
+      if (boQua && !xemLai) toast("📖 " + m.tomTat, 3500);
+      hienTrangMoi(moi, xong);
+    };
+    if (sau.length && !boQua) {
+      card.innerHTML = `${nhan}${sau.map(dongThoai).join("")}<div class="askbtns"><button class="big" id="trOk">Tiếp tục</button></div>`;
+      $("trOk").onclick = dong2;
+    } else dong2();
+  };
+  const nutChon = () =>
+    m.luaChon && m.luaChon.length
+      ? `<div class="askbtns">${m.luaChon.map((c, k) => `<button class="big trc" data-ch="${k}">${thayTen(c.chu)}</button>`).join("")}</div>`
+      : `<div class="askbtns"><button class="big" id="trOk">Tiếp tục</button></div>`;
+  const ganNut = () => {
+    card.querySelectorAll("[data-ch]").forEach((b) => (b.onclick = () => ketThuc(m.luaChon[+b.dataset.ch], false)));
+    if ($("trOk")) $("trOk").onclick = () => ketThuc(null, false);
+    if ($("trSkip"))
+      $("trSkip").onclick = () => ketThuc((m.luaChon || [])[0] || null, true);
+  };
+  const boQuaNut = xemLai ? "" : `<button class="sp-link trskip" id="trSkip">Bỏ qua ›</button>`;
+  const ve = () => {
+    const gon = cheDo() === "gon" || xemLai;
+    if (gon) {
+      card.innerHTML = `${boQuaNut}${nhan}${dong.map(dongThoai).join("")}${nutChon()}`;
+    } else {
+      const cuoi = i >= dong.length - 1;
+      card.innerHTML = `${boQuaNut}${nhan}${dongThoai(dong[i])}<div class="trdots">${dong.map((_, k) => `<i class="${k <= i ? "on" : ""}"></i>`).join("")}</div>${
+        cuoi ? nutChon() : `<div class="askbtns"><button class="big" id="trNext">Tiếp ›</button></div>`
+      }`;
+      if ($("trNext"))
+        $("trNext").onclick = () => {
+          i++;
+          ve();
+        };
+    }
+    ganNut();
+    if (xemLai && $("trOk")) $("trOk").onclick = () => ($("modal").hidden = true, xong());
+  };
+  card.onchange = null;
+  $("modal").hidden = false;
+  ve();
+}
+
+/* nhận trang sổ công thức mới: hiện từng trang rồi mới đi tiếp */
+function hienTrangMoi(moi, xong) {
+  if (!moi || !moi.length) return xong();
+  const n = moi.shift(),
+    P = TRANG_CONG_THUC[n];
+  sfx("lvup");
+  ask(
+    `<div class="pbig">${ico("book")}</div><h2>Trang ${n}: ${esc(P.ten)}</h2><p class="trpg">“${esc(P.chu)}”</p><p class="lvup">${esc(P.uuDai)}</p><p class="note">Sổ công thức của bà Sáu: ${TT().trang.length}/12 trang</p>`,
+    [["Cất vào sổ", () => hienTrangMoi(moi, xong), 1]],
+  );
+}
+
+/* nút chọn anh/chị trong trang đặt tên quán (bắt ở cấp tài liệu vì trang được vẽ lại nhiều nơi) */
+document.addEventListener("click", (e) => {
+  const b = e.target.closest && e.target.closest("[data-xung]");
+  if (!b || typeof S === "undefined" || !S) return;
+  S.xung = b.dataset.xung;
+  b.parentElement.querySelectorAll("[data-xung]").forEach((x) => x.classList.toggle("on", x === b));
+  save();
+});
