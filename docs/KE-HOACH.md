@@ -57,13 +57,17 @@ Hệ quả: **không làm tính năng qua máy chủ** (bảng xếp hạng onli
 - [x] Cảm giác pha (`src/cam-giac.js`): bọt khi rót, dấu Hoàn hảo, rung
 - [x] Chọn anh hay chị (`S.xung`)
 
-### Mốc 2 · Chơi cùng bạn, không cần mạng (tuần 7–10, bản 4.1)
+### Mốc 2 · Chơi cùng bạn, không cần mạng (bản 4.1) — xong 28/09
 
-- [ ] Mô phỏng tất định (ngẫu nhiên có hạt giống, tiền số nguyên)
-- [ ] Thử thách hôm nay, thẻ chia sẻ, mã tự kiểm chứng, bảng bạn bè trên máy
-- [ ] Danh thiếp tiệm, bạn thành khách VIP
-- [ ] BXH Phố Trà với tiệm máy
-- [ ] Mưa đẩy đơn app, giá riêng trên app
+- [x] Thử thách hôm nay (`src/thu-thach.js`): đề 40 khách từ hạt giống theo ngày, trạng thái tạm không lưu
+- [x] Mã chia sẻ TT1 tự kiểm chứng, bảng bạn bè trên máy (hôm nay, 7 ngày)
+- [x] Danh thiếp tiệm QN1, bạn bè thành khách VIP (`src/pho-tra.js`)
+- [x] BXH Phố Trà với 9 tiệm máy (`data/pho-tra.js`)
+- [x] Mưa: đơn app nhiều nhưng có đơn bị huỷ vì thiếu tài xế; giá riêng trên app (`S.appMk`), phí sàn 25% (bước cấu hình 40)
+
+Khác kế hoạch: thay vì làm cả mô phỏng chạy ra cùng kết quả rồi chơi lại toàn bộ lượt, mã ghi công thức từng ly và thời gian;
+máy người nhận tạo lại đề và kiểm công thức, thời gian pha, luật 3 chỗ. Gọn hơn nhiều, vẫn chặn được mã bịa bằng mod.
+Chưa làm ảnh chia sẻ vẽ bằng canvas (để mốc 4 cùng thẻ khoe tiệm).
 
 ### Mốc 3 · Lớn lên lần đầu và Tết (tuần 11–16)
 

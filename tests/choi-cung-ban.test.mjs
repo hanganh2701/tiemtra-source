@@ -156,3 +156,20 @@ test("Phố Trà: có tiệm máy, tiệm mình, hạng và điểm cần để 
   }
 });
 
+test("giá trên app: phụ thu ghi riêng trong sổ, tiền vào két khớp doanh thu trừ phí sàn", () => {
+  const g = boot();
+  try {
+    g.run("__openDay(); S.appMk = 20; const o = genOrder(); o.so = null; R.online = [mkOnline(APPS[0], [o])]");
+    const m0 = g.run("S.money"), r0 = g.run("recRev(S.cur)"), f0 = g.run("S.cur.fee");
+    g.run(`(() => { const c = R.online[0], o = c.cups[0]; cup = newCup(); cup.size = o.size; useCup();
+      [o.base, ...(o.flav ? [o.flav] : []), ...o.tops].forEach((k) => { if (!qty(k)) addStock(k, 5); consume(k); });
+      Object.assign(cup, { base: o.base, flav: o.flav || null, tops: [...o.tops], cheese: !!o.cheese, sugar: o.sugar, ice: o.ice, fill: 0.8, used: true });
+      serveOnline(0); })()`);
+    const dm = g.run("S.money") - m0, dr = g.run("recRev(S.cur)") - r0, df = g.run("S.cur.fee") - f0;
+    assert.ok(g.run("S.cur.sales.app.a") > 0);
+    assert.equal(Math.round(dm + df), dr);
+    assert.equal(g.run("CFG.commission"), 25);
+  } finally {
+    g.close();
+  }
+});

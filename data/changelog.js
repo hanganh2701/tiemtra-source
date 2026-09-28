@@ -1,7 +1,18 @@
 /* Phiên bản và danh sách "Có gì mới". Mỗi lần cập nhật: tăng GAME_VERSION và thêm một mục lên ĐẦU CHANGELOG. */
 /* ===== PHIÊN BẢN GAME: mỗi lần cập nhật, tăng số và thêm một mục lên ĐẦU danh sách ===== */
-const GAME_VERSION = "4.0";
+const GAME_VERSION = "4.1";
 const CHANGELOG = [
+  {
+    v: "4.1",
+    d: "28/09/2026",
+    items: [
+      "Thử thách hôm nay (tab Hẻm 42): mỗi ngày ai cũng gặp cùng 40 khách, cùng vốn và menu. Không ảnh hưởng tiệm của bạn",
+      "Chia sẻ kết quả kèm lưới 🟩🟨🟥⬜ và link. Bạn bè mở link hoặc dán mã là máy tự kiểm chứng rồi thêm vào bảng hôm nay và bảng tuần",
+      "Phố Trà: bảng xếp hạng các tiệm trong khu. Leo hạng nhờ sao đánh giá, doanh thu, số ngày mở cửa và sổ công thức",
+      "Danh thiếp tiệm: gửi cho bạn bè, họ thêm vào là tiệm bạn lên Phố Trà của họ, chủ tiệm bạn bè thỉnh thoảng ghé làm khách VIP, tip gấp đôi",
+      "App giao hàng: phí sàn 25% như ngoài đời, bù lại đặt được giá riêng trên app (Giá bán > Size). Ngày mưa đơn app nhiều nhưng thỉnh thoảng bị huỷ vì thiếu tài xế",
+    ],
+  },
   {
     v: "4.0",
     d: "28/09/2026",

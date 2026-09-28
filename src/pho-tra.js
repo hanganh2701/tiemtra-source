@@ -202,3 +202,5 @@ function moTuLink() {
   setTimeout(lam, 800);
 }
 
+/* giá trên app giao hàng cao hơn tại quán bao nhiêu phần trăm (mặc định 15%) */
+const appMk = () => (S && S.appMk != null ? S.appMk : 15);

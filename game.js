@@ -136,6 +136,7 @@ const OLD_NAMES = {
   kemtrung: "Kem trứng",
   L: "Phụ thu size L",
   dactrung: "Trà của bà Sáu (món đặc trưng, thêm)",
+  app: "Phụ thu giá trên app",
 };
 const iname = (k) => (ITEMS[k] ? ITEMS[k].n : OLD_NAMES[k] || k);
 const low = (n) => n.toLowerCase().replace("3q", "3Q").replace("thái", "Thái");
@@ -515,7 +516,7 @@ const DEFAULT_CONFIG = {
   ownerPin: "2468", // mã vào bảng chủ game
   dayMin: 4, // phút thật cho một ngày bán (11:00–22:00 trong game)
   startMoney: 400000, // vốn ban đầu
-  commission: 20, // % phí app giao hàng
+  commission: 25, // % phí app giao hàng (ShopeeFood khoảng 25%, GrabFood 20–30%)
   wage1: 90000,
   wage2: 200000,
   wage3: 150000,
@@ -569,7 +570,7 @@ try {
     };
   }
 } catch (e) {}
-const CFG_VER = 39; /* phiên bản cấu hình mới nhất: thêm bước nâng cấp mới thì tăng số này */
+const CFG_VER = 40; /* phiên bản cấu hình mới nhất: thêm bước nâng cấp mới thì tăng số này */
 if (!(CFG.cfgVer >= 31)) {
   CFG.dayMin = 4;
 }
@@ -638,6 +639,14 @@ if (!(CFG.cfgVer >= 39)) {
   /* 3.11: vay ngân hàng tối đa 1 triệu, lãi 25%/năm (cấu hình đã lưu từ bản cũ vẫn giữ mức cũ nếu không nâng) */
   CFG.bankMax = 1000000;
   CFG.bankRate = 25;
+  CFG.cfgVer = 39;
+  try {
+    localStorage.setItem(OWNER_SAVE, JSON.stringify(CFG));
+  } catch (e) {}
+}
+if (!(CFG.cfgVer >= 40)) {
+  /* 4.1: phí app giao hàng 25% như ngoài đời, bù lại được đặt giá riêng trên app */
+  CFG.commission = 25;
   CFG.cfgVer = CFG_VER;
   try {
     localStorage.setItem(OWNER_SAVE, JSON.stringify(CFG));
@@ -2691,6 +2700,9 @@ function paneGia() {
     "L",
     S.sell.L,
   );
+  const appRow = onlineActive()
+    ? `<div class="rowi"><span class="icon">${ico("phone")}</span><div><div class="nm">Giá trên app giao hàng</div><div class="sub">Ngoài đời app đắt hơn tại quán 10–25% để bù phí sàn ${CFG.commission}%. Đắt quá thì ít đơn hơn.</div></div><select id="appMk" class="pinbox" style="width:auto;margin:0;font-size:1rem;letter-spacing:0;padding:6px">${[0, 5, 10, 15, 20, 25, 30].map((v) => `<option value="${v}"${v === appMk() ? " selected" : ""}>+${v}%</option>`).join("")}</select></div>`
+    : "";
   const maxCup = (() => {
     const b = Math.max(
         ...BASE_KEYS.filter((k) => S.unlocked[k]).map((k) => S.sell[k]),
@@ -2713,9 +2725,15 @@ function paneGia() {
       [ico("teapot") + " Trà", tea],
       [ico("strawberry") + " Hương", flav],
       [ico("pearlbowl") + " Topping", top],
-      ["⬆️ Size", size],
+      ["⬆️ Size", size + appRow],
     ]);
   bindSub("gia");
+  if ($("appMk"))
+    $("appMk").onchange = (e) => {
+      S.appMk = +e.target.value;
+      save();
+      toast("Giá trên app: +" + S.appMk + "% so với tại quán");
+    };
   $("pane").onchange = (e) => {
     const i = e.target;
     if (!i.dataset.g) return;
@@ -5247,6 +5265,15 @@ function spawnOnline() {
   if (pricyItems().length && Math.random() < 0.8) return;
   const app = pickApp();
   if (!app) return;
+  if (evIs("rain") && Math.random() < 0.2) {
+    /* mưa lớn: không có tài xế nhận đơn */
+    R.today.lost++;
+    if (!R.muaT || performance.now() - R.muaT > 15000) {
+      R.muaT = performance.now();
+      toast("Mưa lớn, một đơn app bị huỷ vì không có tài xế nhận");
+    }
+    return;
+  }
   {
     const o = genOrder();
     if (o.so) return;
@@ -5576,10 +5603,17 @@ function serveOnline(j) {
   if (k >= 0) {
     sfx("coin");
     const o = c.cups[k],
-      p = price(o),
+      p0 = price(o),
+      p = Math.round((p0 * (1 + appMk() / 100)) / 1000) * 1000,
       fee = (p * CFG.commission) / 100;
     recSale(o);
     ghiMon(o);
+    if (p > p0) {
+      /* phụ thu giá trên app ghi riêng trong sổ bán */
+      const x = (S.cur.sales.app = S.cur.sales.app || { q: 0, a: 0 });
+      x.q++;
+      x.a += p - p0;
+    }
     S.cur.onl += p;
     S.cur.fee += fee;
     S.money += p - fee;
@@ -5802,6 +5836,7 @@ function tick() {
       R.onT =
         (36 / traffic() / onMul()) *
         (evIs("rain") ? 0.45 : 1) *
+        (1 + (appMk() / 100) * 1.5) *
         (0.7 + Math.random() * 0.6);
     }
     if (R.bigQ && R.bigQ.length && R.t > 8) {
