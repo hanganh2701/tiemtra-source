@@ -1379,6 +1379,7 @@ function prepChecks() {
   if (donNhomCheck()) return xetTiep();
   if (chiNhanhSang()) return xetTiep();
   if (dsBaoHoan()) return xetTiep();
+  if (dsMucDu()) return xetTiep();
   if (moiGopHem()) return xetTiep();
   if (moiCai()) return xetTiep();
   if (moiGopY()) return xetTiep();
@@ -1798,7 +1799,7 @@ function menuBoard() {
           ks.map((k) => cell(k, 1)).join("")
       : "";
   }).join("");
-  return `<div class="sign"><button id="rename" aria-label="Đổi tên quán">${esc(shopName())}<small>${ico("pen")}</small></button></div>${triDai()}${ttNhacNho()}<div class="board"><h2>${ico("cupfull")} Menu hôm nay</h2><div class="items">${it}</div>${fl.length ? `<div class="btop">Hương vị</div><div class="items">${fl.map((k) => cell(k, 1)).join("")}</div>` : ""}<div class="btop">Topping</div><div class="items top">${tops}</div><div class="extra">Size L +${kv(S.sell.L)}</div></div>`;
+  return `<div class="sign"><button id="rename" aria-label="Đổi tên quán">${esc(shopName())}<small>${ico("pen")}</small></button></div>${triDai()}${ttNhacNho()}${dsMucNhacNho()}<div class="board"><h2>${ico("cupfull")} Menu hôm nay</h2><div class="items">${it}</div>${fl.length ? `<div class="btop">Hương vị</div><div class="items">${fl.map((k) => cell(k, 1)).join("")}</div>` : ""}<div class="btop">Topping</div><div class="items top">${tops}</div><div class="extra">Size L +${kv(S.sell.L)}</div></div>`;
 }
 const levelOf = (d) => {
   const L = CFG.levels;
@@ -6268,7 +6269,7 @@ function endDay() {
   ${
     broke
       ? `<p>${ico("trophy")} ${best} ngày</p><p class="note">Câu chuyện Hẻm 42, sổ công thức, độ thân với khách quen và kỷ lục vẫn được giữ.</p><button class="big" id="go">Mở quán mới</button>`
-      : `${khat ? `<p class="lvup">${ico("people")} Két âm ${fmt(khat)}. Bà Sáu cho khất, trả dần bằng một nửa tiền lãi những ngày sau, không tính lãi. Mỗi chương bà chỉ cho khất một lần.</p>` : ""}${!broke && S.ev ? `<p class="lvup">${ico(EVS[S.ev.id].ic)} Ngày mai: <b>${EVS[S.ev.id].n}</b>. ${evText(S.ev)}</p>` : ""}${nextLv ? `<p class="lvup">${ico("warn")} Từ ngày ${S.day}: ${LV_TXT[nextLv].toLowerCase()}. Đầu ngày sẽ có hướng dẫn.</p>` : ""}${justOnline ? `<p class="lvup">${ico("phone")} Mở đơn online Soppi! ${S.tablets || 0 ? "" : "Mua tablet ở Nâng cấp > Trang bị để đơn đổ về."}</p>` : ""}${mtHtml}${doKhoCuoiNgay()}${phoTraCuoiNgay()}${ngayMaiHTML()}<button class="sbtn" id="seeSum" style="width:100%;padding:10px;margin-top:6px">${ico("chart")} Tổng kết</button><button class="big" id="go" style="margin-top:8px">Ngày ${S.day} ➜</button>`
+      : `${khat ? `<p class="lvup">${ico("people")} Két âm ${fmt(khat)}. Bà Sáu cho khất, trả dần bằng một nửa tiền lãi những ngày sau, không tính lãi. Mỗi chương bà chỉ cho khất một lần.</p>` : ""}${!broke && S.ev ? `<p class="lvup">${ico(EVS[S.ev.id].ic)} Ngày mai: <b>${EVS[S.ev.id].n}</b>. ${evText(S.ev)}</p>` : ""}${nextLv ? `<p class="lvup">${ico("warn")} Từ ngày ${S.day}: ${LV_TXT[nextLv].toLowerCase()}. Đầu ngày sẽ có hướng dẫn.</p>` : ""}${justOnline ? `<p class="lvup">${ico("phone")} Mở đơn online Soppi! ${S.tablets || 0 ? "" : "Mua tablet ở Nâng cấp > Trang bị để đơn đổ về."}</p>` : ""}${mtHtml}${doKhoCuoiNgay()}${phoTraCuoiNgay()}${dsMucCuoiNgay()}${ngayMaiHTML()}<button class="sbtn" id="seeSum" style="width:100%;padding:10px;margin-top:6px">${ico("chart")} Tổng kết</button><button class="big" id="go" style="margin-top:8px">Ngày ${S.day} ➜</button>`
   }`;
     $("modal").hidden = false;
     $("go").focus();
@@ -6617,6 +6618,8 @@ function ownerPanel() {
 /* ---------- HỘP THOẠI TRONG GAME (thay confirm/prompt bị chặn) ---------- */
 function ask(html, btns) {
   $("card").onchange = null;
+  $("modal").classList.remove("sheet");
+  $("card").removeAttribute("role");
   $("card").innerHTML =
     html +
     `<div class="askbtns">${btns.map((b, i) => `<button class="${b[2] ? "big" : "sbtn ghost"}" data-ask="${i}">${b[0]}</button>`).join("")}</div>`;

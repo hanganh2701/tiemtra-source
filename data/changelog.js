@@ -10,7 +10,11 @@ const CHANGELOG = [
       "Xe máy Honda Wave Alpha, Vision, Yamaha Exciter, Honda SH; ô tô VinFast VF 3, Kia Morning, Toyota Vios, Mazda CX-5, Ford Everest, Mercedes C 300, Porsche Macan, Porsche 911",
       "Mỗi căn nhà, mỗi chiếc xe có hình vẽ riêng",
       "Trả góp ngân hàng: nhà trả trước 30%, vay 20 năm; ô tô trả trước 30%, vay 5 năm; nhà ở xã hội vay ưu đãi. Ngân hàng chỉ cho góp tới nửa thu nhập mỗi ngày",
-      "Đổi nhà, đổi xe thì bán lại cái cũ. Ai đã mua nhà xe ở bản 5.0 được hoàn lại tiền",
+      "Điện thoại, máy tính, đồng hồ, túi xách, quần áo, nước hoa có tên và giá như ngoài đời: từ Redmi, Galaxy A tới iPhone 18 Pro Max; từ Casio tới Rolex; từ túi Vascara tới Hermès Birkin",
+      "Quà cho ba mẹ chia nhóm: điện máy (tủ lạnh, máy lạnh, tivi, máy lọc nước), xe Wave cho ba, lì xì và vàng, khám sức khỏe, bảo hiểm, tour Đà Lạt, Nha Trang, Nhật Bản, lợp mái, xây lại nhà ở quê",
+      "Tab Đời sống gọn còn một màn hình: 6 khối thu gọn, mỗi khối cho biết đang có gì và món kế tiếp. Bấm món nào thì mở bảng chi tiết từ dưới lên để chọn trả thẳng hay trả góp",
+      "Mục tiêu để dành: chọn một món, thanh tiến độ hiện ở màn chuẩn bị kèm số ngày ước chừng, cuối ngày báo tiến độ, đủ tiền thì nhắc",
+      "Đổi nhà, đổi xe thì bán lại cái cũ. Ai đã mua nhà, xe, điện thoại hay món không còn bán ở bản 5.0 được hoàn lại tiền",
     ],
   },
   {

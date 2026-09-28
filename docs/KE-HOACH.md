@@ -16,7 +16,7 @@ File này là nguồn sự thật cho việc làm game. Mỗi phiên làm việc
 5. Nhóm chơi thử gồm học sinh, sinh viên, người đi làm.
 6. Sau lần chơi thử thứ ba của Claude (game dễ, tới ngày 49 là hết việc): chế độ thường khó dần theo chương (Thư giãn giữ nguyên), và làm chi nhánh ngay, không chờ cổng C3.
 7. Tab Đời sống (bản 5.0): có chi phí sinh hoạt nhẹ mỗi ngày (Thư giãn miễn), có cả đồ cho bản thân và quà cho gia đình.
-8. Nhà xe chi tiết như ngoài đời (bản 5.1, chốt 29/09): diện tích, số phòng, tên hãng và mẫu xe thật dạng chữ, giá tham khảo ngoài đời, có hình vẽ riêng (không logo).
+8. Nhà xe và đồ mua sắm chi tiết như ngoài đời (bản 5.1, chốt 29/09): diện tích, số phòng, tên hãng và mẫu thật dạng chữ (xe, điện thoại, đồng hồ, túi, điện máy), giá tham khảo ngoài đời, có hình vẽ riêng (không logo).
 
 Hệ quả: **không làm tính năng qua máy chủ** (bảng xếp hạng online, kết bạn, tặng quà qua mạng), không quảng cáo, không thanh toán. Mọi thứ chạy trên máy người chơi. Theo Nghị định 147/2024, game có máy chủ cho người chơi tương tác cần giấy phép mà chỉ doanh nghiệp xin được.
 
@@ -262,7 +262,13 @@ Tiền giờ có chỗ tiêu suốt game; mua căn hộ và nhà trong hẻm là
 - [x] Xe máy (`DS_XM`): xe đạp, Honda Wave Alpha, Vision, Yamaha Exciter 155, Honda SH 160i; ô tô (`DS_OT`): VinFast VF 3, Kia Morning, Toyota Vios, Mazda CX-5, Ford Everest, Mercedes-Benz C 300, Porsche Macan, Porsche 911 (hai cửa nên không chở hàng cho chi nhánh)
 - [x] Hình vẽ SVG cho từng nhà, từng xe (`src/hinh-doi-song.js`): xe nhìn ngang theo kiểu dáng, nhà theo loại; không logo
 - [x] Trả góp (`dsTinh`, `gopNgay`, `doiSongCuoiNgay`): trả trước 30%, nhà vay 20 năm lãi 9%, ô tô 5 năm lãi 10%; ngân hàng xét thu nhập 7 ngày gần nhất (`thuNhapNgay`), tổng góp tới một nửa; hỏi lại trước khi mua; trả hết nợ được; sổ ghi tiền trả trước và tiền góp mỗi ngày (dòng `gop`)
-- [x] Đổi nhà bán lại 90%, đổi xe bán lại 70% (trừ nợ góp còn lại); bản lưu 5.0 đã mua nhà xe giá cũ được hoàn tiền và báo một lần (`chuyenDs50`, `dsBaoHoan`)
+- [x] Đổi nhà bán lại 90%, đổi xe bán lại 70% (trừ nợ góp còn lại); bản lưu 5.0 đã mua nhà xe, điện thoại giá cũ hay món không còn bán được hoàn tiền và báo một lần (`chuyenDs50`, `dsBaoHoan`)
+- [x] Điện thoại (`DS_DT`), đồ cho bản thân (`DS_DO`, 4 nhóm) và quà cho ba mẹ (`DS_QUA`, 6 nhóm) theo giá chuỗi bán lẻ, trang hãng, tiệm vàng, công ty du lịch cuối 9/2026 (nghiên cứu ngày 29/09; túi LV, Chanel, Birkin không có giá niêm yết ở VN nên quy đổi). Thêm lì xì biếu Tết, xe Wave cho ba, bảo hiểm sức khỏe, tour Nhật, xây lại nhà ở quê. Mỗi món có hình vẽ (`hinhDo`) và dòng mô tả
+- [x] Tab Đời sống gọn lại (nghiên cứu UX ngày 29/09: NN/g về accordion và bottom sheet, Baymard, Apple HIG, mục tiêu tiết kiệm kiểu Monzo Pots, hiệu ứng goal-gradient). Trang cũ dài khoảng 6.700px (hơn 8 màn hình điện thoại), trang mới khoảng 700px khi các khối đóng:
+  - 6 khối thu gọn (`DS_KHOI`): Chỗ ở, Xe máy, Ô tô, Điện thoại, Cho bản thân, Quà cho ba mẹ. Tiêu đề khối có món đang có, món kế tiếp, giá và chữ tình trạng (Mua được, Góp được, Thiếu…), không chỉ dựa vào màu; mỗi lần mở một khối
+  - Nấc nhà xe điện thoại là hàng gọn (`dsHang`), nấc đã qua gom thành một dòng bấm mở; đồ dùng và quà là lưới 3 cột theo nhóm
+  - Bảng chi tiết trượt từ dưới lên (`xemDs`): chọn Trả thẳng hay Trả góp, bảng tiền (bán lại đồ cũ, tiền vay, góp mỗi ngày), chi phí mỗi ngày đổi bao nhiêu, lý do chưa mua được và số ngày ước chừng; đóng bằng nút Đóng, chạm nền, phím Esc hay vuốt lui trên điện thoại
+  - Mục tiêu để dành (`dsMucTieu`): thanh tiến độ ở thẻ tóm tắt và màn chuẩn bị với số ngày ước chừng theo thu nhập 7 ngày, dòng tiến độ ở thẻ cuối ngày (`dsMucCuoiNgay`), đủ tiền thì nhắc một lần (`dsMucDu`)
 
 Mô phỏng người chơi thật 200 ngày, máy ưu tiên nhà ở xã hội trước ô tô (nghìn đồng):
 

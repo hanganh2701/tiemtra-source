@@ -82,7 +82,7 @@ function __muaSam(kieu) {
         if (dong === "do" || dong === "qua") return !S.ds?.[dong]?.[id] && du(x.gia) && muaDs(dong, id);
         return !dsKhongDuoc(dong, x, gop) && du(dsTinh(dong, x, gop).can) && muaDs(dong, id, gop);
       };
-    [["xm", "wave"], ["tro", "tro_rieng"], ["dt", "dt_tot"], ["qua", "qua_ao_dai"], ["qua", "qua_dong_ho"], ["xm", "vision"], ["tro", "can_ho_thue"], ["dt", "dt_xin"],
+    [["xm", "wave"], ["tro", "tro_rieng"], ["dt", "galaxy_a"], ["qua", "qua_ao_dai"], ["qua", "qua_dong_ho"], ["xm", "vision"], ["tro", "can_ho_thue"], ["dt", "reno"],
      ["qua", "qua_may_giat"], ["xm", "sh"], ["qua", "qua_du_lich"], ["nha", "noxh", true], ["ot", "morning", true], ["qua", "qua_mai_nha"], ["nha", "ch54", true], ["ot", "cx5", true]]
       .forEach(([dong, id, gop]) => { if (thu(dong, id, gop)) { window.__muaNgay[id] = S.day; $("modal").hidden = true; } });
   }

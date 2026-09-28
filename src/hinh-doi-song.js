@@ -118,3 +118,83 @@ function hinhNha(x) {
   }
   return hSvg(160, 100, noi, x.ten);
 }
+
+/* ---------- hình đồ dùng và quà (80 x 80): kieu = loại hình, mau = màu chính ---------- */
+function hinhDo(x) {
+  if (x.kieu === "so" || x.kieu === "ga" || x.kieu === "dap") return hinhXe(x); /* quà là xe máy */
+  const m = x.mau || "#9fb5c4",
+    m2 = x.mau2 || "#5b3a29";
+  let s = "";
+  switch (x.kieu) {
+    case "dt": /* điện thoại: cam = số ống kính, gap = màn gập */
+      s = x.gap
+        ? `<rect x="14" y="14" width="24" height="52" rx="5" fill="${m}" ${HV}/><rect x="40" y="14" width="24" height="52" rx="5" fill="${m}" ${HV}/><rect x="18" y="19" width="42" height="42" rx="2" fill="#cfe8f5" stroke="#5b3a29" stroke-width="1.4"/><path d="M39 16V64" stroke="#5b3a29" stroke-width="1.6"/>`
+        : `<rect x="24" y="8" width="32" height="64" rx="7" fill="${m}" ${HV}/><rect x="28" y="13" width="24" height="52" rx="3" fill="#cfe8f5" stroke="#5b3a29" stroke-width="1.4"/><rect x="36" y="15" width="8" height="2.5" rx="1.2" fill="#5b3a29"/>${
+            x.cam ? `<rect x="56" y="12" width="${x.cam > 2 ? 14 : 10}" height="${x.cam > 2 ? 16 : 12}" rx="3" fill="${m}" stroke="#5b3a29" stroke-width="1.4"/>${Array.from({ length: x.cam }, (_, i) => `<circle cx="${60 + (i % 2) * 5}" cy="${16 + Math.floor(i / 2) * 6}" r="1.8" fill="#3b3a40"/>`).join("")}` : ""
+          }`;
+      break;
+    case "laptop":
+      s = `<rect x="16" y="16" width="48" height="32" rx="3" fill="${m}" ${HV}/><rect x="20" y="20" width="40" height="24" rx="1.5" fill="#cfe8f5" stroke="#5b3a29" stroke-width="1.3"/><path d="M8 54H72L66 60H14Z" fill="${m}" ${HV}/>`;
+      break;
+    case "dong_ho": /* tron hoặc vuông, dây màu m2 */
+      s = `<rect x="32" y="6" width="16" height="68" rx="6" fill="${m2}" ${HV}/>${
+        x.vuong ? `<rect x="22" y="24" width="36" height="34" rx="9" fill="${m}" ${HV}/><rect x="27" y="29" width="26" height="24" rx="6" fill="#2d2f36"/>` : `<circle cx="40" cy="40" r="19" fill="${m}" ${HV}/><circle cx="40" cy="40" r="14" fill="${x.mat || "#fffaf0"}" stroke="#5b3a29" stroke-width="1.3"/><path d="M40 40V30M40 40L47 44" stroke="#5b3a29" stroke-width="2"/>`
+      }`;
+      break;
+    case "tui": /* dang: tote | flap | birkin */
+      s =
+        x.dang === "flap"
+          ? `<path d="M26 18Q40 4 54 18" fill="none" stroke="#c9a24a" stroke-width="3"/><rect x="14" y="28" width="52" height="38" rx="6" fill="${m}" ${HV}/><path d="M14 30H66V44Q40 54 14 44Z" fill="${m}" ${HV}/><rect x="36" y="42" width="8" height="6" rx="1.5" fill="#e3c26a" stroke="#5b3a29" stroke-width="1.2"/>`
+          : x.dang === "birkin"
+            ? `<path d="M28 30Q28 14 40 14Q52 14 52 30" fill="none" ${HV}/><path d="M12 32H68L64 68H16Z" fill="${m}" ${HV}/><path d="M12 32L24 44H56L68 32" fill="${m}" ${HV}/><rect x="36" y="42" width="8" height="8" rx="1.5" fill="#e3c26a" stroke="#5b3a29" stroke-width="1.2"/>`
+            : `<path d="M28 30Q28 12 40 12Q52 12 52 30" fill="none" ${HV}/><path d="M14 28H66L62 70H18Z" fill="${m}" ${HV}/>${x.hoaVan ? `<path d="M20 38H60M22 50H58M24 62H56" stroke="#c9a24a" stroke-width="2" stroke-dasharray="2 4"/>` : ""}`;
+      break;
+    case "ao":
+      s = `<path d="M26 12L14 20L8 38L18 42L22 32V70H58V32L62 42L72 38L66 20L54 12Q40 22 26 12Z" fill="${m}" ${HV}/><path d="M40 20V70" stroke="#5b3a29" stroke-width="1.6"/>`;
+      break;
+    case "giay":
+      s = `<path d="M8 50Q10 34 24 34L36 36Q44 44 60 46Q72 48 72 58L72 62H8Z" fill="${m}" ${HV}/><path d="M8 62H72" stroke="#5b3a29" stroke-width="4"/><path d="M28 40L40 50M34 38L44 48" stroke="#fff" stroke-width="2"/>`;
+      break;
+    case "nuoc_hoa":
+      s = `<rect x="34" y="10" width="12" height="10" rx="2" fill="#e3c26a" ${HV}/><rect x="22" y="20" width="36" height="48" rx="6" fill="${m}" ${HV} opacity=".9"/><rect x="30" y="36" width="20" height="14" rx="2" fill="#fffaf0" stroke="#5b3a29" stroke-width="1.3"/>`;
+      break;
+    case "tv":
+      s = `<rect x="6" y="12" width="68" height="44" rx="4" fill="#2d2f36" ${HV}/><rect x="10" y="16" width="60" height="36" rx="2" fill="${m}"/><path d="M30 64L40 56L50 64" fill="none" ${HV}/><path d="M24 66H56" ${HV}/>`;
+      break;
+    case "tu_lanh":
+      s = `<rect x="20" y="6" width="40" height="68" rx="5" fill="${m}" ${HV}/><path d="M20 30H60" stroke="#5b3a29" stroke-width="2"/><path d="M26 16V24M26 36V48" stroke="#5b3a29" stroke-width="3"/>`;
+      break;
+    case "may_lanh":
+      s = `<rect x="6" y="18" width="68" height="26" rx="6" fill="${m}" ${HV}/><path d="M12 38H68" stroke="#5b3a29" stroke-width="1.6"/><path d="M20 52q4 6 0 12M40 52q4 6 0 12M60 52q4 6 0 12" fill="none" stroke="#8fd3ea" stroke-width="2.4"/>`;
+      break;
+    case "may_giat":
+      s = `<rect x="14" y="8" width="52" height="64" rx="6" fill="${m}" ${HV}/><path d="M14 22H66" stroke="#5b3a29" stroke-width="2"/><circle cx="40" cy="46" r="16" fill="#cfe8f5" ${HV}/><circle cx="56" cy="15" r="3" fill="#5b3a29"/>`;
+      break;
+    case "loc_nuoc":
+      s = `<rect x="22" y="8" width="36" height="64" rx="6" fill="${m}" ${HV}/><rect x="28" y="16" width="24" height="18" rx="3" fill="#8fd3ea" stroke="#5b3a29" stroke-width="1.3"/><path d="M40 44V52M36 52H44" ${HV}/><path d="M40 56q-4 6 0 8q4 -2 0 -8z" fill="#8fd3ea" stroke="#5b3a29" stroke-width="1.2"/>`;
+      break;
+    case "ghe":
+      s = `<path d="M18 12Q18 6 26 6H46Q54 6 54 14V44H18Z" fill="${m}" ${HV}/><path d="M12 44H62Q68 44 66 52L62 58H16L12 52Z" fill="${m}" ${HV}/><path d="M22 58L18 72M56 58L60 72" ${HV}/><path d="M26 16H46M26 26H46M26 36H46" stroke="#5b3a29" stroke-width="1.4"/>`;
+      break;
+    case "vang": /* nhẫn hoặc dây chuyền */
+      s = x.day
+        ? `<path d="M16 12Q40 70 64 12" fill="none" stroke="#e3b93c" stroke-width="4" stroke-dasharray="3 2"/><circle cx="40" cy="58" r="8" fill="#f2cf5b" ${HV}/>`
+        : `<circle cx="40" cy="46" r="18" fill="none" stroke="#e3b93c" stroke-width="7"/><circle cx="40" cy="46" r="18" fill="none" stroke="#5b3a29" stroke-width="1.6"/><path d="M34 26L40 18L46 26Z" fill="#f2cf5b" ${HV}/>`;
+      break;
+    case "may_bay":
+      s = `<path d="M8 44L30 40L52 14Q58 8 62 12Q64 16 58 22L46 42L68 58L64 62L40 52L26 62L20 60L26 48L10 48Z" fill="${m}" ${HV}/>`;
+      break;
+    case "nha_que":
+      s = `<rect x="16" y="36" width="48" height="34" fill="${m}" ${HV}/><path d="M8 38L40 14L72 38Z" fill="${x.mau2 || "#b2573f"}" ${HV}/><rect x="34" y="50" width="12" height="20" fill="#c8986a" stroke="#5b3a29" stroke-width="1.4"/><rect x="22" y="44" width="8" height="8" fill="#ffd76a" stroke="#5b3a29" stroke-width="1.3"/>`;
+      break;
+    case "suc_khoe":
+      s = `<path d="M40 70Q8 48 10 26Q14 10 30 12Q38 14 40 22Q42 14 50 12Q66 10 70 26Q72 48 40 70Z" fill="${m}" ${HV}/><path d="M40 30V52M29 41H51" stroke="#fff" stroke-width="6" stroke-linecap="round"/>`;
+      break;
+    case "phong_bi":
+      s = `<rect x="14" y="14" width="52" height="56" rx="4" fill="${m}" ${HV}/><path d="M14 18L40 38L66 18" fill="none" ${HV}/><circle cx="40" cy="50" r="7" fill="#f2cf5b" stroke="#5b3a29" stroke-width="1.4"/>`;
+      break;
+    default:
+      s = `<circle cx="40" cy="40" r="26" fill="${m}" ${HV}/>`;
+  }
+  return hSvg(80, 80, s, x.ten);
+}
