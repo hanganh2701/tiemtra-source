@@ -1935,6 +1935,7 @@ function renderPrep() {
     ["gia", "price", "Giá bán"],
     ["danhgia", "star", "Đánh giá"],
     ["tongket", "chart", "Tổng kết"],
+    ["hem", "book", "Hẻm 42"],
   ];
   $("view").innerHTML =
     menuBoard() +
@@ -1953,6 +1954,7 @@ function renderPrep() {
     gia: paneGia,
     danhgia: paneRev,
     tongket: paneSum,
+    hem: paneHem,
   })[R.tab]();
   renderObar(true);
   head();
@@ -2027,6 +2029,7 @@ function switchTab(k) {
     gia: paneGia,
     danhgia: paneRev,
     tongket: paneSum,
+    hem: paneHem,
   })[k]();
   renderObar();
 }
@@ -3774,6 +3777,7 @@ function renderLane() {
             ? `<span class="q3nat">${esc(f.hi)}</span>`
             : `<small class="q3tr">[Tự động dịch]</small> `)
         : "") +
+      (f.reg ? `<span class="q3vipT" style="background:#ef6f8e">♥ ${esc(f.name)}</span> ` : "") +
       (f.star != null && performance.now() - f.born < 3500
         ? ""
         : (f.vip ? '<span class="q3vipT">Food reviewer</span> ' : "") +
@@ -5016,6 +5020,13 @@ function spawn() {
     return;
   }
   {
+    const k = khachQuenDen();
+    if (k) {
+      spawnQuen(i, k);
+      return;
+    }
+  }
+  {
     const pi = pricyItems();
     if (pi.length && Math.random() < 0.8) {
       R.today.priceLost++;
@@ -5063,6 +5074,7 @@ function spawn() {
   }
   const max =
     (55 + (level() >= 2 ? 8 : 0)) *
+    heSoCho() *
     (S.upg.seats ? 1.25 : 1) *
     (1 + 0.8 * (nc - 1)) *
     (1 +
@@ -5409,6 +5421,7 @@ function serve(i) {
     }
     c.done[j] = true;
     recSale(o);
+    ghiMon(o);
     {
       /* sổ bán ghi giá niêm yết; phần chênh với tiền thật (khách ngôi sao trả gấp 3,
          khách trả giá / quỵt mà bảo vệ không thu lại được) ghi riêng để doanh thu khớp két */
@@ -5459,6 +5472,8 @@ function serve(i) {
     }
     if (rv.s >= 5) setTimeout(() => sfx("star"), 250);
     addReview(rv.s, rv.why, false, c);
+    if (c.reg) quenXong(c, rv.s);
+    ghiPhucVu(c, rv.s);
     if (c.vip) {
       addReview(rv.s, rv.why, false, c);
       addReview(rv.s, rv.why, false, c);
@@ -5507,6 +5522,7 @@ function serveOnline(j) {
       p = price(o),
       fee = (p * CFG.commission) / 100;
     recSale(o);
+    ghiMon(o);
     S.cur.onl += p;
     S.cur.fee += fee;
     S.money += p - fee;
@@ -5639,6 +5655,7 @@ function decline(i) {
     got = c.done.filter(Boolean).length;
   R.slots[i] = null;
   R.today.lost++;
+  quenBo(c);
   const why = got ? "soldoutPartial" : m.length ? "soldout" : "refused";
   addReview(
     rnd(got ? [3, 3, 4] : [2, 2, 3]),
@@ -5743,6 +5760,8 @@ function tick() {
     if (!c) return;
     c.pat -= dt;
     if (c.pat <= 0) {
+      quenBo(c);
+      KL().chuoi = 0;
       R.slots[i] = null;
       R.today.lost++;
       const st = Math.random() < 0.3 ? 2 : 1;
@@ -6017,6 +6036,7 @@ function endDay() {
   noteCaps();
   S.history.push(r);
   if (S.history.length > 400) S.history.shift();
+  ghiNgay(r, rev);
   S.totalProfit = (S.totalProfit || 0) + profit;
   const broke = S.money < 0,
     endMoney = S.money,
@@ -6066,7 +6086,7 @@ function endDay() {
   ${
     broke
       ? `<p>${ico("trophy")} ${best} ngày</p><button class="big" id="go">Mở quán mới</button>`
-      : `${!broke && S.ev ? `<p class="lvup">${ico(EVS[S.ev.id].ic)} Ngày mai: <b>${EVS[S.ev.id].n}</b>. ${evText(S.ev)}</p>` : ""}${nextLv ? `<p class="lvup">${ico("warn")} Từ ngày ${S.day}: ${LV_TXT[nextLv].toLowerCase()}. Đầu ngày sẽ có hướng dẫn.</p>` : ""}${justOnline ? `<p class="lvup">${ico("phone")} Mở đơn online Soppi! ${S.tablets || 0 ? "" : "Mua tablet ở Nâng cấp > Trang bị để đơn đổ về."}</p>` : ""}<button class="sbtn" id="seeSum" style="width:100%;padding:10px;margin-top:6px">${ico("chart")} Tổng kết</button><button class="big" id="go" style="margin-top:8px">Ngày ${S.day} ➜</button>`
+      : `${!broke && S.ev ? `<p class="lvup">${ico(EVS[S.ev.id].ic)} Ngày mai: <b>${EVS[S.ev.id].n}</b>. ${evText(S.ev)}</p>` : ""}${nextLv ? `<p class="lvup">${ico("warn")} Từ ngày ${S.day}: ${LV_TXT[nextLv].toLowerCase()}. Đầu ngày sẽ có hướng dẫn.</p>` : ""}${justOnline ? `<p class="lvup">${ico("phone")} Mở đơn online Soppi! ${S.tablets || 0 ? "" : "Mua tablet ở Nâng cấp > Trang bị để đơn đổ về."}</p>` : ""}${ngayMaiHTML()}<button class="sbtn" id="seeSum" style="width:100%;padding:10px;margin-top:6px">${ico("chart")} Tổng kết</button><button class="big" id="go" style="margin-top:8px">Ngày ${S.day} ➜</button>`
   }`;
     $("modal").hidden = false;
     $("go").focus();
