@@ -14,6 +14,7 @@ File này là nguồn sự thật cho việc làm game. Mỗi phiên làm việc
 3. Tác giả gốc đã đồng ý cho làm tiếp.
 4. Tranh: dùng lại tranh gốc cho nhân vật (`img/faces.webp`, mèo), vẽ vector cho icon và vật phẩm mới.
 5. Nhóm chơi thử gồm học sinh, sinh viên, người đi làm.
+6. Sau lần chơi thử thứ ba của Claude (game dễ, tới ngày 49 là hết việc): chế độ thường khó dần theo chương (Thư giãn giữ nguyên), và làm chi nhánh ngay, không chờ cổng C3.
 
 Hệ quả: **không làm tính năng qua máy chủ** (bảng xếp hạng online, kết bạn, tặng quà qua mạng), không quảng cáo, không thanh toán. Mọi thứ chạy trên máy người chơi. Theo Nghị định 147/2024, game có máy chủ cho người chơi tương tác cần giấy phép mà chỉ doanh nghiệp xin được.
 
@@ -88,7 +89,7 @@ Lịch lễ `LICH_LE` trong `src/truyen.js` có Tết và Trung Thu tới 2030. 
 - [x] Chế độ Thư giãn (`S.thuGian`, `thuGian()` trong `src/gan-bo.js`)
 - [x] Mời cài lên màn hình chính từ ngày 4 (`moiCai()`); iPhone chỉ có hướng dẫn và nhắc dùng mã sao lưu vì bộ nhớ riêng
 - [x] 50 logo tem thương hiệu vẽ bằng SVG (`data/logo.js`)
-- [ ] Chi nhánh: hoãn. Chỉ làm khi qua cổng C3 (cần số liệu chơi thử: ≥40% người chạm ngày 30 mở mặt tiền và chơi tiếp ≥7 ngày)
+- [x] Chi nhánh: ban đầu hoãn tới cổng C3, làm sớm ở bản 4.9 theo quyết định 28/09 (xem mục bản 4.9)
 
 Khác kế hoạch: ảnh chia sẻ thử thách (lưới màu) vẫn là chữ, chỉ thêm ảnh khoe tiệm. Game vẫn không dùng service worker
 (tác giả gốc chủ động gỡ để tránh bản cũ bị kẹt trong bộ nhớ đệm); Chrome hiện không bắt buộc service worker để hiện lời mời cài.
@@ -188,6 +189,30 @@ Kiểu người chơi thật (mỗi lúc pha một ly, 7 hoặc 11 giây mỗi l
 
 Trước khi cân lại (bản 4.7, cùng kiểu người chơi): người chơi giỏi mua hết mọi thứ trừ tablet ở ngày 30, rồi không còn gì để mua. Giờ tiền còn ý nghĩa tới khoảng ngày 50. Sau đó vẫn dư nhiều, vì mỗi ly lãi cao theo giá gốc của game. Chưa đụng giá vì Phố Trà vừa cân theo doanh thu ở bản 4.7; chờ số liệu chơi thử thật (cổng C3) rồi mới quyết.
 
+### Sau lần chơi thử thứ ba của Claude (bản 4.9) — xong 28/09
+
+Chơi bản 4.8 trên web từ ngày 1 tới kết (ngày 68) kiểu người chơi thật: 8 giây mỗi ly, nấu theo cột hôm qua dùng, tự mua và thuê người; Linh đi Đà Lạt, Hana giữ kín, bắt tay Mây Tea, về quê. Tới ngày 49 đã mua hết mọi thứ, két 65 triệu lúc kết, sao gần như luôn trên 4,7, Phố Trà hạng 1 từ ngày 33 tới hết. Đã làm:
+
+- [x] Chi nhánh (`data/chi-nhanh.js`, `src/chi-nhanh.js`): mở khi đã ra mặt tiền 14 ngày, 4,3 sao và nghe Vy kể về mấy chỗ sang nhượng (`c2_chi_nhanh`, từ ngày 50). Ba loại: gần trường (rẻ, vắng cuối tuần và tuần thi), toà văn phòng (chịu chi, vắng cuối tuần), kiosk trung tâm thương mại (đều, ít chỗ, nộp 8% doanh thu)
+- [x] Chi nhánh tự bán: số ly = nhỏ hơn giữa lượng khách và sức quản lý (thuê người phụ thì hơn); giá và tiền hàng theo tiệm gốc; trà và topping sắp hết hạn ở tiệm gốc tự chở qua (bếp trung tâm). Tính sổ lúc tiệm gốc đóng cửa (`chiNhanhCuoiNgay`, dòng bán `cn`, chi phí `cnChi`); tắt game thì không tự cộng tiền
+- [x] Sáng hôm sau có thẻ báo cáo, tối đa một tình huống hai lựa chọn (`CN_VIEC`); quản lý lên nghề xin tăng lương; hết kỳ hợp đồng chủ nhà báo tăng giá; sang nhượng lấy lại 60% tiền trang trí
+- [x] Khó dần theo chương (`src/do-kho.js`): Chương 2 khách kiên nhẫn ×0,95, khách khó chiều 16%, giá nhập ×1,1; Chương 3 ×0,9, 20%, ×1,2; thẻ cuối ngày báo khi sang chương; Thư giãn và thử thách hôm nay không đổi
+- [x] Sự cố mất tiền tính theo két: khoảng 3%, ít nhất như cũ, tối đa 4 triệu (`tienSuCo`)
+- [x] Phố Trà: Mây Tea mạnh dần (tăng 0,6/ngày, trần 150); có chi nhánh cộng 8 điểm, nên cuối game muốn giữ hạng 1 cần chi nhánh hoặc sao rất cao
+- [x] Truyện: chú Tư chở hàng qua chi nhánh (`cn_cho_hang`), chợ giáp Tết lên giá (`c3_gia_tet`, ngày 60), hậu truyện bà Sáu nhắc chi nhánh; lấp khoảng trống ngày 56–61
+- [x] Lời bà Sáu rủ góp hẻm nói đúng việc đang mở (`ru`); trang sổ của Linh thành trang 3, của Khoa thành trang 4 (bản lưu cũ đổi số, cờ `trang34`)
+
+Mô phỏng kiểu người chơi thật sau khi làm (nghìn đồng):
+
+| Người chơi | Két ngày 50 | Két ngày 70 | Mở chi nhánh | Mua xong mọi thứ | Cuối game |
+|---|---|---|---|---|---|
+| Giỏi, mặt tiền, chi nhánh gần trường | 27.139 | 103.281 | ngày 52 | ngày 52 | 4,8★ hạng 1 |
+| Vừa, mặt tiền, chi nhánh gần trường | 5.157 | 45.124 | ngày 55 | ngày 59 | 4,7★ hạng 1 |
+| Giỏi, ở trong hẻm, không thuê | 4.779 | 37.184 | – | ngày 49 | 4,2★ hạng 3 |
+| Giỏi, mặt tiền, chi nhánh văn phòng, Hana giữ kín | 19.659 | 101.266 | ngày 52 | ngày 52 | 5,0★ hạng 1 |
+
+Người chơi vừa giờ còn phải tính tiền tới khoảng ngày 60 (két ngày 50 chỉ 5 triệu). Người chơi giỏi vẫn dư nhiều từ ngày 50 vì mỗi ly lãi cao theo giá gốc; chưa đụng giá bán vì Phố Trà tính theo doanh thu. Độ khó theo chương thấy rõ nhất ở tiệm không thuê người: sao còn khoảng 3,8–4,2, Phố Trà hạng 3–4. Mỗi lần chạy lệch nhau khá nhiều vì ngẫu nhiên.
+
 ## Cổng quyết định
 
 | Cổng | Ngày | Đi tiếp khi |
@@ -195,7 +220,7 @@ Trước khi cân lại (bản 4.7, cùng kiểu người chơi): người chơi
 | C0 · Quyền | 28/09 | Đã qua |
 | C1 · Người chơi có quay lại | 08/11 | ≥80% xong ngày 1, ≥20% quay lại hôm sau, <60% bỏ qua cảnh, <5% phá sản trước ngày 10 |
 | C2 · Người chơi rủ bạn | 06/12 | ≥25% người chơi thử thách chia sẻ mỗi tuần, ≥7% quay lại sau 7 ngày |
-| C3 · Người chơi muốn lớn lên | 17/01 | ≥40% người chạm ngày 30 mở mặt tiền và chơi tiếp ≥7 ngày |
+| C3 · Người chơi muốn lớn lên | 17/01 | ≥40% người chạm ngày 30 mở mặt tiền và chơi tiếp ≥7 ngày. Chi nhánh đã làm sớm (bản 4.9); cổng này dùng để chỉnh độ khó và chi nhánh |
 
 ## Việc còn để ý
 
