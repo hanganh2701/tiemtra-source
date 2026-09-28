@@ -4326,6 +4326,7 @@ function staffHelp() {
     }
     R.pour = o.base;
     R.staffPouring = true;
+    botRot(true);
     pourSnd(true);
     const el = $("q3b_" + o.base);
     el && el.classList.add("q3on");
@@ -4334,6 +4335,7 @@ function staffHelp() {
       if (!R.helping) {
         R.pour = null;
         R.staffPouring = false;
+        botRot(false);
         pourSnd(false);
         el && el.classList.remove("q3on");
         renderCup();
@@ -4351,6 +4353,7 @@ function staffHelp() {
       }
       R.pour = null;
       R.staffPouring = false;
+        botRot(false);
       pourSnd(false);
       el && el.classList.remove("q3on");
       renderCup();
@@ -4781,6 +4784,7 @@ function startPour(k, el) {
     if (cup.base !== k) return;
   } else if (cup.base !== k) cup.mixed = true;
   R.pour = k;
+  botRot(true);
   pourSnd(true);
   q3pourEl = el;
   el.classList.add("q3on");
@@ -4805,6 +4809,7 @@ function startPour(k, el) {
 function stopPour() {
   if (!R.pour || R.staffPouring) return;
   R.pour = null;
+  botRot(false);
   pourSnd(false);
   cancelAnimationFrame(q3raf);
   q3pourEl && q3pourEl.classList.remove("q3on");
@@ -5501,7 +5506,11 @@ function serve(i) {
       S.totalRev += tip;
       R.today.tips += tip;
     }
-    if (rv.s >= 5) setTimeout(() => sfx("star"), 250);
+    if (rv.s >= 5) {
+      setTimeout(() => sfx("star"), 250);
+      dauHoanHao();
+    }
+    rung(15);
     addReview(rv.s, rv.why, false, c);
     if (c.reg) quenXong(c, rv.s);
     ghiPhucVu(c, rv.s);
@@ -5534,6 +5543,7 @@ function serve(i) {
     c.pat = Math.max(0.5, c.pat - c.max * 0.3);
     el.classList.add("angry");
     fl(el, "Sai món! 🗑", true);
+    rung([30, 40, 30]);
     setTimeout(() => el && el.classList.remove("angry"), 300);
     spoilCup();
     renderCup();
@@ -5589,6 +5599,7 @@ function serveOnline(j) {
     R.today.wrong++;
     c.pat = Math.max(0.5, c.pat - c.max * 0.25);
     fl(el, "Sai đơn! 🗑", true);
+    rung([30, 40, 30]);
     spoilCup();
     renderCup();
     renderPanel();

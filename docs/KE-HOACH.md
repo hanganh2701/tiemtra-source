@@ -44,18 +44,18 @@ Hệ quả: **không làm tính năng qua máy chủ** (bảng xếp hạng onli
 - [ ] Chủ dự án lập nhóm chơi thử
 - [ ] Chủ dự án tạo tài khoản GoatCounter nếu muốn có số liệu, rồi gắn vào `TELE_URL`
 
-### Mốc 1 · Lý do quay lại ngày mai (tuần 3–6, bản 4.0 "Hẻm 42")
+### Mốc 1 · Lý do quay lại ngày mai (bản 4.0 "Hẻm 42") — xong 28/09
 
-- [ ] Bộ máy mẩu chuyện: đọc `MAU_CHUYEN`, chọn theo điều kiện và ưu tiên, màn cảnh thoại, nút Bỏ qua kèm tóm tắt, Sổ tay xem lại, cài đặt Đầy đủ / Gọn / Tắt
-- [ ] Nối Chương 0 vào game
-- [ ] 3 khách quen (Linh, chú Tư, Khoa): thanh thân thiết, 3 cảnh mỗi người, Sổ khách quen, bảng tên phân biệt với khách ngẫu nhiên cùng khuôn mặt
-- [ ] Thẻ "Ngày mai" ở tổng kết cuối ngày
-- [ ] Mở khoá dày tới ngày 10; dời vay, thuế, sự cố mất tiền về sau ngày 10
-- [ ] Phá sản mềm: bà Sáu cho khất một lần mỗi chương; giữ công thức và độ thân
-- [ ] Sổ công thức 12 trang (trang 1–5 trong mốc này)
-- [ ] Kỷ lục của tôi
-- [ ] Chăm chút cảm giác pha (hạt bọt, tiếng dán nắp, rung, dấu chấm điểm)
-- [ ] Chọn được gọi là anh hay chị khi đặt tên tiệm
+- [x] Bộ máy mẩu chuyện (`src/truyen.js`): chọn theo điều kiện và ưu tiên, một cảnh mỗi ngày, Bỏ qua kèm tóm tắt, Sổ tay xem lại, chế độ Đầy đủ / Gọn / Tắt
+- [x] Chương 0 trong game
+- [x] 3 khách quen Linh, chú Tư, Khoa (`src/khach-quen.js`): bảng tên ♥, món quen, độ thân, 9 cảnh Chương 1, Sổ khách quen
+- [x] Thẻ "Ngày mai" ở tổng kết cuối ngày
+- [x] Quà mở khoá tới ngày 10 (`MO_KHOA`); khách khó chiều từ ngày 8, vay ngân hàng từ ngày 10 (sự cố mất tiền vốn đã từ ngày 11)
+- [x] Phá sản mềm: bà Sáu cho khất một lần mỗi chương (`S.noSau`); phá sản thật giữ `S.tr`, `S.kl`, `S.xung`
+- [x] Sổ công thức 12 trang có ưu đãi (`coTrang(n)`), trang 1–4 có trong Chương 0–1; món đặc trưng khi đủ 12 trang
+- [x] Kỷ lục của tôi (`S.kl`)
+- [x] Cảm giác pha (`src/cam-giac.js`): bọt khi rót, dấu Hoàn hảo, rung
+- [x] Chọn anh hay chị (`S.xung`)
 
 ### Mốc 2 · Chơi cùng bạn, không cần mạng (tuần 7–10, bản 4.1)
 

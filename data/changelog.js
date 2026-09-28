@@ -1,7 +1,23 @@
 /* Phiên bản và danh sách "Có gì mới". Mỗi lần cập nhật: tăng GAME_VERSION và thêm một mục lên ĐẦU CHANGELOG. */
 /* ===== PHIÊN BẢN GAME: mỗi lần cập nhật, tăng số và thêm một mục lên ĐẦU danh sách ===== */
-const GAME_VERSION = "3.12";
+const GAME_VERSION = "4.0";
 const CHANGELOG = [
+  {
+    v: "4.0",
+    d: "28/09/2026",
+    items: [
+      "Hẻm 42: tiệm của bạn nằm dưới căn gác của bà Sáu. Mỗi ngày có thể có một chuyện nhỏ trước giờ mở cửa hoặc sau giờ đóng cửa, bấm Bỏ qua lúc nào cũng được",
+      "Khách quen Linh, chú Tư, Khoa ghé quầy với bảng tên ♥ và món quen. Phục vụ tốt thì thân thêm, đủ thân thì họ kể chuyện mới",
+      "Sổ công thức của bà Sáu: 12 trang rải khắp xóm, mỗi trang cho một ưu đãi lâu dài. Đủ 12 trang có món đặc trưng Trà của bà Sáu",
+      "Tab mới Hẻm 42: khách quen, sổ công thức, món bạn đã pha có sao tay nghề, sổ tay xem lại chuyện cũ, kỷ lục của bạn",
+      "Những ngày đầu nhận quà mở khoá gần như mỗi ngày: hồng trà, trân châu hoàng kim, siro đào, lục trà, thạch củ năng, olong",
+      "Khách khó chiều xuất hiện từ ngày 8, ngân hàng cho vay từ ngày 10",
+      "Két âm lần đầu trong mỗi chương: bà Sáu cho khất, trả dần không lãi. Phá sản vẫn giữ câu chuyện, sổ công thức và kỷ lục",
+      "Tổng kết cuối ngày có thẻ Ngày mai: quà sắp nhận, khách quen có thể ghé",
+      "Chọn được khách gọi bạn là anh hay chị (khi đặt tên quán hoặc trong Cài đặt). Cốt truyện có 3 chế độ: Đầy đủ, Gọn, Tắt",
+      "Rót trà có bọt, khách chấm 5 sao hiện dấu Hoàn hảo!, máy Android rung nhẹ khi giao ly",
+    ],
+  },
   {
     v: "3.12",
     d: "28/09/2026",
