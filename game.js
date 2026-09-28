@@ -5256,7 +5256,7 @@ function pickApp() {
 }
 function mkOnline(app, cups) {
   const n = cups.length,
-    max = 90 * (n > 1 ? 1 + 0.15 * (n - 1) : 1) * (coTrang(3) ? 1.2 : 1);
+    max = 90 * (n > 1 ? 1 + 0.15 * (n - 1) : 1) * (coTrang(4) ? 1.2 : 1);
   return {
     id: ++uid,
     app: app.id,
@@ -5590,7 +5590,7 @@ function serve(i) {
         1000 *
         (S.upg.sealer ? 1.3 : 1) *
         (evIs("holiday") ? 2 : 1) *
-        (coTrang(4) ? 1.1 : 1) *
+        (coTrang(3) ? 1.1 : 1) *
         (c.ban ? 2 : 1) *
         heSoTipLe() *
         heSoTipTri() *

@@ -81,11 +81,12 @@ function gopHem(id) {
 }
 /* đầu ngày (prepChecks): việc đầu tiên mở thì bà Sáu rủ góp một lần; trả true nếu đang hỏi */
 function moiGopHem() {
-  if (S.gopHemMoi || R.challenge || !GOP_HEM.some(gopMo)) return false;
+  const dau = !S.gopHemMoi && !R.challenge && GOP_HEM.find(gopMo);
+  if (!dau) return false;
   S.gopHemMoi = S.day;
   save();
   ask(
-    `<div class="pbig">🏘️</div><h2>Góp sức cho Hẻm 42</h2>${dongThoai(["sau", "Xóm mình tính góp tiền làm đèn cho hẻm. Con có góp hông?"])}<p class="note">Tiền dư thì góp cho xóm: mỗi việc có ưu đãi nhỏ và hiện trước tiệm. Xem ở Hẻm 42 › Góp hẻm.</p>`,
+    `<div class="pbig">🏘️</div><h2>Góp sức cho Hẻm 42</h2>${dongThoai(["sau", `Xóm mình tính góp tiền ${dau.ru}. Con có góp hông?`])}<p class="note">Tiền dư thì góp cho xóm: mỗi việc có ưu đãi nhỏ và hiện trước tiệm. Xem ở Hẻm 42 › Góp hẻm.</p>`,
     [
       ["Để sau", () => {}],
       [
