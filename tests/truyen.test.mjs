@@ -131,3 +131,49 @@ test("tab Hẻm 42 hiện khách quen, sổ công thức, sổ tay, kỷ lục; 
     g.close();
   }
 });
+
+test("quà mở khoá: ngày 2 có hồng trà miễn phí; bản lưu cũ đã qua mốc không bị dồn quà", () => {
+  const g = boot();
+  try {
+    g.run("S.day = 2; S.unlocked.hong = false");
+    assert.equal(g.run("quaMoKhoa()"), true);
+    assert.equal(g.run("S.unlocked.hong"), true);
+    assert.match(g.w.document.getElementById("card").textContent, /Quà ngày 2/);
+    g.run("S.day = 50; S.tr = {}");
+    assert.equal(g.run("quaMoKhoa()"), false);
+  } finally {
+    g.close();
+  }
+});
+
+test("món đặc trưng khi đủ 12 trang: thêm 10k, sổ vẫn khớp két", () => {
+  const g = boot();
+  try {
+    g.run("S.tr = { trang: [1,2,3,4,5,6,7,8,9,10,11,12] }; ['hong','f_vai','cunang'].forEach((k) => { S.unlocked[k] = true; addStock(k, 50); }); __openDay()");
+    const o = "({ base: 'hong', flav: 'f_vai', tops: ['cunang'], cheese: false, size: 'M', sugar: null, ice: null })";
+    assert.equal(g.run(`laDacTrung(${o})`), true);
+    assert.equal(g.run(`price(${o}) - price(${o}, S.sell) + 0`), 0);
+    const i = g.run("__fillSlot()");
+    g.run(`R.slots[${i}].cups = [${o}]; R.slots[${i}].done = [false]; R.slots[${i}].order = R.slots[${i}].cups[0]; R.slots[${i}].brat = null; R.slots[${i}].star = null`);
+    const m0 = g.run("S.money"), r0 = g.run("recRev(S.cur)");
+    g.run(`__serveSlot(${i})`);
+    assert.equal(g.run("S.money") - m0, g.run("recRev(S.cur)") - r0);
+    assert.equal(g.run("S.cur.sales.dactrung.a"), 10000);
+  } finally {
+    g.close();
+  }
+});
+
+test("những ngày đầu chưa có khách khó chiều, chưa có lời mời vay ngân hàng", () => {
+  const g = boot();
+  try {
+    g.run("S.day = 5");
+    for (let n = 0; n < 50; n++) assert.equal(g.run("pickBrat()"), null);
+    g.run("S.money = 1000");
+    assert.doesNotMatch(g.run("loanCard()"), /Két sắp cạn/);
+    g.run("S.day = 10");
+    assert.match(g.run("loanCard()"), /Két sắp cạn/);
+  } finally {
+    g.close();
+  }
+});

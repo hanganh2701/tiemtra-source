@@ -261,3 +261,35 @@ function paneHem() {
   };
   if (typeof hemBind === "function") hemBind();
 }
+
+/* ---------- quà mở khoá những ngày đầu (MO_KHOA) ---------- */
+/* gọi trong prepChecks; trả true nếu đang hiện hộp thoại */
+function quaMoKhoa() {
+  const T = TT();
+  MO_KHOA.forEach((x) => {
+    if (S.day - x.ngay > 2) T.qua[x.ngay] = true; /* bản lưu cũ đã qua mốc: không dồn quà */
+  });
+  const q = MO_KHOA.find((x) => x.ngay <= S.day && !T.qua[x.ngay]);
+  if (!q) return false;
+  T.qua[q.ngay] = true;
+  let them = "";
+  if (q.k) {
+    if (S.unlocked[q.k] || (S.off || {})[q.k]) {
+      save();
+      return false;
+    }
+    S.unlocked[q.k] = true;
+    them = `Mở ${ITEMS[q.k].n} miễn phí, có ngay trong Kho`;
+  } else if (q.chai) {
+    addStock(q.chai, CFG.bottleN);
+    syncFlav();
+    them = `+1 chai ${low(ITEMS[q.chai].n)}, dùng được ${CFG.bottleN} ly`;
+  }
+  save();
+  sfx("lvup");
+  ask(
+    `<div class="pbig">${ico(them ? "gift" : "warn")}</div><h2>${them ? "Quà ngày " + S.day : "Lưu ý từ hôm nay"}</h2><p>${esc(q.chu || q.ghiChu)}</p>${them ? `<p class="lvup">${them}</p>` : ""}`,
+    [["Tuyệt", () => refreshPrep(1), 1]],
+  );
+  return true;
+}

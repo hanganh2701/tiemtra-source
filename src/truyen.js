@@ -24,7 +24,8 @@ const CHE_DO_TEN = { day: "Đầy đủ", gon: "Gọn", tat: "Tắt" };
 const xung = () => (S.xung === "anh" ? "anh" : "chị");
 const hoaDau = (x) => x.charAt(0).toUpperCase() + x.slice(1);
 const chuongNay = () => (S.day < 6 ? 0 : S.day < 30 ? 1 : S.day < 60 ? 2 : 3);
-const coTrang = (n) => !!(S.tr && S.tr.trang && S.tr.trang.includes(n));
+/* S có thể chưa có khi game đang đọc bản lưu */
+const coTrang = (n) => !!(S && S.tr && S.tr.trang && S.tr.trang.includes(n));
 
 /* chèn cách xưng hô và tên tiệm vào câu; thô = không thoát HTML (dùng trong câu gọi món) */
 function thayTen(t, tho) {
@@ -215,3 +216,21 @@ document.addEventListener("click", (e) => {
   b.parentElement.querySelectorAll("[data-xung]").forEach((x) => x.classList.toggle("on", x === b));
   save();
 });
+
+/* ---------- lễ hội theo lịch thật (giờ Việt Nam) ----------
+   Mùng 1 Tết và rằm tháng Tám theo dương lịch; mỗi năm cập nhật thêm một dòng. */
+const LICH_LE = {
+  tet: ["2027-02-06", "2028-01-26", "2029-02-13", "2030-02-03"],
+  trungThu: ["2026-09-25", "2027-09-15", "2028-10-03", "2029-09-22", "2030-09-12"],
+};
+const homNayVN = () => new Date(Date.now() + 7 * 3600e3).toISOString().slice(0, 10);
+const cachNgayLich = (a, b) => Math.round((Date.parse(a) - Date.parse(b)) / 864e5);
+/* "tet" từ 17 ngày trước mùng 1 (gần ông Táo) tới mùng 9; "trungThu" 5 ngày quanh rằm; "noel" 20–26/12 */
+function leHoiNay(ngay) {
+  const d = ngay || homNayVN();
+  if (LICH_LE.tet.some((t) => cachNgayLich(d, t) >= -17 && cachNgayLich(d, t) <= 8)) return "tet";
+  if (LICH_LE.trungThu.some((t) => Math.abs(cachNgayLich(d, t)) <= 2)) return "trungThu";
+  const md = d.slice(5);
+  if (md >= "12-20" && md <= "12-26") return "noel";
+  return null;
+}
