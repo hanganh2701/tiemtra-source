@@ -53,6 +53,6 @@ Cột "Mặt" là hàng trong `img/faces.webp` (mỗi hàng 3 biểu cảm: bìn
 | Chương | Ngày trong game | Nội dung | Trang sổ |
 |---|---|---|---|
 | 0 · Khai trương | 1–6 | Làm quen bà Sáu, Mướp, chú Tư, Khoa, cô Hạnh, tin nhắn của mẹ; ngày 6 đóng tiền nhà lần đầu | 1 |
-| 1 · Người trong hẻm | 6–30 | Thanh thân thiết, mỗi khách quen 3 cảnh; ngày mưa của Khoa; mùa thi của Linh quanh ngày 20; lựa chọn vay ngân hàng hay phong bì của mẹ | 2–5 |
-| 2 · Mùa trăng | 30–60 | Trung Thu; Hana ghé 3 lần; chuỗi Mây Tea mở đầu hẻm (quản lý là Vy, cháu cô Hạnh, không phải phản diện); bà Sáu kể chuyện cũ | 6–10 |
-| 3 · Về nhà ăn Tết | 60+ | Ông Táo; thành phố vắng, mở cửa cho người ở lại như Khoa; mẹ lên thăm; đủ 12 trang | 11–12 |
+| 1 · Người trong hẻm | 6–30 | Thanh thân thiết, mỗi khách quen 3 cảnh; ngày mưa của Khoa; mùa thi của Linh quanh ngày 20 (ngã rẽ: ở lại làm thêm hay đi học Đà Lạt); lựa chọn vay ngân hàng hay phong bì của mẹ | 2–5 |
+| 2 · Mùa trăng | 30–60 | Trung Thu; Hana ghé 3 lần (ngã rẽ: ghi tên tiệm lên video hay giữ kín); ngã rẽ chính: bắt tay Mây Tea hay giữ hẻm cùng xóm; chuỗi Mây Tea mở đầu hẻm (quản lý là Vy, cháu cô Hạnh, không phải phản diện); bà Sáu kể chuyện cũ | 6–10 |
+| 3 · Về nhà ăn Tết (ngã rẽ: về quê hay ở lại) | 60+ | Ông Táo; thành phố vắng, mở cửa cho người ở lại như Khoa; mẹ lên thăm; đủ 12 trang | 11–12 |

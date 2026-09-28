@@ -1,7 +1,20 @@
 /* Phiên bản và danh sách "Có gì mới". Mỗi lần cập nhật: tăng GAME_VERSION và thêm một mục lên ĐẦU CHANGELOG. */
 /* ===== PHIÊN BẢN GAME: mỗi lần cập nhật, tăng số và thêm một mục lên ĐẦU danh sách ===== */
-const GAME_VERSION = "4.4";
+const GAME_VERSION = "4.5";
 const CHANGELOG = [
+  {
+    v: "4.5",
+    d: "28/09/2026",
+    items: [
+      "Thêm 3 ngã rẽ: Linh thi xong (ở lại làm thêm hay đi học Đà Lạt), video của Hana (ghi tên tiệm hay chỉ quay con hẻm), Tết (về quê hay ở lại mở cửa). Hẻm 42 giờ có 4 ngã rẽ, mỗi đường có chuyện riêng",
+      "Linh ở lại thì vào nghề sẵn khi được thuê; đi Đà Lạt thì gửi trà olong về. Tiệm ghi tên lên video thì đông khách lạ mãi; giữ kín thì khách quen ghé nhiều, tip cao hơn",
+      "Về quê ăn Tết: tiệm nghỉ ba ngày không tốn tiền nhà, Khoa trông giùm, mẹ đưa trang sổ trong bếp. Ở lại: mùng một khách đi chơi Tết đông, mẹ lên thăm",
+      "Chọn bằng ly pha: Linh trước giờ thi, chú Tư ngày mưa, Vy gọi kiểu chuỗi. Có gợi ý màu tím khi khách tới, ly bạn pha chính là lựa chọn",
+      "Hẻm 42 lần nữa (Sổ tay, sau khi hết truyện): chơi lại từ đầu, giữ huy hiệu, kỷ lục, sơ đồ ngã rẽ. Cảnh đã đọc hiện gọn, có chuyện mới chỉ lượt sau mới thấy",
+      "Thêm huy hiệu Thử cả hai đường và Đủ bốn kết",
+      "Thoát game giữa ngã rẽ thì lần sau được hỏi lại",
+    ],
+  },
   {
     v: "4.4",
     d: "28/09/2026",

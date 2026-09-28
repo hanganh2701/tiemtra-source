@@ -26,16 +26,11 @@ const CHE_DO_TEN = { day: "Đầy đủ", gon: "Gọn", tat: "Tắt" };
 const xung = () => (S.xung === "anh" ? "anh" : "chị");
 const hoaDau = (x) => x.charAt(0).toUpperCase() + x.slice(1);
 const chuongNay = () => (S.day < 6 ? 0 : S.day < 30 ? 1 : S.day < 60 ? 2 : 3);
-/* truyện ảnh hưởng lượng khách: 3 ngày sau video của Hana đông hơn, combo với cô Hạnh nhỉnh hơn */
+/* truyện ảnh hưởng lượng khách: combo với cô Hạnh nhỉnh hơn; các ngã rẽ tính trong heSoKhachNhanh (src/nga-re.js) */
 function heSoKhachTruyen() {
   const T = S && S.tr;
   if (!T || !T.xem) return 1;
-  const h = T.xem.hana_3;
-  return (
-    (h != null && S.day > h && S.day <= h + 3 ? 1.3 : 1) *
-    (T.co && T.co.combo_hanh ? 1.03 : 1) *
-    (typeof heSoKhachNhanh === "function" ? heSoKhachNhanh() : 1)
-  );
+  return (T.co && T.co.combo_hanh ? 1.03 : 1) * (typeof heSoKhachNhanh === "function" ? heSoKhachNhanh() : 1);
 }
 /* S có thể chưa có khi game đang đọc bản lưu */
 const coTrang = (n) => !!(S && S.tr && S.tr.trang && S.tr.trang.includes(n));
@@ -69,6 +64,8 @@ function khopDk(d) {
   if (d.than && !Object.entries(d.than).every(([k, v]) => (T.than[k] || 0) >= v)) return false;
   if (d.xem && ![].concat(d.xem).every((id) => T.xem[id] != null)) return false;
   if (d.chuaXem && [].concat(d.chuaXem).some((id) => T.xem[id] != null)) return false;
+  /* đã thấy ít nhất một trong các kết này ở lượt chơi trước */
+  if (d.ketDaThay && !([].concat(d.ketDaThay).some((id) => ((S.kl || {}).ket || {})[id] != null))) return false;
   return true;
 }
 function hopCanh(m, luc) {
@@ -85,6 +82,7 @@ function hopCanh(m, luc) {
   if (d.tuNgayThat && homNayVN() < d.tuNgayThat) return false;
   if (d.denNgayThat && homNayVN() > d.denNgayThat) return false;
   if (d.le && !(typeof leHoiNay === "function" && leHoiNay() === d.le)) return false;
+  if (d.luot && (T.luot || 1) < d.luot) return false; /* lượt chơi thứ mấy (Hẻm 42 lần nữa) */
   /* hạn chót: từ ngày này bỏ qua điều kiện mềm để truyện không bị kẹt */
   if (d.chot != null && dn >= d.chot) return true;
   if (d.than && !Object.entries(d.than).every(([k, v]) => (T.than[k] || 0) >= v)) return false;
@@ -128,10 +126,18 @@ function apKetQua(kq, moi) {
     S.money += kq.tien;
     S.cur.gift = (S.cur.gift || 0) + kq.tien;
   }
+  /* quà trong truyện: mở nguyên liệu, thêm hàng vào kho, hoặc gọi một hàm của game */
+  if (kq.mo && ITEMS[kq.mo] && !S.unlocked[kq.mo]) {
+    S.unlocked[kq.mo] = true;
+    setTimeout(() => toast("🎁 Mở " + ITEMS[kq.mo].n + " miễn phí, có trong Kho", 3500, 1), 600);
+  }
+  if (kq.hang) Object.entries(kq.hang).forEach(([k, n]) => ITEMS[k] && addStock(k, n));
+  if (kq.goi && typeof window[kq.goi] === "function") window[kq.goi]();
 }
 function apDung(m, chon) {
   const T = TT(),
     moi = [];
+  if (m.reRe && T.xem[m.id] == null) T.xem[m.id] = T.homNay != null ? T.homNay : S.day;
   if (chon) Object.assign(T.co, chon.dat || {});
   if (chon && chon.nhanh) {
     Object.assign(T.nhanh, chon.nhanh);
@@ -173,12 +179,13 @@ function truyenLuc(luc, xong) {
   const m = canhKe(luc);
   if (!m) return xong();
   const T = TT();
-  T.xem[m.id] = ngayCua(luc);
+  /* ngã rẽ lớn chỉ tính là đã xem khi người chơi chọn xong, thoát giữa chừng thì lần sau hỏi lại */
+  if (!m.reRe) T.xem[m.id] = ngayCua(luc);
   T.homNay = ngayCua(luc);
   save();
   if (typeof track === "function") track("truyen-" + m.id);
   /* cảnh kết truyện: xong thì hiện kết và hậu truyện */
-  const tiep = m.ketCuc && typeof hienKetCuc === "function" ? () => hienKetCuc(xong) : xong;
+  const tiep = m.nghi && typeof nghiVeQue === "function" ? nghiVeQue : m.ketCuc && typeof hienKetCuc === "function" ? () => hienKetCuc(xong) : xong;
   /* chế độ Tắt tự chọn thay, trừ ngã rẽ lớn */
   if (cheDo() === "tat" && !m.reRe) {
     const moi = apDung(m, (m.luaChon || [])[0]);
@@ -225,7 +232,8 @@ function hienCanh(m, xong, xemLai) {
   };
   const boQuaNut = xemLai ? "" : `<button class="sp-link trskip" id="trSkip">Bỏ qua ›</button>`;
   const ve = () => {
-    const gon = cheDo() !== "day" || xemLai;
+    /* đã đọc ở lượt chơi trước thì hiện gọn cả cảnh */
+    const gon = cheDo() !== "day" || xemLai || !!((S.kl || {}).daDoc || {})[m.id];
     if (gon) {
       card.innerHTML = `${boQuaNut}${nhan}${dong.map(dongThoai).join("")}${nutChon()}`;
     } else {

@@ -43,8 +43,10 @@ const HUY_HIEU = [
   { id: "than_khoa", nhom: "Hẻm 42", ic: "📦", ten: "Bạn Khoa", mo: "Thân với Khoa 8/10", dk: (K, T) => (T.than.khoa || 0) >= 8 },
   { id: "than_linh", nhom: "Hẻm 42", ic: "🎒", ten: "Người Linh tin", mo: "Thân với Linh 8/10", dk: (K, T) => (T.than.linh || 0) >= 8 },
   { id: "combo_hanh", nhom: "Hẻm 42", ic: "🥖", ten: "Combo bánh mì", mo: "Làm combo với cô Hạnh", dk: (K, T) => T.co.combo_hanh === true },
-  { id: "video_hana", nhom: "Hẻm 42", ic: "🎥", ten: "Lên video của Hana", mo: "Tiệm nổi nhờ video của Hana", dk: (K, T) => T.xem.hana_3 != null },
+  { id: "video_hana", nhom: "Hẻm 42", ic: "🎥", ten: "Lên video của Hana", mo: "Tiệm nổi nhờ video của Hana", dk: (K, T) => T.nhanh.hana === "A" },
   { id: "ket_truyen", nhom: "Hẻm 42", ic: "🎆", ten: "Hết truyện Hẻm 42", mo: "Đi hết Chương 3", dk: (K, T) => T.xem.c3_ket != null },
+  { id: "hai_duong", nhom: "Hẻm 42", ic: "🔀", ten: "Thử cả hai đường", mo: "Đi cả hai nhánh của một ngã rẽ (qua nhiều lượt chơi)", dk: (K) => Object.values(K.reDaDi || {}).some((x) => x.A != null && x.B != null) },
+  { id: "ket_4", nhom: "Hẻm 42", ic: "📚", ten: "Đủ bốn kết", mo: "Thấy cả 4 kết truyện Hẻm 42", dk: (K) => Object.keys(K.ket || {}).length >= 4 },
 
   /* ---------- Bạn bè ---------- */
   { id: "tt_dau", nhom: "Bạn bè", ic: "🎯", ten: "So tài lần đầu", mo: "Chơi thử thách hôm nay", dk: () => Object.keys(S.ttKq || {}).length >= 1 },

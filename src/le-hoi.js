@@ -60,6 +60,11 @@ function leHoiCheck() {
 function nghiTet() {
   S.tetChon = S.tetChon || {};
   S.tetChon[S.day] = "nghi";
+  nghiMotNgay("🧧 Nghỉ Tết một ngày, ăn Tết với bà Sáu và Mướp");
+  renderPrep();
+}
+/* tiệm nghỉ trọn một ngày rồi sang ngày mới (dùng cho nghỉ Tết theo lịch thật và về quê trong truyện) */
+function nghiMotNgay(loi) {
   const r = S.cur,
     waste = expireStock();
   syncFlav();
@@ -71,6 +76,5 @@ function nghiTet() {
   S.cur = newRec(S.day);
   rollDay(S.day);
   save();
-  toast("🧧 Nghỉ Tết một ngày, ăn Tết với bà Sáu và Mướp");
-  renderPrep();
+  if (loi) toast(loi);
 }

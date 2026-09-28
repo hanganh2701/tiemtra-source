@@ -79,7 +79,7 @@ test("nhánh giữ hẻm: 14 ngày phá giá khách lạ ít hơn, khách quen g
 test("giao thừa: hiện tên kết và hậu truyện, ghi vào sơ đồ ngã rẽ trong Sổ tay", () => {
   const g = boot();
   try {
-    g.run(`S.day = 68; ${xemHet(["c3_ket"])}; TT().xem.hana_3 = 45; TT().nhanh.may = "A"; TT().co.c0_meo = "vuot"; TT().trang = [1,2,3,4,5,6,7,8,9,10,11]; TT().homNay = 0; truyenLuc("dong_cua")`);
+    g.run(`S.day = 68; ${xemHet(["c3_ket"])}; TT().xem.hana_3 = 45; TT().nhanh.hana = "A"; TT().nhanh.may = "A"; TT().co.c0_meo = "vuot"; TT().trang = [1,2,3,4,5,6,7,8,9,10,11]; TT().homNay = 0; truyenLuc("dong_cua")`);
     for (let k = 0; k < 10 && !g.run("!!document.getElementById('kcOk')"); k++) g.run("__closeDialogs(1)");
     assert.match(card(g).textContent, /Thương hiệu từ con hẻm/);
     assert.match(card(g).textContent, /Mướp vẫn nằm đúng chỗ/);
@@ -139,6 +139,89 @@ test("câu hồi âm theo lựa chọn cũ: mỗi cờ chỉ hiện đúng một
     assert.ok(ds.some((c) => /vuốt nó/.test(c)));
     assert.ok(ds.some((c) => /Cứng đầu/.test(c)));
     assert.ok(!ds.some((c) => /mẹ con gửi/.test(c)));
+  } finally {
+    g.close();
+  }
+});
+
+test("ngã rẽ Tết về quê: ba ngày nghỉ không tốn tiền nhà, cảnh quê hiện liền nhau, có trang 11", async () => {
+  const g = boot();
+  try {
+    g.run(`S.day = 63; ${xemHet(["que_1", "que_2", "que_3", "c3_ket", "c2_ket"])}; TT().nhanh.tet = "A"; TT().xem.c3_vang = 62; TT().trang = TT().trang.filter((x) => x !== 11); TT().homNay = 0; S.money = 1000000`);
+    const m0 = g.run("S.money");
+    g.run("truyenLuc('mo_cua', startDay)");
+    for (let k = 0; k < 30 && g.run("S.day") < 66; k++) {
+      g.run("__closeDialogs(1)");
+      await new Promise((r) => setTimeout(r, 400));
+    }
+    for (let k = 0; k < 6 && !g.run("document.getElementById('modal').hidden"); k++) {
+      g.run("__closeDialogs(1)");
+      await new Promise((r) => setTimeout(r, 400));
+    }
+    assert.equal(g.run("S.day"), 66);
+    assert.ok(!g.run("R.running"), "không mở bán ngày nào");
+    assert.ok(g.run("TT().trang.includes(11)"));
+    assert.equal(g.run("S.history.slice(-3).every((r) => r.nghi)"), true);
+    assert.equal(g.run("S.money") - m0, 300000);
+    assert.deepEqual(g.errors.map(String), []);
+  } finally {
+    g.close();
+  }
+});
+
+test("ngã rẽ giữa chừng: thoát trước khi chọn thì lần sau hỏi lại", () => {
+  const g = boot();
+  try {
+    g.run(`S.day = 50; ${xemHet(["c2_nga_re", "c2_ket", "c3_ket"])}; TT().homNay = 0; truyenLuc("mo_cua")`);
+    assert.equal(g.run("TT().xem.c2_nga_re"), undefined);
+    g.run("TT().homNay = 0; document.getElementById('modal').hidden = true");
+    assert.equal(g.run("hopCanh(MAU_CHUYEN.find((m) => m.id === 'c2_nga_re'), 'mo_cua')"), true);
+  } finally {
+    g.close();
+  }
+});
+
+test("ngã rẽ Linh: ở lại thì Linh vào nghề sẵn, đi Đà Lạt thì gửi trà olong về", () => {
+  const g = boot();
+  try {
+    g.run("TT().nhanh.linh = 'A'; TT().co.linh_lam = true; nvThue('staff1')");
+    assert.equal(g.run("S.nv.staff1.ten"), "Linh");
+    assert.equal(g.run("S.nv.staff1.kn"), 2);
+    g.run("linhLenNghe()");
+    assert.equal(g.run("S.nv.staff1.kn"), 3);
+  } finally {
+    g.close();
+  }
+  const g2 = boot();
+  try {
+    g2.run("S.unlocked.olong = false; TT().nhanh.linh = 'B'; apDung(MAU_CHUYEN.find((m) => m.id === 'linh_b1'), null)");
+    assert.equal(g2.run("S.unlocked.olong"), true);
+    assert.ok(g2.run("qty('olong')") >= 20);
+  } finally {
+    g2.close();
+  }
+});
+
+test("chọn bằng ly pha: Linh ghé trước giờ thi, pha thêm thạch thì ghi cờ, sổ vẫn khớp két", () => {
+  const g = boot();
+  try {
+    g.run("S.day = 16; S.seenLv = 9; S.unlocked.hong = true; S.unlocked.f_dao = true; S.unlocked.thach = true; TT().xem.linh_2 = 13; TT().than.linh = 5");
+    g.run("__openDay(); ['hong', 'f_dao', 'thach'].forEach((k) => addStock(k, 20)); R.slots = R.slots.map(() => null); R.t = 100");
+    assert.ok(g.run("level() >= 2"), "cần bậc 2");
+    const dt = g.run("(donTruyenDen() || {}).id") || g.run("(() => { for (let n = 0; n < 60; n++) { const d = donTruyenDen(); if (d) return d.id; } })()");
+    assert.equal(dt, "linh_thi");
+    g.run("spawnTruyen(0, DON_TRUYEN[0])");
+    assert.equal(g.run("R.slots[0].name"), "Linh");
+    const m0 = g.run("S.money"), r0 = g.run("recRev(S.cur)");
+    g.run(`(() => { const o = { base: "hong", flav: "f_dao", tops: ["thach"], sugar: 50, ice: "Ít đá" };
+      cup = newCup(); cup.size = "M"; useCup(); [o.base, o.flav, ...o.tops].forEach((k) => consume(k));
+      Object.assign(cup, { base: o.base, flav: o.flav, tops: o.tops, cheese: false, sugar: o.sugar, ice: o.ice, fill: 0.8, used: true });
+      R.slots[0].pat = R.slots[0].max; serve(0); })()`);
+    assert.equal(g.run("TT().co.linh_ly"), "thach");
+    assert.ok(g.run("TT().dt.linh_thi"));
+    assert.equal(g.run("S.money") - m0, g.run("recRev(S.cur)") - r0);
+    assert.equal(g.run("donTruyenDen()"), null);
+    assert.deepEqual(g.errors.map(String), []);
   } finally {
     g.close();
   }
