@@ -179,9 +179,11 @@ test("những ngày đầu chưa có khách khó chiều, chưa có lời mời 
 });
 
 /* mô phỏng truyện theo ngày (không bán): mỗi ngày khách quen tới hẹn thì ghé và thân thêm */
-function moPhongTruyen(g, toiNgay, chonCuoi) {
+/* chonCuoi: luôn chọn phương án cuối (ở ngã rẽ là nhánh B); khongHana: không phục vụ Hana nên video không lên */
+function moPhongTruyen(g, toiNgay, { chonCuoi = false, khongHana = false } = {}) {
   return JSON.parse(g.run(`JSON.stringify((() => {
-    S.tr = { che: "tat" }; S.day = 1; S.money = 500000;
+    /* nhánh B cho két cạn để có cảnh mẹ hỏi chuyện tiền */
+    S.tr = { che: "tat" }; S.day = 1; S.money = ${chonCuoi ? 100000 : 500000};
     const T = TT(), xem = [];
     const canh = (luc) => {
       const m = canhKe(luc);
@@ -193,34 +195,65 @@ function moPhongTruyen(g, toiNgay, chonCuoi) {
     };
     for (let d = 1; d <= ${toiNgay}; d++) {
       canh("mo_cua");
-      Object.keys(KHACH_QUEN).forEach((k) => { if (sapGhe(k)) { T.ghe[k] = S.day; T.than[k] = Math.min(10, (T.than[k] || 0) + 1); } });
+      Object.keys(KHACH_QUEN).forEach((k) => {
+        if (${khongHana} && k === "hana") return;
+        if (sapGhe(k)) { T.ghe[k] = S.day; T.than[k] = Math.min(10, (T.than[k] || 0) + 1); }
+      });
       S.history.push(newRec(S.day)); S.day++; S.cur = newRec(S.day);
       canh("dong_cua");
     }
-    return { xem, trang: T.trang, co: T.co };
+    return { xem, trang: T.trang, co: T.co, nhanh: T.nhanh, ket: ketCucNay().id, hau: hauTruyen().length };
   })())`));
 }
+const ngayCanh = (kq, id) => {
+  const x = kq.xem.find((v) => v.startsWith(id + "@"));
+  return x ? +x.split("@")[1] : null;
+};
 
-test("Chương 2 và 3: chơi tới ngày 75 thì đủ 12 trang, gặp Hana, Vy, mẹ lên thăm", () => {
-  for (const chonCuoi of [false, true]) {
-    const g = boot();
-    try {
-      const kq = moPhongTruyen(g, 75, chonCuoi);
-      assert.deepEqual(kq.trang, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], kq.xem.join(" "));
-      for (const id of ["c2_may", "hana_1", "hana_2", "hana_3", "hanh_1", "hanh_2", "c2_trung_thu", "c2_vy", "c2_ba_sau", "c2_ket", "c3_vang", "c3_me", "c3_ket"])
-        assert.ok(kq.xem.some((x) => x.startsWith(id + "@")), id + " chưa hiện: " + kq.xem.join(" "));
-      /* chương 2 không vượt sang ngày 60, kết truyện sau ngày 60 */
-      const ngay = (id) => +kq.xem.find((x) => x.startsWith(id + "@")).split("@")[1];
-      assert.ok(ngay("c2_ket") < 60);
-      assert.ok(ngay("c3_ket") >= 60);
-      assert.equal(kq.co.me_len, true);
-      assert.deepEqual(g.errors.map(String), []);
-    } finally {
-      g.close();
+test("mọi tổ hợp nhánh: đủ 12 trang, tới đúng kết, chương 2 xong trước ngày 60, cảnh nào cũng có người thấy", () => {
+  const daThay = new Set(),
+    ketDung = { "A-true": "thuong_hieu", "A-false": "xuong_tran_chau", "B-true": "len_ban_do", "B-false": "tiem_cua_xom" };
+  let gapMax = 0;
+  for (const chonCuoi of [false, true])
+    for (const khongHana of [false, true]) {
+      const g = boot();
+      try {
+        const kq = moPhongTruyen(g, 75, { chonCuoi, khongHana }),
+          may = chonCuoi ? "B" : "A",
+          tag = `${may}${khongHana ? " không Hana" : ""}: ${kq.xem.join(" ")}`;
+        kq.xem.forEach((x) => daThay.add(x.split("@")[0]));
+        assert.deepEqual(kq.trang, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], tag);
+        assert.equal(kq.nhanh.may, may);
+        const chung = ["c2_may", "hanh_1", "hanh_2", "c2_trung_thu", "c2_vy", "c2_ba_sau", "c2_nga_re", "c3_vang", "c3_me", "c3_ket"],
+          rieng = may === "A" ? ["may_a1", "may_a2", "may_a3", "c2_ket_a"] : ["may_b1", "may_b2", "may_b3", "c2_ket"],
+          khac = may === "A" ? ["may_b1", "c2_ket"] : ["may_a1", "c2_ket_a"];
+        for (const id of [...chung, ...rieng, ...(khongHana ? [] : ["hana_1", "hana_2", "hana_3"])]) assert.ok(ngayCanh(kq, id) != null, id + " chưa hiện · " + tag);
+        for (const id of khac) assert.equal(ngayCanh(kq, id), null, id + " của nhánh kia lại hiện · " + tag);
+        /* nhánh diễn ra sau ngã rẽ, chốt chương trước ngày 60, kết truyện sau ngày 60 */
+        assert.ok(ngayCanh(kq, rieng[0]) > ngayCanh(kq, "c2_nga_re"));
+        assert.ok(ngayCanh(kq, rieng[3]) < 60, tag);
+        assert.ok(ngayCanh(kq, "c3_ket") >= 60);
+        assert.equal(kq.ket, ketDung[`${may}-${!khongHana}`]);
+        assert.ok(kq.hau >= 6);
+        assert.equal(kq.co.me_len, true);
+        /* không có quãng trống truyện quá dài từ ngày 6 tới giao thừa */
+        const ngay = kq.xem.map((x) => +x.split("@")[1]).filter((d) => d >= 6 && d <= ngayCanh(kq, "c3_ket"));
+        for (let k = 1; k < ngay.length; k++) gapMax = Math.max(gapMax, ngay[k] - ngay[k - 1]);
+        assert.deepEqual(g.errors.map(String), []);
+      } finally {
+        g.close();
+      }
     }
+  const g = boot();
+  try {
+    /* cảnh lễ theo lịch thật và cảnh mặt tiền (cần thuê mặt tiền) nằm ngoài mô phỏng này */
+    const thieu = JSON.parse(g.run("JSON.stringify(MAU_CHUYEN.filter((m) => !(m.dieuKien || {}).le && !(m.dieuKien || {}).buoc).map((m) => m.id))")).filter((id) => !daThay.has(id));
+    assert.deepEqual(thieu, []);
+  } finally {
+    g.close();
   }
+  assert.ok(gapMax <= 8, "quãng trống dài nhất " + gapMax + " ngày");
 });
-
 test("Hana ghé quầy bằng ảnh ngôi sao, không bị tính giá khách nổi tiếng", () => {
   const g = boot();
   try {

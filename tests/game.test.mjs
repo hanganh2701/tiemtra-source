@@ -244,11 +244,20 @@ test("cốt truyện: id không trùng, nhân vật có thật, câu vừa màn 
         if (!["mo_cua", "dong_cua"].includes(m.luc)) out.push(m.id + ": luc sai");
         const lines = [...m.thoai, ...(m.luaChon || []).flatMap((c) => c.thoai || [])];
         if (m.chuong === 0 && m.thoai.length > 3) out.push(m.id + ": chương 0 quá 3 câu");
-        if (m.thoai.length > 6) out.push(m.id + ": quá 6 câu");
+        /* câu có điều kiện trên cùng một cờ là các phương án thay nhau, chỉ hiện một câu */
+        const nhom = new Set(m.thoai.filter((d) => d[2]).map((d) => JSON.stringify(Object.entries(d[2]).map(([k, v]) => [k, Object.keys(v).sort()]))));
+        if (m.thoai.filter((d) => !d[2]).length + nhom.size > 6) out.push(m.id + ": quá 6 câu");
+        if (m.reRe && !((m.luaChon || []).length >= 2 && m.luaChon.every((c) => c.nhanh))) out.push(m.id + ": ngã rẽ thiếu nhánh");
         for (const [ai, cau] of lines) {
           if (ai !== "_" && ai !== "tin" && !NHAN_VAT[ai]) out.push(m.id + ": không có nhân vật " + ai);
           if (cau.replace(/\\{\\w+\\}/g, "anh").length > 72) out.push(m.id + ": câu dài " + cau.length);
         }
+      }
+      for (const r of NGA_RE) if (!MAU_CHUYEN.some((m) => m.id === r.canh && m.reRe)) out.push("ngã rẽ " + r.id + " không có cảnh");
+      if (new Set(KET_CUC.map((k) => k.id)).size !== KET_CUC.length) out.push("trùng id kết");
+      for (const [ai, ds] of HAU_TRUYEN) {
+        if (!NHAN_VAT[ai]) out.push("hậu truyện: không có nhân vật " + ai);
+        for (const [, chu] of ds) if (chu && chu.replace(/\{\w+\}/g, "anh").length > 100) out.push("hậu truyện " + ai + ": câu dài " + chu.length);
       }
       return out;
     })()`);

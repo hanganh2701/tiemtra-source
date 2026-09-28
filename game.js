@@ -136,6 +136,7 @@ const OLD_NAMES = {
   kemtrung: "Kem trứng",
   L: "Phụ thu size L",
   dactrung: "Trà của bà Sáu (món đặc trưng, thêm)",
+  si: "Đơn sỉ trân châu cho Mây Tea",
   app: "Phụ thu giá trên app",
 };
 const iname = (k) => (ITEMS[k] ? ITEMS[k].n : OLD_NAMES[k] || k);
@@ -5554,6 +5555,7 @@ function serve(i) {
         (c.ban ? 2 : 1) *
         heSoTipLe() *
         heSoTipTri() *
+        heSoTipNhanh() *
         (coTrang(11) && leHoiNay() === "tet" ? 2 : 1) *
         c.cups.length,
       rv = stars(c, false);
@@ -6063,6 +6065,7 @@ function startDay() {
   });
   R.sto = null;
   nvDauNgay();
+  truyenDauNgay();
   planBig();
   {
     R.starAt = 0;
@@ -6387,7 +6390,9 @@ function paneSum() {
   const avg = g.starN
     ? (g.starSum / g.starN).toFixed(1).replace(".", ",")
     : "–";
+  /* bán chạy chỉ xét món thật, không tính dòng phụ thu hay đơn sỉ */
   const bestB = baseK
+      .filter((k) => ITEMS[k])
       .map((k) => [k, (g.sales[k] || {}).q || 0])
       .sort((a, b) => b[1] - a[1]),
     bestT = topK

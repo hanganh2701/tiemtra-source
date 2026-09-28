@@ -9,7 +9,7 @@ function khachQuenDen() {
   if (R.slots.some((c) => c && c.reg)) return null; /* mỗi lúc chỉ một khách quen ở quầy */
   const da = daGheHomNay(),
     ks = Object.keys(KHACH_QUEN).filter((k) => sapGhe(k) && !da[k]);
-  if (!ks.length || Math.random() > 0.2) return null;
+  if (!ks.length || Math.random() > 0.2 * heSoQuenNhanh()) return null;
   return rnd(ks);
 }
 /* khách quen đã ghé trong ngày đang bán */
@@ -155,6 +155,8 @@ function ngayMaiHTML() {
       `${ico("gift")} ${q.k ? "Món mới: " + ITEMS[q.k].n : q.chai ? "Quà: chai " + low(ITEMS[q.chai].n) : esc(q.ghiChu)}`,
     );
   const toi = Object.keys(KHACH_QUEN).filter((k) => sapGhe(k, S.day));
+  const nr = ngayMaiNhanh();
+  if (nr) dong.push(nr);
   if (toi.length) dong.push(`♥ ${toi.map((k) => NHAN_VAT[k].ten).join(", ")} có thể ghé`);
   const g = goiYThan();
   if (g) dong.push(g);
@@ -232,6 +234,7 @@ function paneSoTay() {
     xem = MAU_CHUYEN.filter((m) => T.xem[m.id] != null).sort((a, b) => T.xem[a.id] - T.xem[b.id]);
   if (!xem.length) return '<p class="note">Chưa có chuyện nào. Mở cửa ngày đầu tiên là bà Sáu ghé.</p>';
   return (
+    paneNgaRe() +
     xem
       .map(
         (m) =>

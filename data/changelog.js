@@ -1,7 +1,20 @@
 /* Phiên bản và danh sách "Có gì mới". Mỗi lần cập nhật: tăng GAME_VERSION và thêm một mục lên ĐẦU CHANGELOG. */
 /* ===== PHIÊN BẢN GAME: mỗi lần cập nhật, tăng số và thêm một mục lên ĐẦU danh sách ===== */
-const GAME_VERSION = "4.3";
+const GAME_VERSION = "4.4";
 const CHANGELOG = [
+  {
+    v: "4.4",
+    d: "28/09/2026",
+    items: [
+      "Ngã rẽ đầu tiên của Hẻm 42 (khoảng ngày 50): bắt tay nấu trân châu cho chuỗi Mây Tea, hay giữ hẻm cùng cả xóm. Mỗi đường có chuyện riêng và đổi cả cách chơi",
+      "Bắt tay: sáng nào xe Mây Tea cũng tới lấy 30 phần trân châu đen, nhớ nấu dư. Giữ hẻm: hai tuần Mây Tea phá giá, khách lạ ít đi nhưng khách quen ghé nhiều hơn, lập hội xong tip cao hơn",
+      "Kết truyện mới: 4 kết tuỳ ngã rẽ Mây Tea và video của Hana, kèm thẻ hậu truyện cho từng người trong hẻm",
+      "Sổ tay có sơ đồ ngã rẽ và các kết đã thấy, xem lại kết truyện được",
+      "Những lựa chọn nhỏ từ đầu game giờ đều được nhắc lại về sau",
+      "Ngã rẽ không bị Bỏ qua hay chế độ Tắt chọn thay. Cảnh cuối chương không còn bị kẹt khi thiếu trang sổ",
+      "Tổng kết ngày: mục Bán chạy không còn tính dòng phụ thu",
+    ],
+  },
   {
     v: "4.3",
     d: "28/09/2026",
