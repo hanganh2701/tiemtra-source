@@ -17,10 +17,16 @@
        cachNgay: 2,                 // và cách cảnh kia ít nhất bấy nhiêu ngày
        thoiTiet: "rain",            // ưu tiên ngày có sự kiện này; chờ quá 8 ngày thì bỏ qua điều kiện
        trang: 4,                    // phải có trang sổ này
+       nhanh: { may: "A" },         // đang đi nhánh A của ngã rẽ "may"
+       khongCo: { ten: giá trị },   // cờ KHÔNG được khớp
+       chot: 59,                    // hạn chót: từ ngày này bỏ qua điều kiện mềm (than, sau, trang, soTrang, sao, thoiTiet)
      },
+     reRe: "Câu báo trước",         // ngã rẽ lớn: không bị Bỏ qua hay chế độ Tắt chọn thay, hiện nhãn Ngã rẽ
+     ketCuc: true,                  // xong cảnh thì hiện kết truyện và hậu truyện
      uuTien: 5,                     // nhiều mẩu cùng đủ điều kiện thì chọn số lớn nhất
      thoai: [["khoa", "câu"], ["_", "(chú thích hành động)"], ["tin", "Mẹ: tin nhắn"], ["linh", "câu", { co: { x: 1 } }]],
-     luaChon: [{ chu: "nút", dat: { ten: giá trị }, thoai: [[ai, câu]], ketQua: {...} }],
+     luaChon: [{ chu: "nút", dat: { ten: giá trị }, nhanh: { may: "A" }, thoai: [[ai, câu]], ketQua: {...} }],
+     Câu thoại có thể kèm điều kiện { co, khongCo, nhanh, than, xem, chuaXem } ở phần tử thứ ba.
      ketQua: { than: { khoa: 1 }, trang: 2, co: { ten: giá trị }, tien: 50000 }
    }
 */
@@ -264,6 +270,8 @@ MAU_CHUYEN.push(
     dieuKien: { than: { khoa: 2 } },
     uuTien: 6,
     thoai: [
+      ["khoa", "Ly trà đá bữa đầu đó, em còn nhớ vị luôn.", { co: { c0_khoa: "tra_da" } }],
+      ["khoa", "Chai nước bữa đầu {ban} đưa, em còn giữ cái vỏ nè.", { co: { c0_khoa: "nuoc" } }],
       ["khoa", "Hôm nay chạy bốn chục đơn, nắng muốn cháy lưng."],
       ["khoa", "Xăng lên nữa rồi. Tháng này em gửi về quê hơi ít."],
       ["khoa", "Mà thôi, uống ly của {ban} là khoẻ lại liền."],
@@ -395,7 +403,7 @@ MAU_CHUYEN.push(
     chuong: 1,
     luc: "mo_cua",
     tomTat: "Bà Sáu kể về quán nước năm xưa và đưa trang sổ thứ 5.",
-    dieuKien: { ngay: 26, soTrang: 3 },
+    dieuKien: { ngay: 26, soTrang: 3, chot: 32 },
     uuTien: 8,
     thoai: [
       ["sau", "Hồi xưa quán nước của bà đông lắm. Ông nhà nấu trà, bà bán."],
@@ -618,6 +626,8 @@ MAU_CHUYEN.push(
     dieuKien: { ngay: 42, sau: "c2_may", cachNgay: 6 },
     uuTien: 6,
     thoai: [
+      ["vy", "Bữa đầu {ban} chúc em buôn bán được, em nhớ hoài.", { co: { vy: "ban" } }],
+      ["vy", "Bữa đầu {ban} hỏi sao không mở chỗ khác. Em cũng tự hỏi.", { co: { vy: "hoi" } }],
       ["vy", "Trân châu bên em nấu sẵn từ xưởng, để lâu cứng ngắc."],
       ["vy", "Em thèm ly trân châu mới nấu như hồi nhỏ uống quán bà Sáu."],
       ["vy", "Dì Hạnh nói trang này của bà Sáu. Em giữ lâu rồi, giờ trả."],
@@ -633,10 +643,14 @@ MAU_CHUYEN.push(
     dieuKien: { ngay: 48, than: { sau: 3 } },
     uuTien: 8,
     thoai: [
+      ["sau", "Con Mướp chịu con từ bữa con vuốt nó. Nó khó lắm đó.", { co: { c0_meo: "vuot" } }],
+      ["sau", "Bữa đầu con hỏi chuyện quán nước. Giờ bà kể nè.", { co: { c0_meo: "hoi" } }],
       ["sau", "Ông nhà bà nóng tính mà khách khó cỡ nào ổng cũng cười."],
       ["sau", "Ổng nói người ta khó là vì mệt. Cho ly trà là hết khó."],
       ["sau", "Ổng đi rồi, bà không nấu nổi trà ổng nấu. Bà dẹp quán."],
       ["_", "(Bà Sáu đưa trang viết nét chữ run run của ông.)"],
+      ["sau", "Bữa con kẹt tiền, mẹ con gửi lên liền. Có mẹ là có hết.", { co: { c1_vay: "me" } }],
+      ["sau", "Bữa con kẹt tiền mà không xin ai. Cứng đầu giống ông.", { co: { c1_vay: "tu" } }],
     ],
     ketQua: { trang: 9, than: { sau: 1 } },
   },
@@ -645,7 +659,7 @@ MAU_CHUYEN.push(
     chuong: 2,
     luc: "mo_cua",
     tomTat: "Cả xóm giới thiệu khách cho tiệm khi chuỗi phá giá, trang 10.",
-    dieuKien: { ngay: 54, soTrang: 7 },
+    dieuKien: { ngay: 55, soTrang: 7, nhanh: { may: "B" }, sau: "may_b3", chot: 59 },
     uuTien: 8,
     thoai: [
       ["tu", "Chú chở khách nào cũng nói: uống trà thì ghé tiệm {shop}."],
@@ -671,6 +685,8 @@ MAU_CHUYEN.push(
       ["_", "(Sài Gòn những ngày giáp Tết vắng hoe. Hẻm 42 chỉ còn vài nhà.)"],
       ["khoa", "Năm nay em không về quê. Vé xe lên gấp ba, em để dành gửi mẹ."],
       ["khoa", "Tết chạy đơn cũng được, người ta bo nhiều lắm {ban}."],
+      ["khoa", "Dừa Bến Tre em hứa mang lên, chắc hẹn {ban} Tết sau.", { co: { khoa_que: true } }],
+      ["khoa", "{Ban} còn nợ em ly thứ hai bữa trước đó nha, hihi.", { co: { khoa_moi: true } }],
     ],
     luaChon: [
       { chu: "Rủ Khoa ăn Tết với bà Sáu", dat: { khoa_tet: true }, ketQua: { than: { khoa: 1 } }, thoai: [["khoa", "Thiệt hả {ban}? Em mang dưa hấu qua!"]] },
@@ -689,6 +705,8 @@ MAU_CHUYEN.push(
       ["me_gap", "Bất ngờ chưa. Mẹ đi xe đò lên đó."],
       ["_", "(Mẹ mở điện thoại, chỉ một đánh giá 5 sao ký tên \"Khách quen\".)"],
       ["me_gap", "Ngày nào mẹ cũng đọc đánh giá tiệm con. Đọc hết."],
+      ["me_gap", "Tên tiệm con nhắn bữa đầu, mẹ dán trên tủ lạnh.", { co: { me_biet_ten: true } }],
+      ["me_gap", "Tên tiệm mẹ phải hỏi bà Sáu mới biết đó nghen.", { co: { me_biet_ten: false } }],
       ["_", "(Trong giỏ bánh tét có một trang giấy mẹ xin bà Sáu từ hôm qua.)"],
     ],
     ketQua: { trang: 11, co: { me_len: true } },
@@ -698,16 +716,246 @@ MAU_CHUYEN.push(
     chuong: 3,
     luc: "dong_cua",
     tomTat: "Bà Sáu trao trang cuối: Trà của bà Sáu. Hẻm 42 đón năm mới.",
-    dieuKien: { ngay: 67, soTrang: 11 },
+    dieuKien: { ngay: 67, soTrang: 11, chot: 75 },
     uuTien: 10,
+    ketCuc: true,
     thoai: [
       ["sau", "Mười một trang rồi. Trang cuối bà giữ lâu nhất."],
       ["_", "(\"Hồng trà, siro vải, thạch củ năng. Pha cho người mình thương.\")"],
       ["sau", "Giờ cuốn sổ về đủ rồi. Tiệm này là của con."],
       ["me_gap", "Mẹ tự hào về con.", { co: { me_len: true } }],
+      ["vy", "Tết này Mây Tea nghỉ. Em qua đón giao thừa với tiệm nha!", { nhanh: { may: "A" } }],
+      ["vy", "Xe trà của em nghỉ Tết rồi. Em qua phụ tiệm nè!", { nhanh: { may: "B" } }],
       ["_", "(Giao thừa. Pháo hoa bên kia sông. Mướp nằm ngủ trên quầy.)"],
-      ["_", "(Hết truyện Hẻm 42. Tiệm vẫn mở cửa mỗi ngày.)"],
     ],
     ketQua: { trang: 12, than: { sau: 2 } },
   },
 );
+
+/* ---------- Ngã rẽ Mây Tea (Chương 2, ngày 50–59) ----------
+   Nhánh A: bắt tay nấu trân châu cho cả chuỗi. Nhánh B: giữ hẻm cùng cả xóm (kết bằng c2_ket ở trên).
+   Mỗi nhánh 3 cảnh riêng rồi một cảnh chốt đưa trang 10. Hệ quả trong cách chơi ở src/nga-re.js. */
+MAU_CHUYEN.push(
+  {
+    id: "c2_nga_re",
+    chuong: 2,
+    luc: "mo_cua",
+    tomTat: "Vy mang lời đề nghị của Mây Tea, cô Hạnh rủ cả xóm giữ khách. Phải chọn một đường.",
+    dieuKien: { ngay: 50, sau: "c2_vy", chot: 53 },
+    uuTien: 9,
+    reRe: "Chọn một lần. Nửa sau Chương 2 và kết truyện đi theo lựa chọn này.",
+    thoai: [
+      ["vy", "{Ban} ơi, công ty em muốn đặt trân châu của tiệm cho cả chuỗi."],
+      ["vy", "Sáng nào xe em cũng qua lấy. Giá sỉ đều, trả tiền liền."],
+      ["hanh", "Còn cô với mấy quán trong hẻm tính lập hội, giới thiệu khách."],
+      ["hanh", "Mây Tea mà phá giá thì một mình con chống không nổi đâu."],
+      ["_", "(Bà Sáu ngồi đầu quầy, không nói gì, chỉ vuốt con Mướp.)"],
+    ],
+    luaChon: [
+      {
+        chu: "Bắt tay với Mây Tea",
+        nhanh: { may: "A" },
+        thoai: [["vy", "Thiệt hả {ban}? Em về báo sếp liền!"], ["hanh", "Ừ… con tính vậy thì cô cũng hiểu."]],
+      },
+      {
+        chu: "Giữ hẻm cùng cả xóm",
+        nhanh: { may: "B" },
+        thoai: [["hanh", "Vậy mới là người trong hẻm chớ!"], ["vy", "Dạ… em hiểu mà. Em xin lỗi vì mấy chuyện này."]],
+      },
+    ],
+  },
+  /* nhánh A · bắt tay */
+  {
+    id: "may_a1",
+    chuong: 2,
+    luc: "dong_cua",
+    tomTat: "Xe Mây Tea tới lấy trân châu mỗi sáng. Chú Tư hỏi mai uống trà ở đâu.",
+    dieuKien: { nhanh: { may: "A" }, sau: "c2_nga_re", cachNgay: 1, ngayDen: 60 },
+    uuTien: 7,
+    thoai: [
+      ["_", "(Năm giờ sáng, xe tải nhỏ của Mây Tea đậu đầu hẻm lấy trân châu.)"],
+      ["tu", "Con nấu cho tụi nó hả? Vậy mai chú uống trà ở đâu?"],
+      ["tu", "Chú giỡn thôi. Có mối đều là mừng rồi, con làm cho kỹ nghen."],
+    ],
+  },
+  {
+    id: "may_a2",
+    chuong: 2,
+    luc: "dong_cua",
+    tomTat: "Cô Hạnh ít ghé. Cô nói cô không giận, chỉ buồn.",
+    dieuKien: { nhanh: { may: "A" }, sau: "may_a1", cachNgay: 1, ngayDen: 60 },
+    uuTien: 7,
+    thoai: [
+      ["_", "(Mấy bữa nay cô Hạnh bán bánh mì mà không ngó qua tiệm.)"],
+      ["hanh", "Cô không giận con đâu. Cô buồn thôi."],
+      ["hanh", "Hẻm này mấy chục năm, giờ ai cũng lo phần mình."],
+      ["hanh", "Mà combo mình vẫn bán nha. Bánh mì cô đâu có phá giá.", { co: { combo_hanh: true } }],
+    ],
+    luaChon: [
+      { chu: "Mời cô ly trà gừng", dat: { a_hanh: "tra" }, ketQua: { than: { hanh: 1 } }, thoai: [["hanh", "Cái con này… Ừ, cô uống. Mai cô qua."]] },
+      { chu: "Để cô yên vài bữa", dat: { a_hanh: "yen" }, thoai: [["_", "(Tối đó cô Hạnh để trước cửa tiệm một ổ bánh mì còn nóng.)"]] },
+    ],
+  },
+  {
+    id: "may_a3",
+    chuong: 2,
+    luc: "dong_cua",
+    tomTat: "Vy cãi với công ty để giữ trân châu nấu mỗi sáng.",
+    dieuKien: { nhanh: { may: "A" }, sau: "may_a2", cachNgay: 1, ngayDen: 60 },
+    uuTien: 7,
+    thoai: [
+      ["vy", "Sếp em muốn đổi qua trân châu bột cho rẻ. Em cãi quá trời."],
+      ["vy", "Em mang ly của {ban} lên họp. Cả phòng uống xong im re."],
+      ["vy", "Công ty chịu rồi! Ly nào cũng ghi \"trân châu nấu mỗi sáng\"."],
+    ],
+  },
+  {
+    id: "c2_ket_a",
+    chuong: 2,
+    luc: "mo_cua",
+    tomTat: "Bà Sáu uống thử ly ở Mây Tea, biết ngay là trân châu của tiệm, đưa trang 10.",
+    dieuKien: { ngay: 55, soTrang: 7, nhanh: { may: "A" }, sau: "may_a3", chot: 59 },
+    uuTien: 8,
+    thoai: [
+      ["sau", "Bữa nay bà ra đầu hẻm uống thử ly của tụi Mây Tea."],
+      ["sau", "Trân châu mềm, ngọt vừa. Bà biết liền là của con."],
+      ["sau", "Ông nhà bà nói: buôn có bạn, bán có phường. Bạn nào cũng là bạn."],
+      ["hanh", "Thôi, cô hết buồn rồi. Mai qua uống ly trà gừng nữa.", { co: { a_hanh: "tra" } }],
+      ["_", "(Bà Sáu đưa trang sổ có chữ của ông: \"Buôn có bạn, bán có phường\".)"],
+    ],
+    ketQua: { trang: 10, than: { sau: 1 } },
+  },
+  /* nhánh B · giữ hẻm */
+  {
+    id: "may_b1",
+    chuong: 2,
+    luc: "dong_cua",
+    tomTat: "Mây Tea treo băng rôn đồng giá, khách vãng lai vắng hẳn.",
+    dieuKien: { nhanh: { may: "B" }, sau: "c2_nga_re", cachNgay: 1, ngayDen: 60 },
+    uuTien: 7,
+    thoai: [
+      ["_", "(Đầu hẻm treo băng rôn: \"Mây Tea đồng giá 15 ngàn, hai tuần\".)"],
+      ["khoa", "Khách lạ qua bên đó hết rồi {ban}. Mà tụi shipper em vẫn ghé."],
+      ["khoa", "Em nói tụi nó: ở đây có người hỏi han, bên kia có máy thôi."],
+    ],
+  },
+  {
+    id: "may_b2",
+    chuong: 2,
+    luc: "dong_cua",
+    tomTat: "Cô Hạnh, chú Tư, Khoa lập Hội ghé tiệm, chia phiếu giới thiệu.",
+    dieuKien: { nhanh: { may: "B" }, sau: "may_b1", cachNgay: 1, ngayDen: 60 },
+    uuTien: 7,
+    thoai: [
+      ["hanh", "Cô in phiếu rồi nè: mua bánh mì bên cô, qua tiệm con bớt 3 ngàn."],
+      ["tu", "Chú dán phiếu trên xe. Chở ai chú cũng đưa một tờ."],
+      ["hanh", "Combo mình giờ thành vũ khí bí mật luôn đó con.", { co: { combo_hanh: true } }],
+      ["_", "(Tối đó cả xóm ngồi gấp phiếu trên mấy cái ghế nhựa trước tiệm.)"],
+    ],
+    ketQua: { than: { hanh: 1, tu: 1 } },
+  },
+  {
+    id: "may_b3",
+    chuong: 2,
+    luc: "dong_cua",
+    tomTat: "Vy nghỉ việc ở Mây Tea, muốn mở xe trà nhỏ ở chợ.",
+    dieuKien: { nhanh: { may: "B" }, sau: "may_b2", cachNgay: 1, ngayDen: 60 },
+    uuTien: 7,
+    thoai: [
+      ["vy", "Em xin nghỉ rồi {ban}. Em không làm nổi cảnh phá giá hàng xóm."],
+      ["vy", "Em tính mở xe trà nhỏ ở chợ. Mà em nấu trân châu còn dở lắm."],
+    ],
+    luaChon: [
+      { chu: "Tặng Vy cái nồi nấu cũ", dat: { vy_b: "noi" }, thoai: [["vy", "Nồi này nấu trân châu cho cả hẻm đó hả? Em giữ kỹ lắm."]] },
+      { chu: "Hẹn Vy sáng mai qua học", dat: { vy_b: "hoc" }, thoai: [["vy", "Dạ! Năm giờ sáng em có mặt, {ban} đừng ngủ quên nha."]] },
+    ],
+  },
+);
+
+/* ---------- Ngã rẽ, kết truyện, hậu truyện ----------
+   NGA_RE: các ngã rẽ lớn (hiện trong Sổ tay). Đợt sau thêm Linh, Hana, Tết.
+   KET_CUC: tên kết theo ngã rẽ Mây Tea và chuyện video của Hana có lên hay không.
+   HAU_TRUYEN: mỗi nhân vật lấy dòng đầu tiên khớp điều kiện (cùng kiểu điều kiện với câu thoại); an = không hiện. */
+const NGA_RE = [
+  { id: "may", ten: "Chuỗi Mây Tea", chuong: 2, canh: "c2_nga_re", nhanh: { A: "Bắt tay với Mây Tea", B: "Giữ hẻm cùng cả xóm" } },
+];
+const KET_CUC = [
+  {
+    id: "tiem_cua_xom",
+    may: "B",
+    video: false,
+    ten: "Tiệm của xóm",
+    chu: "Tiệm vẫn nhỏ, vẫn nằm dưới căn gác của bà Sáu. Ai trong hẻm cũng có một ly quen, và ly nào cũng có tên người uống.",
+  },
+  {
+    id: "len_ban_do",
+    may: "B",
+    video: true,
+    ten: "Hẻm 42 lên bản đồ",
+    chu: "Khách phương xa theo video của Hana tìm vào tận hẻm. Họ ghé tiệm, rồi ghé luôn bánh mì cô Hạnh, xe ôm chú Tư. Cả xóm cùng đông.",
+  },
+  {
+    id: "xuong_tran_chau",
+    may: "A",
+    video: false,
+    ten: "Xưởng trân châu đầu hẻm",
+    chu: "Mỗi sáng xe Mây Tea tới lấy trân châu nấu trong hẻm. Cả thành phố uống trân châu của tiệm mà không biết. Bà Sáu vẫn ngồi đầu quầy.",
+  },
+  {
+    id: "thuong_hieu",
+    may: "A",
+    video: true,
+    ten: "Thương hiệu từ con hẻm",
+    chu: "Video của Hana và ly trân châu nhà làm đưa tên tiệm lên ly của cả chuỗi. Công ty của Vy gọi đó là công thức Hẻm 42.",
+  },
+];
+const HAU_TRUYEN = [
+  ["meo", [
+    [{ co: { c0_meo: "vuot" } }, "Mướp vẫn nằm đúng chỗ bữa đầu bạn vuốt nó. Khách quen gọi nó là quản lý."],
+    [{}, "Mướp nghe bà Sáu kể chuyện quán nước cả trăm lần, giờ ngủ ngon lành trên quầy."],
+  ]],
+  ["sau", [
+    [{ nhanh: { may: "A" } }, "Bà Sáu ra đầu hẻm uống ly Mây Tea mỗi chiều, lần nào cũng nói: \"Trân châu này của con.\""],
+    [{}, "Bà Sáu treo lại tấm bảng quán nước của ông trên vách tiệm, ngay chỗ Mướp nằm."],
+  ]],
+  ["tu", [
+    [{ co: { tu_app: "som" } }, "Chú Tư thành tài xế app năm sao. Chở khách nào chú cũng vòng qua tiệm."],
+    [{ xem: "tu_1" }, "Chú Tư bấm app chậm rì mà khách đầu hẻm vẫn chờ chú. Ly trà đá không đường vẫn để sẵn."],
+    [{}, "Chú Tư vẫn chạy xe ôm đầu hẻm, sáng nào cũng ghé ly trà đá không đường."],
+  ]],
+  ["khoa", [
+    [{ co: { khoa_tet: true } }, "Khoa ăn Tết cùng bà Sáu, mang theo trái dưa hấu to nhất chợ."],
+    [{ co: { c0_khoa: "tra_da" } }, "Góc trà đá cho shipper trước tiệm có tấm bảng nhỏ: \"Góc của Khoa\"."],
+    [{ co: { khoa_que: true } }, "Khoa để dành đủ tiền, hè này về Bến Tre, hứa mang dừa lên cho cả tiệm."],
+    [{}, "Khoa vẫn chạy đơn giữa nắng mưa, ngày nào cũng ghé uống một ly rồi mới chạy tiếp."],
+  ]],
+  ["linh", [
+    [{ co: { linh_da_lam: true, linh_co_vu: "viet" } }, "Linh vừa học vừa làm ở tiệm. Ly nào Linh pha cũng có một câu cổ vũ viết tay."],
+    [{ co: { linh_da_lam: true } }, "Linh vừa học vừa làm ở tiệm, pha lẹ hơn cả chủ."],
+    [{ xem: "linh_1" }, "Linh vào đại học, vẫn giữ cái ly từ bữa đi thi trên bàn học."],
+    [{ an: true }],
+  ]],
+  ["hanh", [
+    [{ nhanh: { may: "A" }, co: { a_hanh: "tra" } }, "Cô Hạnh giận đúng ba bữa. Giờ chiều nào cũng qua uống ly trà gừng."],
+    [{ nhanh: { may: "A" } }, "Cô Hạnh vẫn để trước cửa tiệm một ổ bánh mì mỗi sáng, không nói gì."],
+    [{ co: { combo_hanh: true } }, "Combo bánh mì với trà thành bữa sáng của cả hẻm. Cô Hạnh tính mở thêm xe thứ hai."],
+    [{}, "Cô Hạnh vẫn soi giá tiệm mỗi tuần, rồi vẫn mua một ly."],
+  ]],
+  ["vy", [
+    [{ nhanh: { may: "A" } }, "Vy thành quản lý vùng. Ly nào của Mây Tea cũng ghi \"trân châu nấu mỗi sáng\"."],
+    [{ nhanh: { may: "B" }, co: { vy_b: "hoc" } }, "Xe trà của Vy ở chợ đông khách. Sáng nào Vy cũng qua tiệm học nấu một mẻ."],
+    [{ nhanh: { may: "B" } }, "Xe trà của Vy ở chợ đông khách, nồi nấu trân châu là cái nồi cũ của tiệm."],
+    [{ an: true }],
+  ]],
+  ["hana", [
+    [{ xem: "hana_3" }, "Video Hẻm 42 thành video nhiều lượt xem nhất kênh của Hana. Cô hẹn Tết sau quay lại."],
+    [{ co: { hana_muop: true } }, "Hana về nước, mang theo ba chữ tiếng Việt: Mướp, xoài, cảm ơn."],
+    [{ xem: "hana_1" }, "Hana về nước, thỉnh thoảng gửi ảnh ly trà xoài cô tự pha."],
+    [{ an: true }],
+  ]],
+  ["me_gap", [
+    [{ co: { me_len: true, c1_vay: "me" } }, "Mẹ về quê kể với ba chuyện tiền gửi. Ba chỉ hỏi: \"Tiệm có bán trà đá không?\""],
+    [{ co: { me_len: true } }, "Mẹ in đánh giá năm sao của mình ra, dán lên tủ lạnh cạnh tên tiệm."],
+    [{}, "Mẹ vẫn đọc từng đánh giá của tiệm mỗi tối, rồi nhắn: \"Ăn cơm chưa con?\""],
+  ]],
+];
