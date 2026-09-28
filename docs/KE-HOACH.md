@@ -270,14 +270,14 @@ Tiền giờ có chỗ tiêu suốt game; mua căn hộ và nhà trong hẻm là
   - Bảng chi tiết trượt từ dưới lên (`xemDs`): chọn Trả thẳng hay Trả góp, bảng tiền (bán lại đồ cũ, tiền vay, góp mỗi ngày), chi phí mỗi ngày đổi bao nhiêu, lý do chưa mua được và số ngày ước chừng; đóng bằng nút Đóng, chạm nền, phím Esc hay vuốt lui trên điện thoại
   - Mục tiêu để dành (`dsMucTieu`): thanh tiến độ ở thẻ tóm tắt và màn chuẩn bị với số ngày ước chừng theo thu nhập 7 ngày, dòng tiến độ ở thẻ cuối ngày (`dsMucCuoiNgay`), đủ tiền thì nhắc một lần (`dsMucDu`)
 
-Mô phỏng người chơi thật 200 ngày, máy ưu tiên nhà ở xã hội trước ô tô (nghìn đồng):
+Mô phỏng người chơi thật 200 ngày với giá mới (Wave 22,5 triệu, điện thoại, quà theo giá ngoài đời), máy mua dần điện thoại, quà, xe máy, ô tô và nhà ở xã hội trả góp (nghìn đồng):
 
 | Người chơi | Két ngày 100 | Két ngày 200 | Mốc mua sắm |
 |---|---|---|---|
-| Giỏi, chi nhánh gần trường | 67.251 | 48.642 | Wave ngày 65, Vision 74, SH 104, Kia Morning trả góp 137, nhà ở xã hội trả góp 191 |
-| Vừa, chi nhánh gần trường | 22.460 | 178.350 | Wave ngày 80, Vision 87, SH 117, Kia Morning trả góp 151; chưa đủ tiền trả trước mua nhà |
+| Giỏi, chi nhánh gần trường | 41.702 | 28.255 | Galaxy A17 ngày 50, Reno15 54, quà đi biển 60, Wave 72, Vision 77, lợp mái nhà ở quê 92, SH 110, Kia Morning trả góp 139, nhà ở xã hội trả góp 194 |
+| Vừa, chi nhánh gần trường | 60.152 | 150.946 | Galaxy A17 ngày 60, Reno15 64, quà đi biển 73, Wave 80, Vision 86, lợp mái 101, SH 123, Kia Morning trả góp 154; chưa đủ tiền trả trước mua nhà |
 
-Xe máy tới trong khoảng ngày 65–120, ô tô nhỏ trả góp khoảng ngày 130–150, căn nhà đầu tiên khoảng ngày 190 trở đi (sớm hơn nếu để dành mua nhà trước xe). Căn hộ thường, nhà phố, biệt thự, Porsche là mơ ước lâu dài.
+Điện thoại mới khoảng ngày 50–65, xe máy trong khoảng ngày 70–125, ô tô nhỏ trả góp khoảng ngày 140–155, căn nhà đầu tiên khoảng ngày 190 trở đi (sớm hơn nếu để dành mua nhà trước xe). Căn hộ thường, nhà phố, biệt thự, Porsche là mơ ước lâu dài.
 
 ## Cổng quyết định
 
