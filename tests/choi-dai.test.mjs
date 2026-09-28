@@ -29,3 +29,29 @@ test("chơi liền 12 ngày: không lỗi, có truyện, có quà, có khách qu
     g.close();
   }
 });
+
+test("chơi liền 10 ngày ở mặt tiền, có nhân viên, mùa Noel: không lỗi", async () => {
+  const g = boot();
+  try {
+    g.run("closeSplash(); window.__ngay = '2026-12-22'; S.shopName = 'Quán Lớn'; S.tr = { che: 'tat' }; S.day = 32; S.money = 20000000");
+    g.run("S.reviews = Array.from({ length: 30 }, () => ({ s: 5, t: 'ngon', k: Math.random(), d: 1 }))");
+    g.run("['staff1', 'staff2'].forEach((k) => { S.upg[k] = true; S.hired = S.hired || {}; S.hired[k] = true; nvThue(k); })");
+    g.run("S.buoc = 2; S.hd = { bd: 32, gia: 115000 }; S.dnKe = 34");
+    for (let d = 0; d < 10; d++) {
+      for (let k = 0; k < 5; k++) g.run("__closeDialogs(); prepChecks(); __closeDialogs()");
+      g.run("['tra','matcha','hong','luc','tcden','thach','tcvang','cunang','cup'].forEach((k) => { if (S.unlocked[k] || k === 'cup') addStock(k, 60); })");
+      g.run("truyenLuc('mo_cua', () => { startDay(); clearInterval(timer); }); __closeDialogs(); if (!R.running) { startDay(); clearInterval(timer); } __closeDialogs()");
+      for (let n = 0; n < 60; n++) {
+        g.run("tick()");
+        if (n % 5 === 0) g.run("(() => { const i = __fillSlot(); if (R.slots[i]) { R.slots[i].pat = R.slots[i].max; __serveSlot(i); } })()");
+      }
+      g.run("R.t = 1; donNhomNhip(); R.slots.forEach((c, i) => c && __serveSlot(i)); closeEarly(); __closeDialogs(12)");
+      await new Promise((r) => setTimeout(r, 5));
+    }
+    assert.deepEqual(g.errors.map(String), []);
+    assert.ok(g.run("S.day") >= 42, "ngày: " + g.run("S.day"));
+    assert.ok(g.run("S.nv.staff2.xp + S.nv.staff2.kn") > 3);
+  } finally {
+    g.close();
+  }
+});

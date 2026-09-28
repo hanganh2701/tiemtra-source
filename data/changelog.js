@@ -1,7 +1,20 @@
 /* Phiên bản và danh sách "Có gì mới". Mỗi lần cập nhật: tăng GAME_VERSION và thêm một mục lên ĐẦU CHANGELOG. */
 /* ===== PHIÊN BẢN GAME: mỗi lần cập nhật, tăng số và thêm một mục lên ĐẦU danh sách ===== */
-const GAME_VERSION = "4.1";
+const GAME_VERSION = "4.2";
 const CHANGELOG = [
+  {
+    v: "4.2",
+    d: "28/09/2026",
+    items: [
+      "Mặt tiền đầu hẻm (Nâng cấp > Trang bị): từ ngày 20, đủ 4,2 sao và tiền cọc là ra được mặt tiền. Khách vãng lai gần gấp đôi, thêm một chỗ ở quầy, tiền nhà cao hơn và tăng mỗi kỳ gia hạn",
+      "Nhân viên có tên và tính cách: nhanh tay, cẩn thận, dẻo miệng, hay đi trễ, sinh viên nghỉ mùa thi… Làm lâu thì lên nghề và xin tăng lương. Ở mặt tiền chọn được trưởng ca",
+      "Linh thi xong xin làm thêm ở tiệm",
+      "Đơn nhóm từ ngày 30: công ty, lớp học đặt trước cả chục ly, tới giờ cả nhóm tới một lượt",
+      "Noel ở Hẻm 42 (20–26/12): tuyết rơi, khách và tip nhiều hơn",
+      "Tết ở Hẻm 42: bà Sáu lì xì, tiễn ông Táo, ba mẹ lên thăm. Giao thừa tới mùng 4 chọn nghỉ Tết hay mở cửa đón khách đi chơi Tết",
+      "Chuyện mới: mẹ gửi tiền khi két cạn, bà Sáu kể chuyện quán nước năm xưa",
+    ],
+  },
   {
     v: "4.1",
     d: "28/09/2026",
