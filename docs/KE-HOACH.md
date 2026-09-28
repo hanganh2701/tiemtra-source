@@ -15,7 +15,8 @@ File này là nguồn sự thật cho việc làm game. Mỗi phiên làm việc
 4. Tranh: dùng lại tranh gốc cho nhân vật (`img/faces.webp`, mèo), vẽ vector cho icon và vật phẩm mới.
 5. Nhóm chơi thử gồm học sinh, sinh viên, người đi làm.
 6. Sau lần chơi thử thứ ba của Claude (game dễ, tới ngày 49 là hết việc): chế độ thường khó dần theo chương (Thư giãn giữ nguyên), và làm chi nhánh ngay, không chờ cổng C3.
-7. Tab Đời sống (bản 5.0): có chi phí sinh hoạt nhẹ mỗi ngày (Thư giãn miễn), có cả đồ cho bản thân và quà cho gia đình; không tên thương hiệu thật.
+7. Tab Đời sống (bản 5.0): có chi phí sinh hoạt nhẹ mỗi ngày (Thư giãn miễn), có cả đồ cho bản thân và quà cho gia đình.
+8. Nhà xe chi tiết như ngoài đời (bản 5.1, chốt 29/09): diện tích, số phòng, tên hãng và mẫu xe thật dạng chữ, giá tham khảo ngoài đời, có hình vẽ riêng (không logo).
 
 Hệ quả: **không làm tính năng qua máy chủ** (bảng xếp hạng online, kết bạn, tặng quà qua mạng), không quảng cáo, không thanh toán. Mọi thứ chạy trên máy người chơi. Theo Nghị định 147/2024, game có máy chủ cho người chơi tương tác cần giấy phép mà chỉ doanh nghiệp xin được.
 
@@ -254,6 +255,23 @@ Mô phỏng kiểu người chơi thật, người chơi máy sắm đời sốn
 | Giỏi, chơi 100 ngày | 14.644 | 22.755 | 47.338 | thêm mái nhà ở quê (ngày 75), ô tô cũ (ngày 91); chưa đủ tiền mua căn hộ |
 
 Tiền giờ có chỗ tiêu suốt game; mua căn hộ và nhà trong hẻm là mục tiêu sau khi hết truyện.
+
+### Nhà xe như ngoài đời (bản 5.1) — xong 29/09
+
+- [x] Nhà (`DS_NHA`): nhà ở xã hội 45m² 1,05 tỷ (vay ưu đãi trả trước 20%, lãi 6,6%), căn hộ 44m² 2,2 tỷ, 54m² 3,2 tỷ, 75m² 4,8 tỷ, nhà trong Hẻm 42 6,5 tỷ, căn hộ 100m² nhìn ra sông 9,8 tỷ, nhà phố mặt tiền 24 tỷ, biệt thự 65 tỷ; thuê chỗ ở giữ 3 nấc (`DS_TRO`)
+- [x] Xe máy (`DS_XM`): xe đạp, Honda Wave Alpha, Vision, Yamaha Exciter 155, Honda SH 160i; ô tô (`DS_OT`): VinFast VF 3, Kia Morning, Toyota Vios, Mazda CX-5, Ford Everest, Mercedes-Benz C 300, Porsche Macan, Porsche 911 (hai cửa nên không chở hàng cho chi nhánh)
+- [x] Hình vẽ SVG cho từng nhà, từng xe (`src/hinh-doi-song.js`): xe nhìn ngang theo kiểu dáng, nhà theo loại; không logo
+- [x] Trả góp (`dsTinh`, `gopNgay`, `doiSongCuoiNgay`): trả trước 30%, nhà vay 20 năm lãi 9%, ô tô 5 năm lãi 10%; ngân hàng xét thu nhập 7 ngày gần nhất (`thuNhapNgay`), tổng góp tới một nửa; hỏi lại trước khi mua; trả hết nợ được; sổ ghi tiền trả trước và tiền góp mỗi ngày (dòng `gop`)
+- [x] Đổi nhà bán lại 90%, đổi xe bán lại 70% (trừ nợ góp còn lại); bản lưu 5.0 đã mua nhà xe giá cũ được hoàn tiền và báo một lần (`chuyenDs50`, `dsBaoHoan`)
+
+Mô phỏng người chơi thật 200 ngày, máy ưu tiên nhà ở xã hội trước ô tô (nghìn đồng):
+
+| Người chơi | Két ngày 100 | Két ngày 200 | Mốc mua sắm |
+|---|---|---|---|
+| Giỏi, chi nhánh gần trường | 67.251 | 48.642 | Wave ngày 65, Vision 74, SH 104, Kia Morning trả góp 137, nhà ở xã hội trả góp 191 |
+| Vừa, chi nhánh gần trường | 22.460 | 178.350 | Wave ngày 80, Vision 87, SH 117, Kia Morning trả góp 151; chưa đủ tiền trả trước mua nhà |
+
+Xe máy tới trong khoảng ngày 65–120, ô tô nhỏ trả góp khoảng ngày 130–150, căn nhà đầu tiên khoảng ngày 190 trở đi (sớm hơn nếu để dành mua nhà trước xe). Căn hộ thường, nhà phố, biệt thự, Porsche là mơ ước lâu dài.
 
 ## Cổng quyết định
 

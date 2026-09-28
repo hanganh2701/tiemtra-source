@@ -1,7 +1,18 @@
 /* Phiên bản và danh sách "Có gì mới". Mỗi lần cập nhật: tăng GAME_VERSION và thêm một mục lên ĐẦU CHANGELOG. */
 /* ===== PHIÊN BẢN GAME: mỗi lần cập nhật, tăng số và thêm một mục lên ĐẦU danh sách ===== */
-const GAME_VERSION = "5.0";
+const GAME_VERSION = "5.1";
 const CHANGELOG = [
+  {
+    v: "5.1",
+    d: "29/09/2026",
+    items: [
+      "Nhà xe theo giá ngoài đời: căn hộ nhà ở xã hội 45m², căn hộ 44m², 54m², 75m², 100m² nhìn ra sông, nhà trong Hẻm 42, nhà phố mặt tiền, biệt thự Thảo Điền",
+      "Xe máy Honda Wave Alpha, Vision, Yamaha Exciter, Honda SH; ô tô VinFast VF 3, Kia Morning, Toyota Vios, Mazda CX-5, Ford Everest, Mercedes C 300, Porsche Macan, Porsche 911",
+      "Mỗi căn nhà, mỗi chiếc xe có hình vẽ riêng",
+      "Trả góp ngân hàng: nhà trả trước 30%, vay 20 năm; ô tô trả trước 30%, vay 5 năm; nhà ở xã hội vay ưu đãi. Ngân hàng chỉ cho góp tới nửa thu nhập mỗi ngày",
+      "Đổi nhà, đổi xe thì bán lại cái cũ. Ai đã mua nhà xe ở bản 5.0 được hoàn lại tiền",
+    ],
+  },
   {
     v: "5.0",
     d: "28/09/2026",
