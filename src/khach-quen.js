@@ -97,7 +97,8 @@ function quenBo(c) {
   if (c && c.reg) TT().ghe[c.reg] = S.day;
 }
 /* ưu đãi từ sổ công thức: khách chờ lâu hơn */
-const heSoCho = () => 1 + (coTrang(1) ? 0.05 : 0) + (coTrang(2) ? 0.05 : 0);
+/* cộng thêm đồ trang trí (src/trang-tri.js) */
+const heSoCho = () => 1 + (coTrang(1) ? 0.05 : 0) + (coTrang(2) ? 0.05 : 0) + choTri();
 
 /* ---------- món đã pha và kỷ lục ---------- */
 const khoaMon = (o) => [o.base, o.flav || "", [...o.tops].sort().join("+"), o.cheese ? "cheese" : ""].join("|");

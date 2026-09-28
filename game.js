@@ -1514,7 +1514,7 @@ function traffic() {
       (coTrang(7) && (evIs("holiday") || leHoiNay()) ? 1.2 : 1) *
       (coTrang(10) ? 1.05 : 1);
   return (
-    (rf * boost * so * heSoKhachBuoc() * heSoKhachLe() * heSoKhachTruyen() * (e ? EVS[e.id].mul : 1)) /
+    (rf * boost * so * heSoKhachBuoc() * heSoKhachLe() * heSoKhachTruyen() * heSoKhachTri() * (e ? EVS[e.id].mul : 1)) /
     Math.max(0.85, Math.min(1, avgIdx) ** 2)
   );
 }
@@ -1769,7 +1769,7 @@ function menuBoard() {
           ks.map((k) => cell(k, 1)).join("")
       : "";
   }).join("");
-  return `<div class="sign"><button id="rename" aria-label="Đổi tên quán">${esc(shopName())}<small>${ico("pen")}</small></button></div><div class="board"><h2>${ico("cupfull")} Menu hôm nay</h2><div class="items">${it}</div>${fl.length ? `<div class="btop">Hương vị</div><div class="items">${fl.map((k) => cell(k, 1)).join("")}</div>` : ""}<div class="btop">Topping</div><div class="items top">${tops}</div><div class="extra">Size L +${kv(S.sell.L)}</div></div>`;
+  return `<div class="sign"><button id="rename" aria-label="Đổi tên quán">${esc(shopName())}<small>${ico("pen")}</small></button></div>${triDai()}<div class="board"><h2>${ico("cupfull")} Menu hôm nay</h2><div class="items">${it}</div>${fl.length ? `<div class="btop">Hương vị</div><div class="items">${fl.map((k) => cell(k, 1)).join("")}</div>` : ""}<div class="btop">Topping</div><div class="items top">${tops}</div><div class="extra">Size L +${kv(S.sell.L)}</div></div>`;
 }
 const levelOf = (d) => {
   const L = CFG.levels;
@@ -2234,7 +2234,8 @@ function paneUpg() {
         `<div class="rowi"><span class="icon">${u.i}</span><div><div class="nm">${u.n}</div><div class="sub">${u.d}</div></div>${S.upg[u.id] ? '<span class="okline">✓</span>' : `<button class="sbtn pri" data-up="${u.id}" ${S.money < u.cost ? "disabled" : ""}><b>${fmt(u.cost)}</b>Mua</button>`}</div>`,
     ).join("") +
     brandRow +
-    tabRow;
+    tabRow +
+    theTrangTri();
   const staff =
     `<div class="note">Thuê một lần, sau đó trả lương mỗi ngày mở cửa. Có nhân viên thì toàn bộ tiền tip của khách là của nhân viên, quán không nhận. Cho nghỉ thì hết trả lương, gọi đi làm lại lúc nào cũng được, không tốn tiền thuê.</div>` +
     STAFF.map(
@@ -5549,6 +5550,7 @@ function serve(i) {
         (coTrang(4) ? 1.1 : 1) *
         (c.ban ? 2 : 1) *
         heSoTipLe() *
+        heSoTipTri() *
         (coTrang(11) && leHoiNay() === "tet" ? 2 : 1) *
         c.cups.length,
       rv = stars(c, false);

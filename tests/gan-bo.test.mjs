@@ -92,3 +92,39 @@ test("thử thách hôm nay không cộng huy hiệu hay mục tiêu tuần vào
     g.close();
   }
 });
+
+test("trang trí: mua một lần, trừ két ghi vào trang bị, có ưu đãi, hiện trước tiệm", () => {
+  const g = boot();
+  try {
+    g.run("S.day = 10; S.money = 2000000; save(); R.tab = 'nangcap'; renderPrep()");
+    const cho0 = g.run("heSoCho()"), tip0 = g.run("heSoTipTri()");
+    assert.equal(g.run("muaTri('cay')"), true);
+    assert.equal(g.run("muaTri('cay')"), false);
+    assert.equal(g.run("muaTri('den')"), true);
+    assert.equal(g.run("S.money"), 2000000 - 300000 - 500000);
+    assert.equal(g.run("S.cur.equip.filter((x) => x.n.startsWith('Trang trí')).reduce((a, x) => a + x.v, 0)"), 800000);
+    assert.ok(Math.abs(g.run("heSoCho()") - cho0 - 0.03) < 1e-9);
+    assert.ok(Math.abs(g.run("heSoTipTri()") - tip0 - 0.05) < 1e-9);
+    g.run("R.tab = 'kho'; renderPrep()");
+    assert.match(g.w.document.getElementById("view").innerHTML, /tridai.*tt_cay\.svg/s);
+    assert.equal(g.run("TRANG_TRI.every((t) => t.gia > 0 && t.uuDai)"), true);
+    assert.deepEqual(g.errors.map(String), []);
+  } finally {
+    g.close();
+  }
+});
+
+test("ảnh khoe tiệm: số liệu đúng, máy không có canvas thì báo nhẹ, không lỗi", async () => {
+  const g = boot();
+  try {
+    g.run("S.shopName = 'Quán Gió'; S.day = 12; TT().mon = { 'tra||tcden|': 9 }");
+    const d = JSON.parse(g.run("JSON.stringify(soLieuKhoe())"));
+    assert.equal(d.ten, "Quán Gió");
+    assert.equal(d.ngay, 12);
+    assert.equal(d.mon, "Trà sữa, trân châu đen");
+    await g.run("khoeTiem()");
+    assert.deepEqual(g.errors.map(String).filter((e) => !/getContext|Not implemented/.test(e)), []);
+  } finally {
+    g.close();
+  }
+});
