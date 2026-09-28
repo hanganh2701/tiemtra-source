@@ -1357,6 +1357,7 @@ function prepChecks() {
   if (leHoiCheck()) return xetTiep();
   if (nvSuKien()) return xetTiep();
   if (donNhomCheck()) return xetTiep();
+  if (moiCai()) return xetTiep();
   bakRemind();
 }
 function storeCheck() {
@@ -7827,6 +7828,7 @@ function showSettings() {
     <button class="setb" id="sMus"><span>${ico("moon")}</span>Nhạc nền<small>${AU.mus ? "Đang bật · bấm để tắt" : "Đang tắt · bấm để bật"}</small></button>
     <button class="setb" id="sSea"><span>${ico("calendar")}</span>Nhạc theo mùa<small>${AU.season ? SEASONS[AU.season].n : "Tự động · " + SEASONS[seasonNow()].n}</small></button>
     <button class="setb" id="sSnd"><span>${ico("pause")}</span>Âm thanh<small>${AU.on ? "Đang bật · bấm để tắt" : "Đang tắt · bấm để bật"}</small></button>
+    ${coTheCai() ? `<button class="setb" id="sCai"><span>${ico("phone")}</span>Cài lên màn hình chính<small>Mở nhanh như ứng dụng</small></button>` : ""}
     <button class="setb" id="sBak"><span>${ico("box")}</span>Sao lưu tiến trình<small>${S.bakDay ? "Lần cuối: ngày " + S.bakDay : "Chưa sao lưu"}</small></button>
     <button class="setb" id="sAuto"><span>${ico("calendar")}</span>Khôi phục bản tự lưu<small>Game tự lưu 3 cuối ngày gần nhất</small></button>
     <button class="setb" id="sRes"><span>${ico("reload")}</span>Khôi phục từ mã</button>
@@ -7847,6 +7849,11 @@ function showSettings() {
     save();
     showSettings();
   };
+  if ($("sCai"))
+    $("sCai").onclick = () => {
+      $("modal").hidden = true;
+      hienCai();
+    };
   $("sRelax").onclick = () => {
     S.thuGian = !S.thuGian;
     save();

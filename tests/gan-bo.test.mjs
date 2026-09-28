@@ -128,3 +128,23 @@ test("ảnh khoe tiệm: số liệu đúng, máy không có canvas thì báo nh
     g.close();
   }
 });
+
+test("mời cài: từ ngày 4, hỏi đúng một lần, bấm Cài ngay thì gọi prompt của trình duyệt", async () => {
+  const g = boot();
+  try {
+    g.run("window.__goi = 0; const e = new Event('beforeinstallprompt'); e.prompt = () => { window.__goi++; }; e.userChoice = Promise.resolve({ outcome: 'accepted' }); window.dispatchEvent(e)");
+    g.run("S.day = 3");
+    assert.equal(g.run("moiCai()"), false);
+    g.run("S.day = 4");
+    assert.equal(g.run("moiCai()"), true);
+    assert.match(g.w.document.getElementById("card").textContent, /Cài Tiệm Trà Nhỏ/);
+    g.run("[...document.querySelectorAll('#card button')].find((b) => /Cài ngay/.test(b.textContent)).click()");
+    await new Promise((r) => setTimeout(r, 20));
+    assert.equal(g.run("window.__goi"), 1);
+    g.run("S.day = 9");
+    assert.equal(g.run("moiCai()"), false);
+    assert.deepEqual(g.errors.map(String), []);
+  } finally {
+    g.close();
+  }
+});
