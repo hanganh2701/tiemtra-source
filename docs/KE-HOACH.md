@@ -108,12 +108,19 @@ Theo trang nghiên cứu "Ngã rẽ Hẻm 42". Chủ dự án chọn theo đề 
 
 Khác đề xuất: trang 8 vẫn ở cảnh chung `c2_vy` trước ngã rẽ (làm bối cảnh cho lựa chọn), chỉ trang 10 tách theo nhánh.
 
-### Ngã rẽ Hẻm 42 · đợt 2 (bản 4.5)
+### Ngã rẽ Hẻm 42 · đợt 2 (bản 4.5) — xong 28/09
 
-- [ ] Ngã rẽ Linh (ở lại làm thêm hay đi học Đà Lạt), Hana (ghi tên tiệm hay giữ kín), Tết (về quê hay ở lại)
-- [ ] Chọn bằng ly pha: 3–5 đơn trong truyện
-- [ ] Hẻm 42 lần nữa: chơi lại giữ huy hiệu, kỷ lục, sơ đồ; tua nhanh cảnh đã đọc
-- [ ] Chơi thử trước đợt này: người chơi có nhận ra lựa chọn được nhắc lại không, có muốn chơi lại không
+- [x] Ngã rẽ Linh (`linh_3`, nhánh `linh_a1–2` cần đã thuê Linh, `linh_b1–2`), Hana (`hana_3`, `hana_a1–2`, `hana_b1–2`), Tết (`c3_vang`, nhánh A `que_1–3` có `nghi`, nhánh B `tet_b1`, `c3_me`)
+- [x] Hệ quả trong cách chơi (`heSoKhachNhanh`, `heSoQuenNhanh`, `heSoTipNhanh`); Linh ở lại vào nghề 2/5; Linh đi Đà Lạt mở olong, tặng 20 phần; về quê nghỉ 3 ngày (`nghiMotNgay` dùng chung với nghỉ Tết theo lịch thật)
+- [x] Kết truyện: trục video đổi sang ngã rẽ Hana (`T.nhanh.hana === "A"`); không thân với Hana thì coi như chưa lên video
+- [x] Chọn bằng ly pha (`DON_TRUYEN`, `donTruyenDen`, `spawnTruyen`, `donTruyenKhop`, `donTruyenXong`): Linh trước giờ thi, chú Tư ngày mưa, Vy trước ngã rẽ Mây Tea; có câu hồi âm và hậu truyện
+- [x] Hẻm 42 lần nữa (`choiLai`, `S.tr.luot`, `KL().daDoc`): giữ tên tiệm, huy hiệu, kỷ lục, sơ đồ, bạn bè; cảnh đã đọc hiện gọn; `lan2_meo`, `lan2_mo` chỉ có từ lượt 2
+- [x] Ngã rẽ chỉ tính đã xem khi chọn xong (thoát giữa chừng thì hỏi lại); bản lưu cũ được xếp nhánh theo cờ đã có
+- [x] Test mô phỏng đủ 16 tổ hợp ngã rẽ, thêm đường không thân Hana và lượt chơi thứ hai
+- [ ] Chơi thử: người chơi có nhận ra lựa chọn được nhắc lại không, có muốn chơi lại không
+
+Khác đề xuất: ngã rẽ Hana chỉ có khi đủ thân với Hana (cảnh `hana_3` cần độ thân 5); không có thì kết truyện tính như tiệm chưa lên video.
+Chọn bằng ly pha làm 3 đơn, dùng mức đường thay cho “thêm trân châu mới nấu” vì game không có loại trân châu nấu sẵn để so.
 
 ## Cổng quyết định
 
