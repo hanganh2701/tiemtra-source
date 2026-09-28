@@ -318,3 +318,35 @@ test("video của Hana ghi tên tiệm: 3 ngày đầu rất đông, sau đó v�
     g.close();
   }
 });
+
+test("cảnh lễ lặp lại mỗi năm: năm sau có lời thoại khác, bản lưu cũ giữ năm đã xem", () => {
+  const g = boot();
+  try {
+    const canh = (ngay) => {
+      g.run(`window.__ngay = "${ngay}"; S.day = 40; TT().homNay = 0; document.getElementById("modal").hidden = true; truyenLuc("mo_cua")`);
+      return g.w.document.getElementById("card").textContent;
+    };
+    g.run("MAU_CHUYEN.forEach((m) => { if (!m.moiNam) TT().xem[m.id] = 1; })");
+    assert.match(canh("2026-12-22"), /treo dây kim tuyến/);
+    assert.ok(g.run("TT().xem['le_noel@2026']") != null);
+    /* cùng mùa Noel không hiện lại */
+    g.run("document.getElementById('modal').hidden = true; TT().homNay = 0");
+    assert.equal(g.run("(canhKe('mo_cua') || {}).id"), undefined);
+    assert.match(canh("2027-12-22"), /đèn nhấp nháy/);
+    /* ông Táo trước Tết 2028 (mùng 1 là 26/01/2028), Tết từ giao thừa */
+    assert.match(canh("2028-01-19"), /tiễn ông Táo|thả cá chép/);
+    assert.match(canh("2028-01-26"), /Tết này con có về không/);
+    assert.match(canh("2027-09-15"), /Rằm tháng Tám/);
+  } finally {
+    g.close();
+  }
+  const g2 = boot();
+  try {
+    g2.run("S.tr = { xem: { le_noel_2026: 30, le_tet_2027: 45 } }");
+    assert.equal(g2.run("TT().xem['le_noel@2026']"), 30);
+    assert.equal(g2.run("TT().xem['le_tet@2027']"), 45);
+    assert.equal(g2.run("TT().xem.le_noel_2026"), undefined);
+  } finally {
+    g2.close();
+  }
+});

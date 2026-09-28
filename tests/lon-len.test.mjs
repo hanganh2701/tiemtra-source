@@ -141,7 +141,7 @@ test("Tết: mở cửa thì khách đông, lương gấp 3; Noel có trang trí
     g.run("window.__ngay = '2026-12-24'; renderPrep()");
     assert.ok(g.w.document.body.classList.contains("le-noel"));
     g.run("S.tr = { che: 'tat' }; truyenLuc('mo_cua')");
-    assert.ok(g.run("S.tr.xem.le_noel_2026") != null);
+    assert.ok(g.run("S.tr.xem['le_noel@2026']") != null);
   } finally {
     g.close();
   }

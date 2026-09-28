@@ -20,11 +20,13 @@
        nhanh: { may: "A" },         // đang đi nhánh A của ngã rẽ "may"
        khongCo: { ten: giá trị },   // cờ KHÔNG được khớp
        chot: 59,                    // hạn chót: từ ngày này bỏ qua điều kiện mềm (than, sau, trang, soTrang, sao, thoiTiet)
+       le: "tet", quanhTet: [-10, -2], // dịp lễ theo lịch thật; với Tết: khoảng ngày so với mùng 1
        luot: 2,                     // chỉ có từ lượt chơi thứ 2 (Hẻm 42 lần nữa)
      },
      reRe: "Câu báo trước",         // ngã rẽ lớn: không bị Bỏ qua hay chế độ Tắt chọn thay, chỉ tính đã xem khi chọn xong
      ketCuc: true,                  // xong cảnh thì hiện kết truyện và hậu truyện
      nghi: true,                    // xong cảnh thì tiệm nghỉ ngày đó (về quê), cảnh nghỉ kế tiếp hiện liền
+     moiNam: true, thoaiLai: [...],  // cảnh lễ lặp lại mỗi năm; từ năm thứ hai dùng thoaiLai
      uuTien: 5,                     // nhiều mẩu cùng đủ điều kiện thì chọn số lớn nhất
      thoai: [["khoa", "câu"], ["_", "(chú thích hành động)"], ["tin", "Mẹ: tin nhắn"], ["linh", "câu", { co: { x: 1 } }]],
      luaChon: [{ chu: "nút", dat: { ten: giá trị }, nhanh: { may: "A" }, thoai: [[ai, câu]], ketQua: {...} }],
@@ -444,10 +446,11 @@ MAU_CHUYEN.push(
 /* ---------- Lễ theo lịch thật: mỗi năm thêm cảnh mới với id có năm ---------- */
 MAU_CHUYEN.push(
   {
-    id: "le_noel_2026",
+    id: "le_noel",
     nhan: "Giáng sinh ở Hẻm 42",
     chuong: 1,
     luc: "mo_cua",
+    moiNam: true,
     tomTat: "Noel ở Hẻm 42: Linh treo kim tuyến, Mướp bị đội nón ông già Noel.",
     dieuKien: { le: "noel" },
     uuTien: 12,
@@ -456,30 +459,42 @@ MAU_CHUYEN.push(
       ["khoa", "Tối nay nhà thờ Đức Bà kẹt xe dữ lắm, đơn ship chắc nhiều."],
       ["_", "(Mướp đội cái nón ông già Noel nhỏ xíu, mặt không vui lắm.)"],
     ],
+    thoaiLai: [
+      ["linh", "Noel nữa rồi {ban}! Năm nay em treo đèn nhấp nháy luôn."],
+      ["khoa", "Năm ngoái ship muốn xỉu, năm nay em đi từ trưa cho chắc."],
+      ["_", "(Mướp thấy cái nón ông già Noel là trốn xuống gầm quầy.)"],
+    ],
     ketQua: { than: { linh: 1, khoa: 1 } },
   },
   {
-    id: "le_ong_tao_2027",
+    id: "le_ong_tao",
     nhan: "Tết ở Hẻm 42",
     chuong: 1,
     luc: "mo_cua",
+    moiNam: true,
     tomTat: "Hai mươi ba tháng Chạp, thả cá chép tiễn ông Táo cùng bà Sáu.",
-    dieuKien: { le: "tet", tuNgayThat: "2027-01-28", denNgayThat: "2027-02-04" },
+    dieuKien: { le: "tet", quanhTet: [-10, -2] },
     uuTien: 12,
     thoai: [
       ["sau", "Hai mươi ba tháng Chạp rồi. Con phụ bà thả cá chép tiễn ông Táo nghen."],
       ["_", "(Hai bà cháu ra kênh thả ba con cá chép vàng.)"],
       ["sau", "Năm nay tiệm con làm ăn được. Ông Táo lên trời có chuyện vui mà kể."],
     ],
+    thoaiLai: [
+      ["sau", "Lại hai mươi ba tháng Chạp. Năm nào bà cũng nhờ con thả cá."],
+      ["_", "(Ba con cá chép vàng quẫy đuôi rồi lặn mất dưới kênh.)"],
+      ["sau", "Thêm một năm của tiệm. Ông Táo có nhiều chuyện để kể ghê."],
+    ],
     ketQua: { than: { sau: 1 } },
   },
   {
-    id: "le_tet_2027",
+    id: "le_tet",
     nhan: "Tết ở Hẻm 42",
     chuong: 1,
     luc: "mo_cua",
+    moiNam: true,
     tomTat: "Ba mẹ lên thăm tiệm dịp Tết, chú Tư chở từ bến xe về.",
-    dieuKien: { le: "tet", tuNgayThat: "2027-02-05" },
+    dieuKien: { le: "tet", quanhTet: [-1, 8] },
     uuTien: 13,
     thoai: [
       ["tin", "Mẹ: Tết này con có về không…"],
@@ -487,7 +502,32 @@ MAU_CHUYEN.push(
       ["_", "(Chú Tư chở hai ông bà từ bến xe về tận Hẻm 42.)"],
       ["tu", "Ông bà coi, tiệm con mình đông khách lắm đó nghen!"],
     ],
+    thoaiLai: [
+      ["tin", "Mẹ: Năm nay ba mẹ lại lên nghen. Ba đòi ngồi đúng cái bàn năm ngoái."],
+      ["_", "(Chú Tư lại chạy ra bến xe đón, lần này không cần ai nhờ.)"],
+      ["tu", "Ông bà ơi, tiệm năm nay còn đông hơn năm ngoái đó!"],
+    ],
     ketQua: { co: { me_len: true }, than: { tu: 1 } },
+  },
+  {
+    id: "le_trung_thu",
+    nhan: "Trung Thu ở Hẻm 42",
+    chuong: 1,
+    luc: "mo_cua",
+    moiNam: true,
+    tomTat: "Rằm tháng Tám: con nít trong hẻm mua trà mang đi rước đèn, cô Hạnh làm bánh nướng.",
+    dieuKien: { le: "trungThu" },
+    uuTien: 12,
+    thoai: [
+      ["linh", "Rằm tháng Tám nè {ban}! Tụi nhỏ đòi mua trà mang đi rước đèn."],
+      ["hanh", "Cô làm thêm mấy cái bánh nướng nhân đậu xanh, con bán kèm nha."],
+      ["_", "(Tối đó trước tiệm treo một dãy lồng đèn giấy đỏ.)"],
+    ],
+    thoaiLai: [
+      ["_", "(Lại một mùa trăng. Dãy lồng đèn giấy đỏ năm ngoái vẫn treo trên vách.)"],
+      ["hanh", "Bánh nướng năm nay cô làm nhân trà xanh, học theo tiệm con đó."],
+    ],
+    ketQua: { than: { linh: 1, hanh: 1 } },
   },
 );
 

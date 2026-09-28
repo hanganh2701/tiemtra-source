@@ -68,12 +68,25 @@ function khopDk(d) {
   if (d.ketDaThay && !([].concat(d.ketDaThay).some((id) => ((S.kl || {}).ket || {})[id] != null))) return false;
   return true;
 }
+/* cảnh lễ lặp lại mỗi năm: đã xem tính theo năm của dịp lễ (Tết tính theo năm của mùng 1) */
+const tetGan = (hom) =>
+  LICH_LE.tet.find((t) => {
+    const k = cachNgayLich(hom || homNayVN(), t);
+    return k >= -17 && k <= 8;
+  }) || null;
+const namLe = (le) => (le === "tet" && tetGan() ? tetGan() : homNayVN()).slice(0, 4);
+const khoaXem = (m) => (m.moiNam ? m.id + "@" + namLe((m.dieuKien || {}).le) : m.id);
 function hopCanh(m, luc) {
   if (m.luc !== luc) return false;
   const T = TT(),
     d = m.dieuKien || {},
     dn = ngayCua(luc);
-  if (T.xem[m.id] != null) return false;
+  if (T.xem[khoaXem(m)] != null) return false;
+  if (d.quanhTet) {
+    const t = tetGan(),
+      k = t && cachNgayLich(homNayVN(), t);
+    if (!t || k < d.quanhTet[0] || k > d.quanhTet[1]) return false;
+  }
   if (d.ngay != null && dn < d.ngay) return false;
   if (d.ngayDen != null && dn > d.ngayDen) return false;
   if (!khopDk({ co: d.co, khongCo: d.khongCo, nhanh: d.nhanh })) return false;
@@ -176,10 +189,13 @@ const locDong = (ds) => (ds || []).filter((d) => khopDk(d[2]));
 function truyenLuc(luc, xong) {
   xong = xong || (() => {});
   if (R.challenge || !$("card")) return xong();
-  const m = canhKe(luc);
+  let m = canhKe(luc);
   if (!m) return xong();
   const T = TT();
+  /* cảnh lễ năm thứ hai trở đi: lời thoại khác */
+  if (m.moiNam && m.thoaiLai && Object.keys(T.xem).some((k) => k.startsWith(m.id + "@") && k !== khoaXem(m))) m = { ...m, thoai: m.thoaiLai };
   /* ngã rẽ lớn chỉ tính là đã xem khi người chơi chọn xong, thoát giữa chừng thì lần sau hỏi lại */
+  if (m.moiNam) T.xem[khoaXem(m)] = ngayCua(luc);
   if (!m.reRe) T.xem[m.id] = ngayCua(luc);
   T.homNay = ngayCua(luc);
   save();

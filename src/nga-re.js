@@ -118,6 +118,13 @@ function hienKetCuc(xong) {
 
 /* bản lưu từ trước khi có ngã rẽ: cảnh cũ đã xem thì xếp vào nhánh khớp với chữ đã đọc; đã hết truyện thì ghi kết */
 function chuyenBanLuuNhanh(T) {
+  /* cảnh lễ cũ gắn năm trong id: đổi sang cảnh lặp mỗi năm, nhớ năm đã xem */
+  [["le_noel_2026", "le_noel@2026"], ["le_ong_tao_2027", "le_ong_tao@2027"], ["le_tet_2027", "le_tet@2027"]].forEach(([cu, moi]) => {
+    if (T.xem[cu] == null) return;
+    T.xem[moi] = T.xem[cu];
+    T.xem[moi.split("@")[0]] = T.xem[cu];
+    delete T.xem[cu];
+  });
   if (T.xem.c2_ket != null && !T.nhanh.may) {
     T.nhanh.may = "B";
     if (T.xem.c2_nga_re == null) T.xem.c2_nga_re = T.xem.c2_ket;
