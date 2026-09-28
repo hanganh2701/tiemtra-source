@@ -136,6 +136,7 @@ const OLD_NAMES = {
   kemtrung: "Kem trứng",
   L: "Phụ thu size L",
   dactrung: "Trà của bà Sáu (món đặc trưng, thêm)",
+  app: "Phụ thu giá trên app",
 };
 const iname = (k) => (ITEMS[k] ? ITEMS[k].n : OLD_NAMES[k] || k);
 const low = (n) => n.toLowerCase().replace("3q", "3Q").replace("thái", "Thái");
@@ -515,7 +516,7 @@ const DEFAULT_CONFIG = {
   ownerPin: "2468", // mã vào bảng chủ game
   dayMin: 4, // phút thật cho một ngày bán (11:00–22:00 trong game)
   startMoney: 400000, // vốn ban đầu
-  commission: 20, // % phí app giao hàng
+  commission: 25, // % phí app giao hàng (ShopeeFood khoảng 25%, GrabFood 20–30%)
   wage1: 90000,
   wage2: 200000,
   wage3: 150000,
@@ -569,7 +570,7 @@ try {
     };
   }
 } catch (e) {}
-const CFG_VER = 39; /* phiên bản cấu hình mới nhất: thêm bước nâng cấp mới thì tăng số này */
+const CFG_VER = 40; /* phiên bản cấu hình mới nhất: thêm bước nâng cấp mới thì tăng số này */
 if (!(CFG.cfgVer >= 31)) {
   CFG.dayMin = 4;
 }
@@ -638,6 +639,14 @@ if (!(CFG.cfgVer >= 39)) {
   /* 3.11: vay ngân hàng tối đa 1 triệu, lãi 25%/năm (cấu hình đã lưu từ bản cũ vẫn giữ mức cũ nếu không nâng) */
   CFG.bankMax = 1000000;
   CFG.bankRate = 25;
+  CFG.cfgVer = 39;
+  try {
+    localStorage.setItem(OWNER_SAVE, JSON.stringify(CFG));
+  } catch (e) {}
+}
+if (!(CFG.cfgVer >= 40)) {
+  /* 4.1: phí app giao hàng 25% như ngoài đời, bù lại được đặt giá riêng trên app */
+  CFG.commission = 25;
   CFG.cfgVer = CFG_VER;
   try {
     localStorage.setItem(OWNER_SAVE, JSON.stringify(CFG));
@@ -911,6 +920,7 @@ function dropBaks(rescue) {
   });
 }
 function save() {
+  if (R.challenge) return; /* đang thử thách: trạng thái tạm, không lưu */
   let js;
   /* host check bypassed */ try {
     js = pack();
@@ -1714,6 +1724,13 @@ function head() {
     _hd.clk = null;
     $("hSub").innerHTML =
       sub === "sell" ? ico("clock") + ' <span id="hClk"></span>' : "Chuẩn bị";
+  }
+  if (R.challenge) {
+    const C = R.challenge;
+    _hd.subMode = "tt";
+    $("hSub").textContent = "Thử thách " + C.xong + "/" + TT_SO;
+    setTxt("hMoney", C.chuan + " ly chuẩn");
+    return;
   }
   if (sub === "sell") {
     const c = gameClock();
@@ -2683,6 +2700,9 @@ function paneGia() {
     "L",
     S.sell.L,
   );
+  const appRow = onlineActive()
+    ? `<div class="rowi"><span class="icon">${ico("phone")}</span><div><div class="nm">Giá trên app giao hàng</div><div class="sub">Ngoài đời app đắt hơn tại quán 10–25% để bù phí sàn ${CFG.commission}%. Đắt quá thì ít đơn hơn.</div></div><select id="appMk" class="pinbox" style="width:auto;margin:0;font-size:1rem;letter-spacing:0;padding:6px">${[0, 5, 10, 15, 20, 25, 30].map((v) => `<option value="${v}"${v === appMk() ? " selected" : ""}>+${v}%</option>`).join("")}</select></div>`
+    : "";
   const maxCup = (() => {
     const b = Math.max(
         ...BASE_KEYS.filter((k) => S.unlocked[k]).map((k) => S.sell[k]),
@@ -2705,9 +2725,15 @@ function paneGia() {
       [ico("teapot") + " Trà", tea],
       [ico("strawberry") + " Hương", flav],
       [ico("pearlbowl") + " Topping", top],
-      ["⬆️ Size", size],
+      ["⬆️ Size", size + appRow],
     ]);
   bindSub("gia");
+  if ($("appMk"))
+    $("appMk").onchange = (e) => {
+      S.appMk = +e.target.value;
+      save();
+      toast("Giá trên app: +" + S.appMk + "% so với tại quán");
+    };
   $("pane").onchange = (e) => {
     const i = e.target;
     if (!i.dataset.g) return;
@@ -5046,6 +5072,7 @@ const isSto = (c) => !!(c && R.sto && c.id === R.sto.id),
   isSt = (c) => !!(c && R.st2 && c.id === R.st2.id),
   pSlots = () => R.slots.map((c) => (isSt(c) ? null : c));
 function spawn() {
+  if (R.challenge) return ttSpawn();
   const i = R.slots.findIndex((s) => !s);
   if (i < 0 || bigOrder()) return;
   if (R.starPend) {
@@ -5057,6 +5084,11 @@ function spawn() {
     const k = khachQuenDen();
     if (k) {
       spawnQuen(i, k);
+      return;
+    }
+    const b = banDen();
+    if (b) {
+      spawnBan(i, b);
       return;
     }
   }
@@ -5233,6 +5265,15 @@ function spawnOnline() {
   if (pricyItems().length && Math.random() < 0.8) return;
   const app = pickApp();
   if (!app) return;
+  if (evIs("rain") && Math.random() < 0.2) {
+    /* mưa lớn: không có tài xế nhận đơn */
+    R.today.lost++;
+    if (!R.muaT || performance.now() - R.muaT > 15000) {
+      R.muaT = performance.now();
+      toast("Mưa lớn, một đơn app bị huỷ vì không có tài xế nhận");
+    }
+    return;
+  }
   {
     const o = genOrder();
     if (o.so) return;
@@ -5494,6 +5535,7 @@ function serve(i) {
         (S.upg.sealer ? 1.3 : 1) *
         (evIs("holiday") ? 2 : 1) *
         (coTrang(4) ? 1.1 : 1) *
+        (c.ban ? 2 : 1) *
         (coTrang(11) && leHoiNay() === "tet" ? 2 : 1) *
         c.cups.length,
       rv = stars(c, false);
@@ -5513,6 +5555,7 @@ function serve(i) {
     rung(15);
     addReview(rv.s, rv.why, false, c);
     if (c.reg) quenXong(c, rv.s);
+    if (c.tt != null) ttGhi(c, c.wrong || c.fillPen ? 1 : 0);
     ghiPhucVu(c, rv.s);
     if (c.vip) {
       addReview(rv.s, rv.why, false, c);
@@ -5560,10 +5603,17 @@ function serveOnline(j) {
   if (k >= 0) {
     sfx("coin");
     const o = c.cups[k],
-      p = price(o),
+      p0 = price(o),
+      p = Math.round((p0 * (1 + appMk() / 100)) / 1000) * 1000,
       fee = (p * CFG.commission) / 100;
     recSale(o);
     ghiMon(o);
+    if (p > p0) {
+      /* phụ thu giá trên app ghi riêng trong sổ bán */
+      const x = (S.cur.sales.app = S.cur.sales.app || { q: 0, a: 0 });
+      x.q++;
+      x.a += p - p0;
+    }
     S.cur.onl += p;
     S.cur.fee += fee;
     S.money += p - fee;
@@ -5771,12 +5821,13 @@ function rushMul() {
 }
 function tick() {
   const dt = 0.1;
+  ttNhip(dt);
   R.t -= dt;
   R.spawnT -= dt;
   if (R.spawnT <= 0 && R.t > 5 && bigOrder()) R.spawnT = 2.5;
   else if (R.spawnT <= 0 && R.t > 5) {
     spawn();
-    R.spawnT = (9 / traffic() / rushMul()) * (0.75 + Math.random() * 0.5);
+    R.spawnT = R.challenge ? 0.5 : (9 / traffic() / rushMul()) * (0.75 + Math.random() * 0.5);
   }
   if (onlineActive()) {
     R.onT -= dt;
@@ -5785,6 +5836,7 @@ function tick() {
       R.onT =
         (36 / traffic() / onMul()) *
         (evIs("rain") ? 0.45 : 1) *
+        (1 + (appMk() / 100) * 1.5) *
         (0.7 + Math.random() * 0.6);
     }
     if (R.bigQ && R.bigQ.length && R.t > 8) {
@@ -5806,6 +5858,7 @@ function tick() {
     if (c.pat <= 0) {
       quenBo(c);
       KL().chuoi = 0;
+      if (c.tt != null) ttGhi(c, c.wrong ? 2 : 3);
       R.slots[i] = null;
       R.today.lost++;
       const st = Math.random() < 0.3 ? 2 : 1;
@@ -5916,6 +5969,7 @@ function pauseAgain() {
 }
 function closeEarly() {
   if (!R.running) return;
+  if (R.challenge) return ttKetThuc(true);
   R.today.lost += R.online.length; /* đơn online đang chờ cũng là khách mất, như khách ở quầy */
   R.online = [];
   R.t = 0;
@@ -6150,7 +6204,7 @@ function endDay() {
   ${
     broke
       ? `<p>${ico("trophy")} ${best} ngày</p><p class="note">Câu chuyện Hẻm 42, sổ công thức, độ thân với khách quen và kỷ lục vẫn được giữ.</p><button class="big" id="go">Mở quán mới</button>`
-      : `${khat ? `<p class="lvup">${ico("people")} Két âm ${fmt(khat)}. Bà Sáu cho khất, trả dần bằng một nửa tiền lãi những ngày sau, không tính lãi. Mỗi chương bà chỉ cho khất một lần.</p>` : ""}${!broke && S.ev ? `<p class="lvup">${ico(EVS[S.ev.id].ic)} Ngày mai: <b>${EVS[S.ev.id].n}</b>. ${evText(S.ev)}</p>` : ""}${nextLv ? `<p class="lvup">${ico("warn")} Từ ngày ${S.day}: ${LV_TXT[nextLv].toLowerCase()}. Đầu ngày sẽ có hướng dẫn.</p>` : ""}${justOnline ? `<p class="lvup">${ico("phone")} Mở đơn online Soppi! ${S.tablets || 0 ? "" : "Mua tablet ở Nâng cấp > Trang bị để đơn đổ về."}</p>` : ""}${ngayMaiHTML()}<button class="sbtn" id="seeSum" style="width:100%;padding:10px;margin-top:6px">${ico("chart")} Tổng kết</button><button class="big" id="go" style="margin-top:8px">Ngày ${S.day} ➜</button>`
+      : `${khat ? `<p class="lvup">${ico("people")} Két âm ${fmt(khat)}. Bà Sáu cho khất, trả dần bằng một nửa tiền lãi những ngày sau, không tính lãi. Mỗi chương bà chỉ cho khất một lần.</p>` : ""}${!broke && S.ev ? `<p class="lvup">${ico(EVS[S.ev.id].ic)} Ngày mai: <b>${EVS[S.ev.id].n}</b>. ${evText(S.ev)}</p>` : ""}${nextLv ? `<p class="lvup">${ico("warn")} Từ ngày ${S.day}: ${LV_TXT[nextLv].toLowerCase()}. Đầu ngày sẽ có hướng dẫn.</p>` : ""}${justOnline ? `<p class="lvup">${ico("phone")} Mở đơn online Soppi! ${S.tablets || 0 ? "" : "Mua tablet ở Nâng cấp > Trang bị để đơn đổ về."}</p>` : ""}${phoTraCuoiNgay()}${ngayMaiHTML()}<button class="sbtn" id="seeSum" style="width:100%;padding:10px;margin-top:6px">${ico("chart")} Tổng kết</button><button class="big" id="go" style="margin-top:8px">Ngày ${S.day} ➜</button>`
   }`;
     $("modal").hidden = false;
     $("go").focus();
@@ -7896,3 +7950,4 @@ showSplash(had, () => {
 });
 track("mo-game");
 trackReturn();
+moTuLink();
