@@ -12,5 +12,5 @@ const PHO_TRA = [
   { id: "bay7k", tran: 90, ten: "Trà Sữa 7K Sinh Viên", goc: 70, tang: 0.1, tuNgay: 12, mot: { dinh: 20, cao: 20, rong: 14 }, tinh: "Siêu rẻ, xếp hàng dài, nhưng ít người quay lại." },
   { id: "matcha", tran: 126, ten: "Matcha Mộc", goc: 88, tang: 0.5, tinh: "Matcha pha tay, giá cao, khách văn phòng." },
   { id: "olong", tran: 138, ten: "Olong Đà Lạt House", goc: 100, tang: 0.55, tinh: "Trà olong vùng cao, quán rộng có máy lạnh." },
-  { id: "may", tran: 140, ten: "Chuỗi Mây Tea", goc: 108, tang: 0.4, tuNgay: 30, tinh: "Chuỗi lớn vừa mở ở đầu hẻm. Quản lý là cháu cô Hạnh." },
+  { id: "may", tran: 150, ten: "Chuỗi Mây Tea", goc: 108, tang: 0.6, tuNgay: 30, tinh: "Chuỗi lớn vừa mở ở đầu hẻm. Quản lý là cháu cô Hạnh." },
 ];

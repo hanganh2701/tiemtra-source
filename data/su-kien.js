@@ -118,7 +118,7 @@ const GIFTS = [
   },
 ];
 
-/* sự cố mất tiền: gian lận thì mất gần hết; người chơi thật 0–2 lần trong 90 ngày, mất dưới 1 triệu */
+/* sự cố mất tiền: gian lận thì mất gần hết; người chơi thật 0–2 lần trong 90 ngày, mất khoảng 3% két (200k–4 triệu, xem tienSuCo) */
 const BAD = [
   {
     id: "trom",

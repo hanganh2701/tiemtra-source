@@ -137,6 +137,7 @@ const OLD_NAMES = {
   L: "Phụ thu size L",
   dactrung: "Trà của bà Sáu (món đặc trưng, thêm)",
   si: "Đơn sỉ trân châu cho Mây Tea",
+  cn: "Chi nhánh",
   app: "Phụ thu giá trên app",
 };
 const iname = (k) => (ITEMS[k] ? ITEMS[k].n : OLD_NAMES[k] || k);
@@ -882,7 +883,7 @@ function syncFlav() {
   });
 }
 const bottleCost = (k) =>
-  Math.round(CFG.bottle * (evIs("sale") && ev().k === k ? 0.7 : 1));
+  Math.round(CFG.bottle * heSoGiaNhap() * (evIs("sale") && ev().k === k ? 0.7 : 1));
 function take(k) {
   const b = S.stock[k].find((x) => x.q > 0);
   if (!b) return false;
@@ -1276,6 +1277,7 @@ function bindLoan() {
 }
 const ecost = (k) =>
   CFG.cost[k] *
+  heSoGiaNhap() *
   (evIs("sale") && ev().k === k ? 0.7 : 1) *
   (coTrang(5) && ITEMS[k] && ITEMS[k].type === "base" ? 0.9 : 1);
 function evCard() {
@@ -1317,10 +1319,7 @@ function badCheck() {
     if (e) {
       e.done = true;
       if (S.day - e.d <= 1 && !thuGian()) {
-        const v = Math.min(
-          Math.round((200000 + Math.random() * 700000) / 50000) * 50000,
-          Math.floor(S.money / 3 / 1000) * 1000,
-        );
+        const v = tienSuCo(Math.round((200000 + Math.random() * 700000) / 50000) * 50000);
         if (v >= 10000) {
           S.money -= v;
           S.cur.bad = (S.cur.bad || 0) + v;
@@ -1376,6 +1375,7 @@ function prepChecks() {
   if (leHoiCheck()) return xetTiep();
   if (nvSuKien()) return xetTiep();
   if (donNhomCheck()) return xetTiep();
+  if (chiNhanhSang()) return xetTiep();
   if (moiGopHem()) return xetTiep();
   if (moiCai()) return xetTiep();
   if (moiGopY()) return xetTiep();
@@ -2257,6 +2257,7 @@ function paneUpg() {
     tabRow = `<div class="rowi"><span class="icon">${ico("phone")}</span><div><div class="nm">Tablet nhận đơn online (${tbN}/${APPS.length})</div><div class="sub">Mỗi tablet chạy 1 app giao hàng. Phải có tablet thì đơn Soppi mới đổ về, shipper mới tới lấy hàng</div></div>${tbN >= APPS.length ? '<span class="okline">✓</span>' : !S.online ? '<span class="wl">Mở đơn online trước</span>' : `<button class="sbtn pri" data-tablet="1" ${S.money < CFG.tablet ? "disabled" : ""}><b>${fmtTr(CFG.tablet)}</b>Mua</button>`}</div>`;
   const eq =
     theMatTien() +
+    theChiNhanh() +
     `<div class="wl" style="text-align:right;margin-bottom:2px">⚡ +${fmt(CFG.utilPerUpg)}/ngày</div>` +
     UPG.map(
       (u) =>
@@ -5195,6 +5196,7 @@ function spawn() {
     heSoCho() *
     heSoChoBuoc() *
     heSoChoNhanh() *
+    heSoChoChuong() *
     heSoChoNv() *
     (S.upg.seats ? 1.25 : 1) *
     (1 + 0.8 * (nc - 1)) *
@@ -5737,6 +5739,7 @@ const recRev = (r) =>
   (r.gift || 0) +
   (r.adj || 0);
 const recCost = (r) =>
+  (r.cnChi || 0) +
   r.rent +
   r.util +
   (r.wage || 0) +
@@ -5834,7 +5837,7 @@ function pickBrat() {
   if (coTrang(9) && Math.random() < 0.4) return null;
   const bad = S.mood === "kho" && S.evDay === S.day,
     good = S.mood === "vui" && S.evDay === S.day;
-  if (Math.random() > (bad ? 0.45 : good ? 0.04 : 0.12)) return null;
+  if (Math.random() > (bad ? 0.45 : good ? 0.04 : tiLeKhoChieu())) return null;
   return wpick(
     ["hoi", "doi", "mac", "kho", "bung"],
     bad ? [4, 2, 2, 6, 1] : [3, 3, 3, 3, 1],
@@ -6151,6 +6154,7 @@ function endDay() {
   R.slots.forEach((c) => {
     if (c) T.lost++;
   });
+  chiNhanhCuoiNgay(r); /* trước khi đổ hàng hết hạn: hàng dư chở qua chi nhánh */
   const waste = expireStock();
   syncFlav();
   waste.forEach((x) => (r.waste[x.k] = { q: x.q, v: x.v }));
@@ -6263,6 +6267,7 @@ function endDay() {
     ${r.guard ? `<div><span class="wl">${ico("people")} Bảo vệ thu lại</span><span class="wl">+${fmt(r.guard)}</span></div>` : ""}
     ${r.traSau ? `<div><span class="wl">${ico("people")} Trả dần tiền bà Sáu cho khất</span><span class="wl">${fmt(r.traSau)}</span></div>` : ""}
     ${r.staffTip ? `<div><span class="wl">${ico("people")} Tip nhân viên giữ (quán không nhận)</span><span class="wl">${fmt(r.staffTip)}</span></div>` : ""}
+    ${r.cn ? `<div><span class="wl">🏪 Chi nhánh bán ${r.cn.ly} ly (đã tính ở trên)</span><span class="wl">${r.cn.lai < 0 ? "−" : "+"}${fmt(Math.abs(r.cn.lai))}</span></div>` : ""}
     ${r.spoil && r.spoil.n ? `<div><span class="wl">🥤 ${r.spoil.n} ly hỏng</span><span class="wl">${fmt(r.spoil.v)}</span></div>` : ""}
     ${wv ? `<div><span class="wl">${ico("trash")} ${waste.map((x) => ITEMS[x.k].s + " " + x.q).join(", ")}</span><span class="wl">${fmt(wv)}</span></div>` : ""}
     <div class="tot"><span>${ico("chartup")} Lãi</span><span class="${profit < 0 ? "neg" : "pos"}">${profit < 0 ? "−" : "+"}${fmt(Math.abs(profit))}</span></div>
@@ -6271,7 +6276,7 @@ function endDay() {
   ${
     broke
       ? `<p>${ico("trophy")} ${best} ngày</p><p class="note">Câu chuyện Hẻm 42, sổ công thức, độ thân với khách quen và kỷ lục vẫn được giữ.</p><button class="big" id="go">Mở quán mới</button>`
-      : `${khat ? `<p class="lvup">${ico("people")} Két âm ${fmt(khat)}. Bà Sáu cho khất, trả dần bằng một nửa tiền lãi những ngày sau, không tính lãi. Mỗi chương bà chỉ cho khất một lần.</p>` : ""}${!broke && S.ev ? `<p class="lvup">${ico(EVS[S.ev.id].ic)} Ngày mai: <b>${EVS[S.ev.id].n}</b>. ${evText(S.ev)}</p>` : ""}${nextLv ? `<p class="lvup">${ico("warn")} Từ ngày ${S.day}: ${LV_TXT[nextLv].toLowerCase()}. Đầu ngày sẽ có hướng dẫn.</p>` : ""}${justOnline ? `<p class="lvup">${ico("phone")} Mở đơn online Soppi! ${S.tablets || 0 ? "" : "Mua tablet ở Nâng cấp > Trang bị để đơn đổ về."}</p>` : ""}${mtHtml}${phoTraCuoiNgay()}${ngayMaiHTML()}<button class="sbtn" id="seeSum" style="width:100%;padding:10px;margin-top:6px">${ico("chart")} Tổng kết</button><button class="big" id="go" style="margin-top:8px">Ngày ${S.day} ➜</button>`
+      : `${khat ? `<p class="lvup">${ico("people")} Két âm ${fmt(khat)}. Bà Sáu cho khất, trả dần bằng một nửa tiền lãi những ngày sau, không tính lãi. Mỗi chương bà chỉ cho khất một lần.</p>` : ""}${!broke && S.ev ? `<p class="lvup">${ico(EVS[S.ev.id].ic)} Ngày mai: <b>${EVS[S.ev.id].n}</b>. ${evText(S.ev)}</p>` : ""}${nextLv ? `<p class="lvup">${ico("warn")} Từ ngày ${S.day}: ${LV_TXT[nextLv].toLowerCase()}. Đầu ngày sẽ có hướng dẫn.</p>` : ""}${justOnline ? `<p class="lvup">${ico("phone")} Mở đơn online Soppi! ${S.tablets || 0 ? "" : "Mua tablet ở Nâng cấp > Trang bị để đơn đổ về."}</p>` : ""}${mtHtml}${doKhoCuoiNgay()}${phoTraCuoiNgay()}${ngayMaiHTML()}<button class="sbtn" id="seeSum" style="width:100%;padding:10px;margin-top:6px">${ico("chart")} Tổng kết</button><button class="big" id="go" style="margin-top:8px">Ngày ${S.day} ➜</button>`
   }`;
     $("modal").hidden = false;
     $("go").focus();
@@ -6347,6 +6352,7 @@ function aggregate(recs) {
       "ot",
       "bad",
       "tax",
+      "cnChi",
       "served",
       "lost",
       "starSum",
@@ -6425,7 +6431,8 @@ function paneSum() {
       eqTot +
       g.fee +
       ingTot +
-      g.tax,
+      g.tax +
+      (g.cnChi || 0),
     profit = rev - cost;
   const avg = g.starN
     ? (g.starSum / g.starN).toFixed(1).replace(".", ",")
@@ -6467,6 +6474,7 @@ function paneSum() {
   <div class="crow"><span>Điện nước</span><span>${vn(g.util)}</span></div>
   ${g.wage - (g.ot || 0) ? `<div class="crow"><span>Lương nhân viên</span><span>${vn(g.wage - (g.ot || 0))}</span></div>` : ""}${g.ot ? `<div class="crow"><span>Tăng ca nhân viên pha chế</span><span>${vn(g.ot)}</span></div>` : ""}${g.bad ? `<div class="crow"><span>Sự cố mất tiền</span><span>${vn(g.bad)}</span></div>` : ""}
   ${g.loanInt ? `<div class="crow"><span>Lãi vay</span><span>${vn(g.loanInt)}</span></div>` : ""}
+  ${g.cnChi ? `<div class="crow"><span>Chi nhánh: tiền nhà, lương, hàng</span><span>${vn(g.cnChi)}</span></div>` : ""}
   <div class="crow"><span>Máy móc, trang bị & công thức</span><span>${vn(eqTot)}</span></div>
   ${g.equip.map((e) => `<div class="crow sub"><span>– ${e.n}${mode !== "day" ? " (ngày " + e.d + ")" : ""}</span><span>${vn(e.v)}</span></div>`).join("")}
   ${g.fee || S.online ? `<div class="crow"><span>Phí app giao hàng (${CFG.commission}%)</span><span>${vn(g.fee)}</span></div>` : ""}
