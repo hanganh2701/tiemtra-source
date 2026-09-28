@@ -17,6 +17,8 @@ function TT() {
   T.lan = T.lan || {}; /* khách quen: số lần ghé */
   T.qua = T.qua || {}; /* quà mở khoá đã nhận, theo ngày */
   T.mon = T.mon || {}; /* món đã pha đúng: khoá -> số ly */
+  T.nhanh = T.nhanh || {}; /* ngã rẽ lớn đã chọn: id ngã rẽ -> "A" | "B" */
+  if (typeof chuyenBanLuuNhanh === "function") chuyenBanLuuNhanh(T);
   return T;
 }
 const cheDo = () => (S.tr && S.tr.che) || "day"; /* day: đầy đủ · gon: gọn · tat: tắt */
@@ -29,7 +31,11 @@ function heSoKhachTruyen() {
   const T = S && S.tr;
   if (!T || !T.xem) return 1;
   const h = T.xem.hana_3;
-  return (h != null && S.day > h && S.day <= h + 3 ? 1.3 : 1) * (T.co && T.co.combo_hanh ? 1.03 : 1);
+  return (
+    (h != null && S.day > h && S.day <= h + 3 ? 1.3 : 1) *
+    (T.co && T.co.combo_hanh ? 1.03 : 1) *
+    (typeof heSoKhachNhanh === "function" ? heSoKhachNhanh() : 1)
+  );
 }
 /* S có thể chưa có khi game đang đọc bản lưu */
 const coTrang = (n) => !!(S && S.tr && S.tr.trang && S.tr.trang.includes(n));
@@ -52,6 +58,19 @@ function khopCo(want) {
   const T = TT();
   return Object.entries(want || {}).every(([k, v]) => (v === true ? !!T.co[k] : T.co[k] === v));
 }
+/* điều kiện chung cho câu thoại, hậu truyện và phần cứng của điều kiện cảnh */
+function khopDk(d) {
+  if (!d) return true;
+  const T = TT(),
+    trung = (w) => Object.entries(w).some(([k, v]) => (v === true ? !!T.co[k] : T.co[k] === v));
+  if (d.co && !khopCo(d.co)) return false;
+  if (d.khongCo && trung(d.khongCo)) return false;
+  if (d.nhanh && !Object.entries(d.nhanh).every(([k, v]) => T.nhanh[k] === v)) return false;
+  if (d.than && !Object.entries(d.than).every(([k, v]) => (T.than[k] || 0) >= v)) return false;
+  if (d.xem && ![].concat(d.xem).every((id) => T.xem[id] != null)) return false;
+  if (d.chuaXem && [].concat(d.chuaXem).some((id) => T.xem[id] != null)) return false;
+  return true;
+}
 function hopCanh(m, luc) {
   if (m.luc !== luc) return false;
   const T = TT(),
@@ -60,16 +79,18 @@ function hopCanh(m, luc) {
   if (T.xem[m.id] != null) return false;
   if (d.ngay != null && dn < d.ngay) return false;
   if (d.ngayDen != null && dn > d.ngayDen) return false;
-  if (d.than && !Object.entries(d.than).every(([k, v]) => (T.than[k] || 0) >= v)) return false;
-  if (d.co && !khopCo(d.co)) return false;
-  if (d.trang && !T.trang.includes(d.trang)) return false;
+  if (!khopDk({ co: d.co, khongCo: d.khongCo, nhanh: d.nhanh })) return false;
   if (d.buoc && (S.buoc || 1) < d.buoc) return false;
   if (d.tienDuoi != null && !(S.money < d.tienDuoi)) return false;
-  if (d.sao != null && rating() < d.sao) return false;
-  if (d.soTrang != null && T.trang.length < d.soTrang) return false;
   if (d.tuNgayThat && homNayVN() < d.tuNgayThat) return false;
   if (d.denNgayThat && homNayVN() > d.denNgayThat) return false;
   if (d.le && !(typeof leHoiNay === "function" && leHoiNay() === d.le)) return false;
+  /* hạn chót: từ ngày này bỏ qua điều kiện mềm để truyện không bị kẹt */
+  if (d.chot != null && dn >= d.chot) return true;
+  if (d.than && !Object.entries(d.than).every(([k, v]) => (T.than[k] || 0) >= v)) return false;
+  if (d.trang && !T.trang.includes(d.trang)) return false;
+  if (d.sao != null && rating() < d.sao) return false;
+  if (d.soTrang != null && T.trang.length < d.soTrang) return false;
   if (d.sau) {
     const x = T.xem[d.sau];
     if (x == null || (d.cachNgay && dn - x < d.cachNgay)) return false;
@@ -112,6 +133,13 @@ function apDung(m, chon) {
   const T = TT(),
     moi = [];
   if (chon) Object.assign(T.co, chon.dat || {});
+  if (chon && chon.nhanh) {
+    Object.assign(T.nhanh, chon.nhanh);
+    const K = KL();
+    K.reDaDi = K.reDaDi || {};
+    Object.entries(chon.nhanh).forEach(([k, v]) => ((K.reDaDi[k] = K.reDaDi[k] || {})[v] = S.day));
+    if (typeof track === "function") Object.entries(chon.nhanh).forEach(([k, v]) => track("nga-re-" + k + "-" + v));
+  }
   apKetQua(m.ketQua, moi);
   if (chon) apKetQua(chon.ketQua, moi);
   if (typeof xetHuyHieu === "function") setTimeout(() => xetHuyHieu(), 1500);
@@ -136,7 +164,7 @@ function dongThoai([ai, cau]) {
   const nv = NHAN_VAT[ai] || { ten: ai };
   return `<div class="trw">${chanDung(ai)}<div><b class="trn2">${esc(nv.ten)}</b><p class="trl">${thayTen(cau)}</p></div></div>`;
 }
-const locDong = (ds) => (ds || []).filter((d) => !d[2] || khopCo(d[2].co));
+const locDong = (ds) => (ds || []).filter((d) => khopDk(d[2]));
 
 /* chạy cảnh (nếu có) rồi gọi xong(). luc: "mo_cua" | "dong_cua" */
 function truyenLuc(luc, xong) {
@@ -149,18 +177,22 @@ function truyenLuc(luc, xong) {
   T.homNay = ngayCua(luc);
   save();
   if (typeof track === "function") track("truyen-" + m.id);
-  if (cheDo() === "tat") {
+  /* cảnh kết truyện: xong thì hiện kết và hậu truyện */
+  const tiep = m.ketCuc && typeof hienKetCuc === "function" ? () => hienKetCuc(xong) : xong;
+  /* chế độ Tắt tự chọn thay, trừ ngã rẽ lớn */
+  if (cheDo() === "tat" && !m.reRe) {
     const moi = apDung(m, (m.luaChon || [])[0]);
-    return hienTrangMoi(moi, xong);
+    return hienTrangMoi(moi, tiep);
   }
-  hienCanh(m, xong, false);
+  hienCanh(m, tiep, false);
 }
 
 /* xemLai = mở từ Sổ tay: không áp kết quả lần nữa */
 function hienCanh(m, xong, xemLai) {
   const card = $("card"),
     dong = locDong(m.thoai),
-    nhan = `<small class="trch">${m.nhan ? esc(m.nhan) : `Chương ${m.chuong} · ${CHUONG_TEN[m.chuong] || ""}`}</small>`;
+    nhan = `<small class="trch">${m.nhan ? esc(m.nhan) : `Chương ${m.chuong} · ${CHUONG_TEN[m.chuong] || ""}`}${m.reRe ? ' <span class="trre">Ngã rẽ</span>' : ""}</small>`,
+    baoRe = m.reRe && !xemLai ? `<p class="trrew">${esc(m.reRe)}</p>` : "";
   let i = 0;
   const ketThuc = (chon, boQua) => {
     const moi = xemLai ? [] : apDung(m, chon);
@@ -177,17 +209,23 @@ function hienCanh(m, xong, xemLai) {
   };
   const nutChon = () =>
     m.luaChon && m.luaChon.length
-      ? `<div class="askbtns">${m.luaChon.map((c, k) => `<button class="big trc" data-ch="${k}">${thayTen(c.chu)}</button>`).join("")}</div>`
+      ? `${baoRe}<div class="askbtns">${m.luaChon.map((c, k) => `<button class="big trc" data-ch="${k}">${thayTen(c.chu)}</button>`).join("")}</div>`
       : `<div class="askbtns"><button class="big" id="trOk">Tiếp tục</button></div>`;
   const ganNut = () => {
     card.querySelectorAll("[data-ch]").forEach((b) => (b.onclick = () => ketThuc(m.luaChon[+b.dataset.ch], false)));
     if ($("trOk")) $("trOk").onclick = () => ketThuc(null, false);
     if ($("trSkip"))
-      $("trSkip").onclick = () => ketThuc((m.luaChon || [])[0] || null, true);
+      $("trSkip").onclick = () =>
+        /* ngã rẽ lớn: Bỏ qua chỉ tua thoại, người chơi vẫn tự chọn */
+        m.reRe && m.luaChon && m.luaChon.length ? veChon() : ketThuc((m.luaChon || [])[0] || null, true);
+  };
+  const veChon = () => {
+    card.innerHTML = `${nhan}<p class="trl trn">${thayTen(m.tomTat || "")}</p>${nutChon()}`;
+    ganNut();
   };
   const boQuaNut = xemLai ? "" : `<button class="sp-link trskip" id="trSkip">Bỏ qua ›</button>`;
   const ve = () => {
-    const gon = cheDo() === "gon" || xemLai;
+    const gon = cheDo() !== "day" || xemLai;
     if (gon) {
       card.innerHTML = `${boQuaNut}${nhan}${dong.map(dongThoai).join("")}${nutChon()}`;
     } else {
