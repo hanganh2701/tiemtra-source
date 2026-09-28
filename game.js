@@ -911,6 +911,7 @@ function dropBaks(rescue) {
   });
 }
 function save() {
+  if (R.challenge) return; /* đang thử thách: trạng thái tạm, không lưu */
   let js;
   /* host check bypassed */ try {
     js = pack();
@@ -1714,6 +1715,13 @@ function head() {
     _hd.clk = null;
     $("hSub").innerHTML =
       sub === "sell" ? ico("clock") + ' <span id="hClk"></span>' : "Chuẩn bị";
+  }
+  if (R.challenge) {
+    const C = R.challenge;
+    _hd.subMode = "tt";
+    $("hSub").textContent = "Thử thách " + C.xong + "/" + TT_SO;
+    setTxt("hMoney", C.chuan + " ly chuẩn");
+    return;
   }
   if (sub === "sell") {
     const c = gameClock();
@@ -5046,6 +5054,7 @@ const isSto = (c) => !!(c && R.sto && c.id === R.sto.id),
   isSt = (c) => !!(c && R.st2 && c.id === R.st2.id),
   pSlots = () => R.slots.map((c) => (isSt(c) ? null : c));
 function spawn() {
+  if (R.challenge) return ttSpawn();
   const i = R.slots.findIndex((s) => !s);
   if (i < 0 || bigOrder()) return;
   if (R.starPend) {
@@ -5057,6 +5066,11 @@ function spawn() {
     const k = khachQuenDen();
     if (k) {
       spawnQuen(i, k);
+      return;
+    }
+    const b = banDen();
+    if (b) {
+      spawnBan(i, b);
       return;
     }
   }
@@ -5494,6 +5508,7 @@ function serve(i) {
         (S.upg.sealer ? 1.3 : 1) *
         (evIs("holiday") ? 2 : 1) *
         (coTrang(4) ? 1.1 : 1) *
+        (c.ban ? 2 : 1) *
         (coTrang(11) && leHoiNay() === "tet" ? 2 : 1) *
         c.cups.length,
       rv = stars(c, false);
@@ -5513,6 +5528,7 @@ function serve(i) {
     rung(15);
     addReview(rv.s, rv.why, false, c);
     if (c.reg) quenXong(c, rv.s);
+    if (c.tt != null) ttGhi(c, c.wrong || c.fillPen ? 1 : 0);
     ghiPhucVu(c, rv.s);
     if (c.vip) {
       addReview(rv.s, rv.why, false, c);
@@ -5771,12 +5787,13 @@ function rushMul() {
 }
 function tick() {
   const dt = 0.1;
+  ttNhip(dt);
   R.t -= dt;
   R.spawnT -= dt;
   if (R.spawnT <= 0 && R.t > 5 && bigOrder()) R.spawnT = 2.5;
   else if (R.spawnT <= 0 && R.t > 5) {
     spawn();
-    R.spawnT = (9 / traffic() / rushMul()) * (0.75 + Math.random() * 0.5);
+    R.spawnT = R.challenge ? 0.5 : (9 / traffic() / rushMul()) * (0.75 + Math.random() * 0.5);
   }
   if (onlineActive()) {
     R.onT -= dt;
@@ -5806,6 +5823,7 @@ function tick() {
     if (c.pat <= 0) {
       quenBo(c);
       KL().chuoi = 0;
+      if (c.tt != null) ttGhi(c, c.wrong ? 2 : 3);
       R.slots[i] = null;
       R.today.lost++;
       const st = Math.random() < 0.3 ? 2 : 1;
@@ -5916,6 +5934,7 @@ function pauseAgain() {
 }
 function closeEarly() {
   if (!R.running) return;
+  if (R.challenge) return ttKetThuc(true);
   R.today.lost += R.online.length; /* đơn online đang chờ cũng là khách mất, như khách ở quầy */
   R.online = [];
   R.t = 0;
@@ -6150,7 +6169,7 @@ function endDay() {
   ${
     broke
       ? `<p>${ico("trophy")} ${best} ngày</p><p class="note">Câu chuyện Hẻm 42, sổ công thức, độ thân với khách quen và kỷ lục vẫn được giữ.</p><button class="big" id="go">Mở quán mới</button>`
-      : `${khat ? `<p class="lvup">${ico("people")} Két âm ${fmt(khat)}. Bà Sáu cho khất, trả dần bằng một nửa tiền lãi những ngày sau, không tính lãi. Mỗi chương bà chỉ cho khất một lần.</p>` : ""}${!broke && S.ev ? `<p class="lvup">${ico(EVS[S.ev.id].ic)} Ngày mai: <b>${EVS[S.ev.id].n}</b>. ${evText(S.ev)}</p>` : ""}${nextLv ? `<p class="lvup">${ico("warn")} Từ ngày ${S.day}: ${LV_TXT[nextLv].toLowerCase()}. Đầu ngày sẽ có hướng dẫn.</p>` : ""}${justOnline ? `<p class="lvup">${ico("phone")} Mở đơn online Soppi! ${S.tablets || 0 ? "" : "Mua tablet ở Nâng cấp > Trang bị để đơn đổ về."}</p>` : ""}${ngayMaiHTML()}<button class="sbtn" id="seeSum" style="width:100%;padding:10px;margin-top:6px">${ico("chart")} Tổng kết</button><button class="big" id="go" style="margin-top:8px">Ngày ${S.day} ➜</button>`
+      : `${khat ? `<p class="lvup">${ico("people")} Két âm ${fmt(khat)}. Bà Sáu cho khất, trả dần bằng một nửa tiền lãi những ngày sau, không tính lãi. Mỗi chương bà chỉ cho khất một lần.</p>` : ""}${!broke && S.ev ? `<p class="lvup">${ico(EVS[S.ev.id].ic)} Ngày mai: <b>${EVS[S.ev.id].n}</b>. ${evText(S.ev)}</p>` : ""}${nextLv ? `<p class="lvup">${ico("warn")} Từ ngày ${S.day}: ${LV_TXT[nextLv].toLowerCase()}. Đầu ngày sẽ có hướng dẫn.</p>` : ""}${justOnline ? `<p class="lvup">${ico("phone")} Mở đơn online Soppi! ${S.tablets || 0 ? "" : "Mua tablet ở Nâng cấp > Trang bị để đơn đổ về."}</p>` : ""}${phoTraCuoiNgay()}${ngayMaiHTML()}<button class="sbtn" id="seeSum" style="width:100%;padding:10px;margin-top:6px">${ico("chart")} Tổng kết</button><button class="big" id="go" style="margin-top:8px">Ngày ${S.day} ➜</button>`
   }`;
     $("modal").hidden = false;
     $("go").focus();
@@ -7896,3 +7915,4 @@ showSplash(had, () => {
 });
 track("mo-game");
 trackReturn();
+moTuLink();

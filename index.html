@@ -640,6 +640,13 @@ body:not(.selling)::before{content:'';position:fixed;inset:0;z-index:-1;backgrou
 .q3stamp{position:absolute;left:50%;top:40%;transform:translate(-50%,-50%) rotate(-8deg);font:800 64px "Baloo 2",system-ui,sans-serif;color:#fff;background:#ef6f8e;border:6px solid #fff;border-radius:28px;padding:6px 30px;box-shadow:0 8px 0 rgba(0,0,0,.15);pointer-events:none;z-index:30;animation:q3stamp 1.2s ease-out forwards}
 @keyframes q3stamp{0%{transform:translate(-50%,-50%) rotate(-8deg) scale(2);opacity:0}15%{transform:translate(-50%,-50%) rotate(-8deg) scale(.95);opacity:1}25%{transform:translate(-50%,-50%) rotate(-8deg) scale(1)}80%{opacity:1}100%{opacity:0;transform:translate(-50%,-60%) rotate(-8deg) scale(1)}}
 @media (prefers-reduced-motion:reduce){#q3cup.q3sui::after{animation:none}.q3stamp{animation:none;opacity:0}}
+/* thử thách hôm nay, Phố Trà */
+.ttcard{background:var(--bg);border:2px solid var(--line);border-radius:14px;padding:10px 12px;margin:4px 0 10px;text-align:left}.ttcard p{margin:4px 0;font-size:.88rem;line-height:1.4}
+.ttdiem{font-size:1rem!important}.ttdiem b{font-size:1.8rem;color:var(--pink-d)}
+.ttluoi{font-size:1.25rem;line-height:1.2;letter-spacing:.06em;margin:8px auto;font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif;white-space:pre}
+.crow.minh{background:color-mix(in srgb,var(--gold) 22%,transparent);border-radius:8px;padding-left:6px;font-weight:800}
+.crow.ban span:first-child{color:var(--pink-d)}
+.ptr small{display:block;font-size:.72rem;color:var(--soft);font-weight:500}
 </style>
 </head>
 <body>
@@ -660,10 +667,13 @@ body:not(.selling)::before{content:'';position:fixed;inset:0;z-index:-1;backgrou
 <script src="data/khach.js"></script>
 <script src="data/danh-gia.js"></script>
 <script src="data/su-kien.js"></script>
+<script src="data/pho-tra.js"></script>
 <script src="data/cot-truyen.js"></script>
 <script src="src/truyen.js"></script>
 <script src="src/khach-quen.js"></script>
 <script src="src/cam-giac.js"></script>
+<script src="src/thu-thach.js"></script>
+<script src="src/pho-tra.js"></script>
 <script src="game.js"></script>
 <script>
 if ("serviceWorker" in navigator) {

@@ -11,7 +11,7 @@ export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "
  * storage: dữ liệu localStorage có sẵn, ví dụ { tsShop2: "...", tsOwner: "..." }.
  * Trả về run(code): chạy code trong trang và trả kết quả (đọc được biến toàn cục của game như S, R, CFG).
  */
-export function boot({ storage = {} } = {}) {
+export function boot({ storage = {}, url = "http://localhost/" } = {}) {
   let html = readFileSync(path.join(ROOT, "index.html"), "utf8");
   const srcs = [...html.matchAll(/<script src="([^"]+)"><\/script>/g)].map((m) => m[1]);
   html = html.replace(/<script[\s\S]*?<\/script>/g, "");
@@ -24,7 +24,7 @@ export function boot({ storage = {} } = {}) {
   });
 
   const dom = new JSDOM(html, {
-    url: "http://localhost/",
+    url,
     runScripts: "dangerously",
     pretendToBeVisual: true,
     virtualConsole: vc,
