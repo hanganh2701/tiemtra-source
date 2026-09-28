@@ -213,6 +213,26 @@ Mô phỏng kiểu người chơi thật sau khi làm (nghìn đồng):
 
 Người chơi vừa giờ còn phải tính tiền tới khoảng ngày 60 (két ngày 50 chỉ 5 triệu). Người chơi giỏi vẫn dư nhiều từ ngày 50 vì mỗi ly lãi cao theo giá gốc; chưa đụng giá bán vì Phố Trà tính theo doanh thu. Độ khó theo chương thấy rõ nhất ở tiệm không thuê người: sao còn khoảng 3,8–4,2, Phố Trà hạng 3–4. Mỗi lần chạy lệch nhau khá nhiều vì ngẫu nhiên.
 
+### Sau lần chơi thử thứ tư của Claude (bản 4.9.1) — xong 28/09
+
+Chơi bản 4.9 trên web từ ngày 1 tới kết (ngày 68), 8 giây mỗi ly; Linh ở lại, Hana giữ kín, giữ hẻm, về quê, chi nhánh văn phòng (mở ngày 54). Độ khó theo chương, Phố Trà giành hạng, chi nhánh, báo cáo, tình huống, các cảnh mới đều chạy. Đã sửa:
+
+- [x] Chi nhánh bớt lãi: quản lý 350k + 12% doanh thu, hàng mua ngoài ×1,3, sức bán `capGoc` 40 + `capBac` 12 × tay nghề, người phụ +30 ly; văn phòng giá ×1,1, gần trường ×0,85
+- [x] Báo cáo chi nhánh chỉ một lần cho mỗi ngày bán (`daBao`), không báo lại ngày cũ sau mấy ngày về quê
+- [x] Chuyện ngẫu nhiên ở chi nhánh không lặp lại trong 7 ngày (`gap`, `CHI_NHANH.lapLai`)
+- [x] Vy kể chuyện sang nhượng sau cảnh Vy quyết ở lại chuỗi hay ra chợ: `sau` nhận danh sách cảnh (`ngayXemSau`)
+- [x] Kết `tiem_cua_xom` có lời khác khi tiệm đã ra mặt tiền (`chuMt`) hay có chi nhánh (`chuCn`); sang nhượng thì bỏ cờ chi nhánh
+- [x] Chi nhánh hiện ở dải đồ trước tiệm; chi nhánh gần trường đổi biểu tượng thành 🏫 (🎒 là quỹ học bổng); hai nút trong thẻ chi nhánh cùng cỡ; tổng kết đếm chi nhánh theo ly; báo cáo chỉ nhắc hàng dư khi từ 5 phần
+
+Mô phỏng kiểu người chơi thật sau khi sửa (nghìn đồng, chi nhánh mở ngày 55 ở cả ba tiệm có mặt tiền):
+
+| Người chơi | Két ngày 50 | Két ngày 70 | Mua xong mọi thứ | Cuối game |
+|---|---|---|---|---|
+| Giỏi, mặt tiền, chi nhánh gần trường | 29.372 | 102.757 | ngày 55 | 5,0★ hạng 1 |
+| Vừa, mặt tiền, chi nhánh gần trường | 14.428 | 44.859 | ngày 57 | 4,9★ hạng 1 |
+| Giỏi, ở trong hẻm, không thuê | 17.321 | 33.636 | ngày 51 | 4,2★ hạng 3 |
+| Giỏi, mặt tiền, chi nhánh văn phòng, Hana giữ kín | 21.849 | 79.983 | ngày 55 | 4,9★ hạng 1 |
+
 ## Cổng quyết định
 
 | Cổng | Ngày | Đi tiếp khi |
