@@ -1,7 +1,19 @@
 /* Phiên bản và danh sách "Có gì mới". Mỗi lần cập nhật: tăng GAME_VERSION và thêm một mục lên ĐẦU CHANGELOG. */
 /* ===== PHIÊN BẢN GAME: mỗi lần cập nhật, tăng số và thêm một mục lên ĐẦU danh sách ===== */
-const GAME_VERSION = "4.9.1";
+const GAME_VERSION = "5.0";
 const CHANGELOG = [
+  {
+    v: "5.0",
+    d: "28/09/2026",
+    items: [
+      "Tab Đời sống: bắt đầu ở ghép phòng trọ, đi xe đạp, dần lên phòng trọ riêng, căn hộ, nhà trong Hẻm 42; xe số, tay ga, ô tô; điện thoại mới",
+      "Xe máy giúp đi chợ sớm nên giá nhập rẻ hơn, ô tô chở hàng qua chi nhánh đỡ tiền hàng, điện thoại chụp ảnh đẹp kéo thêm khách",
+      "Mua đồ cho bản thân (áo, đồng hồ, túi, máy tính) và gửi quà về cho ba mẹ: mẹ nhắn lại, hậu truyện nhắc tới. Có chỗ ở rộng thì Tết ba mẹ ngủ lại nhà bạn",
+      "Mỗi ngày mở tiệm tốn tiền ăn uống, tiền trọ, xăng xe (đầu game khoảng 40k). Chế độ Thư giãn miễn",
+      "Hai huy hiệu mới: An cư, Con có hiếu",
+      "Sửa: góp hẻm xong bấm Tiếp tục ở tab Hẻm 42 bị lỗi, trang không làm mới",
+    ],
+  },
   {
     v: "4.9.1",
     d: "28/09/2026",
