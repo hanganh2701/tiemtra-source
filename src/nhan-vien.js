@@ -76,7 +76,7 @@ function nvCuoiNgay(rec, loi, sao) {
     n.xp += 1 + (u.id === "staff1" || u.id === "staff3" ? 1 : 0); /* phụ quầy làm cạnh bạn: kèm cặp */
     n.tt += -(n.dd === "cham_chi" ? 1 : 3) + (loi > 0 && sao >= 4.5 ? 5 : 0) - (u.id === "staff2" && rec.ot ? 5 : 0) + (n.dd === "vui_ve" ? 2 : 0);
     n.tt = Math.max(0, Math.min(100, n.tt));
-    if (n.kn < 5 && n.xp >= n.kn * 6) {
+    if (n.kn < 5 && n.xp >= n.kn * 9) {
       n.kn++;
       n.xp = 0;
       S.nvHoi.push({ id: u.id, loai: "luong" });

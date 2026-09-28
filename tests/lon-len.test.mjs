@@ -50,7 +50,10 @@ test("nhân viên: có tên và đặc điểm, lên nghề thì xin tăng lươ
     const n = g.run("S.nv.staff2");
     assert.ok(n.ten && g.run(`!!NV_DD['${n.dd}']`));
     const w0 = g.run("wageDay()");
-    for (let d = 0; d < 7; d++) g.run("nvCuoiNgay({ ot: 0 }, 100000, 4.8)");
+    /* nhân viên pha chế lên nghề 1 → 2 sau 9 ngày làm */
+    for (let d = 0; d < 8; d++) g.run("nvCuoiNgay({ ot: 0 }, 100000, 4.8)");
+    assert.equal(g.run("S.nv.staff2.kn"), 1);
+    g.run("nvCuoiNgay({ ot: 0 }, 100000, 4.8)");
     assert.equal(g.run("S.nv.staff2.kn"), 2);
     assert.equal(g.run("nvSuKien()"), true);
     assert.match(card(g).textContent, /lên nghề/);

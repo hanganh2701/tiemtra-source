@@ -638,7 +638,7 @@ MAU_CHUYEN.push(
     tomTat: "Video của Hana về con hẻm nổi lên. Hana hỏi có được ghi tên tiệm không.",
     dieuKien: { than: { hana: 5 }, sau: "hana_2", cachNgay: 3 },
     uuTien: 7,
-    reRe: "Chọn một lần, kết truyện đổi theo. Ghi tên: khách lạ đông hơn. Giữ kín: khách quen ghé nhiều, tip cao hơn.",
+    reRe: "Chọn một lần, kết truyện đổi theo. Ghi tên: khách lạ đông hơn, chịu xếp hàng chờ. Giữ kín: khách quen ghé nhiều, tip cao hơn.",
     thoai: [
       ["hana", "{Ban} ơi! Video quay con hẻm được hai trăm nghìn lượt xem!"],
       ["_", "(Hana nói trọn câu tiếng Việt, không cần nhãn dịch nữa.)"],
@@ -746,7 +746,7 @@ MAU_CHUYEN.push(
     tomTat: "Sài Gòn vắng Tết, Khoa không có tiền về quê, mẹ hỏi Tết này có về không.",
     dieuKien: { ngay: 62 },
     uuTien: 8,
-    reRe: "Chọn một lần. Về quê: tiệm nghỉ 3 ngày, không tốn tiền nhà, hàng trong kho vẫn hết hạn. Ở lại: bán ngày Tết đông khách.",
+    reRe: "Chọn một lần. Về quê: tiệm nghỉ 3 ngày, không tốn tiền nhà, hàng trong kho vẫn hết hạn. Ở lại: bán ngày Tết đông khách, tip rộng tay.",
     thoai: [
       ["_", "(Sài Gòn những ngày giáp Tết vắng hoe. Hẻm 42 chỉ còn vài nhà.)"],
       ["khoa", "Năm nay em không về quê. Vé xe lên gấp ba, em để dành gửi mẹ."],

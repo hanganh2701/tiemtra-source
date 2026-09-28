@@ -134,6 +134,20 @@ test("nhắc sao lưu: Để sau thì lần sau cách xa hơn, Đừng nhắc n�
   }
 });
 
+test("tablet chỉ mua được khi đã mở online; online mở từ ngày 40", () => {
+  const g = boot();
+  try {
+    assert.equal(g.run("CFG.online.fromDay"), 40);
+    g.run("S.day = 30; S.money = 50000000; R.tab = 'nangcap'; renderPrep()");
+    assert.equal(g.run("!!document.querySelector('[data-tablet]')"), false);
+    assert.match(g.w.document.getElementById("pane").textContent, /Mở đơn online trước/);
+    g.run("S.online = true; renderPrep()");
+    assert.equal(g.run("!!document.querySelector('[data-tablet]')"), true);
+  } finally {
+    g.close();
+  }
+});
+
 test("góp sức cho Hẻm 42: mở theo truyện, góp thì trừ tiền, có ưu đãi, lời cảm ơn, huy hiệu và hiện trước tiệm", () => {
   const g = boot();
   try {

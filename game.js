@@ -554,7 +554,7 @@ const DEFAULT_CONFIG = {
   taxThreshold: 1000000000, // ngưỡng doanh thu năm không chịu thuế (hộ kinh doanh, 2026)
   vat: 3,
   pit: 1.5, // % thuế GTGT và TNCN trên doanh thu, nhóm dịch vụ ăn uống
-  online: { minProfit: 15000000, fromDay: 60, minRating: 4.0 }, // cả 3 điều kiện để mở đơn online; phải giữ đủ sao để tiếp tục nhận đơn
+  online: { minProfit: 15000000, fromDay: 40, minRating: 4.0 }, // cả 3 điều kiện để mở đơn online; phải giữ đủ sao để tiếp tục nhận đơn
   levels: { l2: 6, l3: 30, l4: 60 }, // ngày bắt đầu mỗi cấp độ
   cost: {}, // giá nhập mỗi phần nguyên liệu
   life: {}, // hạn dùng (ngày), 0 = không hết hạn
@@ -577,7 +577,7 @@ try {
     };
   }
 } catch (e) {}
-const CFG_VER = 40; /* phiên bản cấu hình mới nhất: thêm bước nâng cấp mới thì tăng số này */
+const CFG_VER = 41; /* phiên bản cấu hình mới nhất: thêm bước nâng cấp mới thì tăng số này */
 if (!(CFG.cfgVer >= 31)) {
   CFG.dayMin = 4;
 }
@@ -654,6 +654,14 @@ if (!(CFG.cfgVer >= 39)) {
 if (!(CFG.cfgVer >= 40)) {
   /* 4.1: phí app giao hàng 25% như ngoài đời, bù lại được đặt giá riêng trên app */
   CFG.commission = 25;
+  CFG.cfgVer = 40;
+  try {
+    localStorage.setItem(OWNER_SAVE, JSON.stringify(CFG));
+  } catch (e) {}
+}
+if (!(CFG.cfgVer >= 41)) {
+  /* 4.8: đơn online mở từ ngày 40 thay vì 60, để giữa game có mục tiêu mới (cấu hình chủ game tự đổi thì giữ) */
+  if (CFG.online.fromDay === 60) CFG.online.fromDay = 40;
   CFG.cfgVer = CFG_VER;
   try {
     localStorage.setItem(OWNER_SAVE, JSON.stringify(CFG));
@@ -2246,7 +2254,7 @@ function paneUpg() {
       ? `<div class="brandprevrow">${temHTML(S.brand, 88, true)}</div>`
       : "");
   const tbN = S.tablets || 0,
-    tabRow = `<div class="rowi"><span class="icon">${ico("phone")}</span><div><div class="nm">Tablet nhận đơn online (${tbN}/${APPS.length})</div><div class="sub">Mỗi tablet chạy 1 app giao hàng. Phải có tablet thì đơn Soppi mới đổ về, shipper mới tới lấy hàng</div></div>${tbN >= APPS.length ? '<span class="okline">✓</span>' : `<button class="sbtn pri" data-tablet="1" ${S.money < CFG.tablet ? "disabled" : ""}><b>${fmtTr(CFG.tablet)}</b>Mua</button>`}</div>`;
+    tabRow = `<div class="rowi"><span class="icon">${ico("phone")}</span><div><div class="nm">Tablet nhận đơn online (${tbN}/${APPS.length})</div><div class="sub">Mỗi tablet chạy 1 app giao hàng. Phải có tablet thì đơn Soppi mới đổ về, shipper mới tới lấy hàng</div></div>${tbN >= APPS.length ? '<span class="okline">✓</span>' : !S.online ? '<span class="wl">Mở đơn online trước</span>' : `<button class="sbtn pri" data-tablet="1" ${S.money < CFG.tablet ? "disabled" : ""}><b>${fmtTr(CFG.tablet)}</b>Mua</button>`}</div>`;
   const eq =
     theMatTien() +
     `<div class="wl" style="text-align:right;margin-bottom:2px">⚡ +${fmt(CFG.utilPerUpg)}/ngày</div>` +
@@ -5186,6 +5194,7 @@ function spawn() {
     (55 + (level() >= 2 ? 8 : 0)) *
     heSoCho() *
     heSoChoBuoc() *
+    heSoChoNhanh() *
     heSoChoNv() *
     (S.upg.seats ? 1.25 : 1) *
     (1 + 0.8 * (nc - 1)) *
