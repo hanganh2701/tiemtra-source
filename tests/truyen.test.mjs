@@ -177,3 +177,75 @@ test("những ngày đầu chưa có khách khó chiều, chưa có lời mời 
     g.close();
   }
 });
+
+/* mô phỏng truyện theo ngày (không bán): mỗi ngày khách quen tới hẹn thì ghé và thân thêm */
+function moPhongTruyen(g, toiNgay, chonCuoi) {
+  return JSON.parse(g.run(`JSON.stringify((() => {
+    S.tr = { che: "tat" }; S.day = 1; S.money = 500000;
+    const T = TT(), xem = [];
+    const canh = (luc) => {
+      const m = canhKe(luc);
+      if (!m) return;
+      T.xem[m.id] = ngayCua(luc); T.homNay = ngayCua(luc);
+      const ds = m.luaChon || [];
+      apDung(m, ${chonCuoi ? "ds[ds.length - 1]" : "ds[0]"});
+      xem.push(m.id + "@" + ngayCua(luc));
+    };
+    for (let d = 1; d <= ${toiNgay}; d++) {
+      canh("mo_cua");
+      Object.keys(KHACH_QUEN).forEach((k) => { if (sapGhe(k)) { T.ghe[k] = S.day; T.than[k] = Math.min(10, (T.than[k] || 0) + 1); } });
+      S.history.push(newRec(S.day)); S.day++; S.cur = newRec(S.day);
+      canh("dong_cua");
+    }
+    return { xem, trang: T.trang, co: T.co };
+  })())`));
+}
+
+test("Chương 2 và 3: chơi tới ngày 75 thì đủ 12 trang, gặp Hana, Vy, mẹ lên thăm", () => {
+  for (const chonCuoi of [false, true]) {
+    const g = boot();
+    try {
+      const kq = moPhongTruyen(g, 75, chonCuoi);
+      assert.deepEqual(kq.trang, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], kq.xem.join(" "));
+      for (const id of ["c2_may", "hana_1", "hana_2", "hana_3", "hanh_1", "hanh_2", "c2_trung_thu", "c2_vy", "c2_ba_sau", "c2_ket", "c3_vang", "c3_me", "c3_ket"])
+        assert.ok(kq.xem.some((x) => x.startsWith(id + "@")), id + " chưa hiện: " + kq.xem.join(" "));
+      /* chương 2 không vượt sang ngày 60, kết truyện sau ngày 60 */
+      const ngay = (id) => +kq.xem.find((x) => x.startsWith(id + "@")).split("@")[1];
+      assert.ok(ngay("c2_ket") < 60);
+      assert.ok(ngay("c3_ket") >= 60);
+      assert.equal(kq.co.me_len, true);
+      assert.deepEqual(g.errors.map(String), []);
+    } finally {
+      g.close();
+    }
+  }
+});
+
+test("Hana ghé quầy bằng ảnh ngôi sao, không bị tính giá khách nổi tiếng", () => {
+  const g = boot();
+  try {
+    g.run("S.day = 40; __openDay(); R.slots = R.slots.map(() => null); spawnQuen(0, 'hana')");
+    assert.equal(g.run("R.slots[0].name"), "Hana");
+    assert.equal(g.run("R.slots[0].sf"), 2);
+    assert.equal(g.run("R.slots[0].star"), undefined);
+    assert.match(g.run("faceOf(R.slots[0], 0, 56, 55)"), /star\.webp/);
+    const m0 = g.run("S.money"), r0 = g.run("recRev(S.cur)");
+    g.run("R.slots[0].pat = R.slots[0].max; __serveSlot(0)");
+    assert.equal(g.run("S.money") - m0, g.run("recRev(S.cur)") - r0);
+    assert.equal(g.run("TT().than.hana"), 1);
+  } finally {
+    g.close();
+  }
+});
+
+test("video của Hana: 3 ngày sau đó khách đông hơn", () => {
+  const g = boot();
+  try {
+    g.run("S.day = 46; TT().xem.hana_3 = 45");
+    assert.equal(g.run("heSoKhachTruyen()"), 1.3);
+    g.run("S.day = 49");
+    assert.equal(g.run("heSoKhachTruyen()"), 1);
+  } finally {
+    g.close();
+  }
+});

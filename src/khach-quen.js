@@ -64,6 +64,7 @@ function spawnQuen(i, k) {
     born: performance.now(),
     id: ++uid,
     who: NHAN_VAT[k].mat,
+    sf: NHAN_VAT[k].ngoiSao, /* Hana vẽ bằng ảnh ngôi sao */
     face: "🙂",
     name: NHAN_VAT[k].ten,
     say: thayTen(q.xin, true),
@@ -181,7 +182,7 @@ function paneQuen() {
         if (!gap)
           return `<div class="kq an"><span class="trf">?</span><div><b>Chưa gặp</b><small>Thường ghé từ ngày ${q.tuNgay}</small></div></div>`;
         const ts = q.tieuSu.filter((_, i) => than >= [0, 3, 6][i]);
-        return `<div class="kq"><span class="trf" style="${faceBg(nv.mat, than >= 6 ? 1 : 0, 64, 63)}"></span><div><b>${esc(nv.ten)}</b> ${timThan(than)}<small>Đã ghé ${T.lan[k]} lần · thân ${than}/10</small>${ts.map((t) => `<p>${esc(t)}</p>`).join("")}${
+        return `<div class="kq"><span class="trf" style="${nv.ngoiSao != null ? starBg(nv.ngoiSao, than >= 6 ? 1 : 0, 64, 63) : faceBg(nv.mat, than >= 6 ? 1 : 0, 64, 63)}"></span><div><b>${esc(nv.ten)}</b> ${timThan(than)}<small>Đã ghé ${T.lan[k]} lần · thân ${than}/10</small>${ts.map((t) => `<p>${esc(t)}</p>`).join("")}${
           T.lan[k] >= 2 ? `<p class="kqmon">Món quen: ${esc(moTaMon(q.mon))}</p>` : ""
         }</div></div>`;
       })

@@ -24,6 +24,13 @@ const CHE_DO_TEN = { day: "Đầy đủ", gon: "Gọn", tat: "Tắt" };
 const xung = () => (S.xung === "anh" ? "anh" : "chị");
 const hoaDau = (x) => x.charAt(0).toUpperCase() + x.slice(1);
 const chuongNay = () => (S.day < 6 ? 0 : S.day < 30 ? 1 : S.day < 60 ? 2 : 3);
+/* truyện ảnh hưởng lượng khách: 3 ngày sau video của Hana đông hơn, combo với cô Hạnh nhỉnh hơn */
+function heSoKhachTruyen() {
+  const T = S && S.tr;
+  if (!T || !T.xem) return 1;
+  const h = T.xem.hana_3;
+  return (h != null && S.day > h && S.day <= h + 3 ? 1.3 : 1) * (T.co && T.co.combo_hanh ? 1.03 : 1);
+}
 /* S có thể chưa có khi game đang đọc bản lưu */
 const coTrang = (n) => !!(S && S.tr && S.tr.trang && S.tr.trang.includes(n));
 
@@ -117,7 +124,7 @@ function chanDung(ai) {
   const nv = NHAN_VAT[ai];
   if (ai === "tin" || (nv && nv.tinNhan)) return `<span class="trf trf-ic">${ico("phone")}</span>`;
   if (!nv) return "";
-  if (nv.anh) return `<span class="trf" style="background-image:url(${IMG}${nv.anh}.png)"></span>`;
+  if (nv.anh) return `<span class="trf" style="background-image:url(${IMG}${nv.anh}${nv.anh.includes(".") ? "" : ".png"})"></span>`;
   if (nv.mat != null) return `<span class="trf" style="${faceBg(nv.mat, 0, 64, 63)}"></span>`;
   if (nv.ngoiSao != null && typeof nv.ngoiSao === "number") return `<span class="trf" style="${starBg(nv.ngoiSao, 0, 64, 63)}"></span>`;
   return "";

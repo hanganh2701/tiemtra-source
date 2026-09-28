@@ -1511,10 +1511,10 @@ function traffic() {
   const e = ev(),
     so =
       (coTrang(6) && evIs("rain") ? 1.15 : 1) *
-      (coTrang(7) && evIs("holiday") ? 1.2 : 1) *
+      (coTrang(7) && (evIs("holiday") || leHoiNay()) ? 1.2 : 1) *
       (coTrang(10) ? 1.05 : 1);
   return (
-    (rf * boost * so * heSoKhachBuoc() * heSoKhachLe() * (e ? EVS[e.id].mul : 1)) /
+    (rf * boost * so * heSoKhachBuoc() * heSoKhachLe() * heSoKhachTruyen() * (e ? EVS[e.id].mul : 1)) /
     Math.max(0.85, Math.min(1, avgIdx) ** 2)
   );
 }
@@ -3747,15 +3747,17 @@ function focusCust() {
 function shipBg(row, e, w, h) {
   return `background-image:url(${IMG}ship.webp);background-size:${w * 3}px ${h * 2}px;background-position:${-e * w}px ${-row * h}px`;
 }
-const hasFace = (c) => c && (c.who != null || c.ship != null || c.star != null),
+const hasFace = (c) => c && (c.who != null || c.ship != null || c.star != null || c.sf != null),
   faceOf = (c, e, w, h) =>
-    c.star != null
+    c.sf != null
+      ? starBg(c.sf, e, w, h)
+      : c.star != null
       ? starBg(STARS[c.star].f, e, w, h)
       : c.ship != null
         ? shipBg(c.ship, e, w, h)
         : faceBg(c.who, e, w, h),
   faceRow = (c) =>
-    c.star != null ? STARS[c.star].f : c.ship != null ? c.ship : c.who;
+    c.sf != null ? c.sf : c.star != null ? STARS[c.star].f : c.ship != null ? c.ship : c.who;
 function faceBg(who, e, w, h) {
   return `background-image:url(${IMG}faces.webp);background-size:${w * 3}px ${h * 9}px;background-position:${-e * w}px ${-who * h}px`;
 }
