@@ -93,6 +93,28 @@ Lịch lễ `LICH_LE` trong `src/truyen.js` có Tết và Trung Thu tới 2030; 
 Khác kế hoạch: ảnh chia sẻ thử thách (lưới màu) vẫn là chữ, chỉ thêm ảnh khoe tiệm. Game vẫn không dùng service worker
 (tác giả gốc chủ động gỡ để tránh bản cũ bị kẹt trong bộ nhớ đệm); Chrome hiện không bắt buộc service worker để hiện lời mời cài.
 
+### Ngã rẽ Hẻm 42 · đợt 1 (bản 4.4) — xong 28/09
+
+Theo trang nghiên cứu "Ngã rẽ Hẻm 42". Chủ dự án chọn theo đề xuất: ngã rẽ cố định trong một lượt chơi, 4 ngã rẽ lớn chia hai đợt, có chọn bằng ly pha, không có kết xấu.
+
+- [x] Bộ máy: ngã rẽ lớn (`reRe`) không bị Bỏ qua hay chế độ Tắt chọn thay; nhánh `T.nhanh`; điều kiện `nhanh`, `khongCo`, `xem`, `chuaXem`; hạn chót `chot` (`src/truyen.js`)
+- [x] Ngã rẽ Mây Tea: `c2_nga_re`, nhánh A `may_a1–3`, `c2_ket_a`; nhánh B `may_b1–3`, `c2_ket`
+- [x] Hệ quả trong cách chơi (`src/nga-re.js`): đơn sỉ 30 phần trân châu mỗi sáng (dòng bán `si`); 14 ngày phá giá; khách quen, tip theo nhánh
+- [x] 4 kết (`KET_CUC`) theo ngã rẽ Mây Tea và video của Hana (đợt 2 thay bằng ngã rẽ Hana); hậu truyện 9 nhân vật (`HAU_TRUYEN`)
+- [x] Sơ đồ ngã rẽ và kết đã thấy trong Sổ tay (`KL().reDaDi`, `KL().ket`, giữ qua phá sản)
+- [x] Hồi âm cho 7 lựa chọn chưa được nhắc lại
+- [x] Bản lưu cũ: đã xem `c2_ket` thì vào nhánh B; đã hết truyện thì ghi kết
+- [x] Test mô phỏng 4 tổ hợp nhánh: đủ 12 trang, đúng kết, mọi cảnh có người thấy, quãng trống truyện tối đa 8 ngày
+
+Khác đề xuất: trang 8 vẫn ở cảnh chung `c2_vy` trước ngã rẽ (làm bối cảnh cho lựa chọn), chỉ trang 10 tách theo nhánh.
+
+### Ngã rẽ Hẻm 42 · đợt 2 (bản 4.5)
+
+- [ ] Ngã rẽ Linh (ở lại làm thêm hay đi học Đà Lạt), Hana (ghi tên tiệm hay giữ kín), Tết (về quê hay ở lại)
+- [ ] Chọn bằng ly pha: 3–5 đơn trong truyện
+- [ ] Hẻm 42 lần nữa: chơi lại giữ huy hiệu, kỷ lục, sơ đồ; tua nhanh cảnh đã đọc
+- [ ] Chơi thử trước đợt này: người chơi có nhận ra lựa chọn được nhắc lại không, có muốn chơi lại không
+
 ## Cổng quyết định
 
 | Cổng | Ngày | Đi tiếp khi |
