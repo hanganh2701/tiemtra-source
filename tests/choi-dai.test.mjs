@@ -50,7 +50,7 @@ test("chơi liền 10 ngày ở mặt tiền, có nhân viên, mùa Noel: không
     }
     assert.deepEqual(g.errors.map(String), []);
     assert.ok(g.run("S.day") >= 42, "ngày: " + g.run("S.day"));
-    assert.ok(g.run("S.nv.staff2.xp + S.nv.staff2.kn") > 3);
+    assert.ok(g.run("S.nv.staff2.kn") >= 2, "10 ngày làm thì lên nghề một bậc");
   } finally {
     g.close();
   }

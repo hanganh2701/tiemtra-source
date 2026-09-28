@@ -46,6 +46,8 @@ const HUY_HIEU = [
   { id: "video_hana", nhom: "Hẻm 42", ic: "🎥", ten: "Lên video của Hana", mo: "Tiệm nổi nhờ video của Hana", dk: (K, T) => T.nhanh.hana === "A" },
   { id: "ket_truyen", nhom: "Hẻm 42", ic: "🎆", ten: "Hết truyện Hẻm 42", mo: "Đi hết Chương 3", dk: (K, T) => T.xem.c3_ket != null },
   { id: "hai_duong", nhom: "Hẻm 42", ic: "🔀", ten: "Thử cả hai đường", mo: "Đi cả hai nhánh của một ngã rẽ (qua nhiều lượt chơi)", dk: (K) => Object.values(K.reDaDi || {}).some((x) => x.A != null && x.B != null) },
+  { id: "gop_1", nhom: "Hẻm 42", ic: "🏘️", ten: "Người của Hẻm 42", mo: "Góp một việc cho Hẻm 42", dk: () => Object.keys(S.gopHem || {}).length >= 1 },
+  { id: "gop_het", nhom: "Hẻm 42", ic: "🌃", ten: "Hẻm 42 sáng đèn", mo: "Góp đủ mọi việc cho Hẻm 42", dk: () => GOP_HEM.every((d) => (S.gopHem || {})[d.id]) },
   { id: "ket_4", nhom: "Hẻm 42", ic: "📚", ten: "Đủ bốn kết", mo: "Thấy cả 4 kết truyện Hẻm 42", dk: (K) => Object.keys(K.ket || {}).length >= 4 },
 
   /* ---------- Bạn bè ---------- */

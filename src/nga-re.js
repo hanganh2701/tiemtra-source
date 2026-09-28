@@ -29,20 +29,35 @@ const dangMungMoLai = () => nhanh("tet") === "A" && ngayVeLai() != null && S.day
    video ghi tên tiệm: 3 ngày đầu rất đông rồi đông hơn mãi;
    Tết ở lại mở cửa: 4 ngày khách đi chơi Tết; về quê: 3 ngày đầu mở lại khách quen mừng ghé */
 function heSoKhachNhanh() {
-  const h = sauRe("hana"),
-    t = sauRe("tet");
+  const h = sauRe("hana");
   return (
     (dangPhaGia() ? PHA_GIA.khach : nhanhMay() === "B" && S.tr.xem.c2_ket != null ? 1.05 : 1) *
     (dangMungMoLai() ? 1.25 : 1) *
     (nhanh("hana") === "A" && h > 0 ? (h <= 3 ? 1.3 : 1.1) : 1) *
-    (nhanh("tet") === "B" && t > 0 && t <= 4 ? 1.4 : 1)
+    (dangTetOLai() ? 1.4 : 1)
+  );
+}
+/* nhân vào độ kiên nhẫn: khách tới vì video chịu xếp hàng, khách đi chơi Tết và khách quen mừng mở lại thong thả hơn.
+   Ở mặt tiền quầy hay kín chỗ, nên hệ quả của nhánh phải thấy được cả khi không đón thêm được khách */
+function heSoChoNhanh() {
+  const h = sauRe("hana");
+  return (
+    (nhanh("hana") === "A" && h > 0 ? (h <= 3 ? 1.2 : 1.1) : 1) *
+    (dangTetOLai() ? 1.15 : 1) *
+    (dangMungMoLai() ? 1.15 : 1)
   );
 }
 /* nhân vào xác suất khách quen ghé: bắt tay thì bận đơn sỉ, giữ hẻm thì xóm ghé nhiều hơn; tiệm nổi thì khách quen ngại đông */
 const heSoQuenNhanh = () =>
   (nhanhMay() === "A" ? 0.75 : nhanhMay() === "B" ? 1.3 : 1) * (nhanh("hana") === "A" ? 0.85 : nhanh("hana") === "B" ? 1.15 : 1);
-/* nhân vào tip: sau khi cả xóm lập Hội ghé tiệm; tiệm là bí mật của khách quen */
-const heSoTipNhanh = () => (nhanhMay() === "B" && S.tr.xem.c2_ket != null ? 1.1 : 1) * (nhanh("hana") === "B" ? 1.05 : 1);
+/* ở lại mở cửa Tết: 4 ngày khách đi chơi Tết */
+const dangTetOLai = () => {
+  const t = sauRe("tet");
+  return nhanh("tet") === "B" && t > 0 && t <= 4;
+};
+/* nhân vào tip: sau khi cả xóm lập Hội ghé tiệm; tiệm là bí mật của khách quen; khách đi chơi Tết rộng tay */
+const heSoTipNhanh = () =>
+  (nhanhMay() === "B" && S.tr.xem.c2_ket != null ? 1.1 : 1) * (nhanh("hana") === "B" ? 1.05 : 1) * (dangTetOLai() ? 1.3 : 1);
 
 /* đầu ngày bán: xe Mây Tea lấy trân châu (gọi trong startDay) */
 function truyenDauNgay() {
@@ -75,6 +90,8 @@ function ngayMaiNhanh() {
   if (nhanhMay() === "A" && ngayReMay() != null)
     return `🚚 Sáng mai xe Mây Tea lấy ${SI_MAY.n} phần trân châu đen (${fmt(SI_MAY.gia)}/phần). Nhớ nấu dư`;
   if (dangMungMoLai()) return `🏮 Khách quen mừng tiệm mở lại sau Tết: còn ${ngayVeLai() + 3 - S.day} ngày đông hơn`;
+  if (dangTetOLai()) return "🧧 Khách đi chơi Tết: đông hơn, thong thả chờ, tip rộng tay";
+  if (nhanh("hana") === "A" && sauRe("hana") > 0 && sauRe("hana") <= 7) return "🎥 Khách xem video của Hana tìm tới: đông hơn, chịu xếp hàng chờ";
   if (dangPhaGia()) return `🏷️ Mây Tea còn phá giá ${ngayReMay() + PHA_GIA.ngay - S.day} ngày: khách lạ ít hơn, khách quen ghé nhiều hơn`;
   return "";
 }
@@ -300,6 +317,12 @@ function choiLai() {
     ttKq: S.ttKq,
     bb: S.bb,
     thuGian: S.thuGian,
+    /* cài đặt và câu đã hỏi của người chơi */
+    dayLen: S.dayLen,
+    coach: S.coach,
+    moiCai: S.moiCai,
+    bakOff: S.bakOff,
+    gopY: S.gopY,
   };
   const tr = { che: T.che, luot: (T.luot || 1) + 1 };
   S = fresh();

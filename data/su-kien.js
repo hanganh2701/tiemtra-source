@@ -85,7 +85,7 @@ const GIFTS = [
   {
     k: "bung",
     n: "Công an trả tiền khách bùng",
-    d: "Công an phường bắt được nhóm khách ôm ly bỏ chạy hôm trước, trả lại tiền cho quán",
+    d: "Công an phường bắt được khách ôm ly bỏ chạy hôm nọ, trả lại tiền cho quán",
     min: 50000,
     max: 200000,
     need: () => (S.bungN || 0) > 0,
@@ -153,6 +153,12 @@ const BAD = [
     n: '"Đầu tư" tiền ảo',
     ic: "chartdown",
     all: "Chủ quán dồn hết tiền vào một sàn tiền ảo lạ. Sàn sập, mất trắng.",
-    some: 'Chủ quán thử "đầu tư" tiền ảo trên một sàn lạ, lỗ %.',
+    gianLan: true /* chỉ dùng cho két gian lận: người chơi thật không tự làm việc này */,
+  },
+  {
+    id: "tu",
+    n: "Tủ mát hư",
+    ic: "tools",
+    some: "Tủ mát hư giữa đêm, gọi thợ tới sửa gấp hết %.",
   },
 ];

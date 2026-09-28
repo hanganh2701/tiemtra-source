@@ -680,6 +680,17 @@ body.le-noel:not(.selling) #view::before{content:"";position:fixed;inset:0;point
 body.le-tet .awning{background:repeating-linear-gradient(90deg,#d62828 0 30px,#f7c948 30px 60px)}
 body.le-tet .sign button{border-color:#d62828;color:#b01e1e;background:#fff4d6}
 @media (prefers-reduced-motion:reduce){body.le-noel:not(.selling) #view::before{animation:none}}
+/* mặt tiền đầu hẻm: mái hiên sọc xanh bạc hà to hơn, bảng hiệu hộp đèn có dòng chữ nhỏ */
+body.mat-tien .awning{height:32px;background:repeating-linear-gradient(90deg,#2f8f7a 0 40px,#d7efe5 40px 80px)}
+body.mat-tien .awning::after{bottom:-12px;height:12px;background:radial-gradient(circle at 20px 0,#2f8f7a 12px,transparent 13px) 0 0/80px 12px repeat-x,radial-gradient(circle at 60px 0,#d7efe5 12px,transparent 13px) 0 0/80px 12px repeat-x}
+body.mat-tien.selling .awning{height:12px}
+body.mat-tien #q3stage::before{content:"";position:absolute;left:0;top:0;width:768px;height:157px;background:#1f9a7a;mix-blend-mode:hue;pointer-events:none}
+body.mat-tien .sign button{background:linear-gradient(#fffdf6,#fff0c4);border-color:#5b3a26;box-shadow:0 0 0 3px #f5cf6a,0 0 20px rgba(255,196,80,.5),0 3px 0 rgba(0,0,0,.15)}
+body.mat-tien .sign button::after{content:"Mặt tiền đầu hẻm 42";display:block;font-size:.62rem;line-height:1.1;color:#2f8f7a;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
+/* góp đèn cho hẻm: dây bóng đèn vàng dưới mái hiên */
+body.hem-den .awning::before{content:"";position:absolute;left:0;right:0;bottom:-26px;height:14px;z-index:2;pointer-events:none;background:linear-gradient(#5b3a26,#5b3a26) 0 2px/100% 1px no-repeat,radial-gradient(circle at 15px 8px,#ffe08a 0 4px,rgba(255,214,102,.4) 5px,transparent 7px) 0 0/30px 14px repeat-x}
+body.hem-den.selling .awning::before{display:none}
+.gopic{font-size:1.6rem;line-height:40px;width:40px;height:40px;text-align:center;display:inline-block}.rowi .icon.gopic{width:auto;height:auto;font-size:1.4rem;line-height:1}
 </style>
 </head>
 <body>

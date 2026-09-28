@@ -1,8 +1,9 @@
 /* Lớn lên: mặt tiền đầu hẻm, nhân viên có tính cách, đơn nhóm. Nạp trước game.js.
-   Tiền nhà trong game thu nhỏ khoảng 1/5 đến 1/8 so với ngoài đời; mặt tiền đắt gấp khoảng 3 lần trong hẻm. */
+   Tiền nhà trong game thu nhỏ khoảng 1/5 đến 1/8 so với ngoài đời; mặt tiền đắt gấp khoảng 5 lần trong hẻm. */
 const MAT_TIEN = {
-  thue: 115000, /* tiền nhà mỗi ngày */
-  cocNgay: 20, /* cọc bằng bấy nhiêu ngày tiền nhà */
+  thue: 220000, /* tiền nhà mỗi ngày */
+  cocNgay: 12, /* cọc bằng bấy nhiêu ngày tiền nhà */
+  khach: 1.4, /* khách vãng lai đông hơn trong hẻm bấy nhiêu lần */
   trangTri: 2500000,
   tuNgay: 20,
   sao: 4.2,

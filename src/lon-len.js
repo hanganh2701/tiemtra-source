@@ -9,8 +9,13 @@ const tienNha = () => (buoc() >= 2 && S.hd ? S.hd.gia : CFG.rent);
 const soCho = () => (S.upg.slot4 ? 4 : 3) + (buoc() >= 2 ? 1 : 0);
 /* hệ số theo bậc: khách vãng lai đông hơn, kém kiên nhẫn hơn, mưa vắng hơn, biển hiệu có tác dụng hơn */
 const heSoKhachBuoc = () =>
-  buoc() >= 2 ? 1.8 * (evIs("rain") ? 0.85 : 1) * (S.upg.sign ? 1.08 : 1) : 1;
-const heSoChoBuoc = () => (buoc() >= 2 ? 0.85 : 1);
+  buoc() >= 2 ? MAT_TIEN.khach * (evIs("rain") ? 0.85 : 1) * (S.upg.sign ? 1.08 : 1) : 1;
+const heSoChoBuoc = () => (buoc() >= 2 ? 0.92 : 1);
+/* giao diện theo tiệm: ra mặt tiền thì mái hiên, bảng hiệu đổi; góp đèn cho hẻm thì có dây bóng đèn */
+function giaoDienTiem() {
+  document.body.classList.toggle("mat-tien", buoc() >= 2);
+  document.body.classList.toggle("hem-den", daGop("den"));
+}
 
 /* điều kiện thuê mặt tiền */
 function dkMatTien() {
@@ -31,7 +36,7 @@ function theMatTien() {
     du = dk.every((x) => x.ok),
     nghe = TT().co.mat_tien_mo;
   return `<div class="mtcard"><b>🏠 Mặt tiền đầu hẻm</b><p>${
-    nghe ? "Góc kiosk đầu hẻm đang sang nhượng, chủ nhà là bạn bà Sáu." : "Mặt tiền ở đầu hẻm, người qua lại đông gấp đôi."
+    nghe ? "Góc kiosk đầu hẻm đang sang nhượng, chủ nhà là bạn bà Sáu." : "Mặt tiền ở đầu hẻm, người qua lại đông hơn."
   } Tiền nhà ${fmt(MAT_TIEN.thue)}/ngày (trong hẻm ${fmt(CFG.rent)}), thêm một chỗ ở quầy, khách vãng lai kém kiên nhẫn hơn.</p>${dk
     .map((x) => `<div class="mtdk ${x.ok ? "ok" : ""}">${x.ok ? "✓" : "○"} ${esc(x.t)}</div>`)
     .join("")}<div class="askbtns"><button class="big" data-mattien ${du ? "" : "disabled"}>Thuê mặt tiền</button></div></div>`;

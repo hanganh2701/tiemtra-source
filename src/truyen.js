@@ -25,7 +25,9 @@ const cheDo = () => (S.tr && S.tr.che) || "day"; /* day: đầy đủ · gon: g�
 const CHE_DO_TEN = { day: "Đầy đủ", gon: "Gọn", tat: "Tắt" };
 const xung = () => (S.xung === "anh" ? "anh" : "chị");
 const hoaDau = (x) => x.charAt(0).toUpperCase() + x.slice(1);
-const chuongNay = () => (S.day < 6 ? 0 : S.day < 30 ? 1 : S.day < 60 ? 2 : 3);
+/* chương theo ngày: cảnh trôi theo độ thân hay theo lúc ra mặt tiền vẫn mang nhãn chương của ngày xem, để nhật ký không lùi chương */
+const chuongLuc = (ngay) => (ngay < 7 ? 0 : ngay < 30 ? 1 : ngay < 60 ? 2 : 3);
+const chuongNay = () => chuongLuc(S.day);
 /* truyện ảnh hưởng lượng khách: combo với cô Hạnh nhỉnh hơn; các ngã rẽ tính trong heSoKhachNhanh (src/nga-re.js) */
 function heSoKhachTruyen() {
   const T = S && S.tr;
@@ -61,6 +63,7 @@ function khopDk(d) {
   if (d.co && !khopCo(d.co)) return false;
   if (d.khongCo && trung(d.khongCo)) return false;
   if (d.nhanh && !Object.entries(d.nhanh).every(([k, v]) => T.nhanh[k] === v)) return false;
+  if (d.khongNhanh && Object.entries(d.khongNhanh).some(([k, v]) => T.nhanh[k] === v)) return false;
   if (d.than && !Object.entries(d.than).every(([k, v]) => (T.than[k] || 0) >= v)) return false;
   if (d.xem && ![].concat(d.xem).every((id) => T.xem[id] != null)) return false;
   if (d.chuaXem && [].concat(d.chuaXem).some((id) => T.xem[id] != null)) return false;
@@ -89,7 +92,7 @@ function hopCanh(m, luc) {
   }
   if (d.ngay != null && dn < d.ngay) return false;
   if (d.ngayDen != null && dn > d.ngayDen) return false;
-  if (!khopDk({ co: d.co, khongCo: d.khongCo, nhanh: d.nhanh })) return false;
+  if (!khopDk({ co: d.co, khongCo: d.khongCo, nhanh: d.nhanh, khongNhanh: d.khongNhanh })) return false;
   if (d.buoc && (S.buoc || 1) < d.buoc) return false;
   if (d.tienDuoi != null && !(S.money < d.tienDuoi)) return false;
   if (d.tuNgayThat && homNayVN() < d.tuNgayThat) return false;
@@ -214,7 +217,8 @@ function truyenLuc(luc, xong) {
 function hienCanh(m, xong, xemLai) {
   const card = $("card"),
     dong = locDong(m.thoai),
-    nhan = `<small class="trch">${m.nhan ? esc(m.nhan) : `Chương ${m.chuong} · ${CHUONG_TEN[m.chuong] || ""}`}${m.reRe ? ' <span class="trre">Ngã rẽ</span>' : ""}</small>`,
+    ch = chuongLuc(xemLai ? (TT().xem[khoaXem(m)] ?? S.day) : S.day),
+    nhan = `<small class="trch">${m.nhan ? esc(m.nhan) : `Chương ${ch} · ${CHUONG_TEN[ch] || ""}`}${m.reRe ? ' <span class="trre">Ngã rẽ</span>' : ""}</small>`,
     baoRe = m.reRe && !xemLai ? `<p class="trrew">${esc(m.reRe)}</p>` : "";
   let i = 0;
   const ketThuc = (chon, boQua) => {

@@ -554,7 +554,7 @@ const DEFAULT_CONFIG = {
   taxThreshold: 1000000000, // ngưỡng doanh thu năm không chịu thuế (hộ kinh doanh, 2026)
   vat: 3,
   pit: 1.5, // % thuế GTGT và TNCN trên doanh thu, nhóm dịch vụ ăn uống
-  online: { minProfit: 15000000, fromDay: 60, minRating: 4.0 }, // cả 3 điều kiện để mở đơn online; phải giữ đủ sao để tiếp tục nhận đơn
+  online: { minProfit: 15000000, fromDay: 40, minRating: 4.0 }, // cả 3 điều kiện để mở đơn online; phải giữ đủ sao để tiếp tục nhận đơn
   levels: { l2: 6, l3: 30, l4: 60 }, // ngày bắt đầu mỗi cấp độ
   cost: {}, // giá nhập mỗi phần nguyên liệu
   life: {}, // hạn dùng (ngày), 0 = không hết hạn
@@ -577,7 +577,7 @@ try {
     };
   }
 } catch (e) {}
-const CFG_VER = 40; /* phiên bản cấu hình mới nhất: thêm bước nâng cấp mới thì tăng số này */
+const CFG_VER = 41; /* phiên bản cấu hình mới nhất: thêm bước nâng cấp mới thì tăng số này */
 if (!(CFG.cfgVer >= 31)) {
   CFG.dayMin = 4;
 }
@@ -654,6 +654,14 @@ if (!(CFG.cfgVer >= 39)) {
 if (!(CFG.cfgVer >= 40)) {
   /* 4.1: phí app giao hàng 25% như ngoài đời, bù lại được đặt giá riêng trên app */
   CFG.commission = 25;
+  CFG.cfgVer = 40;
+  try {
+    localStorage.setItem(OWNER_SAVE, JSON.stringify(CFG));
+  } catch (e) {}
+}
+if (!(CFG.cfgVer >= 41)) {
+  /* 4.8: đơn online mở từ ngày 40 thay vì 60, để giữa game có mục tiêu mới (cấu hình chủ game tự đổi thì giữ) */
+  if (CFG.online.fromDay === 60) CFG.online.fromDay = 40;
   CFG.cfgVer = CFG_VER;
   try {
     localStorage.setItem(OWNER_SAVE, JSON.stringify(CFG));
@@ -1114,8 +1122,8 @@ const evIs = (id) => {
   const e = ev();
   return !!e && e.id === id;
 };
-const evText = (e) =>
-  EVS[e.id].d.replace("%", e.k && ITEMS[e.k] ? low(ITEMS[e.k].n) : "");
+/* "%" đầu câu là chỗ điền tên món; sự kiện không gắn món (trời nóng, mưa…) giữ nguyên dấu % */
+const evText = (e) => (e.k && ITEMS[e.k] ? EVS[e.id].d.replace("%", low(ITEMS[e.k].n)) : EVS[e.id].d);
 function rollDay(d) {
   let e = null;
   if (d > 1 && d % 30 === 0) e = { id: "holiday" };
@@ -1278,7 +1286,7 @@ function evCard() {
 function mkBadPlan(start) {
   const r = Math.random(),
     n = r < 0.3 ? 0 : r < 0.7 ? 1 : 2,
-    ids = BAD.map((b) => b.id).sort(() => Math.random() - 0.5),
+    ids = BAD.filter((b) => !b.gianLan).map((b) => b.id).sort(() => Math.random() - 0.5),
     days = [];
   while (days.length < n) {
     const d = start + 10 + Math.floor(Math.random() * 80);
@@ -1293,7 +1301,7 @@ function cheatHit() {
     lost = Math.max(0, S.money - keep);
   S.money = keep;
   S.cur.stolen = (S.cur.stolen || 0) + lost;
-  S.badNow = { id: rnd(BAD).id, all: 1, v: lost, keep };
+  S.badNow = { id: rnd(BAD.filter((b) => b.all)).id, all: 1, v: lost, keep };
   save();
 }
 function badCheck() {
@@ -1327,7 +1335,9 @@ function badCheck() {
   S.badNow = null;
   save();
   sfx("bad");
-  const t = BAD.find((x) => x.id === b.id) || BAD[0];
+  let t = BAD.find((x) => x.id === b.id) || BAD[0];
+  /* người chơi thật không bị đổ là tự đem tiền đi "đầu tư": kế hoạch sự cố cũ có mục này thì đổi sang tủ mát hư */
+  if (!b.all && t.gianLan) t = BAD.find((x) => x.id === "tu");
   ask(
     `<div class="pbig">${ico(t.ic)}</div><h2>${t.n}</h2><p>${b.all ? t.all : t.some.replace("%", "<b>" + fmt(b.v) + "</b>")}</p>${b.all ? `<p class="warnline">Trong két chỉ còn ${fmt(b.keep)}.</p>` : ""}`,
     [
@@ -1366,6 +1376,7 @@ function prepChecks() {
   if (leHoiCheck()) return xetTiep();
   if (nvSuKien()) return xetTiep();
   if (donNhomCheck()) return xetTiep();
+  if (moiGopHem()) return xetTiep();
   if (moiCai()) return xetTiep();
   if (moiGopY()) return xetTiep();
   bakRemind();
@@ -1397,12 +1408,15 @@ function storeCheck() {
   }
   return false;
 }
+/* nhắc sao lưu: bấm Để sau thì lần sau cách xa hơn (7, 14, rồi 28 ngày); Đừng nhắc nữa thì thôi hẳn, vẫn sao lưu được trong Cài đặt */
 function bakRemind() {
+  const cach = 7 * 2 ** Math.min(2, S.bakSkip || 0);
   if (
     R.noStore ||
+    S.bakOff ||
     S.day < 8 ||
     S.day - (S.bakDay || 0) < 7 ||
-    S.day - (S.bakAsk || 0) < 7
+    S.day - (S.bakAsk || 0) < cach
   )
     return;
   S.bakAsk = S.day;
@@ -1410,7 +1424,8 @@ function bakRemind() {
   ask(
     `<div class="pbig">${ico("box")}</div><h2>Sao lưu tiến trình nhé?</h2><p>Tạo mã sao lưu để giữ quán khi đổi máy, xoá app hay máy tự dọn dữ liệu. Chỉ mất vài giây.</p>`,
     [
-      ["Để sau", () => {}],
+      ["Đừng nhắc nữa", () => ((S.bakOff = true), save(), toast("Muốn sao lưu thì vào Cài đặt › Sao lưu tiến trình"))],
+      ["Để sau", () => ((S.bakSkip = (S.bakSkip || 0) + 1), save())],
       ["Tạo mã", backupDlg, 1],
     ],
   );
@@ -1978,6 +1993,7 @@ function renderPrep() {
   if (AU.ctx) musSync();
   document.body.classList.remove("selling");
   leHoiTrangTri();
+  giaoDienTiem();
   const tabs = [
     ["kho", "box", "Kho"],
     ["nangcap", "tools", "Nâng cấp"],
@@ -2238,7 +2254,7 @@ function paneUpg() {
       ? `<div class="brandprevrow">${temHTML(S.brand, 88, true)}</div>`
       : "");
   const tbN = S.tablets || 0,
-    tabRow = `<div class="rowi"><span class="icon">${ico("phone")}</span><div><div class="nm">Tablet nhận đơn online (${tbN}/${APPS.length})</div><div class="sub">Mỗi tablet chạy 1 app giao hàng. Phải có tablet thì đơn Soppi mới đổ về, shipper mới tới lấy hàng</div></div>${tbN >= APPS.length ? '<span class="okline">✓</span>' : `<button class="sbtn pri" data-tablet="1" ${S.money < CFG.tablet ? "disabled" : ""}><b>${fmtTr(CFG.tablet)}</b>Mua</button>`}</div>`;
+    tabRow = `<div class="rowi"><span class="icon">${ico("phone")}</span><div><div class="nm">Tablet nhận đơn online (${tbN}/${APPS.length})</div><div class="sub">Mỗi tablet chạy 1 app giao hàng. Phải có tablet thì đơn Soppi mới đổ về, shipper mới tới lấy hàng</div></div>${tbN >= APPS.length ? '<span class="okline">✓</span>' : !S.online ? '<span class="wl">Mở đơn online trước</span>' : `<button class="sbtn pri" data-tablet="1" ${S.money < CFG.tablet ? "disabled" : ""}><b>${fmtTr(CFG.tablet)}</b>Mua</button>`}</div>`;
   const eq =
     theMatTien() +
     `<div class="wl" style="text-align:right;margin-bottom:2px">⚡ +${fmt(CFG.utilPerUpg)}/ngày</div>` +
@@ -3366,6 +3382,7 @@ function renderSell() {
   R.mode = "sell";
   document.body.classList.add("selling");
   leHoiTrangTri();
+  giaoDienTiem();
   R.focus = null;
   R.sealing = false;
   const zone = (a, x, y, w, h, extra, cls) =>
@@ -5177,6 +5194,7 @@ function spawn() {
     (55 + (level() >= 2 ? 8 : 0)) *
     heSoCho() *
     heSoChoBuoc() *
+    heSoChoNhanh() *
     heSoChoNv() *
     (S.upg.seats ? 1.25 : 1) *
     (1 + 0.8 * (nc - 1)) *
@@ -7866,7 +7884,7 @@ function showSettings() {
     <button class="setb" id="sSnd"><span>${ico("pause")}</span>Âm thanh<small>${AU.on ? "Đang bật · bấm để tắt" : "Đang tắt · bấm để bật"}</small></button>
     ${coTheCai() ? `<button class="setb" id="sCai"><span>${ico("phone")}</span>Cài lên màn hình chính<small>Mở nhanh như ứng dụng</small></button>` : ""}
     <button class="setb" id="sBak"><span>${ico("box")}</span>Sao lưu tiến trình<small>${S.bakDay ? "Lần cuối: ngày " + S.bakDay : "Chưa sao lưu"}</small></button>
-    <button class="setb" id="sAuto"><span>${ico("calendar")}</span>Khôi phục bản tự lưu<small>Game tự lưu 3 cuối ngày gần nhất</small></button>
+    <button class="setb" id="sAuto"><span>${ico("calendar")}</span>Khôi phục bản tự lưu<small>Tự lưu cuối mỗi ngày, giữ 3 ngày gần nhất</small></button>
     <button class="setb" id="sRes"><span>${ico("reload")}</span>Khôi phục từ mã</button>
     <button class="setb warnb" id="sReset"><span>${ico("reload")}</span>Chơi lại từ đầu</button></div>
     <button class="big" id="sClose" style="margin-top:12px">Đóng</button>`;
