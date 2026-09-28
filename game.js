@@ -1333,17 +1333,17 @@ function prepChecks() {
     return;
   }
   if (storeCheck()) return;
-  if (badCheck()) {
-    /* đóng hộp báo sự cố xong thì xét tiếp quà */
+  /* đóng hộp thoại này xong thì xét tiếp: sự cố, quà bất ngờ, quà mở khoá, nhắc sao lưu */
+  const xetTiep = () => {
     clearTimeout(R.pcT);
     R.pcT = setTimeout(prepChecks, 500);
-    return;
-  }
+  };
+  if (badCheck()) return xetTiep();
   if (S.gift) {
     giftCheck();
-    return;
+    return xetTiep();
   }
-  if (quaMoKhoa()) return;
+  if (quaMoKhoa()) return xetTiep();
   bakRemind();
 }
 function storeCheck() {
