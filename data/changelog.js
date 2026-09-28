@@ -1,7 +1,27 @@
 /* Phiên bản và danh sách "Có gì mới". Mỗi lần cập nhật: tăng GAME_VERSION và thêm một mục lên ĐẦU CHANGELOG. */
 /* ===== PHIÊN BẢN GAME: mỗi lần cập nhật, tăng số và thêm một mục lên ĐẦU danh sách ===== */
-const GAME_VERSION = "3.11";
+const GAME_VERSION = "3.12";
 const CHANGELOG = [
+  {
+    v: "3.12",
+    d: "28/09/2026",
+    items: [
+      "Sao lưu tiến trình giờ chỉ dùng mã dài hoặc file, không cần mạng và không gửi dữ liệu đi đâu. Mã 8 số cũ chỉ dùng được ở trang gốc của game",
+      "Vẽ lại 21 biểu tượng còn thiếu (tổng kết ngày, cài đặt, nâng cấp, sự kiện). Chữ trong game hiện đúng font Baloo 2",
+      "Phá sản không còn chơi tiếp được với két âm sau khi thoát game vào lại",
+      "Doanh thu cuối ngày khớp với tiền trong két: khách ngôi sao trả gấp 3, khách trả giá, khách quỵt được ghi riêng trong Tổng kết. Tổng kết tính cả tiền mất do sự cố",
+      "Để trống ô giá bán không còn bán 0đ. Bỏ món khỏi menu thì bỏ luôn số lượng đang định nấu",
+      "Nút Chưa nấu mở đúng tab còn thiếu. Chạm đúp Nấu & nhập không tự mở cửa",
+      "Cho 2 loại siro vào một ly là sai món, giống như lẫn 2 loại trà",
+      "Máy dán nắp không giao nhầm ly của đơn nhân viên online đang làm. Nhân viên online không giành đơn bạn đã lấy ly",
+      "Món hot hết hàng thì khách đổi món hoặc về, không đứng chờ. Khách không bỏ về vì món hết hàng mà mình không gọi",
+      "Khách chê đắt đúng 60% như mô tả. Nhóm học sinh không vào sau giờ đóng cửa. Đóng cửa sớm tính đơn online đang chờ là khách mất",
+      "Quà bất ngờ không bị mất khi trùng ngày có sự cố. Sự cố mất tiền lên kế hoạch lại mỗi 90 ngày",
+      "Đang nợ vẫn gọi lại được nhân viên đã thuê. Tắt âm thanh giữa lúc rót thì tiếng rót dừng",
+      "Câu đánh giá hợp ngữ cảnh hơn: không còn hiểu nhầm \"mong đợi\" là chờ đợi, khách chờ hơi lâu hay giá hơi cao được nhắc nhẹ",
+      "Khôi phục bản lưu bị hỏng không còn ghi đè tiến trình đang chơi",
+    ],
+  },
   {
     v: "3.11",
     d: "24/09/2026",

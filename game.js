@@ -1,8 +1,13 @@
 /*ts*/
+/* icon vẽ vector cùng phong cách tranh gốc, thay cho những ảnh PNG bị thiếu */
+const ICO_SVG = new Set([
+  "angry", "book", "calendar", "chartup", "clock", "gift", "lock", "money", "moon", "phone", "receipt",
+  "reload", "sad", "strawberry", "trash", "trophy", "upbulb", "upchair", "upcups", "upmega", "upsnow",
+]);
 function ico(n, c) {
   if (ICO_GONE.has(n))
     return `<span class="ico${c ? " " + c : ""} icoe" aria-hidden="true">${ICO_EMO[n] || ""}</span>`;
-  return `<img class="ico${c ? " " + c : ""}" src="img/ic_${n}.png" alt="" decoding="sync" onerror="icoMiss(this,'${n}')">`;
+  return `<img class="ico${c ? " " + c : ""}" src="img/ic_${n}.${ICO_SVG.has(n) ? "svg" : "png"}" alt="" decoding="sync" onerror="icoMiss(this,'${n}')">`;
 }
 /* ảnh icon bị thiếu thì hiện emoji thay cho ô ảnh vỡ; đã biết thiếu thì lần sau vẽ emoji luôn, không tải lại */
 const ICO_GONE = new Set();

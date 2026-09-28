@@ -215,3 +215,28 @@ test("nhập mã 8 số cũ thì được hướng dẫn dùng mã dài, không 
     g.close();
   }
 });
+
+test("cốt truyện: id không trùng, nhân vật có thật, câu vừa màn hình", () => {
+  const g = boot();
+  try {
+    const bad = g.run(`(() => {
+      const out = [], ids = new Set();
+      for (const m of MAU_CHUYEN) {
+        if (ids.has(m.id)) out.push("trùng id " + m.id);
+        ids.add(m.id);
+        if (!["mo_cua", "dong_cua"].includes(m.luc)) out.push(m.id + ": luc sai");
+        const lines = [...m.thoai, ...(m.luaChon || []).flatMap((c) => c.thoai || [])];
+        if (m.chuong === 0 && m.thoai.length > 3) out.push(m.id + ": chương 0 quá 3 câu");
+        if (m.thoai.length > 6) out.push(m.id + ": quá 6 câu");
+        for (const [ai, cau] of lines) {
+          if (ai !== "_" && ai !== "tin" && !NHAN_VAT[ai]) out.push(m.id + ": không có nhân vật " + ai);
+          if (cau.replace(/\\{\\w+\\}/g, "anh").length > 72) out.push(m.id + ": câu dài " + cau.length);
+        }
+      }
+      return out;
+    })()`);
+    assert.deepEqual([...bad], []);
+  } finally {
+    g.close();
+  }
+});
