@@ -194,8 +194,8 @@ const TRANG_CONG_THUC = [
   null,
   { ten: "Trà ủ đủ lâu", chu: "Trà ngon là trà ủ đủ lâu. Ủ vội thì chát, khách uống một ngụm là biết.", uuDai: "Khách chờ lâu hơn 5%" },
   { ten: "Trà đá bà Sáu", chu: "Trà ủ nguội, không đường. Ai ngồi chờ thì rót cho một ly, không lấy tiền.", uuDai: "Khách chờ lâu hơn thêm 5%" },
-  { ten: "Góc nghỉ chân", chu: "Người chạy xe cả ngày, cho họ chỗ ngồi với ly nước là họ nhớ mình.", uuDai: "Tài xế app chờ lâu hơn 20%" },
   { ten: "Trà sữa bà Sáu", chu: "Trà đậm, sữa đặc ít thôi, thêm chút xíu muối cho ngọt hậu.", uuDai: "Tiền tip tăng 10%" },
+  { ten: "Góc nghỉ chân", chu: "Người chạy xe cả ngày, cho họ chỗ ngồi với ly nước là họ nhớ mình.", uuDai: "Tài xế app chờ lâu hơn 20%" },
   { ten: "Sổ đi chợ", chu: "Mua trà mối quen ở chợ Bà Chiểu, lấy nhiều thì được bớt.", uuDai: "Giá nhập trà giảm 10%" },
   { ten: "Trà cho ngày mưa", chu: "Trời mưa thì nấu gừng, khách ướt mèm vô quán thấy ấm liền.", uuDai: "Ngày mưa khách ghé nhiều hơn 15%" },
   { ten: "Lồng đèn Trung Thu", chu: "Rằm tháng Tám treo lồng đèn trước quán, con nít kéo cha mẹ vô.", uuDai: "Ngày lễ khách ghé nhiều hơn 20%" },
@@ -311,7 +311,7 @@ MAU_CHUYEN.push(
     id: "khoa_3",
     chuong: 1,
     luc: "dong_cua",
-    tomTat: "Khoa rủ shipper ghé tiệm và đưa trang sổ thứ 3 nhặt được hôm mưa.",
+    tomTat: "Khoa rủ shipper ghé tiệm và đưa trang sổ thứ 4 nhặt được hôm mưa.",
     dieuKien: { than: { khoa: 6 }, sau: "khoa_2", cachNgay: 2 },
     uuTien: 7,
     thoai: [
@@ -321,7 +321,7 @@ MAU_CHUYEN.push(
       ["_", "(Khoa đưa một tờ giấy gấp tư, dính chút nước mưa.)"],
       ["khoa", "Em lượm ở đầu hẻm hôm mưa. Chữ ai viết đẹp ghê."],
     ],
-    ketQua: { than: { khoa: 1 }, trang: 3 },
+    ketQua: { than: { khoa: 1 }, trang: 4 },
   },
   {
     id: "linh_1",
@@ -376,7 +376,7 @@ MAU_CHUYEN.push(
       { chu: "Ở lại làm thêm ở tiệm", nhanh: { linh: "A" }, dat: { linh_lam: true }, thoai: [["linh", "Dạ! Mai em đi làm liền. {Ban} nhớ thuê em nha!"]] },
       { chu: "Đi học Đà Lạt đi em", nhanh: { linh: "B" }, thoai: [["linh", "Dạ… Em sẽ gửi trà Đà Lạt về cho {ban} nha."]] },
     ],
-    ketQua: { than: { linh: 1 }, trang: 4 },
+    ketQua: { than: { linh: 1 }, trang: 3 },
   },
 );
 
@@ -1274,6 +1274,7 @@ const HAU_TRUYEN = [
   ]],
   ["sau", [
     [{ nhanh: { may: "A" } }, "Bà Sáu ra đầu hẻm uống ly Mây Tea mỗi chiều, lần nào cũng nói: \"Trân châu này của con.\""],
+    [{ co: { chi_nhanh: true } }, "Sáng nào bà Sáu cũng đứng đầu hẻm đếm từng thùng trân châu chở qua chi nhánh."],
     [{}, "Bà Sáu treo lại tấm bảng quán nước của ông trên vách tiệm, ngay chỗ Mướp nằm."],
   ]],
   ["tu", [
@@ -1327,3 +1328,53 @@ const HAU_TRUYEN = [
     [{}, "Mẹ vẫn đọc từng đánh giá của tiệm mỗi tối, rồi nhắn: \"Ăn cơm chưa con?\""],
   ]],
 ];
+
+/* ---------- Bản 4.9: lấp khoảng trống cuối Chương 2 · chi nhánh và chợ giáp Tết ---------- */
+MAU_CHUYEN.push(
+  {
+    id: "c2_chi_nhanh",
+    chuong: 2,
+    luc: "mo_cua",
+    tomTat: "Vy kể có mấy mặt bằng đang sang nhượng. Bà Sáu dặn hàng vẫn nấu ở tiệm gốc.",
+    /* ưu tiên thấp: tới vào ngày trống đầu tiên giữa các cảnh ngã rẽ Mây Tea */
+    dieuKien: { ngay: 50, buoc: 2 },
+    uuTien: 3,
+    thoai: [
+      ["vy", "Chạy xe trà ở chợ, em nghe mấy chỗ đang sang nhượng. Ngon lắm {ban}.", { nhanh: { may: "B" } }],
+      ["vy", "Mây Tea mở thêm kiosk, sếp em hỏi tiệm có muốn giữ một chỗ không.", { khongNhanh: { may: "B" } }],
+      ["_", "(Tờ giấy Vy để lại ghi ba chỗ: gần trường, toà văn phòng, kiosk.)"],
+      ["sau", "Muốn mở thêm thì mở. Mà tiệm gốc vẫn ở dưới gác bà nghen."],
+      ["sau", "Hàng nấu ở đây, chở qua đó. Dư bữa nào đỡ phí bữa đó."],
+    ],
+    ketQua: { co: { chi_nhanh_mo: true } },
+  },
+  {
+    id: "cn_cho_hang",
+    chuong: 3,
+    luc: "mo_cua",
+    tomTat: "Chú Tư nhận chở hàng từ tiệm gốc qua chi nhánh mỗi sáng.",
+    /* cn_khai_truong: ngày mở chi nhánh, ghi trong moChiNhanh (src/chi-nhanh.js) */
+    dieuKien: { sau: "cn_khai_truong", cachNgay: 2, buoc: 2 },
+    uuTien: 6,
+    thoai: [
+      ["tu", "Sáng nào chú cũng chạy qua chở hàng cho chi nhánh. Khỏi kêu app."],
+      ["tu", "Chú khoe với khách: trà này nấu ở Hẻm 42 đó nghen!"],
+      ["_", "(Thùng trân châu còn ấm, buộc gọn sau yên xe chú Tư.)"],
+    ],
+    ketQua: { than: { tu: 1 } },
+  },
+  {
+    id: "c3_gia_tet",
+    chuong: 3,
+    luc: "mo_cua",
+    tomTat: "Giáp Tết chợ lên giá, khách đông mà khó tính hơn.",
+    dieuKien: { ngay: 60 },
+    uuTien: 6,
+    thoai: [
+      ["_", "(Chợ Bà Chiểu treo đầy câu đối đỏ. Trà, sữa, đường đều lên giá.)"],
+      ["hanh", "Giáp Tết cái gì cũng lên giá. Bột mì cô mua mắc hơn tuần trước."],
+      ["tu", "Mấy bữa này khách đông mà khó tính lắm. Con pha lẹ tay nghen."],
+    ],
+    ketQua: { than: { hanh: 1, tu: 1 } },
+  },
+);

@@ -7,7 +7,7 @@ function diemTiem() {
     tb = H.length ? H.reduce((a, r) => a + recRev(r), 0) / H.length : 0,
     trang = S.tr && S.tr.trang ? S.tr.trang.length : 0;
   return Math.round(
-    rating() * 12 + Math.min(35, tb / 20000) + Math.min(25, Math.max(0, S.day - 1) * 0.4) + trang * 1.5 + ((S.buoc || 1) >= 2 ? 10 : 0),
+    rating() * 12 + Math.min(35, tb / 20000) + Math.min(25, Math.max(0, S.day - 1) * 0.4) + trang * 1.5 + ((S.buoc || 1) >= 2 ? 10 : 0) + (S.cn ? CHI_NHANH.diemPhoTra : 0),
   );
 }
 function diemMay(t, ngay) {

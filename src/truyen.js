@@ -18,6 +18,11 @@ function TT() {
   T.qua = T.qua || {}; /* quà mở khoá đã nhận, theo ngày */
   T.mon = T.mon || {}; /* món đã pha đúng: khoá -> số ly */
   T.nhanh = T.nhanh || {}; /* ngã rẽ lớn đã chọn: id ngã rẽ -> "A" | "B" */
+  /* bản 4.9 đổi số trang 3 và 4 (trang của Linh thường tới trước trang của Khoa): bản lưu cũ đổi theo */
+  if (!T.trang34) {
+    T.trang = T.trang.map((n) => (n === 3 ? 4 : n === 4 ? 3 : n));
+    T.trang34 = true;
+  }
   if (typeof chuyenBanLuuNhanh === "function") chuyenBanLuuNhanh(T);
   return T;
 }

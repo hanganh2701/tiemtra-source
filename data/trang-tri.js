@@ -13,30 +13,30 @@ const TRANG_TRI = [
 
 /* Góp sức cho Hẻm 42: việc chung của xóm cho người chơi dư tiền về sau. Góp một lần, ưu đãi nhỏ cộng chung với trang trí
    (khach, cho, tip; mua = ngày mưa bớt vắng), hiện trước tiệm, có lời cảm ơn. mo: tuNgay = từ ngày, xem = sau cảnh này
-   (tới ngày chot thì mở luôn cho người chưa thấy cảnh); goi = gợi ý lúc chưa mở. cam: câu thoại như cảnh truyện. */
+   (tới ngày chot thì mở luôn cho người chưa thấy cảnh); goi = gợi ý lúc chưa mở; ru = lời bà Sáu rủ góp. cam: câu thoại như cảnh truyện. */
 const GOP_HEM = [
   {
-    id: "den", ic: "💡", ten: "Đèn cho con hẻm", gia: 3000000, mo: { tuNgay: 15 }, goi: "Từ ngày 15",
+    id: "den", ic: "💡", ten: "Đèn cho con hẻm", gia: 3000000, mo: { tuNgay: 15 }, goi: "Từ ngày 15", ru: "làm đèn cho hẻm",
     uuDai: "Khách ghé nhiều hơn 3%", khach: 0.03,
     cam: [["khoa", "Tối về hẻm sáng trưng. Tụi shipper em hết sợ té ổ gà rồi {ban}!"]],
   },
   {
-    id: "mai_che", ic: "☂️", ten: "Mái che mưa đầu hẻm", gia: 5000000, mo: { xem: "khoa_2", chot: 30 }, goi: "Sau hôm Khoa trú mưa ở tiệm",
+    id: "mai_che", ic: "☂️", ten: "Mái che mưa đầu hẻm", gia: 5000000, mo: { xem: "khoa_2", chot: 30 }, goi: "Sau hôm Khoa trú mưa ở tiệm", ru: "làm mái che mưa ở đầu hẻm",
     uuDai: "Ngày mưa khách vắng ít hơn", mua: 0.2,
     cam: [["khoa", "Mưa cỡ nào tụi em cũng có chỗ đứng đợi đơn. Đã ghê {ban}!"]],
   },
   {
-    id: "ghe_da", ic: "🪑", ten: "Băng ghế đá cho chú Tư", gia: 4000000, mo: { xem: "tu_3", chot: 30 }, goi: "Khi thân hơn với chú Tư",
+    id: "ghe_da", ic: "🪑", ten: "Băng ghế đá cho chú Tư", gia: 4000000, mo: { xem: "tu_3", chot: 30 }, goi: "Khi thân hơn với chú Tư", ru: "đặt băng ghế đá cho chú Tư",
     uuDai: "Khách chờ lâu hơn 5%", cho: 0.05,
     cam: [["tu", "Có ghế đá trước tiệm con rồi. Chú ngồi đợi cuốc khỏi đứng nắng!"]],
   },
   {
-    id: "long_den", ic: "🏮", ten: "Lồng đèn cho con nít trong hẻm", gia: 3000000, mo: { xem: "c2_trung_thu" }, goi: "Sau Trung Thu trong hẻm",
+    id: "long_den", ic: "🏮", ten: "Lồng đèn cho con nít trong hẻm", gia: 3000000, mo: { xem: "c2_trung_thu" }, goi: "Sau Trung Thu trong hẻm", ru: "mua lồng đèn cho con nít",
     uuDai: "Tiền tip tăng 5%", tip: 0.05,
     cam: [["hanh", "Đứa nào trong hẻm cũng có lồng đèn. Chịu chi dữ… mà cô thích."]],
   },
   {
-    id: "hoc_bong", ic: "🎒", ten: "Quỹ học bổng Hẻm 42", gia: 8000000, mo: { tuNgay: 40 }, goi: "Từ ngày 40",
+    id: "hoc_bong", ic: "🎒", ten: "Quỹ học bổng Hẻm 42", gia: 8000000, mo: { tuNgay: 40 }, goi: "Từ ngày 40", ru: "lập quỹ học bổng cho tụi nhỏ",
     uuDai: "Khách ghé nhiều hơn 3%", khach: 0.03,
     cam: [
       ["linh", "Tụi nhỏ trong hẻm có tiền mua sách rồi. Em mừng muốn khóc {ban} ơi.", { khongNhanh: { linh: "B" } }],
@@ -44,7 +44,7 @@ const GOP_HEM = [
     ],
   },
   {
-    id: "quan_nuoc", ic: "🍵", ten: "Dựng lại quán nước của bà Sáu", gia: 15000000, mo: { xem: "c2_ba_sau" }, goi: "Khi bà Sáu kể chuyện quán nước",
+    id: "quan_nuoc", ic: "🍵", ten: "Dựng lại quán nước của bà Sáu", gia: 15000000, mo: { xem: "c2_ba_sau" }, goi: "Khi bà Sáu kể chuyện quán nước", ru: "dựng lại cái quán nước cũ",
     uuDai: "Tiền tip tăng 5%", tip: 0.05,
     cam: [
       ["_", "(Cái chõng tre với ấm trà cũ được kê lại dưới gác bà Sáu.)"],

@@ -27,6 +27,7 @@ const HUY_HIEU = [
   { id: "ket_10tr", nhom: "Tiệm", ic: "🏦", ten: "Két dày", mo: "Có 10 triệu trong két", dk: () => S.money >= 10000000 },
   { id: "sao_45", nhom: "Tiệm", ic: "🌸", ten: "Tiệm được thương", mo: "Đánh giá từ 4,5 sao sau ngày 14", dk: () => S.day > 14 && rating() >= 4.5 },
   { id: "mat_tien", nhom: "Tiệm", ic: "🏠", ten: "Ra mặt tiền", mo: "Thuê mặt tiền đầu hẻm", dk: () => buoc() >= 2 },
+  { id: "chi_nhanh", nhom: "Tiệm", ic: "🏪", ten: "Hai tiệm một chủ", mo: "Mở chi nhánh", dk: () => !!S.cnDaMo },
   { id: "nv_dau", nhom: "Tiệm", ic: "🤝", ten: "Người đồng hành", mo: "Thuê nhân viên đầu tiên", dk: () => Object.keys(S.nv || {}).length >= 1 },
   { id: "nv_tho_ca", nhom: "Tiệm", ic: "🎓", ten: "Thợ cả", mo: "Có nhân viên tay nghề 5/5", dk: () => Object.values(S.nv || {}).some((n) => n.kn >= 5) },
   { id: "thuc_don", nhom: "Tiệm", ic: "📜", ten: "Thực đơn phong phú", mo: "Pha đúng 20 món khác nhau", dk: (K, T) => Object.keys(T.mon).length >= 20 },

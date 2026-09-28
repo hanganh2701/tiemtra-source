@@ -1,7 +1,19 @@
 /* Phiên bản và danh sách "Có gì mới". Mỗi lần cập nhật: tăng GAME_VERSION và thêm một mục lên ĐẦU CHANGELOG. */
 /* ===== PHIÊN BẢN GAME: mỗi lần cập nhật, tăng số và thêm một mục lên ĐẦU danh sách ===== */
-const GAME_VERSION = "4.8";
+const GAME_VERSION = "4.9";
 const CHANGELOG = [
+  {
+    v: "4.9",
+    d: "28/09/2026",
+    items: [
+      "Chi nhánh (Nâng cấp › Trang bị): ra mặt tiền được 14 ngày và nghe Vy kể về mấy chỗ sang nhượng là mở được tiệm thứ hai: gần trường, dưới toà văn phòng hoặc kiosk trung tâm thương mại",
+      "Chi nhánh có quản lý tự bán, hàng dư sắp hết hạn ở tiệm gốc tự chở qua. Sáng nào cũng có báo cáo, đôi khi có chuyện phải chọn. Tắt game thì chi nhánh cũng nghỉ",
+      "Game khó dần theo chương: từ Chương 2 giá nhập tăng, khách bớt kiên nhẫn và nhiều khách khó chiều hơn; giáp Tết tăng thêm. Chế độ Thư giãn giữ nguyên",
+      "Sự cố mất tiền tính theo tiền trong két. Phố Trà: chuỗi Mây Tea mạnh dần, cuối game muốn giữ hạng 1 cần có chi nhánh",
+      "Truyện: Vy kể chuyện sang nhượng, chú Tư chở hàng qua chi nhánh, chợ giáp Tết lên giá",
+      "Sửa: lời rủ góp hẻm nói đúng việc đang mở; trang sổ của Linh thành trang 3, của Khoa thành trang 4 để nhận đúng thứ tự",
+    ],
+  },
   {
     v: "4.8",
     d: "28/09/2026",
