@@ -5096,6 +5096,11 @@ function spawn() {
     return;
   }
   {
+    const dt = donTruyenDen();
+    if (dt) {
+      spawnTruyen(i, dt);
+      return;
+    }
     const k = khachQuenDen();
     if (k) {
       spawnQuen(i, k);
@@ -5441,6 +5446,7 @@ function serve(i) {
   if (!c || !R.running) return;
   const el = document.querySelector(`[data-slot="${i}"]`);
   if (!ready()) return;
+  if (c.dt) donTruyenKhop(c);
   const j = c.cups.findIndex((x, k) => !c.done[k] && matches(cup, x));
   if (j >= 0) {
     sfx("coin");
@@ -5575,6 +5581,7 @@ function serve(i) {
     rung(15);
     addReview(rv.s, rv.why, false, c);
     if (c.reg) quenXong(c, rv.s);
+    if (c.dt) donTruyenXong(c);
     if (c.tt != null) ttGhi(c, c.wrong || c.fillPen ? 1 : 0);
     ghiPhucVu(c, rv.s);
     if (c.vip) {

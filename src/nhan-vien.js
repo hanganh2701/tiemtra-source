@@ -8,14 +8,17 @@ function nvThue(id) {
   if (S.nv[id]) return;
   const T = TT();
   let ten = rnd(NV_TEN[id] || ["Bạn nhân viên"]),
-    dd = rnd(Object.keys(NV_DD));
+    dd = rnd(Object.keys(NV_DD)),
+    kn = 1;
   /* Linh thi xong xin làm thêm: vị trí phụ quầy đầu tiên thuê sau đó là Linh */
   if ((id === "staff1" || id === "staff3") && T.co.linh_lam && !T.co.linh_da_lam) {
     ten = "Linh";
     dd = "sinh_vien";
     T.co.linh_da_lam = true;
+    /* Linh chọn ở lại làm thêm: đã phụ tiệm mấy tháng nên vào nghề sẵn */
+    if (T.nhanh.linh === "A") kn = 2;
   }
-  S.nv[id] = { ten, dd, kn: 1, tt: 80, xp: 0, luong: 1, vao: S.day };
+  S.nv[id] = { ten, dd, kn, tt: 80, xp: 0, luong: 1, vao: S.day };
 }
 const nvCo = (id) => (S.upg[id] && S.nv && S.nv[id]) || null;
 /* tốc độ làm (nhân vào tốc độ gốc) */
