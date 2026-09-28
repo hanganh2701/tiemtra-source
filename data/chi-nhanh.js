@@ -6,11 +6,14 @@ const CHI_NHANH = {
   sao: 4.3,
   cocNgay: 12 /* cọc bằng bấy nhiêu ngày tiền nhà */,
   hopDong: 28 /* ngày mỗi kỳ hợp đồng */,
-  luongQl: 300000 /* lương quản lý mỗi ngày, cộng thêm phần trăm doanh thu chi nhánh */,
-  phanTramQl: 0.05,
+  luongQl: 350000 /* lương quản lý mỗi ngày, cộng thêm phần trăm doanh thu chi nhánh */,
+  phanTramQl: 0.12,
+  capGoc: 40 /* sức bán mỗi ngày của quản lý: capGoc + capBac × tay nghề */,
+  capBac: 12,
   luongPhu: 150000 /* người phụ ở chi nhánh */,
-  capPhu: 35 /* người phụ bán thêm được bấy nhiêu ly mỗi ngày */,
-  muaNgoai: 1.2 /* hàng mua ngoài đắt hơn hàng tiệm gốc nấu */,
+  capPhu: 30 /* người phụ bán thêm được bấy nhiêu ly mỗi ngày */,
+  muaNgoai: 1.3 /* hàng mua ngoài đắt hơn hàng tiệm gốc nấu */,
+  lapLai: 7 /* một tình huống không lặp lại trong bấy nhiêu ngày */,
   sangNhuong: 0.6 /* sang nhượng thì lấy lại phần tiền trang trí này */,
   diemPhoTra: 8 /* có chi nhánh thì cộng điểm Phố Trà */,
 };
@@ -19,13 +22,13 @@ const CHI_NHANH = {
    gia: giá mỗi ly so với tiệm gốc; phanTram: phần doanh thu nộp cho trung tâm; capMax: bán tối đa (ít chỗ) */
 const CN_LOAI = [
   {
-    id: "truong", ic: "🎒", ten: "Chi nhánh gần trường", ngan: "gần trường",
-    thue: 150000, trangTri: 3000000, cau: 105, cuoiTuan: 0.4, thi: 0.5, mua: 0.75, nong: 1.15, gia: 0.8,
+    id: "truong", ic: "🏫", ten: "Chi nhánh gần trường", ngan: "gần trường",
+    thue: 150000, trangTri: 3000000, cau: 105, cuoiTuan: 0.4, thi: 0.5, mua: 0.75, nong: 1.15, gia: 0.85,
     mo: "Học sinh đông, thích ngọt và nhiều topping, giá mềm hơn tiệm gốc. Cuối tuần và tuần thi vắng.",
   },
   {
     id: "vp", ic: "🏢", ten: "Chi nhánh dưới toà văn phòng", ngan: "toà văn phòng",
-    thue: 300000, trangTri: 4000000, cau: 95, cuoiTuan: 0.3, mua: 0.85, nong: 1.1, gia: 1.15,
+    thue: 300000, trangTri: 4000000, cau: 95, cuoiTuan: 0.3, mua: 0.85, nong: 1.1, gia: 1.1,
     mo: "Trưa ngày thường đông nghẹt, khách chịu chi hơn. Cuối tuần gần như vắng.",
   },
   {

@@ -39,11 +39,12 @@ function muaTri(id) {
 /* dải đồ trang trí trước tiệm (màn chuẩn bị), kèm những việc đã góp cho hẻm */
 function triDai() {
   const ds = TRANG_TRI.filter((t) => coTri(t.id)),
-    gop = GOP_HEM.filter((d) => daGop(d.id));
-  return ds.length || gop.length
+    gop = GOP_HEM.filter((d) => daGop(d.id)),
+    cn = typeof cnLoai === "function" && cnLoai();
+  return ds.length || gop.length || cn
     ? `<div class="tridai" aria-label="Trang trí tiệm">${ds.map((t) => `<img src="img/tt_${t.id}.svg" alt="${esc(t.ten)}" title="${esc(t.ten)}">`).join("")}${gop
         .map((d) => `<span class="gopic" role="img" aria-label="${esc(d.ten)}" title="${esc(d.ten)}">${d.ic}</span>`)
-        .join("")}</div>`
+        .join("")}${cn ? `<span class="gopic" role="img" aria-label="${esc(cn.ten)}" title="${esc(cn.ten)}">${cn.ic}</span>` : ""}</div>`
     : "";
 }
 

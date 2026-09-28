@@ -150,8 +150,10 @@ test("cảnh mới: Vy kể chỗ sang nhượng khi đã ra mặt tiền; chợ
     g.run("S.day = 57; S.buoc = 1");
     assert.equal(g.run(`hopCanh(${m("c2_chi_nhanh")}, 'mo_cua')`), false);
     g.run("S.buoc = 2; TT().nhanh.may = 'B'");
+    assert.equal(g.run(`hopCanh(${m("c2_chi_nhanh")}, 'mo_cua')`), false, "Vy chưa quyết ra chợ thì chưa kể");
+    g.run("TT().xem.may_b3 = 55");
     assert.equal(g.run(`hopCanh(${m("c2_chi_nhanh")}, 'mo_cua')`), true);
-    assert.match(g.run(`locDong(${m("c2_chi_nhanh")}.thoai).map((d) => d[1]).join('|')`), /xe trà ở chợ/);
+    assert.match(g.run(`locDong(${m("c2_chi_nhanh")}.thoai).map((d) => d[1]).join('|')`), /xe trà ra chợ/);
     g.run(`apDung(${m("c2_chi_nhanh")})`);
     assert.equal(g.run("TT().co.chi_nhanh_mo"), true);
     g.run("S.day = 60");
@@ -181,3 +183,39 @@ test("lời rủ góp hẻm nói đúng việc đang mở; trang 3 của Linh, t
     g.close();
   }
 });
+
+test("sau lần chơi thử thứ tư: báo cáo chi nhánh không lặp sau ngày nghỉ, chuyện không lặp sát nhau, chi nhánh hiện trước tiệm", () => {
+  const g = boot();
+  try {
+    g.run(tiemLon + "; moChiNhanh('vp'); $('modal').hidden = true; Math.random = () => 0.5; chiNhanhCuoiNgay(S.cur); S.day++; S.cn.viec = null");
+    assert.equal(g.run("chiNhanhSang()"), true);
+    clickText(g, /Xong/);
+    /* về quê ba ngày, không có ngày bán nào: sáng quay lại không báo lại ngày cũ */
+    g.run("S.day += 3");
+    assert.equal(g.run("chiNhanhSang()"), false);
+    /* chuyện vừa gặp trong 7 ngày thì không gặp lại */
+    g.run("Math.random = () => 0; S.cn.viec = null; S.cn.gap = { may: S.day - 3 }; chiNhanhCuoiNgay(newRec(S.day))");
+    assert.ok(g.run("S.cn.viec") && g.run("S.cn.viec.id") !== "may", "chuyện: " + g.run("JSON.stringify(S.cn.viec)"));
+    g.run("R.tab = 'kho'; renderPrep()");
+    assert.match(g.w.document.querySelector(".tridai").innerHTML, /Chi nhánh dưới toà văn phòng/);
+  } finally {
+    g.close();
+  }
+});
+
+test("lời kết Tiệm của xóm theo tiệm đã lớn; tổng kết đếm chi nhánh theo ly", () => {
+  const g = boot();
+  try {
+    const k = "KET_CUC.find((x) => x.id === 'tiem_cua_xom')";
+    assert.match(g.run(`theKetCuc(${k})`), /Tiệm vẫn nhỏ/);
+    g.run("S.buoc = 2");
+    assert.match(g.run(`theKetCuc(${k})`), /ra tới đầu hẻm/);
+    g.run("TT().co.chi_nhanh = 'vp'");
+    assert.match(g.run(`theKetCuc(${k})`), /có thêm chi nhánh/);
+    g.run(tiemLon + "; moChiNhanh('kiosk'); $('modal').hidden = true; chiNhanhCuoiNgay(S.cur); S.history.push(S.cur); R.tab = 'tongket'; R.sumMode = 'day'; R.sumIdx = null; renderPrep()");
+    assert.match(g.w.document.getElementById("pane").textContent, /Chi nhánh: \d+ ly/);
+  } finally {
+    g.close();
+  }
+});
+
