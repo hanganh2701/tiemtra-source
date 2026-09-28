@@ -79,10 +79,19 @@ Chưa làm ảnh chia sẻ vẽ bằng canvas (để mốc 4 cùng thẻ khoe ti
 
 Lịch lễ `LICH_LE` trong `src/truyen.js` có Tết và Trung Thu tới 2030; cảnh lễ có năm trong id (`le_noel_2026`, `le_tet_2027`), năm sau cần thêm cảnh mới.
 
-### Mốc 4 · Gắn bó dài hạn (tuần 17–22)
+### Mốc 4 · Gắn bó dài hạn (bản 4.3) — xong 28/09
 
-- [ ] Chương 2, trang trí tiệm, thành tựu, chế độ Thư giãn, mời cài app
-- [ ] Chi nhánh (chỉ khi qua cổng C3)
+- [x] Chương 2 Mùa trăng (trang 6–10): Hana và cô Hạnh thành khách quen, chuỗi Mây Tea (quản lý Vy), Trung Thu, chuyện ông bà Sáu
+- [x] Chương 3 Về nhà ăn Tết (trang 11–12): Khoa ở lại Sài Gòn, mẹ lên thăm (`img/me.svg`), kết truyện `c3_ket`
+- [x] Huy hiệu (`HUY_HIEU`, `S.huyHieu`) và mục tiêu tuần (`MUC_TIEU_TUAN`, `S.tuan`) trong `src/thanh-tich.js`; không có chuỗi ngày đăng nhập
+- [x] Trang trí tiệm (`TRANG_TRI`, `S.tri`, `img/tt_*.svg`) và ảnh khoe tiệm vẽ bằng canvas (`src/trang-tri.js`)
+- [x] Chế độ Thư giãn (`S.thuGian`, `thuGian()` trong `src/gan-bo.js`)
+- [x] Mời cài lên màn hình chính từ ngày 4 (`moiCai()`); iPhone chỉ có hướng dẫn và nhắc dùng mã sao lưu vì bộ nhớ riêng
+- [x] 50 logo tem thương hiệu vẽ bằng SVG (`data/logo.js`)
+- [ ] Chi nhánh: hoãn. Chỉ làm khi qua cổng C3 (cần số liệu chơi thử: ≥40% người chạm ngày 30 mở mặt tiền và chơi tiếp ≥7 ngày)
+
+Khác kế hoạch: ảnh chia sẻ thử thách (lưới màu) vẫn là chữ, chỉ thêm ảnh khoe tiệm. Game vẫn không dùng service worker
+(tác giả gốc chủ động gỡ để tránh bản cũ bị kẹt trong bộ nhớ đệm); Chrome hiện không bắt buộc service worker để hiện lời mời cài.
 
 ## Cổng quyết định
 
@@ -95,5 +104,5 @@ Lịch lễ `LICH_LE` trong `src/truyen.js` có Tết và Trung Thu tới 2030; 
 
 ## Việc còn để ý
 
-- 50 logo tem thương hiệu trong `img/brand/` chưa có; game đang hiện emoji thay thế (`BRAND_EMO`). Vẽ ở mốc 3–4.
+- Cảnh lễ gắn với năm (`le_noel_2026`, `le_ong_tao_2027`, `le_tet_2027`): mỗi năm cần viết thêm cảnh mới, không thì lễ vẫn có trang trí và hệ số nhưng không có chuyện.
 - Câu đánh giá "Cảm ơn nhân viên đã làm lại đúng ý mình" không bao giờ được chọn (khách bị làm sai luôn đánh giá tiêu cực). Giữ nguyên có chủ ý.

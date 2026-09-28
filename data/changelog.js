@@ -1,7 +1,22 @@
 /* Phiên bản và danh sách "Có gì mới". Mỗi lần cập nhật: tăng GAME_VERSION và thêm một mục lên ĐẦU CHANGELOG. */
 /* ===== PHIÊN BẢN GAME: mỗi lần cập nhật, tăng số và thêm một mục lên ĐẦU danh sách ===== */
-const GAME_VERSION = "4.2";
+const GAME_VERSION = "4.3";
 const CHANGELOG = [
+  {
+    v: "4.3",
+    d: "28/09/2026",
+    items: [
+      "Chương 2 Mùa trăng: Hana, cô vlogger nói qua nhãn Dịch tự động, thành khách quen và học tiếng Việt từng chữ. Cô Hạnh rủ làm combo bánh mì với trà. Chuỗi Mây Tea mở đầu hẻm, quản lý là Vy cháu cô Hạnh. Trung Thu trong hẻm",
+      "Chương 3 Về nhà ăn Tết: Sài Gòn vắng Tết, mẹ lên thăm tiệm, bà Sáu trao trang cuối. Đủ 12 trang sổ công thức trong truyện",
+      "Huy hiệu (tab Hẻm 42): 49 huy hiệu cho quầy pha, tiệm, Hẻm 42, bạn bè, mùa lễ",
+      "Mục tiêu tuần: mỗi tuần trong game có 3 mục tiêu, xong thì có thưởng. Không có chuỗi ngày đăng nhập, nghỉ chơi không mất gì",
+      "Trang trí tiệm (Nâng cấp > Trang bị): 8 món như ghế đẩu nhựa đỏ, dây đèn lồng, tranh Mướp. Mỗi món có ưu đãi nhỏ và hiện trước tiệm",
+      "Khoe ảnh tiệm (tab Phố Trà): ảnh có tên tiệm, món ruột, sao, hạng Phố Trà, trang sổ, huy hiệu và đồ trang trí",
+      "Chế độ Thư giãn (Cài đặt): khách không bỏ về, không sự cố, không khách khó chiều",
+      "Mời cài game lên màn hình chính từ ngày 4 (Android, máy tính; iPhone có hướng dẫn)",
+      "Bộ nhận diện thương hiệu có đủ 50 logo vẽ mới thay cho emoji",
+    ],
+  },
   {
     v: "4.2",
     d: "28/09/2026",
