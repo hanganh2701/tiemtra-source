@@ -86,6 +86,7 @@ function quenXong(c, sao) {
     k = c.reg;
   T.ghe[k] = S.day;
   T.lan[k] = (T.lan[k] || 0) + 1;
+  demTuan("quen");
   if (sao >= 4 && (T.than[k] || 0) < 10) {
     T.than[k] = (T.than[k] || 0) + 1;
     setTimeout(() => toast("♥ " + NHAN_VAT[k].ten + " thân với tiệm hơn (" + T.than[k] + "/10)", 2800), 500);
@@ -119,6 +120,12 @@ function ghiPhucVu(c, sao) {
     if (!K.nhanh || giay < K.nhanh) K.nhanh = giay;
   }
   K.khach = (K.khach || 0) + 1;
+  if (c.nhom) K.nhom = (K.nhom || 0) + 1;
+  demTuan("khach");
+  if (sao >= 5) demTuan("sao5");
+  demTuan("chuoi", K.chuoi, true);
+  if (c.nhom) demTuan("nhom");
+  xetHuyHieu();
 }
 /* cuối ngày */
 function ghiNgay(rec, doanhThu) {
@@ -130,6 +137,11 @@ function ghiNgay(rec, doanhThu) {
   }
   if (s5 > (K.sao5 || 0)) K.sao5 = s5;
   if ((rec.served || 0) > (K.lyNgay || 0)) K.lyNgay = rec.served;
+  const le = typeof leHoiNay === "function" && leHoiNay();
+  if (le) (K.le = K.le || {})[le] = true;
+  if (rec.ev && rec.ev.id === "rain" && (rec.served || 0) >= 30) K.muaDong = true;
+  demTuan("tien", doanhThu);
+  xetHuyHieu();
 }
 
 /* ---------- ngày mai ---------- */

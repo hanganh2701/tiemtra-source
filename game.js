@@ -5649,6 +5649,7 @@ function serveOnline(j) {
     }
     const rv = stars(c, true);
     addReview(rv.s, rv.why, true, c);
+    ghiDonApp(rv.s);
     fl(el, `+${fmt(p - fee)}  ${"★".repeat(rv.s)}`, false);
     if (R.sto && R.sto.id === c.id) R.sto = null;
     R.online.splice(j, 1);

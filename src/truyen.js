@@ -114,6 +114,7 @@ function apDung(m, chon) {
   if (chon) Object.assign(T.co, chon.dat || {});
   apKetQua(m.ketQua, moi);
   if (chon) apKetQua(chon.ketQua, moi);
+  if (typeof xetHuyHieu === "function") setTimeout(() => xetHuyHieu(), 1500);
   save();
   head();
   return moi;
