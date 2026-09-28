@@ -15,7 +15,21 @@ const DS = {
     ot: { truoc: 0.3, lai: 0.1, ngay: 1800, ten: "5 năm" },
   },
   gopToiDa: 0.5 /* ngân hàng chỉ cho tổng tiền góp mỗi ngày tới một nửa thu nhập (trung bình 7 ngày gần nhất) */,
+  /* gửi tiền về quê: mở từ cảnh gui_1 (ba trặc lưng). Người đi làm ở thành phố thường gửi 5–7 triệu mỗi tháng (báo 2026);
+     tiệm mới mở nên cho chọn từ 1 triệu. chuKy = số ngày giữa hai lần gửi; két phải còn duPhong sau khi gửi, không thì tháng đó thôi */
+  gui: { muc: [0, 1000000, 2000000, 3000000, 5000000, 10000000], chuKy: 30, duPhong: 500000, traLai: 0.5 },
 };
+/* mẹ nhắn lại mỗi lần nhận tiền, theo số tháng đã gửi; hết danh sách thì xoay vòng ba câu cuối */
+const DS_GUI_TIN = [
+  "Mẹ: Nhận rồi con.. Mai mẹ chở ba đi châm cứu ở trạm xá.",
+  "Mẹ: Ba đỡ đau rồi. Ổng biểu con gửi ít thôi, để dành.",
+  "Mẹ: Mẹ mua thêm bầy gà. Tết con về có gà luộc.",
+  "Mẹ: Nhận rồi. Ba đi đám giỗ khoe con với cả xóm..",
+  "Mẹ: Mưa quá con. Tiệm có dột không..",
+  "Mẹ: Nhận rồi. Ăn cơm chưa con..",
+  "Mẹ: Ba sơn lại cái cổng rồi. Mẹ gửi hình con coi nè.",
+];
+const DS_GUI_KET = "Mẹ: Tháng này con kẹt thì thôi. Ba mẹ còn lúa..";
 
 /* thuê chỗ ở: nấc sau thay nấc trước, dọn đi thì lấy lại cọc */
 const DS_TRO = [

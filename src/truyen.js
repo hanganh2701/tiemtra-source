@@ -109,12 +109,13 @@ function hopCanh(m, luc) {
   if (d.denNgayThat && homNayVN() > d.denNgayThat) return false;
   if (d.le && !(typeof leHoiNay === "function" && leHoiNay() === d.le)) return false;
   if (d.luot && (T.luot || 1) < d.luot) return false; /* lượt chơi thứ mấy (Hẻm 42 lần nữa) */
-  /* hạn chót: từ ngày này bỏ qua điều kiện mềm để truyện không bị kẹt */
+  /* hạn chót: từ ngày này bỏ qua điều kiện mềm (than, trang, sao, soTrang, tienTren, sau, thoiTiet) để truyện không bị kẹt */
   if (d.chot != null && dn >= d.chot) return true;
   if (d.than && !Object.entries(d.than).every(([k, v]) => (T.than[k] || 0) >= v)) return false;
   if (d.trang && !T.trang.includes(d.trang)) return false;
   if (d.sao != null && rating() < d.sao) return false;
   if (d.soTrang != null && T.trang.length < d.soTrang) return false;
+  if (d.tienTren != null && S.money < d.tienTren) return false;
   if (d.sau) {
     const x = ngayXemSau(T, d.sau);
     if (x == null || (d.cachNgay && dn - x < d.cachNgay)) return false;
@@ -217,7 +218,7 @@ function truyenLuc(luc, xong) {
   const tiep = m.nghi && typeof nghiVeQue === "function" ? nghiVeQue : m.ketCuc && typeof hienKetCuc === "function" ? () => hienKetCuc(xong) : xong;
   /* chế độ Tắt tự chọn thay, trừ ngã rẽ lớn */
   if (cheDo() === "tat" && !m.reRe) {
-    const moi = apDung(m, (m.luaChon || [])[0]);
+    const moi = apDung(m, (m.luaChon || [])[m.macDinh || 0]);
     return hienTrangMoi(moi, tiep);
   }
   hienCanh(m, tiep, false);
@@ -254,7 +255,7 @@ function hienCanh(m, xong, xemLai) {
     if ($("trSkip"))
       $("trSkip").onclick = () =>
         /* ngã rẽ lớn: Bỏ qua chỉ tua thoại, người chơi vẫn tự chọn */
-        m.reRe && m.luaChon && m.luaChon.length ? veChon() : ketThuc((m.luaChon || [])[0] || null, true);
+        m.reRe && m.luaChon && m.luaChon.length ? veChon() : ketThuc((m.luaChon || [])[m.macDinh || 0] || null, true);
   };
   const veChon = () => {
     card.innerHTML = `${nhan}<p class="trl trn">${thayTen(m.tomTat || "")}</p>${nutChon()}`;

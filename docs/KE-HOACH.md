@@ -279,6 +279,34 @@ Mô phỏng người chơi thật 200 ngày với giá mới (Wave 22,5 triệu,
 
 Điện thoại mới khoảng ngày 50–65, xe máy trong khoảng ngày 70–125, ô tô nhỏ trả góp khoảng ngày 140–155, căn nhà đầu tiên khoảng ngày 190 trở đi (sớm hơn nếu để dành mua nhà trước xe). Căn hộ thường, nhà phố, biệt thự, Porsche là mơ ước lâu dài.
 
+### Gửi tiền về quê (bản 5.2) — xong 29/09
+
+Chủ dự án muốn có gửi tiền về quê mỗi tháng kèm cốt truyện hỗ trợ gia đình. Nghiên cứu ngày 29/09 (báo 2026): người đi làm ở thành phố thường gửi ba mẹ 5–7 triệu mỗi tháng, đây là phần cốt lõi của "báo hiếu" và cũng là áp lực, nên truyện không được trách người chơi.
+
+- [x] Chuyện nhà ở quê (`data/cot-truyen.js`, cảnh `gui_1`…`gui_so`):
+  - `gui_1`: ba trặc lưng lúc gặt lúa, mẹ nhắn, dặn đừng lo; hiện từ ngày 36 khi két có 3 triệu, hạn chót ngày 52. Chọn gửi 2 triệu, 5 triệu hay "Để con tính đã"
+  - `gui_2`: ba khoẻ lại dù có gửi hay không (có gửi thì đi châm cứu, không thì chú Năm gặt giùm)
+  - `gui_3`: gửi đủ ba tháng thì chú Tư ra bến lấy thùng hàng quê: mở vị xoài, thêm 30 phần xoài
+  - `gui_so`: mua nhà rồi thì mẹ kể đã lén để dành một nửa ở bưu điện xã, gửi lại con sắm đồ nhà mới
+  - Nhắc lại lựa chọn ở cảnh về quê ăn Tết (`que_1`) và hậu truyện của mẹ
+- [x] Bộ máy truyện: `macDinh` (lựa chọn dùng khi Bỏ qua hay chế độ Tắt, để game không tự gửi tiền thay người chơi), `tienTren` (két có từ bấy nhiêu, điều kiện mềm)
+- [x] Gửi mỗi tháng (`src/doi-song.js`, `DS.gui`):
+  - Mức 0, 1, 2, 3, 5, 10 triệu, chỉnh ở khung đầu khối Quà cho ba mẹ, chỉ hiện sau cảnh `gui_1`
+  - Cứ 30 ngày gửi một lần lúc đóng cửa (`guiVeCuoiNgay`); két phải còn 500 nghìn sau khi gửi, không thì tháng đó thôi và mẹ nhắn "kẹt thì thôi"
+  - Tạm dừng rồi bật lại trong tháng thì giữ hẹn cũ
+  - Mẹ nhắn lại mỗi lần gửi trên thẻ cuối ngày (`DS_GUI_TIN`)
+  - Sổ sách, tổng kết có dòng riêng (`r.gui`). Ngân hàng không tính khoản này khi xét cho vay; ước lượng ngày tới mục tiêu có trừ
+- [x] Mô phỏng người chơi máy gửi 2 triệu mỗi tháng từ lúc có cảnh
+
+Mô phỏng người chơi thật 200 ngày (nghìn đồng):
+
+| Người chơi | Két ngày 100 | Két ngày 200 | Gửi về quê | Mốc mua sắm |
+|---|---|---|---|---|
+| Giỏi, chi nhánh gần trường | 47.083 | 26.159 | từ ngày 38, 6 lần, 12.000; thùng xoài ngày 99; mẹ gửi lại 6.000 ngày 197 | Wave 69, SH 109, Kia Morning trả góp 141, nhà ở xã hội trả góp 197 |
+| Vừa, chi nhánh gần trường | 35.891 | 114.837 | từ ngày 50, 6 lần, 12.000; thùng xoài ngày 111 | Wave 83, SH 132, Kia Morning trả góp 166; chưa mua nhà |
+
+2 triệu mỗi tháng làm mốc mua sắm chậm vài ngày, nằm trong độ dao động giữa các lượt chạy.
+
 ## Cổng quyết định
 
 | Cổng | Ngày | Đi tiếp khi |
