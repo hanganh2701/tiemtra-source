@@ -79,14 +79,31 @@ test("save rất cũ (kho dạng số) không bị cộng hạn dùng hai lần"
   }
 });
 
-test("phá sản lưu quán mới ngay, giữ tên quán", () => {
+test("két âm lần đầu trong chương: bà Sáu cho khất, không phá sản", () => {
   const g = boot();
   try {
-    g.run("S.shopName = 'Quán Phá'; __openDay(); S.money = 1000; closeEarly()");
+    g.run("S.shopName = 'Quán Khất'; __openDay(); S.money = 1000; closeEarly()");
+    const saved = JSON.parse(g.w.localStorage.getItem("tsShop2"));
+    assert.equal(saved.day, 2);
+    assert.equal(saved.money, 0);
+    assert.ok(saved.noSau > 0);
+    assert.match(g.w.document.getElementById("card").textContent, /Bà Sáu cho khất/);
+  } finally {
+    g.close();
+  }
+});
+
+test("phá sản lần hai trong chương: lưu quán mới ngay, giữ tên quán và câu chuyện", () => {
+  const g = boot();
+  try {
+    g.run("S.shopName = 'Quán Phá'; S.tr = { khat: { 0: true }, trang: [1], than: { tu: 4 } }; S.kl = { chuoiMax: 7 }; __openDay(); S.money = 1000; closeEarly()");
     const saved = JSON.parse(g.w.localStorage.getItem("tsShop2"));
     assert.equal(saved.day, 1);
     assert.equal(saved.money, g.run("CFG.startMoney"));
     assert.equal(saved.shopName, "Quán Phá");
+    assert.deepEqual(saved.tr.trang, [1]);
+    assert.equal(saved.tr.than.tu, 4);
+    assert.equal(saved.kl.chuoiMax, 7);
     assert.match(g.w.document.getElementById("card").textContent, /Phá sản/);
   } finally {
     g.close();

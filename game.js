@@ -135,6 +135,7 @@ const OLD_NAMES = {
   pudding: "Pudding",
   kemtrung: "Kem trứng",
   L: "Phụ thu size L",
+  dactrung: "Trà của bà Sáu (món đặc trưng, thêm)",
 };
 const iname = (k) => (ITEMS[k] ? ITEMS[k].n : OLD_NAMES[k] || k);
 const low = (n) => n.toLowerCase().replace("3q", "3Q").replace("thái", "Thái");
@@ -839,7 +840,7 @@ function load() {
 /* ---------- KHO THEO MẺ, CÓ HẠN DÙNG ---------- */
 function addStock(k, q, st = S) {
   if (!q) return;
-  const l = CFG.life[k],
+  const l = CFG.life[k] + (CFG.life[k] && coTrang(8) && ITEMS[k] && ITEMS[k].type === "top" ? 1 : 0),
     exp = l ? st.day + l - 1 : 99999,
     b = st.stock[k].find((x) => x.exp === exp);
   if (b) b.q += q;
@@ -994,7 +995,13 @@ const sv = (sell, k) => {
   const v = +sell[k];
   return isFinite(v) && v > 0 ? Math.min(v, sellMax(k)) : 0;
 };
+const laDacTrung = (o) => {
+  const m = MON_DAC_TRUNG;
+  return coTrang(12) && o.base === m.base && o.flav === m.flav && !o.cheese &&
+    o.tops.length === m.tops.length && m.tops.every((t) => o.tops.includes(t));
+};
 const price = (o, sell = S.sell) =>
+  (laDacTrung(o) ? MON_DAC_TRUNG.them : 0) +
   sv(sell, o.base) +
   (o.flav && ITEMS[o.flav] ? sv(sell, o.flav) : 0) +
   o.tops.reduce((a, t) => a + sv(sell, t), 0) +
@@ -1165,6 +1172,8 @@ function loanCard() {
   const ds = debts(),
     free = LOANS.filter((L) => !L.hide && !(S[L.id] && S[L.id].left > 0));
   let h = "";
+  if (S.noSau > 0)
+    h += `<div class="evc loan"><span>${ico("people")}</span><div><b>Nợ bà Sáu ${fmt(S.noSau)}</b><small>Không tính lãi. Ngày nào có lãi thì tự trả một nửa tiền lãi.</small></div></div>`;
   if (ds.length)
     h += `<div class="evc loan"><span>${ico("money")}</span><div><b>Đang nợ</b><small>${ds
       .map((L) => {
@@ -1174,7 +1183,7 @@ function loanCard() {
       .join(
         "<br>",
       )}<br>Đang nợ thì chưa mua được nâng cấp.</small></div><button class="sbtn" id="loanPay">Trả hết</button></div>`;
-  if (free.length && S.money < CFG.loanLow)
+  if (free.length && S.money < CFG.loanLow && S.day >= 10)
     h += `<div class="evc loan"><span>${ico("money")}</span><div><b>Két sắp cạn tiền</b><small>${free.map((L) => L.n + " tối đa " + fmtTr(L.max()) + ", lãi " + L.rate() + "%/năm").join(" · ")}. Trả góp 10 ngày.</small></div><button class="sbtn pri" id="loanGo">Vay</button></div>`;
   return h;
 }
@@ -1238,7 +1247,10 @@ function bindLoan() {
       );
     };
 }
-const ecost = (k) => CFG.cost[k] * (evIs("sale") && ev().k === k ? 0.7 : 1);
+const ecost = (k) =>
+  CFG.cost[k] *
+  (evIs("sale") && ev().k === k ? 0.7 : 1) *
+  (coTrang(5) && ITEMS[k] && ITEMS[k].type === "base" ? 0.9 : 1);
 function evCard() {
   const e = ev();
   if (!e) return "";
@@ -1321,16 +1333,17 @@ function prepChecks() {
     return;
   }
   if (storeCheck()) return;
-  if (badCheck()) {
-    /* đóng hộp báo sự cố xong thì xét tiếp quà */
+  /* đóng hộp thoại này xong thì xét tiếp: sự cố, quà bất ngờ, quà mở khoá, nhắc sao lưu */
+  const xetTiep = () => {
     clearTimeout(R.pcT);
     R.pcT = setTimeout(prepChecks, 500);
-    return;
-  }
+  };
+  if (badCheck()) return xetTiep();
   if (S.gift) {
     giftCheck();
-    return;
+    return xetTiep();
   }
+  if (quaMoKhoa()) return xetTiep();
   bakRemind();
 }
 function storeCheck() {
@@ -1482,9 +1495,13 @@ function traffic() {
       (a, k) => a + S.sell[k] / DEF_SELL[k],
       0,
     ) / BASE_KEYS.filter((k) => S.unlocked[k]).length;
-  const e = ev();
+  const e = ev(),
+    so =
+      (coTrang(6) && evIs("rain") ? 1.15 : 1) *
+      (coTrang(7) && evIs("holiday") ? 1.2 : 1) *
+      (coTrang(10) ? 1.05 : 1);
   return (
-    (rf * boost * (e ? EVS[e.id].mul : 1)) /
+    (rf * boost * so * (e ? EVS[e.id].mul : 1)) /
     Math.max(0.85, Math.min(1, avgIdx) ** 2)
   );
 }
@@ -1648,7 +1665,7 @@ function setName(v) {
 }
 function renameDlg() {
   ask(
-    `<h2>Đặt tên quán</h2><p>Tối đa 30 ký tự. Tên sẽ hiện trên biển hiệu, đánh giá và tổng kết.</p><input id="nameIn" class="pinbox nm" maxlength="30" value="${esc(S.shopName)}" placeholder="Ví dụ: Trà Sữa Nhà Mèo" aria-label="Tên quán">`,
+    `<h2>Đặt tên quán</h2><p>Tối đa 30 ký tự. Tên sẽ hiện trên biển hiệu, đánh giá và tổng kết.</p><input id="nameIn" class="pinbox nm" maxlength="30" value="${esc(S.shopName)}" placeholder="Ví dụ: Trà Sữa Nhà Mèo" aria-label="Tên quán"><div class="xungc">Khách gọi bạn là <button type="button" class="chip${xung() === "anh" ? " on" : ""}" data-xung="anh">Anh</button><button type="button" class="chip${xung() === "chị" ? " on" : ""}" data-xung="chị">Chị</button></div>`,
     [
       ["Huỷ", () => {}],
       [
@@ -1935,6 +1952,7 @@ function renderPrep() {
     ["gia", "price", "Giá bán"],
     ["danhgia", "star", "Đánh giá"],
     ["tongket", "chart", "Tổng kết"],
+    ["hem", "book", "Hẻm 42"],
   ];
   $("view").innerHTML =
     menuBoard() +
@@ -1953,6 +1971,7 @@ function renderPrep() {
     gia: paneGia,
     danhgia: paneRev,
     tongket: paneSum,
+    hem: paneHem,
   })[R.tab]();
   renderObar(true);
   head();
@@ -2027,6 +2046,7 @@ function switchTab(k) {
     gia: paneGia,
     danhgia: paneRev,
     tongket: paneSum,
+    hem: paneHem,
   })[k]();
   renderObar();
 }
@@ -2162,7 +2182,7 @@ function tryOpen() {
     toast("⚠️ Chưa nấu: " + miss.map((m) => m[2]).join(", "));
     return;
   }
-  startDay();
+  truyenLuc("mo_cua", startDay);
 }
 function paneUpg() {
   const row = (k) =>
@@ -3774,6 +3794,7 @@ function renderLane() {
             ? `<span class="q3nat">${esc(f.hi)}</span>`
             : `<small class="q3tr">[Tự động dịch]</small> `)
         : "") +
+      (f.reg ? `<span class="q3vipT" style="background:#ef6f8e">♥ ${esc(f.name)}</span> ` : "") +
       (f.star != null && performance.now() - f.born < 3500
         ? ""
         : (f.vip ? '<span class="q3vipT">Food reviewer</span> ' : "") +
@@ -4305,6 +4326,7 @@ function staffHelp() {
     }
     R.pour = o.base;
     R.staffPouring = true;
+    botRot(true);
     pourSnd(true);
     const el = $("q3b_" + o.base);
     el && el.classList.add("q3on");
@@ -4313,6 +4335,7 @@ function staffHelp() {
       if (!R.helping) {
         R.pour = null;
         R.staffPouring = false;
+        botRot(false);
         pourSnd(false);
         el && el.classList.remove("q3on");
         renderCup();
@@ -4330,6 +4353,7 @@ function staffHelp() {
       }
       R.pour = null;
       R.staffPouring = false;
+        botRot(false);
       pourSnd(false);
       el && el.classList.remove("q3on");
       renderCup();
@@ -4760,6 +4784,7 @@ function startPour(k, el) {
     if (cup.base !== k) return;
   } else if (cup.base !== k) cup.mixed = true;
   R.pour = k;
+  botRot(true);
   pourSnd(true);
   q3pourEl = el;
   el.classList.add("q3on");
@@ -4784,6 +4809,7 @@ function startPour(k, el) {
 function stopPour() {
   if (!R.pour || R.staffPouring) return;
   R.pour = null;
+  botRot(false);
   pourSnd(false);
   cancelAnimationFrame(q3raf);
   q3pourEl && q3pourEl.classList.remove("q3on");
@@ -4932,6 +4958,18 @@ function sealServe(fast) {
 /* ---------- GAME LOOP ---------- */
 const appN = (c) => (APPS.find((a) => a.id === c.app) || APPS[0]).n;
 function genOrder() {
+  {
+    const m = MON_DAC_TRUNG;
+    if (coTrang(12) && Math.random() < 0.15 && [m.base, m.flav, ...m.tops].every((k) => S.unlocked[k] && qty(k) > 0)) {
+      const lv0 = level();
+      return {
+        base: m.base, flav: m.flav, tops: [...m.tops], cheese: false,
+        size: Math.random() < lChance() ? "L" : "M", so: null,
+        sugar: lv0 >= 2 ? wpick(SUGAR, [0.15, 0.3, 0.35, 0.2]) : null,
+        ice: lv0 >= 2 ? wpick(ICE, [0.15, 0.35, 0.5]) : null,
+      };
+    }
+  }
   const lv = level(),
     un = (k) => S.unlocked[k],
     has = (k) => qty(k) > 0;
@@ -5016,6 +5054,13 @@ function spawn() {
     return;
   }
   {
+    const k = khachQuenDen();
+    if (k) {
+      spawnQuen(i, k);
+      return;
+    }
+  }
+  {
     const pi = pricyItems();
     if (pi.length && Math.random() < 0.8) {
       R.today.priceLost++;
@@ -5063,6 +5108,7 @@ function spawn() {
   }
   const max =
     (55 + (level() >= 2 ? 8 : 0)) *
+    heSoCho() *
     (S.upg.seats ? 1.25 : 1) *
     (1 + 0.8 * (nc - 1)) *
     (1 +
@@ -5089,7 +5135,7 @@ function spawn() {
     who,
     face: rnd(FACES),
     name: PNAME[who] ? PNAME[who]() : genName(),
-    say: rnd(pp.o),
+    say: xungGoi(rnd(pp.o)),
     end: rnd(pp.e),
     cups,
     done: cups.map(() => false),
@@ -5123,7 +5169,7 @@ function pickApp() {
 }
 function mkOnline(app, cups) {
   const n = cups.length,
-    max = 90 * (n > 1 ? 1 + 0.15 * (n - 1) : 1);
+    max = 90 * (n > 1 ? 1 + 0.15 * (n - 1) : 1) * (coTrang(3) ? 1.2 : 1);
   return {
     id: ++uid,
     app: app.id,
@@ -5409,6 +5455,7 @@ function serve(i) {
     }
     c.done[j] = true;
     recSale(o);
+    ghiMon(o);
     {
       /* sổ bán ghi giá niêm yết; phần chênh với tiền thật (khách ngôi sao trả gấp 3,
          khách trả giá / quỵt mà bảo vệ không thu lại được) ghi riêng để doanh thu khớp két */
@@ -5446,6 +5493,8 @@ function serve(i) {
         1000 *
         (S.upg.sealer ? 1.3 : 1) *
         (evIs("holiday") ? 2 : 1) *
+        (coTrang(4) ? 1.1 : 1) *
+        (coTrang(11) && leHoiNay() === "tet" ? 2 : 1) *
         c.cups.length,
       rv = stars(c, false);
     const toStaff = STAFF.some((x) => S.upg[x.id] && !x.guard);
@@ -5457,8 +5506,14 @@ function serve(i) {
       S.totalRev += tip;
       R.today.tips += tip;
     }
-    if (rv.s >= 5) setTimeout(() => sfx("star"), 250);
+    if (rv.s >= 5) {
+      setTimeout(() => sfx("star"), 250);
+      dauHoanHao();
+    }
+    rung(15);
     addReview(rv.s, rv.why, false, c);
+    if (c.reg) quenXong(c, rv.s);
+    ghiPhucVu(c, rv.s);
     if (c.vip) {
       addReview(rv.s, rv.why, false, c);
       addReview(rv.s, rv.why, false, c);
@@ -5488,6 +5543,7 @@ function serve(i) {
     c.pat = Math.max(0.5, c.pat - c.max * 0.3);
     el.classList.add("angry");
     fl(el, "Sai món! 🗑", true);
+    rung([30, 40, 30]);
     setTimeout(() => el && el.classList.remove("angry"), 300);
     spoilCup();
     renderCup();
@@ -5507,6 +5563,7 @@ function serveOnline(j) {
       p = price(o),
       fee = (p * CFG.commission) / 100;
     recSale(o);
+    ghiMon(o);
     S.cur.onl += p;
     S.cur.fee += fee;
     S.money += p - fee;
@@ -5542,6 +5599,7 @@ function serveOnline(j) {
     R.today.wrong++;
     c.pat = Math.max(0.5, c.pat - c.max * 0.25);
     fl(el, "Sai đơn! 🗑", true);
+    rung([30, 40, 30]);
     spoilCup();
     renderCup();
     renderPanel();
@@ -5560,6 +5618,7 @@ function recSale(o) {
   o.tops.forEach((t) => add(t, sv(S.sell, t)));
   if (o.cheese) add("cheese", sv(S.sell, "cheese"));
   if (o.size === "L") add("L", sv(S.sell, "L"));
+  if (laDacTrung(o)) add("dactrung", MON_DAC_TRUNG.them);
 }
 const recRev = (r) =>
   Object.values(r.sales).reduce((a, x) => a + x.a, 0) +
@@ -5639,6 +5698,7 @@ function decline(i) {
     got = c.done.filter(Boolean).length;
   R.slots[i] = null;
   R.today.lost++;
+  quenBo(c);
   const why = got ? "soldoutPartial" : m.length ? "soldout" : "refused";
   addReview(
     rnd(got ? [3, 3, 4] : [2, 2, 3]),
@@ -5659,7 +5719,8 @@ const BRATS = {
   bung: { n: "", c: "" },
 };
 function pickBrat() {
-  if (S.day < 3) return null;
+  if (S.day < 8) return null; /* những ngày đầu chưa có khách khó chiều */
+  if (coTrang(9) && Math.random() < 0.4) return null;
   const bad = S.mood === "kho" && S.evDay === S.day,
     good = S.mood === "vui" && S.evDay === S.day;
   if (Math.random() > (bad ? 0.45 : good ? 0.04 : 0.12)) return null;
@@ -5743,6 +5804,8 @@ function tick() {
     if (!c) return;
     c.pat -= dt;
     if (c.pat <= 0) {
+      quenBo(c);
+      KL().chuoi = 0;
       R.slots[i] = null;
       R.today.lost++;
       const st = Math.random() < 0.3 ? 2 : 1;
@@ -6017,7 +6080,23 @@ function endDay() {
   noteCaps();
   S.history.push(r);
   if (S.history.length > 400) S.history.shift();
+  ghiNgay(r, rev);
   S.totalProfit = (S.totalProfit || 0) + profit;
+  /* trả dần tiền bà Sáu cho khất: một nửa tiền lãi mỗi ngày, không tính lãi */
+  if (S.noSau > 0 && profit > 0 && S.money > 0) {
+    const tra = Math.min(S.noSau, Math.round(profit / 2), S.money);
+    S.money -= tra;
+    S.noSau -= tra;
+    r.traSau = tra;
+  }
+  /* két âm lần đầu trong chương: bà Sáu cho khất tiền nhà, chưa phá sản */
+  let khat = 0;
+  if (S.money < 0 && !TT().khat[chuongNay()]) {
+    khat = -S.money;
+    S.money = 0;
+    S.noSau = (S.noSau || 0) + khat;
+    TT().khat[chuongNay()] = true;
+  }
   const broke = S.money < 0,
     endMoney = S.money,
     best = S.best || 0,
@@ -6034,9 +6113,13 @@ function endDay() {
     }
   } else {
     /* phá sản: mở quán mới ngay rồi mới lưu, để thoát game vào lại cũng không chơi tiếp được với két âm */
-    const n = S.shopName;
+    /* giữ lại câu chuyện, sổ công thức, độ thân, kỷ lục và cách xưng hô */
+    const n = S.shopName,
+      giu = { tr: S.tr, kl: S.kl, xung: S.xung };
     S = fresh();
     S.shopName = n;
+    Object.assign(S, giu);
+    if (S.tr) Object.assign(S.tr, { qua: {}, ghe: {}, khat: {}, homNay: null });
   }
   save();
   if (!broke) autoBak();
@@ -6057,6 +6140,7 @@ function endDay() {
     ${r.wage - (r.ot || 0) ? `<div><span class="wl">${ico("people")} Lương nhân viên</span><span class="wl">${fmt(r.wage - (r.ot || 0))}</span></div>` : ""}${r.ot ? `<div><span class="wl">${ico("clock")} Tăng ca nhân viên pha chế</span><span class="wl">${fmt(r.ot)}</span></div>` : ""}${r.bad ? `<div><span class="wl">${ico("warn")} Sự cố mất tiền</span><span class="wl">${fmt(r.bad)}</span></div>` : ""}
     ${r.loanInt ? `<div><span class="wl">${ico("money")} Trả nợ (lãi ${fmt(r.loanInt)})</span><span class="wl">${fmt(r.loanOut + r.loanInt)}</span></div>` : ""}
     ${r.guard ? `<div><span class="wl">${ico("people")} Bảo vệ thu lại</span><span class="wl">+${fmt(r.guard)}</span></div>` : ""}
+    ${r.traSau ? `<div><span class="wl">${ico("people")} Trả dần tiền bà Sáu cho khất</span><span class="wl">${fmt(r.traSau)}</span></div>` : ""}
     ${r.staffTip ? `<div><span class="wl">${ico("people")} Tip nhân viên giữ (quán không nhận)</span><span class="wl">${fmt(r.staffTip)}</span></div>` : ""}
     ${r.spoil && r.spoil.n ? `<div><span class="wl">🥤 ${r.spoil.n} ly hỏng</span><span class="wl">${fmt(r.spoil.v)}</span></div>` : ""}
     ${wv ? `<div><span class="wl">${ico("trash")} ${waste.map((x) => ITEMS[x.k].s + " " + x.q).join(", ")}</span><span class="wl">${fmt(wv)}</span></div>` : ""}
@@ -6065,8 +6149,8 @@ function endDay() {
   </div>
   ${
     broke
-      ? `<p>${ico("trophy")} ${best} ngày</p><button class="big" id="go">Mở quán mới</button>`
-      : `${!broke && S.ev ? `<p class="lvup">${ico(EVS[S.ev.id].ic)} Ngày mai: <b>${EVS[S.ev.id].n}</b>. ${evText(S.ev)}</p>` : ""}${nextLv ? `<p class="lvup">${ico("warn")} Từ ngày ${S.day}: ${LV_TXT[nextLv].toLowerCase()}. Đầu ngày sẽ có hướng dẫn.</p>` : ""}${justOnline ? `<p class="lvup">${ico("phone")} Mở đơn online Soppi! ${S.tablets || 0 ? "" : "Mua tablet ở Nâng cấp > Trang bị để đơn đổ về."}</p>` : ""}<button class="sbtn" id="seeSum" style="width:100%;padding:10px;margin-top:6px">${ico("chart")} Tổng kết</button><button class="big" id="go" style="margin-top:8px">Ngày ${S.day} ➜</button>`
+      ? `<p>${ico("trophy")} ${best} ngày</p><p class="note">Câu chuyện Hẻm 42, sổ công thức, độ thân với khách quen và kỷ lục vẫn được giữ.</p><button class="big" id="go">Mở quán mới</button>`
+      : `${khat ? `<p class="lvup">${ico("people")} Két âm ${fmt(khat)}. Bà Sáu cho khất, trả dần bằng một nửa tiền lãi những ngày sau, không tính lãi. Mỗi chương bà chỉ cho khất một lần.</p>` : ""}${!broke && S.ev ? `<p class="lvup">${ico(EVS[S.ev.id].ic)} Ngày mai: <b>${EVS[S.ev.id].n}</b>. ${evText(S.ev)}</p>` : ""}${nextLv ? `<p class="lvup">${ico("warn")} Từ ngày ${S.day}: ${LV_TXT[nextLv].toLowerCase()}. Đầu ngày sẽ có hướng dẫn.</p>` : ""}${justOnline ? `<p class="lvup">${ico("phone")} Mở đơn online Soppi! ${S.tablets || 0 ? "" : "Mua tablet ở Nâng cấp > Trang bị để đơn đổ về."}</p>` : ""}${ngayMaiHTML()}<button class="sbtn" id="seeSum" style="width:100%;padding:10px;margin-top:6px">${ico("chart")} Tổng kết</button><button class="big" id="go" style="margin-top:8px">Ngày ${S.day} ➜</button>`
   }`;
     $("modal").hidden = false;
     $("go").focus();
@@ -6077,6 +6161,7 @@ function endDay() {
       R.sumIdx = null;
       renderPrep();
       window.scrollTo(0, 0);
+      if (!broke) truyenLuc("dong_cua");
     };
     $("go").onclick = () => close("kho");
     if ($("seeSum")) $("seeSum").onclick = () => close("tongket");
@@ -7413,7 +7498,7 @@ function showTour(isNew, fromGame, after) {
     sl.push([
       "Đặt tên quán",
       "",
-      `<div class="till"><div style="text-align:center"><img class="ico" src="img/ic_cupfull.png" alt="" style="width:64px;height:64px"></div><input id="nameIn" class="pinbox nm" maxlength="30" placeholder="Ví dụ: Trà Sữa Nhà Mèo" aria-label="Tên quán"></div>`,
+      `<div class="till"><div style="text-align:center"><img class="ico" src="img/ic_cupfull.png" alt="" style="width:64px;height:64px"></div><input id="nameIn" class="pinbox nm" maxlength="30" placeholder="Ví dụ: Trà Sữa Nhà Mèo" aria-label="Tên quán"><div class="xungc">Khách gọi bạn là <button type="button" class="chip${xung() === "anh" ? " on" : ""}" data-xung="anh">Anh</button><button type="button" class="chip${xung() === "chị" ? " on" : ""}" data-xung="chị">Chị</button></div></div>`,
       1,
     ]);
   const n = sl.length;
@@ -7658,6 +7743,8 @@ function showSettings() {
   $("card").innerHTML = `<h2>${ico("set")} Cài đặt</h2><div class="setl">
     <button class="setb" id="sGuide"><span>${ico("book")}</span>Hướng dẫn</button>
     <button class="setb" id="sNews"><span>${ico("gift")}</span>Có gì mới<small>v${GAME_VERSION}</small></button>
+    <button class="setb" id="sStory"><span>${ico("book")}</span>Cốt truyện Hẻm 42<small>${CHE_DO_TEN[cheDo()]}${cheDo() === "gon" ? " · gộp cả cảnh vào một khung" : cheDo() === "tat" ? " · không hiện cảnh, vẫn nhận trang sổ" : " · từng câu, bỏ qua được"}</small></button>
+    <button class="setb" id="sXung"><span>${ico("people")}</span>Khách gọi bạn là<small>${hoaDau(xung())} · bấm để đổi</small></button>
     <button class="setb" id="sCoach"><span>${ico("book")}</span>Chỉ dẫn từng bước<small>${S.coach === true ? "Luôn bật" : S.coach === false ? "Tắt" : "Tự động"}</small></button>
     <button class="setb" id="sLen"><span>${ico("clock")}</span>Thời gian bán mỗi ngày<small>${S.dayLen || CFG.dayMin} phút${R.running ? " · áp dụng từ ngày sau" : ""}</small></button>
     <button class="setb" id="sTheme"><span>${ico("pen")}</span>Màu giao diện<small>${(THEMES.find((x) => x.id === THEME) || THEMES[0]).n}</small></button>
@@ -7678,6 +7765,17 @@ function showSettings() {
     showTour(false, true);
   };
   $("sNews").onclick = () => showNews(false);
+  $("sStory").onclick = () => {
+    const L = ["day", "gon", "tat"];
+    TT().che = L[(L.indexOf(cheDo()) + 1) % L.length];
+    save();
+    showSettings();
+  };
+  $("sXung").onclick = () => {
+    S.xung = xung() === "chị" ? "anh" : "chị";
+    save();
+    showSettings();
+  };
   $("sTheme").onclick = themeDlg;
   $("sLen").onclick = () => {
     const L = [4, 5, 6],

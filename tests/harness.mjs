@@ -57,7 +57,7 @@ export function boot({ storage = {} } = {}) {
   /* hàm phụ cho test: pha đúng mọi ly của khách ở chỗ i rồi giao, như nhân viên pha chế trong game */
   w.eval(`function __serveSlot(i) {
     const c = R.slots[i];
-    while (c && R.slots[i] === c) {
+    for (let n = 0; c && R.slots[i] === c && R.running && n < 12; n++) {
       const o = c.cups[c.done.indexOf(false)];
       needs(o).forEach((k) => { if (!qty(k)) addStock(k, 5); });
       cup = newCup(); cup.size = o.size; useCup();
@@ -65,6 +65,14 @@ export function boot({ storage = {} } = {}) {
       Object.assign(cup, { base: o.base, flav: o.flav || null, tops: [...o.tops], cheese: !!o.cheese,
         sugar: o.sugar, ice: o.ice, fill: 0.8, used: true });
       serve(i);
+    }
+  }
+  /* bấm nút chính của các hộp thoại đang mở cho tới khi đóng hết (tối đa n lần) */
+  function __closeDialogs(n = 8) {
+    for (let k = 0; k < n && !$("modal").hidden; k++) {
+      const b = $("card").querySelector("#trOk, #trNext, .big[data-ask], [data-ask], #go, .big");
+      if (!b) break;
+      b.click();
     }
   }
   function __openDay() {
