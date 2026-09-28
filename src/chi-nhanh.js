@@ -6,7 +6,7 @@
 
 const cnLoai = () => (S && S.cn ? CN_LOAI.find((x) => x.id === S.cn.loai) : null);
 const cuoiTuanNgay = (d) => d > 1 && (d % 7 === 6 || d % 7 === 0);
-const cnTien = (L) => L.thue * CHI_NHANH.cocNgay + L.trangTri;
+const cnTien = (L) => L.thue * CHI_NHANH.cocNgay + (L.sangLai || 0) + L.trangTri;
 
 /* điều kiện mở chi nhánh */
 function dkChiNhanh() {
@@ -131,9 +131,10 @@ function moChiNhanh(id) {
   const L = CN_LOAI.find((x) => x.id === id);
   if (!L || S.cn || !dkChiNhanh().every((x) => x.ok) || S.money < cnTien(L)) return false;
   const coc = L.thue * CHI_NHANH.cocNgay;
-  S.money -= coc + L.trangTri;
+  S.money -= coc + (L.sangLai || 0) + L.trangTri;
+  if (L.sangLai) S.cur.equip.push({ n: "Sang lại mặt bằng " + L.ngan, v: L.sangLai });
   S.cur.equip.push({ n: "Trang trí " + L.ten.toLowerCase(), v: L.trangTri });
-  S.cn = { loai: id, bd: S.day, gia: L.thue, coc, ql: { ten: rnd(CN_TEN_QL), kn: 2, xp: 0, luong: CHI_NHANH.luongQl }, phu: false, sao: 4.2, hieu: [] };
+  S.cn = { loai: id, bd: S.day, gia: L.thue, coc, sang: L.sangLai || 0, ql: { ten: rnd(CN_TEN_QL), kn: 2, xp: 0, luong: CHI_NHANH.luongQl }, phu: false, sao: 4.2, hieu: [] };
   S.cnDaMo = true;
   TT().co.chi_nhanh = id; /* hậu truyện nhắc lại */
   TT().xem.cn_khai_truong = S.day; /* mốc cho cảnh chú Tư chở hàng qua chi nhánh (cn_cho_hang) */
@@ -153,9 +154,10 @@ function sangNhuongCN() {
     L = cnLoai();
   if (!c || !L) return;
   const traCoc = S.day - c.bd >= CHI_NHANH.hopDong,
-    lai = Math.round((L.trangTri * CHI_NHANH.sangNhuong) / 1000) * 1000;
+    /* chi nhánh mở từ bản cũ chưa trả tiền sang lại thì c.sang không có */
+    lai = Math.round((((c.sang || 0) + L.trangTri) * CHI_NHANH.sangNhuong) / 1000) * 1000;
   ask(
-    `<div class="pbig">${L.ic}</div><h2>Sang nhượng chi nhánh?</h2><p>Lấy lại ${fmtBig(lai)} tiền trang trí. ${traCoc ? `Đã qua một kỳ hợp đồng nên lấy lại cọc ${fmtBig(c.coc)}.` : `Chưa hết kỳ hợp đồng đầu (còn ${CHI_NHANH.hopDong - (S.day - c.bd)} ngày) nên mất cọc ${fmtBig(c.coc)}.`}</p>`,
+    `<div class="pbig">${L.ic}</div><h2>Sang nhượng chi nhánh?</h2><p>Người sang lại trả ${fmtBig(lai)} cho mặt bằng và đồ nghề. ${traCoc ? `Đã qua một kỳ hợp đồng nên lấy lại cọc ${fmtBig(c.coc)}.` : `Chưa hết kỳ hợp đồng đầu (còn ${CHI_NHANH.hopDong - (S.day - c.bd)} ngày) nên mất cọc ${fmtBig(c.coc)}.`}</p>`,
     [
       ["Giữ lại", () => {}],
       [
@@ -163,7 +165,7 @@ function sangNhuongCN() {
         () => {
           const v = lai + (traCoc ? c.coc : 0);
           S.money += v;
-          /* tiền trang trí lấy lại ghi như bán lại đồ (trừ vào chi phí); cọc không ghi sổ, như lúc đặt cọc */
+          /* tiền sang lại ghi như bán lại đồ (trừ vào chi phí); cọc không ghi sổ, như lúc đặt cọc */
           S.cur.equip.push({ n: "Sang nhượng chi nhánh", v: -lai });
           S.cn = null;
           delete TT().co.chi_nhanh; /* lời kết và hậu truyện không nhắc chi nhánh đã sang nhượng */
@@ -198,7 +200,7 @@ function theChiNhanh() {
     du
       ? CN_LOAI.map(
           (L) =>
-            `<div class="cnloai"><b>${L.ic} ${esc(L.ten)}</b><p>${esc(L.mo)}</p><p class="note">Tiền nhà ${fmt(L.thue)}/ngày${L.phanTram ? ` + ${Math.round(L.phanTram * 100)}% doanh thu` : ""} · cọc ${fmtBig(L.thue * CHI_NHANH.cocNgay)} · trang trí ${fmtBig(L.trangTri)}</p><button class="sbtn pri" data-cnmo="${L.id}" ${S.money < cnTien(L) ? "disabled" : ""}><b>${fmtBig(cnTien(L))}</b>Mở</button></div>`,
+            `<div class="cnloai"><b>${L.ic} ${esc(L.ten)}</b><p>${esc(L.mo)}</p><p class="note">Tiền nhà ${fmt(L.thue)}/ngày${L.phanTram ? ` + ${Math.round(L.phanTram * 100)}% doanh thu` : ""} · cọc ${fmtBig(L.thue * CHI_NHANH.cocNgay)} · sang lại mặt bằng, đồ nghề ${fmtBig(L.sangLai || 0)} · trang trí ${fmtBig(L.trangTri)}</p><button class="sbtn pri" data-cnmo="${L.id}" ${S.money < cnTien(L) ? "disabled" : ""}><b>${fmtBig(cnTien(L))}</b>Mở</button></div>`,
         ).join("")
       : ""
   }</div>`;

@@ -44,7 +44,11 @@ function theMatTien() {
 function thueMatTien() {
   if (buoc() >= 2 || !dkMatTien().every((x) => x.ok)) return;
   ask(
-    `<div class="pbig">🏠</div><h2>Ra mặt tiền đầu hẻm?</h2><p>Đặt cọc ${fmtBig(tienCoc())} và trang trí ${fmtBig(MAT_TIEN.trangTri)}. Tiền nhà từ ${fmt(CFG.rent)} lên ${fmt(MAT_TIEN.thue)}/ngày, mỗi ${MAT_TIEN.hopDong} ngày gia hạn tăng khoảng ${Math.round(MAT_TIEN.tang * 100)}%.</p>`,
+    `<div class="pbig">🏠</div><h2>Ra mặt tiền đầu hẻm?</h2><p>Đặt cọc ${fmtBig(tienCoc())} và trang trí ${fmtBig(MAT_TIEN.trangTri)}. Tiền nhà từ ${fmt(CFG.rent)} lên ${fmt(MAT_TIEN.thue)}/ngày, mỗi ${MAT_TIEN.hopDong} ngày gia hạn tăng khoảng ${Math.round(MAT_TIEN.tang * 100)}%.</p>${
+      S.money - tienCoc() - MAT_TIEN.trangTri < MAT_TIEN.vonNau
+        ? `<p class="note">⚠️ Thuê xong két còn ${fmt(S.money - tienCoc() - MAT_TIEN.trangTri)}. Mặt tiền đông khách, chừng đó có thể không đủ nấu hàng hôm nay.</p>`
+        : ""
+    }`,
     [
       ["Để sau", () => {}],
       [
@@ -58,7 +62,7 @@ function thueMatTien() {
           save();
           sfx("lvup");
           if (typeof track === "function") track("thue-mat-tien");
-          toast("🏠 Đã thuê mặt tiền đầu hẻm! Ngày mai mở cửa ở chỗ mới.", 4500, 1);
+          toast("🏠 Đã thuê mặt tiền đầu hẻm! Mở cửa là bán ở chỗ mới.", 4500, 1);
           renderPrep();
         },
         1,

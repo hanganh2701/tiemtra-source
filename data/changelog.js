@@ -1,7 +1,22 @@
 /* Phiên bản và danh sách "Có gì mới". Mỗi lần cập nhật: tăng GAME_VERSION và thêm một mục lên ĐẦU CHANGELOG. */
 /* ===== PHIÊN BẢN GAME: mỗi lần cập nhật, tăng số và thêm một mục lên ĐẦU danh sách ===== */
-const GAME_VERSION = "5.2";
+const GAME_VERSION = "5.2.1";
 const CHANGELOG = [
+  {
+    v: "5.2.1",
+    d: "29/09/2026",
+    items: [
+      "Thẻ cuối ngày và Tổng kết tách Lãi của tiệm với Chi tiêu của bạn (sinh hoạt, trả góp, gửi về quê, mua sắm, quà cho ba mẹ). Mua xe, mua nhà không còn hiện như tiệm lỗ; món mua cho tiệm cũng có tên trong thẻ",
+      "Thùng xoài ở quê không còn làm khách gọi xoài rồi bỏ về: tiệm đang bán vị xoài thì được thêm một chai",
+      "Tab Đời sống ghi rõ khi thiếu là thiếu tiền trả trước để vay, và tiền bán xe, nhà cũ đã được tính vào",
+      "Ngân hàng và số ngày ước chừng tới mục tiêu không tính mấy ngày nghỉ Tết",
+      "Mua xong món mục tiêu thì thanh mục tiêu tắt ngay; mục tiêu trả góp mở sẵn cách Trả góp",
+      "Tiệm đông khách tính sao theo đánh giá của hai ngày gần nhất, một buổi kẹt khách không kéo tụt sao cả tiệm",
+      "Mở chi nhánh cần thêm tiền sang lại mặt bằng và đồ nghề (14–30 triệu), sang nhượng thì lấy lại một phần",
+      "Thuê mặt tiền: nhắc nếu thuê xong két còn ít, không đủ nấu hàng",
+      "Sửa vài câu thoại chuyện nhà ở quê và hậu truyện của mẹ",
+    ],
+  },
   {
     v: "5.2",
     d: "29/09/2026",

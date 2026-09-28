@@ -286,7 +286,7 @@ Chủ dự án muốn có gửi tiền về quê mỗi tháng kèm cốt truyệ
 - [x] Chuyện nhà ở quê (`data/cot-truyen.js`, cảnh `gui_1`…`gui_so`):
   - `gui_1`: ba trặc lưng lúc gặt lúa, mẹ nhắn, dặn đừng lo; hiện từ ngày 36 khi két có 3 triệu, hạn chót ngày 52. Chọn gửi 2 triệu, 5 triệu hay "Để con tính đã"
   - `gui_2`: ba khoẻ lại dù có gửi hay không (có gửi thì đi châm cứu, không thì chú Năm gặt giùm)
-  - `gui_3`: gửi đủ ba tháng thì chú Tư ra bến lấy thùng hàng quê: mở vị xoài, thêm 30 phần xoài
+  - `gui_3`: gửi đủ ba tháng thì chú Tư ra bến lấy thùng hàng quê; tiệm đang bán vị xoài thì thêm một chai (bản 5.2.1, xem dưới)
   - `gui_so`: mua nhà rồi thì mẹ kể đã lén để dành một nửa ở bưu điện xã, gửi lại con sắm đồ nhà mới
   - Nhắc lại lựa chọn ở cảnh về quê ăn Tết (`que_1`) và hậu truyện của mẹ
 - [x] Bộ máy truyện: `macDinh` (lựa chọn dùng khi Bỏ qua hay chế độ Tắt, để game không tự gửi tiền thay người chơi), `tienTren` (két có từ bấy nhiêu, điều kiện mềm)
@@ -306,6 +306,30 @@ Mô phỏng người chơi thật 200 ngày (nghìn đồng):
 | Vừa, chi nhánh gần trường | 35.891 | 114.837 | từ ngày 50, 6 lần, 12.000; thùng xoài ngày 111 | Wave 83, SH 132, Kia Morning trả góp 166; chưa mua nhà |
 
 2 triệu mỗi tháng làm mốc mua sắm chậm vài ngày, nằm trong độ dao động giữa các lượt chạy.
+
+### Sau lần chơi thử bản 5.2 của Claude (bản 5.2.1) — xong 29/09
+
+Claude chơi bản 5.2 trên trang thật, khung điện thoại: tiệm mới tới ngày 153 (tự chọn truyện và mua sắm, máy pha 9 giây mỗi ly) và một bản lưu cũ ngày 68. Sửa:
+
+- [x] Sổ sách tách lãi của tiệm với chi tiêu của chủ tiệm: `recCost` chỉ còn chi phí của tiệm; `recCaNhan` = sinh hoạt, trả góp, gửi về quê, mua sắm đời sống (`r.caNhan`, trước ghi lẫn trong `r.equip`). Thẻ cuối ngày có dòng Lãi của tiệm, khối Chi tiêu của bạn liệt kê từng món, món mua cho tiệm cũng có tên. Tổng kết có Lợi nhuận của tiệm, Chi tiêu của bạn, Còn lại sau chi tiêu. Trước đây ngày mua ô tô hiện "Lãi −91,8 triệu", tổng kết tuần mua nhà hiện "Lợi nhuận −186 triệu" với căn hộ nằm trong Máy móc, trang bị
+- [x] Cảnh `gui_3` không mở vị xoài nữa (có vị siro là 60% khách gọi vị đó; 30 phần hết giữa ngày nên ngày 99 mất 57 khách, sao 4,95 xuống 4,63). Tiệm đang bán xoài thì thêm một chai (`guiVeXoai`)
+- [x] Chữ tình trạng ở tab Đời sống: "Thiếu … trả trước" khi tính theo tiền trả trước để vay; tiêu đề khối ghi tiền trả trước hoặc tiền bán xe, nhà cũ đã tính vào (`dsGhiTiep`)
+- [x] `thuNhapNgay` bỏ ngày nghỉ (`r.nghi`): sau Tết ngân hàng và ước lượng không bị kéo xuống (trước đoán 38 ngày, thực tế 18)
+- [x] Mua xong món mục tiêu thì xoá mục tiêu, thanh mục tiêu ở màn chuẩn bị vẽ lại (`refreshPrep(1)`); mở món mục tiêu thì theo cách trả đã chọn (`dsChonCach`)
+- [x] Thoại: câu ba xách giỏ ở `que_1` không lặp; hậu truyện của mẹ gộp chuyện Tết với chuyện lưng ba; các cảnh `gui_*` mang nhãn "Chuyện nhà ở quê"; câu mở `gui_so` và tin nhắn tháng thứ hai không trùng ý
+- [x] Thuê mặt tiền: thông báo "Mở cửa là bán ở chỗ mới"; hộp xác nhận nhắc khi thuê xong két còn dưới `MAT_TIEN.vonNau` (1 triệu)
+- [x] Sao (`rating`): 40 đánh giá gần nhất, tiệm đông thì lấy hết đánh giá của hôm nay và 2 ngày trước (tối đa 400). Trước đây bán 130 ly mỗi ngày thì một buổi kẹt khách kéo sao từ 4,80 xuống 4,15
+- [x] Chi nhánh có tiền sang lại mặt bằng và đồ nghề (`sangLai`: gần trường 15 triệu, văn phòng 30 triệu, kiosk 14 triệu), sang nhượng lấy lại 60% phần đã trả (chi nhánh mở từ bản cũ chỉ lấy lại phần trang trí). Vốn mở chi nhánh giờ cùng thang với giá xe, nhà; hoàn vốn chừng 5–6 tuần
+
+Mô phỏng người chơi thật sau khi sửa (nghìn đồng):
+
+| Người chơi | Mở chi nhánh | Két ngày 100 | Két ngày 200 | Mốc mua sắm |
+|---|---|---|---|---|
+| Giỏi, gần trường, 70 ngày | ngày 69 | – | – | két ngày 70: 7.339 |
+| Vừa, gần trường, 70 ngày | chưa mở | – | – | két ngày 70: 11.633 |
+| Giỏi, văn phòng | ngày 58 | – | – | két ngày 70: 53.065 |
+| Giỏi, 200 ngày | ngày 65 | 40.356 | 49.394 | Wave 73, SH 110, Kia Morning trả góp 138, nhà ở xã hội trả góp 192, mẹ gửi lại 6.000 |
+| Vừa, 200 ngày | ngày 84 | 16.078 | 84.478 | Wave 93, SH 140, Kia Morning trả góp 176 |
 
 ## Cổng quyết định
 

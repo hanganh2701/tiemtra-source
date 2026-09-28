@@ -714,6 +714,7 @@ const newRec = (d) => ({
   onl: 0,
   fee: 0,
   equip: [],
+  caNhan: [] /* mua sắm đời sống của chủ tiệm (src/doi-song.js): không tính vào lãi của tiệm */,
   ing: {},
   waste: {},
   rent: 0,
@@ -1108,8 +1109,13 @@ const fixed = () => ({
   util: CFG.utilBase + upgCount() * CFG.utilPerUpg,
 });
 /* trung bình 40 đánh giá gần nhất; lúc mới mở tính kèm vài đánh giá 4 sao để một khách bỏ về không kéo tiệm xuống 1 sao */
+/* sao của tiệm: trung bình 40 đánh giá gần nhất; tiệm đông thì lấy hết đánh giá của hôm nay và 2 ngày trước (tối đa 400),
+   để một buổi kẹt khách không kéo tụt sao cả tiệm */
 function rating() {
-  const r = S.reviews.slice(0, 40),
+  const A = S.reviews;
+  let n = 40;
+  while (n < A.length && n < 400 && A[n].d >= S.day - 2) n++;
+  const r = A.slice(0, n),
     dem = Math.max(0, 5 - Math.floor(r.length / 4));
   if (!r.length) return 4;
   return (r.reduce((a, x) => a + x.s, 0) + 4 * dem) / (r.length + dem);
@@ -2033,6 +2039,10 @@ function refreshPrep(board) {
     if (b && sg) {
       const t = document.createElement("div");
       t.innerHTML = menuBoard();
+      /* thanh mục tiêu để dành nằm giữa bảng hiệu và bảng menu: vẽ lại theo */
+      document.querySelectorAll(".dsmucnho").forEach((e) => e.remove());
+      const muc = t.querySelector(".dsmucnho");
+      if (muc) b.before(muc);
       sg.replaceWith(t.querySelector(".sign"));
       b.replaceWith(t.querySelector(".board"));
       $("rename").onclick = renameDlg;
@@ -5726,11 +5736,9 @@ const recRev = (r) =>
   r.tips +
   (r.gift || 0) +
   (r.adj || 0);
+/* chi phí của tiệm; chi tiêu của chủ tiệm (sinh hoạt, trả góp, gửi về quê, mua sắm đời sống) tính riêng ở recCaNhan */
 const recCost = (r) =>
   (r.cnChi || 0) +
-  (r.song || 0) +
-  (r.gop || 0) +
-  (r.gui || 0) +
   r.rent +
   r.util +
   (r.wage || 0) +
@@ -6189,6 +6197,9 @@ function endDay() {
   S.money += r.guard;
   const cost = recCost(r),
     profit = rev - cost,
+    ca = recCaNhan(r) /* chi tiêu của chủ tiệm: hiện riêng dưới lãi của tiệm */,
+    eqv = r.equip.reduce((a, e) => a + e.v, 0),
+    eqTen = ((t) => (t.length > 70 ? t.slice(0, 68) + "…" : t))(r.equip.map((e) => e.n).join(", ")),
     avg = r.starN ? r.starSum / r.starN : 0,
     wv = waste.reduce((a, x) => a + x.v, 0);
   noteCaps();
@@ -6259,13 +6270,20 @@ function endDay() {
     ${r.guard ? `<div><span class="wl">${ico("people")} Bảo vệ thu lại</span><span class="wl">+${fmt(r.guard)}</span></div>` : ""}
     ${r.traSau ? `<div><span class="wl">${ico("people")} Trả dần tiền bà Sáu cho khất</span><span class="wl">${fmt(r.traSau)}</span></div>` : ""}
     ${r.staffTip ? `<div><span class="wl">${ico("people")} Tip nhân viên giữ (quán không nhận)</span><span class="wl">${fmt(r.staffTip)}</span></div>` : ""}
-    ${r.song ? `<div><span class="wl">🏠 Sinh hoạt: ăn, ở, đi lại</span><span class="wl">${fmt(r.song)}</span></div>` : ""}
-    ${r.gop ? `<div><span class="wl">🏦 Trả góp nhà, xe${r.gopXong ? " (trả xong " + esc(r.gopXong) + "!)" : ""}</span><span class="wl">${fmt(r.gop)}</span></div>` : ""}
-    ${r.gui ? `<div><span class="wl">💌 Gửi về quê cho ba mẹ</span><span class="wl">${fmt(r.gui)}</span></div>` : ""}
+    ${eqv ? `<div><span class="wl">🛠️ ${esc(eqTen)}</span><span class="wl">${fmt(eqv)}</span></div>` : ""}
     ${r.cn ? `<div><span class="wl">🏪 Chi nhánh bán ${r.cn.ly} ly (đã tính ở trên)</span><span class="wl">${r.cn.lai < 0 ? "−" : "+"}${fmt(Math.abs(r.cn.lai))}</span></div>` : ""}
     ${r.spoil && r.spoil.n ? `<div><span class="wl">🥤 ${r.spoil.n} ly hỏng</span><span class="wl">${fmt(r.spoil.v)}</span></div>` : ""}
     ${wv ? `<div><span class="wl">${ico("trash")} ${waste.map((x) => ITEMS[x.k].s + " " + x.q).join(", ")}</span><span class="wl">${fmt(wv)}</span></div>` : ""}
-    <div class="tot"><span>${ico("chartup")} Lãi</span><span class="${profit < 0 ? "neg" : "pos"}">${profit < 0 ? "−" : "+"}${fmt(Math.abs(profit))}</span></div>
+    <div class="tot"><span>${ico("chartup")} ${ca ? "Lãi của tiệm" : "Lãi"}</span><span class="${profit < 0 ? "neg" : "pos"}">${profit < 0 ? "−" : "+"}${fmt(Math.abs(profit))}</span></div>
+    ${
+      ca
+        ? `<div class="tot"><span>🏡 Chi tiêu của bạn</span><span class="${ca > 0 ? "neg" : "pos"}">${ca > 0 ? "−" : "+"}${fmt(Math.abs(ca))}</span></div>
+    ${r.song ? `<div><span class="wl">🏠 Sinh hoạt: ăn, ở, đi lại</span><span class="wl">${fmt(r.song)}</span></div>` : ""}
+    ${r.gop ? `<div><span class="wl">🏦 Trả góp nhà, xe${r.gopXong ? " (trả xong " + esc(r.gopXong) + "!)" : ""}</span><span class="wl">${fmt(r.gop)}</span></div>` : ""}
+    ${r.gui ? `<div><span class="wl">💌 Gửi về quê cho ba mẹ</span><span class="wl">${fmt(r.gui)}</span></div>` : ""}
+    ${(r.caNhan || []).map((e) => `<div><span class="wl">🛍️ ${esc(e.n)}</span><span class="wl">${e.v < 0 ? "+" : ""}${fmt(Math.abs(e.v))}</span></div>`).join("")}`
+        : ""
+    }
     <div class="tot"><span>${ico("money")} Két</span><span>${fmt(endMoney)}</span></div>
   </div>
   ${
@@ -6309,6 +6327,7 @@ function aggregate(recs) {
     onl: 0,
     fee: 0,
     equip: [],
+    caNhan: [],
     ing: {},
     waste: {},
     rent: 0,
@@ -6329,6 +6348,7 @@ function aggregate(recs) {
     addMap(g.ing, r.ing);
     addMap(g.waste, r.waste);
     g.equip.push(...r.equip.map((e) => ({ ...e, d: r.day })));
+    g.caNhan.push(...(r.caNhan || []).map((e) => ({ ...e, d: r.day })));
     if (r.spoil) {
       g.spoil.n += r.spoil.n;
       g.spoil.v += r.spoil.v;
@@ -6430,11 +6450,10 @@ function paneSum() {
       g.fee +
       ingTot +
       g.tax +
-      (g.cnChi || 0) +
-      (g.song || 0) +
-      (g.gop || 0) +
-      (g.gui || 0),
-    profit = rev - cost;
+      (g.cnChi || 0),
+    profit = rev - cost,
+    muaTot = g.caNhan.reduce((a, x) => a + x.v, 0),
+    caTot = (g.song || 0) + (g.gop || 0) + (g.gui || 0) + muaTot;
   const avg = g.starN
     ? (g.starSum / g.starN).toFixed(1).replace(".", ",")
     : "–";
@@ -6476,9 +6495,6 @@ function paneSum() {
   ${g.wage - (g.ot || 0) ? `<div class="crow"><span>Lương nhân viên</span><span>${vn(g.wage - (g.ot || 0))}</span></div>` : ""}${g.ot ? `<div class="crow"><span>Tăng ca nhân viên pha chế</span><span>${vn(g.ot)}</span></div>` : ""}${g.bad ? `<div class="crow"><span>Sự cố mất tiền</span><span>${vn(g.bad)}</span></div>` : ""}
   ${g.loanInt ? `<div class="crow"><span>Lãi vay</span><span>${vn(g.loanInt)}</span></div>` : ""}
   ${g.cnChi ? `<div class="crow"><span>Chi nhánh: tiền nhà, lương, hàng</span><span>${vn(g.cnChi)}</span></div>` : ""}
-  ${g.song ? `<div class="crow"><span>Sinh hoạt của bạn: ăn, ở, đi lại</span><span>${vn(g.song)}</span></div>` : ""}
-  ${g.gop ? `<div class="crow"><span>Trả góp nhà, xe</span><span>${vn(g.gop)}</span></div>` : ""}
-  ${g.gui ? `<div class="crow"><span>Gửi về quê cho ba mẹ</span><span>${vn(g.gui)}</span></div>` : ""}
   <div class="crow"><span>Máy móc, trang bị & công thức</span><span>${vn(eqTot)}</span></div>
   ${g.equip.map((e) => `<div class="crow sub"><span>– ${e.n}${mode !== "day" ? " (ngày " + e.d + ")" : ""}</span><span>${vn(e.v)}</span></div>`).join("")}
   ${g.fee || S.online ? `<div class="crow"><span>Phí app giao hàng (${CFG.commission}%)</span><span>${vn(g.fee)}</span></div>` : ""}
@@ -6493,7 +6509,18 @@ function paneSum() {
   ${g.spoil.n ? `<div class="wbox">🥤 Ly làm hỏng: ${g.spoil.n} ly · ${vn(g.spoil.v)}k (đã nằm trong tiền nguyên liệu)</div>` : ""}
   <div class="crow"><span>Thuế</span><span>${vn(g.tax)}</span></div>
   <div class="ttot neg"><span>Tổng chi phí</span><span>${vn(cost)}k</span></div>
-  <div class="final ${profit < 0 ? "neg" : "pos"}"><span>Lợi nhuận sau thuế<small>Doanh thu − chi phí</small></span><span>${profit < 0 ? "−" : ""}${vn(Math.abs(profit))}k</span></div>`;
+  <div class="final ${profit < 0 ? "neg" : "pos"}"><span>Lợi nhuận của tiệm<small>Doanh thu − chi phí, sau thuế</small></span><span>${profit < 0 ? "−" : ""}${vn(Math.abs(profit))}k</span></div>${
+    caTot
+      ? `<div class="sec">Chi tiêu của bạn</div>
+  ${g.song ? `<div class="crow"><span>Sinh hoạt của bạn: ăn, ở, đi lại</span><span>${vn(g.song)}</span></div>` : ""}
+  ${g.gop ? `<div class="crow"><span>Trả góp nhà, xe</span><span>${vn(g.gop)}</span></div>` : ""}
+  ${g.gui ? `<div class="crow"><span>Gửi về quê cho ba mẹ</span><span>${vn(g.gui)}</span></div>` : ""}
+  ${g.caNhan.length ? `<div class="crow"><span>Mua sắm, quà cho ba mẹ</span><span>${vn(muaTot)}</span></div>` : ""}
+  ${g.caNhan.map((e) => `<div class="crow sub"><span>– ${esc(e.n)}${mode !== "day" ? " (ngày " + e.d + ")" : ""}</span><span>${vn(e.v)}</span></div>`).join("")}
+  <div class="ttot neg"><span>Tổng chi tiêu</span><span>${vn(caTot)}k</span></div>
+  <div class="final ${profit - caTot < 0 ? "neg" : "pos"}"><span>Còn lại sau chi tiêu<small>Lợi nhuận của tiệm − chi tiêu của bạn</small></span><span>${profit - caTot < 0 ? "−" : ""}${vn(Math.abs(profit - caTot))}k</span></div>`
+      : ""
+  }`;
   $("pane").innerHTML = h;
   $("pane").onclick = (e) => {
     const m = e.target.closest("[data-sm]"),

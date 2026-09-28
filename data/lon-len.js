@@ -5,6 +5,7 @@ const MAT_TIEN = {
   cocNgay: 12, /* cọc bằng bấy nhiêu ngày tiền nhà */
   khach: 1.4, /* khách vãng lai đông hơn trong hẻm bấy nhiêu lần */
   trangTri: 2500000,
+  vonNau: 1000000, /* thuê xong mà két còn dưới bấy nhiêu thì hộp xác nhận nhắc có thể không đủ nấu hàng */
   tuNgay: 20,
   sao: 4.2,
   hopDong: 28, /* ngày mỗi kỳ hợp đồng */

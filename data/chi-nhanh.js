@@ -1,6 +1,7 @@
 /* Chi nhánh (bậc 3): tiệm thứ hai, chọn một trong ba loại, quản lý tự bán, tiệm gốc làm bếp trung tâm.
    Chi nhánh chỉ bán vào những ngày bạn mở tiệm gốc (tắt game thì không tự cộng tiền). Nạp trước game.js.
-   Tiền nhà thu nhỏ theo cùng tỉ lệ với mặt tiền. */
+   Tiền nhà thu nhỏ theo cùng tỉ lệ với mặt tiền. sangLai = tiền sang lại mặt bằng kèm đồ nghề có sẵn của chủ cũ (bản 5.2.1):
+   vốn mở chi nhánh cùng thang với giá xe, nhà ở tab Đời sống, hoàn vốn chừng 5–6 tuần. */
 const CHI_NHANH = {
   sauMatTien: 14 /* đã ra mặt tiền ít nhất bấy nhiêu ngày */,
   sao: 4.3,
@@ -14,7 +15,7 @@ const CHI_NHANH = {
   capPhu: 30 /* người phụ bán thêm được bấy nhiêu ly mỗi ngày */,
   muaNgoai: 1.3 /* hàng mua ngoài đắt hơn hàng tiệm gốc nấu */,
   lapLai: 7 /* một tình huống không lặp lại trong bấy nhiêu ngày */,
-  sangNhuong: 0.6 /* sang nhượng thì lấy lại phần tiền trang trí này */,
+  sangNhuong: 0.6 /* sang nhượng lại cho người khác thì lấy lại phần này của tiền sang lại và trang trí */,
   diemPhoTra: 8 /* có chi nhánh thì cộng điểm Phố Trà */,
 };
 
@@ -23,17 +24,17 @@ const CHI_NHANH = {
 const CN_LOAI = [
   {
     id: "truong", ic: "🏫", ten: "Chi nhánh gần trường", ngan: "gần trường",
-    thue: 150000, trangTri: 3000000, cau: 105, cuoiTuan: 0.4, thi: 0.5, mua: 0.75, nong: 1.15, gia: 0.85,
+    thue: 150000, trangTri: 3000000, sangLai: 15000000, cau: 105, cuoiTuan: 0.4, thi: 0.5, mua: 0.75, nong: 1.15, gia: 0.85,
     mo: "Học sinh đông, thích ngọt và nhiều topping, giá mềm hơn tiệm gốc. Cuối tuần và tuần thi vắng.",
   },
   {
     id: "vp", ic: "🏢", ten: "Chi nhánh dưới toà văn phòng", ngan: "toà văn phòng",
-    thue: 300000, trangTri: 4000000, cau: 95, cuoiTuan: 0.3, mua: 0.85, nong: 1.1, gia: 1.1,
+    thue: 300000, trangTri: 4000000, sangLai: 30000000, cau: 95, cuoiTuan: 0.3, mua: 0.85, nong: 1.1, gia: 1.1,
     mo: "Trưa ngày thường đông nghẹt, khách chịu chi hơn. Cuối tuần gần như vắng.",
   },
   {
     id: "kiosk", ic: "🛍️", ten: "Kiosk trong trung tâm thương mại", ngan: "kiosk",
-    thue: 180000, phanTram: 0.08, trangTri: 2000000, cau: 72, cuoiTuan: 1.2, mua: 1, nong: 1, gia: 1, capMax: 85,
+    thue: 180000, phanTram: 0.08, trangTri: 2000000, sangLai: 14000000, cau: 72, cuoiTuan: 1.2, mua: 1, nong: 1, gia: 1, capMax: 85,
     mo: "Không sợ mưa nắng, khách đều cả tuần, cuối tuần đông hơn. Chỉ 2 chỗ nên bán có hạn, trung tâm lấy 8% doanh thu.",
   },
 ];

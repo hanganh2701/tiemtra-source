@@ -61,11 +61,16 @@ function gopNgay(vay, laiNam, n) {
   const r = laiNam / 360;
   return Math.ceil((vay * r) / (1 - (1 + r) ** -n) / 1000) * 1000;
 }
-/* thu nhập mỗi ngày ngân hàng xét: trung bình 7 ngày gần nhất, không tính tiền mua sắm, tiền góp, tiền gửi về quê */
+/* chi tiêu của chủ tiệm trong một ngày: sinh hoạt, trả góp, gửi về quê, mua sắm đời sống (bán lại đồ cũ thì trừ ra).
+   Không nằm trong chi phí của tiệm (recCost): thẻ cuối ngày và tổng kết hiện riêng dưới lãi của tiệm */
+const recCaNhan = (r) => (r.song || 0) + (r.gop || 0) + (r.gui || 0) + (r.caNhan || []).reduce((a, e) => a + e.v, 0);
+const ghiCaNhan = (n, v) => (S.cur.caNhan = S.cur.caNhan || []).push({ n, v });
+/* thu nhập mỗi ngày ngân hàng xét: trung bình 7 ngày mở cửa gần nhất (bỏ ngày nghỉ Tết), lãi của tiệm trừ tiền ăn ở,
+   không trừ tiền mua trang bị (bản lưu cũ còn ghi đồ đời sống trong đó) */
 function thuNhapNgay() {
-  const H = (S.history || []).slice(-7);
+  const H = (S.history || []).filter((r) => !r.nghi).slice(-7);
   if (H.length < 3) return 0;
-  return H.reduce((a, r) => a + recRev(r) - recCost(r) + r.equip.reduce((s, e) => s + Math.max(0, e.v), 0) + (r.gop || 0) + (r.gui || 0), 0) / H.length;
+  return H.reduce((a, r) => a + recRev(r) - recCost(r) - (r.song || 0) + r.equip.reduce((s, e) => s + Math.max(0, e.v), 0), 0) / H.length;
 }
 
 /* ---------- mua bán ---------- */
@@ -126,19 +131,24 @@ function dsXong(x, cau, them) {
   xetHuyHieu();
   ask(
     `<div class="dshinhto">${dsHinh(dsDong(x), x)}</div><h2>${esc(x.ten)}</h2>${cau ? locDong([cau]).map(dongThoai).join("") : ""}${them ? `<p class="note">${them}</p>` : ""}${x.uuDai ? `<p class="note">${esc(x.uuDai)}</p>` : ""}`,
-    [["Tiếp tục", () => refreshPrep(), 1]],
+    [["Tiếp tục", () => refreshPrep(1), 1]],
   );
 }
 /* mua (gop = trả góp); trả true nếu đã mua */
 function muaDs(dong, id, gop) {
   const d = dsS();
+  /* mua đúng món mục tiêu thì mục tiêu xong */
+  const xongMuc = () => {
+    if (d.muc && d.muc.dong === dong && d.muc.id === id) d.muc = null;
+  };
   if (dong === "do" || dong === "qua") {
     const x = (dong === "do" ? DS_DO : DS_QUA).find((y) => y.id === id);
     if (!x || d[dong][id] || S.money < x.gia) return false;
     S.money -= x.gia;
     d[dong][id] = S.day;
     TT().co["ds_" + id] = true;
-    S.cur.equip.push({ n: (dong === "do" ? "Mua " : "Quà: ") + x.ten.toLowerCase(), v: x.gia });
+    xongMuc();
+    ghiCaNhan((dong === "do" ? "Mua " : "Quà cho ba mẹ: ") + x.ten, x.gia);
     dsXong(x, dong === "qua" ? ["tin", x.tin] : x.phan);
     return true;
   }
@@ -147,14 +157,15 @@ function muaDs(dong, id, gop) {
   const t = dsTinh(dong, x, gop),
     cu = dsMuc(dong) || (dong === "nha" ? null : DS_DONG[dong][0]);
   S.money -= t.can;
-  /* ghi sổ theo dòng tiền: tiền trả ngay là chi phí, tiền bán lại đồ cũ (đã trừ nợ) trừ vào chi phí; cọc không ghi */
-  if (x.gia) S.cur.equip.push({ n: (t.vay ? "Trả trước " : "") + x.ten, v: x.gia - t.vay });
-  if (dong !== "tro" && cu && cu.gia && t.thuVe) S.cur.equip.push({ n: "Bán lại " + cu.ten, v: -t.thuVe });
+  /* ghi vào chi tiêu cá nhân theo dòng tiền: tiền trả ngay, tiền bán lại đồ cũ (đã trừ nợ) thì trừ ra; cọc không ghi */
+  if (x.gia) ghiCaNhan((t.vay ? "Trả trước " : "Mua ") + x.ten, x.gia - t.vay);
+  if (dong !== "tro" && cu && cu.gia && t.thuVe) ghiCaNhan("Bán lại " + cu.ten, -t.thuVe);
   if (dong === "nha") d.coc = 0; /* dọn khỏi chỗ thuê, lấy lại cọc (đã tính trong tiền thu về) */
   if (dong === "tro") d.coc = x.coc || 0;
   d[dong] = id;
   if (d.vay[dong]) delete d.vay[dong]; /* nợ món cũ đã trả bằng tiền bán lại */
   if (t.vay) d.vay[dong] = { id, con: t.vay, gop: t.gop, lai: t.lai, ngay: t.ngay };
+  xongMuc();
   dsXong(x, x.phan, t.vay ? `Vay ${fmtBig(t.vay)}, góp ${fmt(t.gop)}/ngày trong ${DS.vay[dong].ten}.` : "");
   return true;
 }
@@ -163,7 +174,7 @@ function traHetVay(dong) {
   const v = dsS().vay[dong];
   if (!v || S.money < v.con) return false;
   S.money -= v.con;
-  S.cur.equip.push({ n: "Trả hết nợ góp " + ((DS_DONG[dong].find((x) => x.id === v.id) || {}).ten || ""), v: v.con });
+  ghiCaNhan("Trả hết nợ góp " + ((DS_DONG[dong].find((x) => x.id === v.id) || {}).ten || ""), v.con);
   delete dsS().vay[dong];
   save();
   head();
@@ -251,6 +262,12 @@ function dsGuiCuoiNgay(r) {
   if (r.guiLo) return `<p class="lvup">💌 Két không còn dư để gửi về quê tháng này. ${esc(DS_GUI_KET)}</p>`;
   return "";
 }
+/* cảnh gui_3: thùng xoài ở quê. Chỉ thêm hàng khi tiệm đang bán vị xoài, để không mở vị mới rồi hết giữa ngày */
+function guiVeXoai() {
+  if (!(S.unlocked.f_xoai && qty("f_xoai") > 0)) return;
+  addStock("f_xoai", CFG.bottleN);
+  setTimeout(() => toast(`🥭 Thêm ${CFG.bottleN} ly vị xoài từ thùng quê`, 3500, 1), 700);
+}
 /* cảnh gui_so: mua nhà rồi thì mẹ gửi lại phần đã để dành */
 function guiVeTraLai() {
   const d = dsS(),
@@ -297,9 +314,21 @@ function dsChuTT(dong, x, dai) {
   if (t.gop != null) return { cls: "gop", chu: `Góp được${dai ? " · trả trước " + fmtBig(t.gop) : ""}` };
   const nganHang = /Ngân hàng/.test(t.lyGop || ""),
     truoc = DS.vay[dong] && !nganHang ? dsTinh(dong, x, true).can : Infinity,
+    laGop = truoc < t.gia /* thiếu tính theo tiền trả trước khi vay */,
     thieu = Math.max(0, Math.min(t.gia, truoc) - S.money),
     n = dai && dsSoNgay(thieu);
-  return { cls: "thieu", chu: `Thiếu ${fmtBig(thieu)}${n ? " · ~" + n + " ngày" : ""}` };
+  return { cls: "thieu", laGop, chu: `Thiếu ${dai ? fmtBig(thieu) : dsGon(thieu)}${laGop ? " trả trước" : ""}${n ? " · ~" + n + " ngày" : ""}` };
+}
+/* số tiền gọn cho chữ tình trạng: 39,7tr, 1,05 tỷ */
+const dsGon = (n) => (Math.abs(n) >= 1e9 ? fmtBig(n) : fmtTr(n));
+/* ghi chú cho nấc kế tiếp ở tiêu đề khối: tiền trả trước khi vay, hoặc tiền bán lại đồ cũ đã tính vào */
+function dsGhiTiep(dong, x) {
+  const t = dsChuTT(dong, x);
+  if (t.cls === "gop" || (t.cls === "thieu" && t.laGop)) return ` · trả trước ${dsGon(dsTinh(dong, x, true).can)}`;
+  const thuVe = dsTinh(dong, x, false).thuVe,
+    cu = dsMuc(dong);
+  if (cu && cu.gia && thuVe >= 1e6) return ` · bán ${dong === "nha" ? "nhà" : dong === "dt" ? "máy" : "xe"} cũ được ${dsGon(thuVe)}`;
+  return "";
 }
 /* ô vuông cho đồ dùng và quà (lưới 3 cột) */
 function dsTheNho(dong, x) {
@@ -365,7 +394,7 @@ function dsKhoi(k) {
       hien = dsNac(k).filter(([dong, x]) => !dsTinhTrang(dong, x).qua);
     hinh = dang ? dsHinh(dang[0], dang[1]) : k.id === "ot" ? hinhXe(DS_OT[0]).replace('class="dshinh"', 'class="dshinh mo"') : "";
     dong1 = dang ? `${k.id === "o" ? "Đang ở" : "Đang dùng"}: ${esc(dang[1].ten)}${dang[1].ngay ? " · " + fmt(dang[1].ngay) + "/ngày" : ""}` : "Chưa có";
-    dong2 = tiep ? `Tiếp: ${esc(tiep[1].ten)} · ${tiep[1].gia ? fmtBig(tiep[1].gia) : fmt(tiep[1].ngay) + "/ngày"}` : "Đã lên nấc cao nhất";
+    dong2 = tiep ? `Tiếp: ${esc(tiep[1].ten)} · ${tiep[1].gia ? fmtBig(tiep[1].gia) : fmt(tiep[1].ngay) + "/ngày"}${esc(dsGhiTiep(tiep[0], tiep[1]))}` : "Đã lên nấc cao nhất";
     if (tiep) {
       const t = dsChuTT(tiep[0], tiep[1]);
       chip = `<small class="st ${t.cls}">${esc(t.chu)}</small>`;
@@ -376,7 +405,7 @@ function dsKhoi(k) {
           .join("")}`
       : "";
   }
-  return `<section class="dskhoi${mo ? " mo" : ""}" id="dsk-${k.id}"><button class="dskh" data-dskhoi="${k.id}" aria-expanded="${mo}"><span class="dskhh">${hinh}</span><span class="dskht"><span class="dskhtt"><b>${esc(k.ten)}</b>${chip}</span><small>${dong1}</small><small>${dong2}</small></span><span class="dskhc">${mo ? "▴" : "▾"}</span></button>${mo ? `<div class="dskb">${than}</div>` : ""}</section>`;
+  return `<section class="dskhoi${mo ? " mo" : ""}" id="dsk-${k.id}"><button class="dskh" data-dskhoi="${k.id}" aria-expanded="${mo}"><span class="dskhh">${hinh}</span><span class="dskht"><span class="dskhtt"><b>${esc(k.ten)}</b>${chip}</span><small>${dong1}</small><small class="dsk2">${dong2}</small></span><span class="dskhc">${mo ? "▴" : "▾"}</span></button>${mo ? `<div class="dskb">${than}</div>` : ""}</section>`;
 }
 /* bản lưu 5.0 vừa được hoàn tiền nhà xe: báo một lần lúc chuẩn bị ngày */
 function dsBaoHoan() {
@@ -434,7 +463,7 @@ function dsMucDu() {
   save();
   ask(`<div class="dshinhto">${dsHinh(m.dong, m.x)}</div><h2>Đủ tiền mua ${esc(m.x.ten)} rồi!</h2><p class="note">Mục tiêu để dành của bạn. Mua hay chưa là tuỳ bạn.</p>`, [
     ["Để sau", () => {}],
-    ["Xem", () => setTimeout(() => xemDs(m.dong, m.x.id), 50), 1],
+    ["Xem", () => setTimeout(() => (dsChonCach(m.dong, m.x.id), xemDs(m.dong, m.x.id)), 50), 1],
   ]);
   return true;
 }
@@ -464,6 +493,13 @@ function paneDoiSongVe() {
   $("pane").innerHTML = paneDoiSong();
 }
 
+/* cách trả khi mở bảng chi tiết: món mục tiêu theo cách đã chọn lúc đặt; món khác mà chỉ góp được thì mở sẵn Trả góp */
+function dsChonCach(dong, id) {
+  const m = dsS().muc,
+    x = dsTim(dong, id);
+  if (m && m.dong === dong && m.id === id) R.dsCach = m.gop ? "gop" : "thang";
+  else if (DS.vay[dong] && x && dsKhongDuoc(dong, x, false) && !dsKhongDuoc(dong, x, true)) R.dsCach = "gop";
+}
 /* ---------- bảng chi tiết từ dưới lên: một bảng mỗi lần; nút Đóng, chạm nền hay vuốt lui trên điện thoại đều đóng ---------- */
 let dsBangMo = false;
 function dongBangDs(luiLichSu) {
@@ -589,6 +625,6 @@ document.addEventListener("click", (e) => {
     R.dsMo = dsKhoiCua(dong);
     renderPrep();
   }
-  R.dsCach = DS.vay[dong] && dsKhongDuoc(dong, dsTim(dong, id), false) && !dsKhongDuoc(dong, dsTim(dong, id), true) ? "gop" : R.dsCach;
+  dsChonCach(dong, id);
   xemDs(dong, id);
 });
