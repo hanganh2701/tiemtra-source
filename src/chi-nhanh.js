@@ -83,7 +83,7 @@ function chiNhanhCuoiNgay(r) {
     thu = Math.round((ly * g.gia * L.gia * cnHieu("giaHs", 1)) / 100) * 100,
     du = cnLayHangDu(ly),
     phanDu = ly ? (du.tra + du.top) / (2 * ly) : 0,
-    hang = Math.round(ly * g.hang * CHI_NHANH.muaNgoai * (1 - 0.9 * phanDu)),
+    hang = Math.round(ly * g.hang * CHI_NHANH.muaNgoai * (1 - 0.9 * phanDu) * dsHangCn()),
     nha = c.gia + (L.phanTram ? Math.round(thu * L.phanTram) : 0),
     luong = Math.round(c.ql.luong + thu * CHI_NHANH.phanTramQl + (c.phu ? CHI_NHANH.luongPhu : 0)),
     chi = hang + nha + luong;

@@ -504,11 +504,13 @@ MAU_CHUYEN.push(
     thoai: [
       ["tin", "Mẹ: Tết này con có về không…"],
       ["tin", "Mẹ: Thôi, ba mẹ lên thăm con. Nhớ để dành bàn cho ba ngồi."],
+      ["tin", "Mẹ: Năm nay ba mẹ ngủ lại nhà con luôn nghen, khỏi ra nhà trọ.", { co: { ds_nha_rong: true } }],
       ["_", "(Chú Tư chở hai ông bà từ bến xe về tận Hẻm 42.)"],
       ["tu", "Ông bà coi, tiệm con mình đông khách lắm đó nghen!"],
     ],
     thoaiLai: [
       ["tin", "Mẹ: Năm nay ba mẹ lại lên nghen. Ba đòi ngồi đúng cái bàn năm ngoái."],
+      ["tin", "Mẹ: Ba mẹ ở lại nhà con tới mùng bốn nghen.", { co: { ds_nha_rong: true } }],
       ["_", "(Chú Tư lại chạy ra bến xe đón, lần này không cần ai nhờ.)"],
       ["tu", "Ông bà ơi, tiệm năm nay còn đông hơn năm ngoái đó!"],
     ],
@@ -1104,6 +1106,7 @@ MAU_CHUYEN.push(
     dieuKien: { nhanh: { tet: "A" }, sau: "que_1", cachNgay: 1 },
     uuTien: 10,
     thoai: [
+      ["_", "(Mái nhà mới lợp năm rồi, đêm mưa nghe êm ru.)", { co: { ds_qua_mai_nha: true } }],
       ["me_gap", "Con nếm thử nồi trà gừng này coi. Công thức của bà ngoại."],
       ["me_gap", "Hồi mẹ lên Sài Gòn đi học, mẹ uống trà quán bà Sáu hoài."],
       ["_", "(Mẹ lấy trong hộc tủ ra một trang giấy cũ, nét chữ lạ mà quen.)"],
@@ -1325,6 +1328,9 @@ const HAU_TRUYEN = [
     [{ an: true }],
   ]],
   ["me_gap", [
+    [{ co: { ds_nha_hem: true } }, "Ba mẹ dọn lên căn nhà cuối Hẻm 42. Sáng nào mẹ cũng ra tiệm phụ rửa ly."],
+    [{ co: { ds_qua_mai_nha: true } }, "Mẹ nhắn: \"Mưa lớn mà ba ngủ ngon, lâu lắm rồi.\" Mái nhà ở quê không còn dột."],
+    [{ co: { ds_qua_du_lich: true } }, "Tấm hình ba mẹ đứng ở biển, mẹ để làm hình nền điện thoại."],
     [{ nhanh: { tet: "A" } }, "Mẹ gói cho con túi mứt gừng, dặn: \"Tết sau về nữa nghen. Dẫn Mướp về luôn.\""],
     [{ co: { me_len: true, c1_vay: "me" } }, "Mẹ về quê kể với ba chuyện tiền gửi. Ba chỉ hỏi: \"Tiệm có bán trà đá không?\""],
     [{ co: { me_len: true } }, "Mẹ in đánh giá năm sao của mình ra, dán lên tủ lạnh cạnh tên tiệm."],

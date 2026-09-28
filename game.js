@@ -1,7 +1,7 @@
 /*ts*/
 /* icon vẽ vector cùng phong cách tranh gốc, thay cho những ảnh PNG bị thiếu */
 const ICO_SVG = new Set([
-  "angry", "book", "calendar", "chartup", "clock", "gift", "lock", "money", "moon", "phone", "receipt",
+  "angry", "book", "calendar", "chartup", "clock", "gift", "home", "lock", "money", "moon", "phone", "receipt",
   "reload", "sad", "strawberry", "trash", "trophy", "upbulb", "upchair", "upcups", "upmega", "upsnow",
 ]);
 function ico(n, c) {
@@ -14,6 +14,7 @@ const ICO_GONE = new Set();
 const ICO_EMO = {
   angry: "😠",
   book: "📖",
+  home: "🏠",
   calendar: "📅",
   chartup: "📈",
   clock: "🕐",
@@ -883,7 +884,7 @@ function syncFlav() {
   });
 }
 const bottleCost = (k) =>
-  Math.round(CFG.bottle * heSoGiaNhap() * (evIs("sale") && ev().k === k ? 0.7 : 1));
+  Math.round(CFG.bottle * heSoGiaNhap() * dsGiaNhap() * (evIs("sale") && ev().k === k ? 0.7 : 1));
 function take(k) {
   const b = S.stock[k].find((x) => x.q > 0);
   if (!b) return false;
@@ -1278,6 +1279,7 @@ function bindLoan() {
 const ecost = (k) =>
   CFG.cost[k] *
   heSoGiaNhap() *
+  dsGiaNhap() *
   (evIs("sale") && ev().k === k ? 0.7 : 1) *
   (coTrang(5) && ITEMS[k] && ITEMS[k].type === "base" ? 0.9 : 1);
 function evCard() {
@@ -1540,7 +1542,7 @@ function traffic() {
       (coTrang(7) && (evIs("holiday") || leHoiNay()) ? 1.2 : 1) *
       (coTrang(10) ? 1.05 : 1);
   return (
-    (rf * boost * so * heSoKhachBuoc() * heSoKhachLe() * heSoKhachTruyen() * heSoKhachTri() * (e ? EVS[e.id].mul : 1)) /
+    (rf * boost * so * heSoKhachBuoc() * heSoKhachLe() * heSoKhachTruyen() * heSoKhachTri() * dsKhach() * (e ? EVS[e.id].mul : 1)) /
     Math.max(0.85, Math.min(1, avgIdx) ** 2)
   );
 }
@@ -1988,6 +1990,9 @@ function bindSub(id) {
     tm = setTimeout(() => fit(R.sub[id] || 0), 120);
   };
 }
+/* vẽ nội dung một tab ở màn chuẩn bị */
+const vePane = (k) =>
+  (({ kho: paneKho, nangcap: paneUpg, gia: paneGia, danhgia: paneRev, tongket: paneSum, hem: paneHem, doisong: paneDoiSongVe })[k] || paneKho)();
 function renderPrep() {
   R.mode = "prep";
   if (AU.ctx) musSync();
@@ -2001,6 +2006,7 @@ function renderPrep() {
     ["danhgia", "star", "Đánh giá"],
     ["tongket", "chart", "Tổng kết"],
     ["hem", "book", "Hẻm 42"],
+    ["doisong", "home", "Đời sống"],
   ];
   $("view").innerHTML =
     menuBoard() +
@@ -2013,14 +2019,7 @@ function renderPrep() {
   };
   $("rename").onclick = renameDlg;
   bindBoard();
-  ({
-    kho: paneKho,
-    nangcap: paneUpg,
-    gia: paneGia,
-    danhgia: paneRev,
-    tongket: paneSum,
-    hem: paneHem,
-  })[R.tab]();
+  vePane(R.tab);
   renderObar(true);
   head();
   setTimeout(prepChecks, 300);
@@ -2038,13 +2037,7 @@ function refreshPrep(board) {
       bindBoard();
     }
   }
-  ({
-    kho: paneKho,
-    nangcap: paneUpg,
-    gia: paneGia,
-    danhgia: paneRev,
-    tongket: paneSum,
-  })[R.tab]();
+  vePane(R.tab);
   renderObar();
   head();
 }
@@ -2089,14 +2082,7 @@ function switchTab(k) {
   document
     .querySelectorAll("#view .tabs [data-tab]")
     .forEach((b) => b.classList.toggle("on", b.dataset.tab === k));
-  ({
-    kho: paneKho,
-    nangcap: paneUpg,
-    gia: paneGia,
-    danhgia: paneRev,
-    tongket: paneSum,
-    hem: paneHem,
-  })[k]();
+  vePane(k);
   renderObar();
 }
 function itemIcon(k) {
@@ -5258,7 +5244,7 @@ function pickApp() {
 }
 function mkOnline(app, cups) {
   const n = cups.length,
-    max = 90 * (n > 1 ? 1 + 0.15 * (n - 1) : 1) * (coTrang(4) ? 1.2 : 1);
+    max = 90 * (n > 1 ? 1 + 0.15 * (n - 1) : 1) * (coTrang(4) ? 1.2 : 1) * dsChoOnl();
   return {
     id: ++uid,
     app: app.id,
@@ -5740,6 +5726,7 @@ const recRev = (r) =>
   (r.adj || 0);
 const recCost = (r) =>
   (r.cnChi || 0) +
+  (r.song || 0) +
   r.rent +
   r.util +
   (r.wage || 0) +
@@ -6155,6 +6142,7 @@ function endDay() {
     if (c) T.lost++;
   });
   chiNhanhCuoiNgay(r); /* trước khi đổ hàng hết hạn: hàng dư chở qua chi nhánh */
+  doiSongCuoiNgay(r); /* ăn uống, chỗ ở, xăng xe của chủ tiệm */
   const waste = expireStock();
   syncFlav();
   waste.forEach((x) => (r.waste[x.k] = { q: x.q, v: x.v }));
@@ -6267,6 +6255,7 @@ function endDay() {
     ${r.guard ? `<div><span class="wl">${ico("people")} Bảo vệ thu lại</span><span class="wl">+${fmt(r.guard)}</span></div>` : ""}
     ${r.traSau ? `<div><span class="wl">${ico("people")} Trả dần tiền bà Sáu cho khất</span><span class="wl">${fmt(r.traSau)}</span></div>` : ""}
     ${r.staffTip ? `<div><span class="wl">${ico("people")} Tip nhân viên giữ (quán không nhận)</span><span class="wl">${fmt(r.staffTip)}</span></div>` : ""}
+    ${r.song ? `<div><span class="wl">🏠 Sinh hoạt: ăn, ở, đi lại</span><span class="wl">${fmt(r.song)}</span></div>` : ""}
     ${r.cn ? `<div><span class="wl">🏪 Chi nhánh bán ${r.cn.ly} ly (đã tính ở trên)</span><span class="wl">${r.cn.lai < 0 ? "−" : "+"}${fmt(Math.abs(r.cn.lai))}</span></div>` : ""}
     ${r.spoil && r.spoil.n ? `<div><span class="wl">🥤 ${r.spoil.n} ly hỏng</span><span class="wl">${fmt(r.spoil.v)}</span></div>` : ""}
     ${wv ? `<div><span class="wl">${ico("trash")} ${waste.map((x) => ITEMS[x.k].s + " " + x.q).join(", ")}</span><span class="wl">${fmt(wv)}</span></div>` : ""}
@@ -6353,6 +6342,7 @@ function aggregate(recs) {
       "bad",
       "tax",
       "cnChi",
+      "song",
       "served",
       "lost",
       "starSum",
@@ -6432,7 +6422,8 @@ function paneSum() {
       g.fee +
       ingTot +
       g.tax +
-      (g.cnChi || 0),
+      (g.cnChi || 0) +
+      (g.song || 0),
     profit = rev - cost;
   const avg = g.starN
     ? (g.starSum / g.starN).toFixed(1).replace(".", ",")
@@ -6475,6 +6466,7 @@ function paneSum() {
   ${g.wage - (g.ot || 0) ? `<div class="crow"><span>Lương nhân viên</span><span>${vn(g.wage - (g.ot || 0))}</span></div>` : ""}${g.ot ? `<div class="crow"><span>Tăng ca nhân viên pha chế</span><span>${vn(g.ot)}</span></div>` : ""}${g.bad ? `<div class="crow"><span>Sự cố mất tiền</span><span>${vn(g.bad)}</span></div>` : ""}
   ${g.loanInt ? `<div class="crow"><span>Lãi vay</span><span>${vn(g.loanInt)}</span></div>` : ""}
   ${g.cnChi ? `<div class="crow"><span>Chi nhánh: tiền nhà, lương, hàng</span><span>${vn(g.cnChi)}</span></div>` : ""}
+  ${g.song ? `<div class="crow"><span>Sinh hoạt của bạn: ăn, ở, đi lại</span><span>${vn(g.song)}</span></div>` : ""}
   <div class="crow"><span>Máy móc, trang bị & công thức</span><span>${vn(eqTot)}</span></div>
   ${g.equip.map((e) => `<div class="crow sub"><span>– ${e.n}${mode !== "day" ? " (ngày " + e.d + ")" : ""}</span><span>${vn(e.v)}</span></div>`).join("")}
   ${g.fee || S.online ? `<div class="crow"><span>Phí app giao hàng (${CFG.commission}%)</span><span>${vn(g.fee)}</span></div>` : ""}
