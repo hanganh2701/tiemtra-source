@@ -1,0 +1,54 @@
+# Bible nhân vật: Hẻm 42
+
+Tài liệu gốc để viết mọi câu thoại. Viết cảnh mới phải khớp giọng nói và cung truyện ở đây.
+
+## Bối cảnh
+
+- **Nơi chốn:** Hẻm 42, một con hẻm ở Sài Gòn còn nếp làng xóm. Tiệm trà của người chơi nằm dưới căn gác của bà Sáu, chỗ ngày xưa bà bán quán nước.
+- **Người chơi:** bỏ việc văn phòng để mở tiệm. Người khác gọi người chơi là `{ban}` (anh hoặc chị, người chơi chọn khi đặt tên tiệm). Tên tiệm là `{shop}`.
+- **Động lực:** chứng minh với gia đình và với chính mình rằng một giấc mơ nhỏ vẫn đủ trả tiền nhà.
+- **Mục tiêu dài hạn:** ghép lại *Sổ công thức của bà Sáu*, 12 trang bị xé rải khắp xóm. Mỗi nhân vật đi hết câu chuyện trả lại một trang. Đủ 12 trang thì có món "Trà của bà Sáu".
+- **Giọng chung:** ấm, ngắn, giọng Nam nhẹ ("nè", "hông", "nghen") nhưng không lạm dụng, không chế giễu phương ngữ.
+
+## Luật viết
+
+- Tối đa 6 câu mỗi cảnh, mỗi câu khoảng 60 ký tự để vừa màn hình điện thoại. Chương 0 tối đa 3 câu.
+- Cảnh chỉ diễn ra trước giờ mở cửa (`mo_cua`) hoặc sau giờ đóng cửa (`dong_cua`). Giữa giờ bán chỉ được một bong bóng thoại.
+- Truyện làm dịu áp lực tiền bạc, không bao giờ doạ người chơi. Ngày tệ thì có cảnh tử tế.
+- Lựa chọn không tạo nhánh cứng: đặt cờ rồi quay về mạch chính, cảnh sau nhắc lại điều người chơi đã chọn.
+- Nhân vật có đời sống riêng không xoay quanh người chơi. Có chuyện người chơi không giải quyết được.
+- Không dùng tên thương hiệu thật. Chuỗi đối thủ là tên hư cấu.
+
+## Nhân vật
+
+Cột "Mặt" là hàng trong `img/faces.webp` (mỗi hàng 3 biểu cảm: bình thường, vui, bực).
+
+| Nhân vật | Mặt | Vai trò | Bắt đầu | Kết thúc | Nối vào cơ chế |
+|---|---|---|---|---|---|
+| **Mướp** (mèo) | `img/cathead.png` | Mèo của bà Sáu | Nằm chình ình trên quầy | Mèo của tiệm | Ngồi cạnh nhân vật có chuyện hôm nay |
+| **Bà Sáu** | 6 | Chủ nhà, 70 tuổi | Người thu tiền nhà khó tính | Trao sổ công thức, kể vì sao quán nước đóng cửa | Tiền nhà, cho khất một lần mỗi chương |
+| **Chú Tư** | 2 | Chạy xe ôm ở đầu hẻm | Càm ràm app gọi xe | Học dùng app, thành người giao hàng tin cậy | Đơn online |
+| **Linh** | 7 | Học sinh lớp 12 | Căng thẳng ôn thi | Thi xong, đi làm thêm ở tiệm | Mùa thi, nhân viên |
+| **Khoa** | 4 | Shipper, 20 tuổi | Chạy đơn giữa nắng mưa | Bạn thân; tiệm có góc trà đá cho shipper | Ngày mưa, đơn app |
+| **Cô Hạnh** | 3 | Bán bánh mì bên kia hẻm | Đối thủ, dòm ngó | Bạn làm ăn, combo bánh mì + trà | Sự kiện đối thủ |
+| **Mẹ** | (tin nhắn) | Mẹ của người chơi, ở quê | "Nghỉ việc thiệt hả con?" | Lên thăm dịp Tết; hoá ra viết đánh giá 5 sao ẩn danh | Đánh giá, cuối ngày |
+| **Hana** | tranh khách ngôi sao | Vlogger nước ngoài | Nói qua nhãn [dịch tự động] | Nhãn dịch rụng dần khi cô học tiếng Việt | Khách ngôi sao |
+
+## Giọng từng người
+
+- **Bà Sáu:** xưng "bà", gọi người chơi là "con". Câu ngắn, nói ngược để thương ("Trễ một bữa bà hông la… trễ hai bữa thì la."). Không bao giờ nói thẳng là mình quý ai.
+- **Chú Tư:** xưng "chú", gọi "{ban}" hoặc "con". Hay càm ràm công nghệ, nhưng tốt bụng. Thích trà đá, ghét ngọt.
+- **Linh:** xưng "em", gọi "{ban}". Lễ phép, hay lo, nói nhanh rồi tự trấn an. Gọi món "trà đào ít đá như cũ".
+- **Khoa:** xưng "em", gọi "{ban}". Luôn vội, nói tắt, hay đùa để giấu mệt. Nhắc tiền xăng, nắng, mưa.
+- **Cô Hạnh:** xưng "cô" với người chơi, gọi "{ban}" hoặc "con". Sắc sảo, soi giá, khen kiểu chê ("Ly cũng được… mà hơi mắc.").
+- **Mẹ:** chỉ qua tin nhắn. Nhắn ngắn, nhiều dấu chấm, lo ăn uống. Không bao giờ nói "mẹ tự hào về con" cho tới cuối Chương 3.
+- **Hana:** câu có nhãn [dịch tự động] thì hơi cứng ("Loại trái cây đam mê"). Khi tự nói tiếng Việt thì sai dễ thương ("Chanh… dây! Đúng hông?").
+
+## Cung truyện theo chương
+
+| Chương | Ngày trong game | Nội dung | Trang sổ |
+|---|---|---|---|
+| 0 · Khai trương | 1–6 | Làm quen bà Sáu, Mướp, chú Tư, Khoa, cô Hạnh, tin nhắn của mẹ; ngày 6 đóng tiền nhà lần đầu | 1 |
+| 1 · Người trong hẻm | 6–30 | Thanh thân thiết, mỗi khách quen 3 cảnh; ngày mưa của Khoa; mùa thi của Linh quanh ngày 20; lựa chọn vay ngân hàng hay phong bì của mẹ | 2–5 |
+| 2 · Mùa trăng | 30–60 | Trung Thu; Hana ghé 3 lần; chuỗi mở đầu hẻm (quản lý là cháu cô Hạnh, không phải phản diện); bà Sáu kể chuyện cũ | 6–10 |
+| 3 · Về nhà ăn Tết | 60+ | Ông Táo; thành phố vắng, mở cửa cho người ở lại như Khoa; mẹ lên thăm; đủ 12 trang | 11–12 |
