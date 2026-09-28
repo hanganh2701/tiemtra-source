@@ -133,3 +133,57 @@ test("nhắc sao lưu: Để sau thì lần sau cách xa hơn, Đừng nhắc n�
     g.close();
   }
 });
+
+test("góp sức cho Hẻm 42: mở theo truyện, góp thì trừ tiền, có ưu đãi, lời cảm ơn, huy hiệu và hiện trước tiệm", () => {
+  const g = boot();
+  try {
+    g.run("S.day = 10; S.money = 20000000; R.mode = 'prep'");
+    assert.equal(g.run("GOP_HEM.some(gopMo)"), false);
+    assert.equal(g.run("moiGopHem()"), false);
+    g.run("S.day = 15");
+    assert.equal(g.run("moiGopHem()"), true, "bà Sáu rủ góp lần đầu");
+    assert.match(card(g).textContent, /Góp sức cho Hẻm 42/);
+    clickText(g, /Xem/);
+    assert.equal(g.run("HEM_TAB[R.sub.hem][1] === paneGopHem"), true);
+    assert.equal(g.run("moiGopHem()"), false, "chỉ rủ một lần");
+    const k0 = g.run("heSoKhachTri()");
+    assert.equal(g.run("gopHem('ghe_da')"), false, "chưa thân chú Tư thì chưa góp được");
+    assert.equal(g.run("gopHem('den')"), true);
+    assert.equal(g.run("S.money"), 17000000);
+    assert.ok(g.run("heSoKhachTri()") > k0);
+    assert.match(card(g).textContent, /Tối về hẻm sáng trưng/);
+    assert.ok(g.run("S.huyHieu.gop_1"));
+    g.run("$('modal').hidden = true; R.tab = 'kho'; renderPrep()");
+    assert.match(g.w.document.querySelector(".tridai").innerHTML, /Đèn cho con hẻm/);
+    assert.equal(g.run("document.body.classList.contains('hem-den')"), true);
+    /* mái che mưa: ngày mưa bớt vắng */
+    g.run("S.day = 30; S.ev = { id: 'rain' }; S.evDay = 30");
+    const mua0 = g.run("heSoKhachTri()");
+    g.run("gopHem('mai_che')");
+    assert.ok(g.run("heSoKhachTri()") > mua0 * 1.15);
+  } finally {
+    g.close();
+  }
+});
+
+test("ra mặt tiền thì giao diện tiệm đổi", () => {
+  const g = boot();
+  try {
+    g.run("R.tab = 'kho'; renderPrep()");
+    assert.equal(g.run("document.body.classList.contains('mat-tien')"), false);
+    g.run("S.buoc = 2; S.hd = { bd: 20, gia: MAT_TIEN.thue }; renderPrep()");
+    assert.equal(g.run("document.body.classList.contains('mat-tien')"), true);
+  } finally {
+    g.close();
+  }
+});
+
+test("lời cảm ơn góp hẻm vừa màn hình, nhân vật có thật", () => {
+  const g = boot();
+  try {
+    const bad = g.run(`GOP_HEM.flatMap((d) => d.cam.filter(([ai, cau]) => (ai !== "_" && ai !== "tin" && !NHAN_VAT[ai]) || cau.replace(/\\{\\w+\\}/g, "anh").length > 72).map(() => d.id)).join()`);
+    assert.equal(bad, "");
+  } finally {
+    g.close();
+  }
+});

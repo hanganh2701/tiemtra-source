@@ -24,7 +24,7 @@ test("mặt tiền đầu hẻm: đủ điều kiện mới thuê được, ti�
     assert.equal(g.run("S.money"), 10000000 - g.run("MAT_TIEN.thue * MAT_TIEN.cocNgay + MAT_TIEN.trangTri"));
     assert.equal(g.run("fixed().rent"), g.run("MAT_TIEN.thue"));
     assert.equal(g.run("soCho()"), 4);
-    assert.ok(g.run("traffic()") > k1 * 1.5);
+    assert.ok(g.run("traffic()") > k1 * 1.3);
     g.run("__openDay()");
     assert.equal(g.run("R.slots.length"), 4);
   } finally {

@@ -1368,6 +1368,7 @@ function prepChecks() {
   if (leHoiCheck()) return xetTiep();
   if (nvSuKien()) return xetTiep();
   if (donNhomCheck()) return xetTiep();
+  if (moiGopHem()) return xetTiep();
   if (moiCai()) return xetTiep();
   if (moiGopY()) return xetTiep();
   bakRemind();
@@ -1984,6 +1985,7 @@ function renderPrep() {
   if (AU.ctx) musSync();
   document.body.classList.remove("selling");
   leHoiTrangTri();
+  giaoDienTiem();
   const tabs = [
     ["kho", "box", "Kho"],
     ["nangcap", "tools", "Nâng cấp"],
@@ -3372,6 +3374,7 @@ function renderSell() {
   R.mode = "sell";
   document.body.classList.add("selling");
   leHoiTrangTri();
+  giaoDienTiem();
   R.focus = null;
   R.sealing = false;
   const zone = (a, x, y, w, h, extra, cls) =>

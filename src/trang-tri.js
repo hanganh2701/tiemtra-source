@@ -1,12 +1,14 @@
-/* ---------- TRANG TRÍ TIỆM VÀ ẢNH KHOE TIỆM ----------
+/* ---------- TRANG TRÍ TIỆM, GÓP SỨC CHO HẺM 42 VÀ ẢNH KHOE TIỆM ----------
    Dữ liệu ở data/trang-tri.js. Nạp trước game.js. */
 
 const coTri = (id) => !!(S && S.tri && S.tri.includes(id));
-const triTong = (k) => TRANG_TRI.reduce((a, t) => a + (coTri(t.id) ? t[k] || 0 : 0), 0);
-/* cộng vào hệ số chờ (heSoCho), nhân vào tip và lượng khách */
+const daGop = (id) => !!(S && S.gopHem && S.gopHem[id]);
+const triTong = (k) =>
+  TRANG_TRI.reduce((a, t) => a + (coTri(t.id) ? t[k] || 0 : 0), 0) + GOP_HEM.reduce((a, d) => a + (daGop(d.id) ? d[k] || 0 : 0), 0);
+/* cộng vào hệ số chờ (heSoCho), nhân vào tip và lượng khách (trang trí và việc đã góp cho hẻm) */
 const choTri = () => triTong("cho") + (typeof evIs === "function" && evIs("hot") ? triTong("nong") : 0);
 const heSoTipTri = () => 1 + triTong("tip");
-const heSoKhachTri = () => 1 + triTong("khach");
+const heSoKhachTri = () => (1 + triTong("khach")) * (typeof evIs === "function" && evIs("rain") ? 1 + triTong("mua") : 1);
 
 /* mục Trang trí trong tab Trang bị */
 function theTrangTri() {
@@ -34,11 +36,79 @@ function muaTri(id) {
   xetHuyHieu();
   return true;
 }
-/* dải đồ trang trí trước tiệm (màn chuẩn bị) */
+/* dải đồ trang trí trước tiệm (màn chuẩn bị), kèm những việc đã góp cho hẻm */
 function triDai() {
-  const ds = TRANG_TRI.filter((t) => coTri(t.id));
-  return ds.length ? `<div class="tridai" aria-label="Trang trí tiệm">${ds.map((t) => `<img src="img/tt_${t.id}.svg" alt="${esc(t.ten)}" title="${esc(t.ten)}">`).join("")}</div>` : "";
+  const ds = TRANG_TRI.filter((t) => coTri(t.id)),
+    gop = GOP_HEM.filter((d) => daGop(d.id));
+  return ds.length || gop.length
+    ? `<div class="tridai" aria-label="Trang trí tiệm">${ds.map((t) => `<img src="img/tt_${t.id}.svg" alt="${esc(t.ten)}" title="${esc(t.ten)}">`).join("")}${gop
+        .map((d) => `<span class="gopic" role="img" aria-label="${esc(d.ten)}" title="${esc(d.ten)}">${d.ic}</span>`)
+        .join("")}</div>`
+    : "";
 }
+
+/* ---------- góp sức cho Hẻm 42 ---------- */
+const gopMo = (d) =>
+  (d.mo.tuNgay == null || S.day >= d.mo.tuNgay) && (!d.mo.xem || TT().xem[d.mo.xem] != null || (d.mo.chot != null && S.day >= d.mo.chot));
+function paneGopHem() {
+  S.gopHem = S.gopHem || {};
+  return (
+    `<p class="note">Việc chung của xóm. Góp một lần, có ưu đãi nhỏ cộng với trang trí và hiện trước tiệm.</p>` +
+    GOP_HEM.map((d) => {
+      const nut = daGop(d.id)
+        ? `<span class="okline">✓ Ngày ${S.gopHem[d.id]}</span>`
+        : gopMo(d)
+          ? `<button class="sbtn pri" data-gop="${d.id}" ${S.money < d.gia ? "disabled" : ""}><b>${fmtBig(d.gia)}</b>Góp</button>`
+          : `<span class="wl">${esc(d.goi)}</span>`;
+      return `<div class="rowi"><span class="icon gopic">${d.ic}</span><div><div class="nm">${esc(d.ten)}</div><div class="sub">${esc(d.uuDai)}</div></div>${nut}</div>`;
+    }).join("")
+  );
+}
+function gopHem(id) {
+  const d = GOP_HEM.find((x) => x.id === id);
+  if (!d || daGop(id) || !gopMo(d) || S.money < d.gia) return false;
+  S.money -= d.gia;
+  (S.gopHem = S.gopHem || {})[id] = S.day;
+  TT().co["gop_" + id] = true; /* để câu thoại về sau nhắc lại */
+  S.cur.equip.push({ n: "Góp hẻm: " + d.ten, v: d.gia });
+  save();
+  head();
+  sfx("coin");
+  if (typeof track === "function") track("gop-hem-" + id);
+  xetHuyHieu();
+  ask(`<div class="pbig">${d.ic}</div><h2>${esc(d.ten)}</h2>${locDong(d.cam).map(dongThoai).join("")}<p class="note">${esc(d.uuDai)}</p>`, [["Tiếp tục", () => refreshPrep(), 1]]);
+  return true;
+}
+/* đầu ngày (prepChecks): việc đầu tiên mở thì bà Sáu rủ góp một lần; trả true nếu đang hỏi */
+function moiGopHem() {
+  if (S.gopHemMoi || R.challenge || !GOP_HEM.some(gopMo)) return false;
+  S.gopHemMoi = S.day;
+  save();
+  ask(
+    `<div class="pbig">🏘️</div><h2>Góp sức cho Hẻm 42</h2>${dongThoai(["sau", "Xóm mình tính góp tiền làm đèn cho hẻm. Con có góp hông?"])}<p class="note">Tiền dư thì góp cho xóm: mỗi việc có ưu đãi nhỏ và hiện trước tiệm. Xem ở Hẻm 42 › Góp hẻm.</p>`,
+    [
+      ["Để sau", () => {}],
+      [
+        "Xem",
+        () => {
+          R.tab = "hem";
+          R.sub = R.sub || {};
+          R.sub.hem = HEM_TAB.findIndex((x) => x[1] === paneGopHem);
+          renderPrep();
+        },
+        1,
+      ],
+    ],
+  );
+  return true;
+}
+HEM_TAB.push([() => "🏘️ Góp hẻm", paneGopHem]);
+document.addEventListener("click", (e) => {
+  const b = e.target.closest && e.target.closest("[data-gop]");
+  if (!b || b.disabled || typeof S === "undefined" || !S) return;
+  e.stopPropagation();
+  gopHem(b.dataset.gop);
+});
 document.addEventListener("click", (e) => {
   const b = e.target.closest && e.target.closest("[data-tri]");
   if (!b || b.disabled || typeof S === "undefined" || !S) return;
