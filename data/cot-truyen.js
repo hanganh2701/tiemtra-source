@@ -360,7 +360,7 @@ MAU_CHUYEN.push(
     tomTat: "Linh thi đậu, được học bổng ở Đà Lạt mà muốn ở lại làm thêm ở tiệm. Linh hỏi ý bạn.",
     dieuKien: { than: { linh: 6 }, sau: "linh_2", cachNgay: 3 },
     uuTien: 7,
-    reRe: "Chọn một lần. Chuyện của Linh đi theo lời khuyên này.",
+    reRe: "Chọn một lần. Ở lại: khi bạn thuê, Linh vào nghề sẵn. Đi học: Linh gửi trà Đà Lạt về.",
     thoai: [
       ["linh", "{Ban} ơi! Em đậu rồi! Điểm cao hơn em tưởng luôn."],
       ["linh", "Cái ly {ban} viết chữ, em để trên bàn học nè.", { co: { linh_co_vu: "viet" } }],
@@ -632,7 +632,7 @@ MAU_CHUYEN.push(
     tomTat: "Video của Hana về con hẻm nổi lên. Hana hỏi có được ghi tên tiệm không.",
     dieuKien: { than: { hana: 5 }, sau: "hana_2", cachNgay: 3 },
     uuTien: 7,
-    reRe: "Chọn một lần. Khách của tiệm và kết truyện đổi theo lựa chọn này.",
+    reRe: "Chọn một lần, kết truyện đổi theo. Ghi tên: khách lạ đông hơn. Giữ kín: khách quen ghé nhiều, tip cao hơn.",
     thoai: [
       ["hana", "{Ban} ơi! Video quay con hẻm được hai trăm nghìn lượt xem!"],
       ["_", "(Hana nói trọn câu tiếng Việt, không cần nhãn dịch nữa.)"],
@@ -738,7 +738,7 @@ MAU_CHUYEN.push(
     tomTat: "Sài Gòn vắng Tết, Khoa không có tiền về quê, mẹ hỏi Tết này có về không.",
     dieuKien: { ngay: 62 },
     uuTien: 8,
-    reRe: "Chọn một lần. Những ngày Tết và kết truyện đổi theo lựa chọn này.",
+    reRe: "Chọn một lần. Về quê: tiệm nghỉ 3 ngày, không tốn tiền nhà. Ở lại: bán ngày Tết đông khách.",
     thoai: [
       ["_", "(Sài Gòn những ngày giáp Tết vắng hoe. Hẻm 42 chỉ còn vài nhà.)"],
       ["khoa", "Năm nay em không về quê. Vé xe lên gấp ba, em để dành gửi mẹ."],
@@ -814,7 +814,7 @@ MAU_CHUYEN.push(
     tomTat: "Vy mang lời đề nghị của Mây Tea, cô Hạnh rủ cả xóm giữ khách. Phải chọn một đường.",
     dieuKien: { ngay: 50, sau: "c2_vy", chot: 53 },
     uuTien: 9,
-    reRe: "Chọn một lần. Nửa sau Chương 2 và kết truyện đi theo lựa chọn này.",
+    reRe: "Chọn một lần, kết truyện đổi theo. Bắt tay: sáng nào cũng có đơn sỉ trân châu. Giữ hẻm: hai tuần bị phá giá, rồi khách quen và khách giới thiệu tăng.",
     thoai: [
       ["vy", "{Ban} ơi, công ty em muốn đặt trân châu của tiệm cho cả chuỗi."],
       ["vy", "Sáng nào xe em cũng qua lấy. Giá sỉ đều, trả tiền liền."],
@@ -1120,7 +1120,7 @@ MAU_CHUYEN.push(
       ["khoa", "Linh ghé phụ em một buổi, pha lẹ hơn em nữa.", { nhanh: { linh: "A" } }],
       ["khoa", "Hana ghé chúc Tết, nói được câu \"An khang thịnh vượng\" luôn.", { co: { hana_tet: true } }],
     ],
-    ketQua: { tien: 300000 },
+    ketQua: { tien: 500000 },
   },
   {
     id: "tet_b1",
