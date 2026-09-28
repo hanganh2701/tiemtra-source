@@ -252,6 +252,7 @@ test("cốt truyện: id không trùng, nhân vật có thật, câu vừa màn 
         for (const [ai, cau] of lines) {
           if (ai !== "_" && ai !== "tin" && !NHAN_VAT[ai]) out.push(m.id + ": không có nhân vật " + ai);
           if (cau.replace(/\\{\\w+\\}/g, "anh").length > 72) out.push(m.id + ": câu dài " + cau.length);
+          if (/^\{ban\}/.test(cau)) out.push(m.id + ": đầu câu viết hoa {Ban}");
         }
       }
       for (const r of NGA_RE) if (!MAU_CHUYEN.some((m) => m.id === r.canh && m.reRe)) out.push("ngã rẽ " + r.id + " không có cảnh");

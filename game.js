@@ -367,8 +367,12 @@ function uniqName(gen) {
         ? [...R.slots.filter(Boolean), ...(R.online || [])].map((c) => c.name)
         : []),
     ]);
+  /* tên riêng trùng nhân vật truyện (Linh, cô Hạnh, Vy, Khoa, chú Tư, bà Sáu) thì đặt tên khác */
+  const trung = (x) => used.has(x) || TEN_TRUYEN.has(String(x).split(" ").pop());
   let n = gen();
-  for (let t = 0; t < 40 && used.has(n); t++) n = gen();
+  for (let t = 0; t < 40 && trung(n); t++) n = gen();
+  /* hết tên mới thì cho lặp tên cũ, nhưng không bao giờ lấy tên nhân vật truyện */
+  for (let t = 0; t < 40 && TEN_TRUYEN.has(String(n).split(" ").pop()); t++) n = gen();
   h.push(n);
   if (h.length > 380) h.splice(0, h.length - 380);
   return n;
@@ -1093,10 +1097,12 @@ const fixed = () => ({
   rent: tienNha(),
   util: CFG.utilBase + upgCount() * CFG.utilPerUpg,
 });
+/* trung bình 40 đánh giá gần nhất; lúc mới mở tính kèm vài đánh giá 4 sao để một khách bỏ về không kéo tiệm xuống 1 sao */
 function rating() {
-  const r = S.reviews.slice(0, 40);
+  const r = S.reviews.slice(0, 40),
+    dem = Math.max(0, 5 - Math.floor(r.length / 4));
   if (!r.length) return 4;
-  return r.reduce((a, x) => a + x.s, 0) / r.length;
+  return (r.reduce((a, x) => a + x.s, 0) + 4 * dem) / (r.length + dem);
 }
 function starStr(v) {
   const f = Math.round(v);
@@ -1774,7 +1780,7 @@ function menuBoard() {
           ks.map((k) => cell(k, 1)).join("")
       : "";
   }).join("");
-  return `<div class="sign"><button id="rename" aria-label="Đổi tên quán">${esc(shopName())}<small>${ico("pen")}</small></button></div>${triDai()}<div class="board"><h2>${ico("cupfull")} Menu hôm nay</h2><div class="items">${it}</div>${fl.length ? `<div class="btop">Hương vị</div><div class="items">${fl.map((k) => cell(k, 1)).join("")}</div>` : ""}<div class="btop">Topping</div><div class="items top">${tops}</div><div class="extra">Size L +${kv(S.sell.L)}</div></div>`;
+  return `<div class="sign"><button id="rename" aria-label="Đổi tên quán">${esc(shopName())}<small>${ico("pen")}</small></button></div>${triDai()}${ttNhacNho()}<div class="board"><h2>${ico("cupfull")} Menu hôm nay</h2><div class="items">${it}</div>${fl.length ? `<div class="btop">Hương vị</div><div class="items">${fl.map((k) => cell(k, 1)).join("")}</div>` : ""}<div class="btop">Topping</div><div class="items top">${tops}</div><div class="extra">Size L +${kv(S.sell.L)}</div></div>`;
 }
 const levelOf = (d) => {
   const L = CFG.levels;
@@ -2028,6 +2034,7 @@ function refreshPrep(board) {
 }
 function obarHTML() {
   const t = planTotal();
+  if (!t && veQueSap()) return `<button class="big" id="open">🚌 Lên xe về quê ăn Tết</button>`;
   return t
     ? `<button class="big" id="cook" ${t > S.money ? "disabled" : ""}>${t > S.money ? "Không đủ tiền · " : "Nấu & nhập · "}${fmt(t)}</button>`
     : missingPrep().length
@@ -2199,6 +2206,7 @@ function missingPrep() {
 }
 function tryOpen() {
   if (performance.now() - (R.cookAt || 0) < 500) return; /* chạm đúp Nấu & nhập: không mở cửa luôn */
+  if (veQueSap()) return truyenLuc("mo_cua", startDay);
   const miss = missingPrep();
   if (miss.length) {
     R.tab = "kho";
@@ -2957,7 +2965,7 @@ function sentence(c) {
         : `, ${tops}`;
   if (n > 1)
     return `<span class="cupno">Ly ${k}:</span> <b>${low(dname(o))}</b> size <b>${o.size}</b>${tail}.`;
-  return `${c.say} 1 ly <b>${low(dname(o))}</b> size <b>${o.size}</b>${tail}${c.end}`;
+  return `${c.say} 1 ly <b>${low(dname(o))}</b> size <b>${o.size}</b>${tail}${c.end}${c.dt ? goiYTruyenHTML(c) : ""}`;
 }
 function iconStrip(o) {
   const ok = (k) => {
@@ -4114,6 +4122,7 @@ function q3act(a, el) {
     q3pop(el);
     sfx("cup");
     cup.size = k;
+    cup.cho = (focusCust() || {}).id; /* ly này pha cho khách nào */
     renderCup();
     renderPanel();
     coach();
@@ -4911,13 +4920,18 @@ function sealServe(fast) {
   if (!ready()) return;
   const cands = [];
   pSlots().forEach((c, i) => {
-    if (c && c.cups.some((o, j) => !c.done[j] && matches(cup, o)))
+    if (c && (c.cups.some((o, j) => !c.done[j] && matches(cup, o)) || lyTruyenKhop(c)))
       cands.push(c);
   });
   R.online.forEach((c) => {
     if (!isSto(c) && c.cups.some((o, q) => !c.done[q] && matches(cup, o)))
       cands.push(c);
   });
+  /* ly pha cho một khách đã bỏ về và không khớp ai: giữ ly, không đưa nhầm cho khách khác */
+  if (!cands.length && cup.cho != null && !pSlots().some((c) => c && c.id === cup.cho)) {
+    toast("Khách của ly này đã về. Đổ ly (xô inox) hoặc giữ cho khách gọi đúng món", 3500, 1);
+    return;
+  }
   const target = cands.length
     ? cands.sort((a, b) => a.id - b.id)[0]
     : focusCust();
@@ -7568,7 +7582,7 @@ function tourSlides() {
     ],
     [
       "Khách chấm sao",
-      "Càng nhiều sao càng đông khách. Dưới 4 sao là quán vắng hẳn",
+      "Càng nhiều sao càng đông khách, sao thấp thì khách ghé thưa. Hai ngày đầu khách dễ tính hơn",
       `<div class="till"><div class="trev"><i class="tfc rf" style="${faceBg(3, 1, 44, 43)}"></i><div><div class="stars" style="font-size:1.5rem">★★★★★</div><div class="say">Làm nhanh, đúng vị</div></div></div>
       <div class="trev"><i class="tfc rf" style="${faceBg(5, 2, 44, 43)}"></i><div><div class="stars" style="font-size:1.5rem">★★☆☆☆</div><div class="say">Chờ lâu quá</div></div></div></div>`,
     ],
@@ -7584,7 +7598,8 @@ function tourSlides() {
 }
 function showTour(isNew, fromGame, after) {
   const sp = $("splash"),
-    sl = tourSlides();
+    /* người chơi mới: nấu hàng, đọc đơn, chấm sao; các bước pha có hướng dẫn trên quầy, đường đá có thẻ riêng ngày 6 */
+    sl = isNew ? tourSlides().filter((x, i) => [0, 1, 7].includes(i)) : tourSlides();
   if (isNew)
     sl.push([
       "Đặt tên quán",
@@ -7629,8 +7644,13 @@ function showTour(isNew, fromGame, after) {
     clearTimeout(tw._t);
     tw._t = setTimeout(upd, 60);
   };
-  const go = (i) =>
-    tw.scrollTo({ left: i * tw.clientWidth, behavior: "smooth" });
+  /* ghi trang đích ngay khi bấm: bấm Tiếp lúc trang còn đang trượt vẫn sang được trang sau */
+  const go = (i) => {
+    cur = i;
+    dots.forEach((d, j) => d.classList.toggle("on", j === cur));
+    $("tNext").innerHTML = cur === n - 1 ? (isNew ? "Khai trương" : "Vào quán") : "Tiếp ➜";
+    if (tw.scrollTo) tw.scrollTo({ left: i * tw.clientWidth, behavior: "smooth" });
+  };
   $("tNext").onclick = () => {
     if (cur >= n - 1) finish();
     else go(cur + 1);
