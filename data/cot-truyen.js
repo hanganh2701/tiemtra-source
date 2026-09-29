@@ -321,6 +321,7 @@ MAU_CHUYEN.push(
       ["khoa", "{Ban} biết hông, tụi shipper khu này hay ghé đây ngồi nghỉ."],
       ["khoa", "Có bình trà đá miễn phí là tụi em nhớ tiệm {shop} liền."],
       ["khoa", "Áo mưa bữa đó em giặt sạch rồi nè.", { co: { khoa_mua: "ao" } }],
+      ["khoa", "Ly gừng bữa đó em kể mẹ nghe, mẹ cười hoài.", { co: { khoa_mua: "gung" } }],
       ["_", "(Khoa đưa một tờ giấy gấp tư, dính chút nước mưa.)"],
       ["khoa", "Em lượm ở đầu hẻm hôm mưa. Chữ ai viết đẹp ghê."],
     ],
@@ -334,7 +335,7 @@ MAU_CHUYEN.push(
     dieuKien: { than: { linh: 2 } },
     uuTien: 6,
     thoai: [
-      ["linh", "Em lớp 12, còn mấy tháng nữa là thi tốt nghiệp rồi."],
+      ["linh", "Em lớp 12, còn mấy tuần nữa là thi tốt nghiệp rồi."],
       ["linh", "Tối nào em cũng học tới một giờ. Trà đào là bùa hộ mệnh đó."],
       ["linh", "Mẹ nói học xong mới được đi làm thêm. Em thì muốn thử quá."],
     ],
@@ -348,8 +349,8 @@ MAU_CHUYEN.push(
     dieuKien: { than: { linh: 4 }, sau: "linh_1", cachNgay: 2 },
     uuTien: 7,
     thoai: [
-      ["linh", "{Ban} ơi, trà đào ít đá như cũ… à, thêm trân châu nha. Mai em thi rồi."],
-      ["linh", "Ông nội nói mai chở em đi, đứng ngoài cổng đợi nguyên buổi."],
+      ["linh", "{Ban} ơi, trà đào ít đá như cũ nha. Mấy bữa nữa em thi rồi."],
+      ["linh", "Ông nội nói bữa thi chở em đi, đứng ngoài cổng đợi nguyên buổi."],
       ["linh", "Em sợ rớt thì ông buồn hơn em buồn."],
     ],
     luaChon: [
@@ -369,6 +370,7 @@ MAU_CHUYEN.push(
     thoai: [
       ["linh", "{Ban} ơi! Em đậu rồi! Điểm cao hơn em tưởng luôn."],
       ["linh", "Cái ly {ban} viết chữ, em để trên bàn học nè.", { co: { linh_co_vu: "viet" } }],
+      ["linh", "Ly {ban} tặng bữa đó, em uống tới giọt cuối.", { co: { linh_co_vu: "tang" } }],
       ["linh", "Ly có thạch bữa trước ngon ghê, em làm bài trôi chảy luôn.", { co: { linh_ly: "thach" } }],
       ["linh", "Ly trà đào như cũ bữa trước, uống xong em hết run liền.", { co: { linh_ly: "cu" } }],
       ["linh", "Ông nội gửi cái này. Hồi xưa ông uống trà ở quán bà Sáu hoài."],
@@ -390,7 +392,7 @@ MAU_CHUYEN.push(
     chuong: 1,
     luc: "dong_cua",
     tomTat: "Két sắp cạn, mẹ nhắn muốn gửi tiền giúp.",
-    dieuKien: { ngay: 10, ngayDen: 45, tienDuoi: 300000 },
+    dieuKien: { ngay: 10, ngayDen: 45, tienDuoi: 300000, chuaXem: "gui_1" } /* mẹ đã báo ba trặc lưng thì thôi hỏi chuyện gửi tiền lên */,
     uuTien: 8,
     thoai: [
       ["tin", "Mẹ: Tiệm sao rồi con. Mẹ thấy con ít nhắn."],
@@ -481,7 +483,7 @@ MAU_CHUYEN.push(
     luc: "mo_cua",
     moiNam: true,
     tomTat: "Hai mươi ba tháng Chạp, thả cá chép tiễn ông Táo cùng bà Sáu.",
-    dieuKien: { le: "tet", quanhTet: [-10, -2], ngay: 7 },
+    dieuKien: { le: "tet", quanhTet: [-10, -2], ngay: 7, ngoaiTetTruyen: true },
     uuTien: 12,
     thoai: [
       ["sau", "Hai mươi ba tháng Chạp rồi. Con phụ bà thả cá chép tiễn ông Táo nghen."],
@@ -502,7 +504,7 @@ MAU_CHUYEN.push(
     luc: "mo_cua",
     moiNam: true,
     tomTat: "Ba mẹ lên thăm tiệm dịp Tết, chú Tư chở từ bến xe về.",
-    dieuKien: { le: "tet", quanhTet: [-1, 8], ngay: 7 },
+    dieuKien: { le: "tet", quanhTet: [-1, 8], ngay: 7, ngoaiTetTruyen: true },
     uuTien: 13,
     thoai: [
       ["tin", "Mẹ: Tết này con có về không…"],
@@ -538,7 +540,8 @@ MAU_CHUYEN.push(
       ["_", "(Lại một mùa trăng. Dãy lồng đèn giấy đỏ năm ngoái vẫn treo trên vách.)"],
       ["hanh", "Bánh nướng năm nay cô làm nhân trà xanh, học theo tiệm con đó."],
     ],
-    ketQua: { than: { linh: 1, hanh: 1 } },
+    /* den_treo: lồng đèn đã treo, cảnh Trung Thu của Chương 2 (c2_trung_thu) không bảo treo lại */
+    ketQua: { than: { linh: 1, hanh: 1 }, co: { den_treo: true } },
   },
 );
 
@@ -559,12 +562,18 @@ KHACH_QUEN.hana = {
   tuNgay: 34,
   cach: 5,
   mon: { base: "tra", flav: "f_xoai", tops: ["tcden"], sugar: 50, ice: "Ít đá" },
-  xin: "[Dịch tự động] Cho tôi",
+  /* học được tiếng Việt (sau hana_3) thì tự gọi món, không cần nhãn dịch */
+  xin: () => (TT().xem.hana_3 != null ? "{Ban} ơi, cho tôi" : "[Dịch tự động] Cho tôi"),
   het: " với, cảm ơn!",
   tieuSu: [
     "Vlogger nước ngoài, quay video quán xá Sài Gòn.",
     "Đang học tiếng Việt, mỗi lần ghé học thêm một chữ.",
-    "Video quay tiệm bạn được mấy trăm nghìn lượt xem.",
+    () =>
+      TT().nhanh.hana === "A"
+        ? "Video quay tiệm bạn được mấy trăm nghìn lượt xem."
+        : TT().nhanh.hana === "B"
+          ? "Quay video con hẻm mà giữ kín tên tiệm, như bạn dặn."
+          : "Đang tính quay một video về con hẻm.",
   ],
 };
 MAU_CHUYEN.push(
@@ -573,7 +582,7 @@ MAU_CHUYEN.push(
     chuong: 2,
     luc: "dong_cua",
     tomTat: "Cô Hạnh rủ làm combo bánh mì với trà.",
-    dieuKien: { than: { hanh: 2 } },
+    dieuKien: { than: { hanh: 2 }, ngay: 30 } /* Trung Thu thật sớm (le_trung_thu) cũng cộng thân cô Hạnh: vẫn chờ tới Chương 2 */,
     uuTien: 6,
     thoai: [
       ["hanh", "Hồi con mới mở, cô tưởng mấy bữa là dẹp. Ai dè đông quá."],
@@ -632,6 +641,7 @@ MAU_CHUYEN.push(
       ["hana", "[Dịch tự động] Cho tôi ly lần trước. Loại trái cây màu vàng."],
       ["tu", "Vàng vàng ngọt ngọt là xoài chớ gì!"],
       ["hana", "Xoài… Xoài! Đúng hông?"],
+      ["hana", "Trà đá… miễn phí! Tôi nhớ chữ này.", { co: { hana_trada: true } }],
       ["hana", "Mướp. Xoài. Cảm ơn. Tôi biết ba chữ rồi!", { co: { hana_muop: true } }],
     ],
     ketQua: { than: { hana: 1, tu: 1 } },
@@ -664,10 +674,12 @@ MAU_CHUYEN.push(
     dieuKien: { ngay: 41 },
     uuTien: 8,
     thoai: [
-      ["_", "(Con nít trong hẻm rước đèn ông sao, đi ngang tiệm hát vang.)"],
+      ["_", "(Con nít trong hẻm rước đèn ông sao, đi ngang tiệm hát vang.)", { khongCo: { den_treo: true } }],
+      ["_", "(Trăng tròn. Dãy lồng đèn đỏ bữa Rằm vẫn treo trước tiệm.)", { co: { den_treo: true } }],
       ["linh", "Hồi nhỏ em cũng rước đèn ngang quán nước của bà Sáu nè.", { khongNhanh: { linh: "B" } }],
       ["tin", "Linh: Hồi nhỏ em rước đèn ngang quán nước của bà Sáu hoài. Nhớ ghê.", { nhanh: { linh: "B" } }],
-      ["sau", "Rằm tháng Tám nào quán bà cũng treo lồng đèn. Con treo đi."],
+      ["sau", "Rằm tháng Tám nào quán bà cũng treo lồng đèn. Con treo đi.", { khongCo: { den_treo: true } }],
+      ["sau", "Lồng đèn con treo, hồi xưa quán bà cũng treo y chỗ đó.", { co: { den_treo: true } }],
       ["_", "(Bà Sáu gỡ trong lồng đèn cũ ra một trang giấy gấp nhỏ.)"],
     ],
     ketQua: { trang: 7, than: { sau: 1, linh: 1 } },
@@ -714,10 +726,10 @@ MAU_CHUYEN.push(
     uuTien: 8,
     thoai: [
       ["sau", "Con Mướp chịu con từ bữa con vuốt nó. Nó khó lắm đó.", { co: { c0_meo: "vuot" } }],
-      ["sau", "Bữa đầu con hỏi chuyện quán nước. Giờ bà kể nè.", { co: { c0_meo: "hoi" } }],
+      ["sau", "Bữa đầu con hỏi chuyện quán nước. Còn một khúc bà chưa kể.", { co: { c0_meo: "hoi" } }],
       ["sau", "Ông nhà bà nóng tính mà khách khó cỡ nào ổng cũng cười."],
       ["sau", "Ổng nói người ta khó là vì mệt. Cho ly trà là hết khó."],
-      ["sau", "Ổng đi rồi, bà không nấu nổi trà ổng nấu. Bà dẹp quán."],
+      ["sau", "Ổng đi rồi, bà nấu lại hoài mà không ra vị."],
       ["_", "(Bà Sáu đưa trang viết nét chữ run run của ông.)"],
       ["sau", "Bữa con kẹt tiền, mẹ con gửi lên liền. Có mẹ là có hết.", { co: { c1_vay: "me" } }],
       ["sau", "Bữa con kẹt tiền mà không xin ai. Cứng đầu giống ông.", { co: { c1_vay: "tu" } }],
@@ -736,6 +748,7 @@ MAU_CHUYEN.push(
       ["khoa", "Tụi shipper em đặt tên nhóm chat là \"Hội ghé {shop}\" luôn."],
       ["hanh", "Bánh mì bên cô bán kèm tờ giới thiệu tiệm con nè."],
       ["hanh", "Combo bánh mì với trà bán chạy nhất xóm luôn!", { co: { combo_hanh: true } }],
+      ["hanh", "Combo hồi đó con tính xong chưa? Cô vẫn đợi nè.", { co: { combo_hanh: false } }],
       ["sau", "Buôn có bạn, bán có phường. Trang này ông viết đúng quá."],
     ],
     ketQua: { trang: 10, than: { sau: 1, tu: 1, khoa: 1, hanh: 1 } },
@@ -756,7 +769,7 @@ MAU_CHUYEN.push(
       ["_", "(Sài Gòn những ngày giáp Tết vắng hoe. Hẻm 42 chỉ còn vài nhà.)"],
       ["khoa", "Năm nay em không về quê. Vé xe lên gấp ba, em để dành gửi mẹ."],
       ["khoa", "Dừa Bến Tre em hứa mang lên, chắc hẹn {ban} Tết sau.", { co: { khoa_que: true } }],
-      ["khoa", "{Ban} còn nợ em ly thứ hai bữa trước đó nha, hihi.", { co: { khoa_moi: true } }],
+      ["khoa", "Ly thứ hai bữa trước {ban} mời, Tết này em mời lại nha.", { co: { khoa_moi: true } }],
       ["tin", "Mẹ: Tết này con về không? Ba hỏi hoài."],
       ["sau", "Con về thì về. Tiệm để bà với thằng Khoa coi cho."],
     ],
@@ -791,7 +804,7 @@ MAU_CHUYEN.push(
       ["me_gap", "Ngày nào mẹ cũng đọc đánh giá tiệm con. Đọc hết."],
       ["me_gap", "Tên tiệm con nhắn bữa đầu, mẹ dán trên tủ lạnh.", { co: { me_biet_ten: true } }],
       ["me_gap", "Tên tiệm mẹ phải hỏi bà Sáu mới biết đó nghen.", { co: { me_biet_ten: false } }],
-      ["_", "(Trong giỏ bánh tét có một trang giấy mẹ xin bà Sáu từ hôm qua.)"],
+      ["_", "(Trong giỏ bánh tét có trang giấy bà Sáu vừa dúi cho mẹ ngoài đầu hẻm.)"],
     ],
     ketQua: { trang: 11, co: { me_len: true } },
   },
@@ -799,18 +812,19 @@ MAU_CHUYEN.push(
     id: "c3_ket",
     chuong: 3,
     luc: "dong_cua",
-    tomTat: "Bà Sáu trao trang cuối: Trà của bà Sáu. Hẻm 42 đón năm mới.",
+    tomTat: "Mùng năm mở hàng lại: bà Sáu trao trang cuối, Trà của bà Sáu.",
     dieuKien: { ngay: 67, soTrang: 11, chot: 75 },
     uuTien: 10,
     ketCuc: true,
     thoai: [
+      ["_", "(Mùng năm, hẻm mở hàng lại. Xác pháo đỏ còn vương trước tiệm.)"],
       ["sau", "Mười một trang rồi. Trang cuối bà giữ lâu nhất."],
       ["_", "(\"Hồng trà, siro vải, thạch củ năng. Pha cho người mình thương.\")"],
       ["sau", "Giờ cuốn sổ về đủ rồi. Tiệm này là của con."],
-      ["me_gap", "Mẹ tự hào về con.", { co: { me_len: true } }],
-      ["vy", "Tết này Mây Tea nghỉ. Em qua đón giao thừa với tiệm nha!", { nhanh: { may: "A" } }],
-      ["vy", "Xe trà của em nghỉ Tết rồi. Em qua phụ tiệm nè!", { nhanh: { may: "B" } }],
-      ["_", "(Giao thừa. Pháo hoa bên kia sông. Mướp nằm ngủ trên quầy.)"],
+      /* về quê ăn Tết thì mẹ đã nói ở que_2, lúc này mẹ ở quê */
+      ["me_gap", "Mẹ tự hào về con.", { co: { me_len: true }, khongNhanh: { tet: "A" } }],
+      ["vy", "Mây Tea mở hàng rồi. Em ghé xông đất tiệm nha {ban}!", { nhanh: { may: "A" } }],
+      ["vy", "Xe trà của em mở hàng rồi. Em ghé xông đất tiệm nè!", { nhanh: { may: "B" } }],
     ],
     ketQua: { trang: 12, than: { sau: 2 } },
   },
@@ -835,6 +849,7 @@ MAU_CHUYEN.push(
       ["hanh", "Mây Tea mà phá giá thì một mình con chống không nổi đâu."],
       ["_", "(Bà Sáu ngồi đầu quầy, không nói gì, chỉ vuốt con Mướp.)"],
       ["vy", "Ly ngọt vừa bữa trước làm em nhớ quán bà Sáu quá.", { co: { vy_ly: "vua" } }],
+      ["vy", "Ly kiểu chuỗi bữa trước mà ngon hơn bên em. Em nghĩ hoài.", { co: { vy_ly: "chuan" } }],
     ],
     luaChon: [
       {
@@ -862,6 +877,7 @@ MAU_CHUYEN.push(
       ["tu", "Con nấu cho tụi nó hả? Vậy mai chú uống trà ở đâu?"],
       ["tu", "Chú giỡn thôi. Có mối đều là mừng rồi, con làm cho kỹ nghen."],
       ["tu", "Mà từ bữa con pha ít ngọt, chú bớt đường thiệt đó nghen.", { co: { tu_ly: "it" } }],
+      ["tu", "Ly ngọt bữa mưa đó đã thiệt. Mà chú hứa bớt rồi, bác sĩ la.", { co: { tu_ly: "ngot" } }],
     ],
   },
   {
@@ -876,6 +892,7 @@ MAU_CHUYEN.push(
       ["hanh", "Cô không giận con đâu. Cô buồn thôi."],
       ["hanh", "Hẻm này mấy chục năm, giờ ai cũng lo phần mình."],
       ["hanh", "Mà combo mình vẫn bán nha. Bánh mì cô đâu có phá giá.", { co: { combo_hanh: true } }],
+      ["hanh", "Combo hồi đó con còn tính hả? Thôi, để qua Tết rồi tính.", { co: { combo_hanh: false } }],
     ],
     luaChon: [
       { chu: "Mời cô ly trà gừng", dat: { a_hanh: "tra" }, ketQua: { than: { hanh: 1 } }, thoai: [["hanh", "Cái con này… Ừ, cô uống. Mai cô qua."]] },
@@ -936,6 +953,7 @@ MAU_CHUYEN.push(
       ["hanh", "Cô in phiếu rồi nè: mua bánh mì bên cô, qua tiệm con bớt 3 ngàn."],
       ["tu", "Chú dán phiếu trên xe. Chở ai chú cũng đưa một tờ."],
       ["tu", "Từ bữa con pha ít ngọt, chú bớt đường thiệt đó nghen.", { co: { tu_ly: "it" } }],
+      ["tu", "Ly ngọt bữa mưa đó đã thiệt. Mà giờ chú bớt đường rồi nghen.", { co: { tu_ly: "ngot" } }],
       ["hanh", "Combo mình giờ thành vũ khí bí mật luôn đó con.", { co: { combo_hanh: true } }],
       ["_", "(Tối đó cả xóm ngồi gấp phiếu trên mấy cái ghế nhựa trước tiệm.)"],
     ],
@@ -1110,11 +1128,12 @@ MAU_CHUYEN.push(
     dieuKien: { nhanh: { tet: "A" }, sau: "que_1", cachNgay: 1 },
     uuTien: 10,
     thoai: [
-      ["_", "(Mái nhà mới lợp năm rồi, đêm mưa nghe êm ru.)", { co: { ds_qua_mai_nha: true } }],
+      ["_", "(Mái tôn con gửi tiền lợp, đêm mưa nghe êm ru.)", { co: { ds_qua_mai_nha: true } }],
       ["me_gap", "Con nếm thử nồi trà gừng này coi. Công thức của bà ngoại."],
       ["me_gap", "Hồi mẹ lên Sài Gòn đi học, mẹ uống trà quán bà Sáu hoài."],
-      ["_", "(Mẹ lấy trong hộc tủ ra một trang giấy cũ, nét chữ lạ mà quen.)"],
-      ["me_gap", "Bà Sáu đưa mẹ trang này hồi đó. Giờ con giữ đi."],
+      ["me_gap", "Tên tiệm con nhắn bữa đầu, mẹ dán trên tủ lạnh nè.", { co: { me_biet_ten: true } }],
+      ["me_gap", "Tên tiệm con hổng nhắn, mẹ phải hỏi bà Sáu mới biết đó.", { co: { me_biet_ten: false } }],
+      ["me_gap", "Hồi quán dẹp, bà Sáu gửi thư về, kẹp trang này. Giờ con giữ đi."],
       ["me_gap", "Mẹ tự hào về con."],
     ],
     ketQua: { trang: 11, co: { me_que: true } },
@@ -1290,12 +1309,18 @@ const HAU_TRUYEN = [
   ["tu", [
     [{ co: { tu_ly: "it" } }, "Chú Tư bớt ngọt được nửa năm, bác sĩ khen. Chú khoe cả hẻm là nhờ tiệm."],
     [{ co: { hana_ghe: "giu" } }, "Cái ghế đẩu có tên chú Tư vẫn đứng đầu quầy. Khách lạ tới chỉ dám chụp hình, không dám ngồi."],
+    [{ co: { hana_ghe: "mang" } }, "Chú Tư quen ly mang về rồi, sáng nào cũng ghé lấy một ly rồi chạy một vòng hẻm."],
     [{ co: { tu_app: "som" } }, "Chú Tư thành tài xế app năm sao. Chở khách nào chú cũng vòng qua tiệm."],
     [{ xem: "tu_1" }, "Chú Tư bấm app chậm rì mà khách đầu hẻm vẫn chờ chú. Ly trà sữa ít ngọt vẫn để sẵn."],
     [{}, "Chú Tư vẫn chạy xe ôm đầu hẻm, sáng nào cũng ghé một ly trà sữa ít ngọt."],
   ]],
   ["khoa", [
+    /* c3_vang luôn đặt khoa_tet: gộp chuyện Tết với chuyện quê, chuyện góc trà đá để hai dòng sau vẫn có lúc hiện */
+    [{ co: { khoa_tet: "trong", khoa_que: true } }, "Khoa trông tiệm ba ngày Tết, bán sạch trà đá. Hè này Khoa về Bến Tre, hứa mang dừa lên."],
+    [{ co: { khoa_tet: "trong", c0_khoa: "tra_da" } }, "Khoa trông tiệm ba ngày Tết, ngồi đúng góc trà đá có tấm bảng \"Góc của Khoa\"."],
     [{ co: { khoa_tet: "trong" } }, "Khoa trông tiệm ba ngày Tết, bán sạch trà đá, để lại tờ giấy: \"Em giữ tiệm kỹ lắm nha.\""],
+    [{ co: { khoa_tet: true, khoa_que: true } }, "Khoa ăn Tết cùng bà Sáu, mang trái dưa hấu to nhất chợ. Hè này Khoa về Bến Tre thăm mẹ."],
+    [{ co: { khoa_tet: true, c0_khoa: "tra_da" } }, "Khoa ăn Tết cùng bà Sáu, rồi ngồi đúng góc trà đá có tấm bảng \"Góc của Khoa\"."],
     [{ co: { khoa_tet: true } }, "Khoa ăn Tết cùng bà Sáu, mang theo trái dưa hấu to nhất chợ."],
     [{ co: { c0_khoa: "tra_da" } }, "Góc trà đá cho shipper trước tiệm có tấm bảng nhỏ: \"Góc của Khoa\"."],
     [{ co: { khoa_que: true } }, "Khoa để dành đủ tiền, hè này về Bến Tre, hứa mang dừa lên cho cả tiệm."],
@@ -1426,7 +1451,7 @@ MAU_CHUYEN.push(
       ["tin", "Mẹ: Ba trặc lưng hôm gặt lúa. Bác sĩ biểu nghỉ làm nặng ít tháng."],
       ["tin", "Mẹ: Con đừng lo. Lúa trong bồ còn đủ ăn tới mùa sau."],
       ["tin", "Mẹ: Tiền bữa trước mẹ gửi, con đừng có trả nghen.", { co: { c1_vay: "me" } }],
-      ["tin", "Mẹ: Ba cứng đầu y chang con, đâu chịu đi khám..", { co: { c1_vay: "tu" } }],
+      ["tin", "Mẹ: Ba cứng đầu y chang con, bác sĩ dặn nghỉ mà cứ đòi ra ruộng..", { co: { c1_vay: "tu" } }],
       ["_", "(Bạn đọc lại tin nhắn. Từ hồi nhỏ tới giờ, chưa thấy ba nghỉ làm.)"],
     ],
     luaChon: [
@@ -1490,3 +1515,151 @@ MAU_CHUYEN.push(
   },
 );
 
+/* ---------- Bản 5.3: Sau Tết (từ cảnh mở hàng mùng năm tới khoảng ngày 200) ----------
+   Trước đây qua cảnh kết là gần như hết cảnh. Mỗi tuần một cảnh, lấy từ các móc hậu truyện: Khoa về Bến Tre, xe bánh mì thứ hai
+   của cô Hạnh, Linh năm nhất, Hana gửi tin, Vy lên quản lý vùng hay xe trà ở chợ. Tính ngày từ lúc xem c3_ket (sau + cachNgay),
+   cảnh nào không khớp nhánh thì bỏ qua, cảnh sau vẫn tới đúng hẹn. Hai lựa chọn mới (so_cho, hanh_xe) được nhắc lại ở st_sau, st_vy_*, st_tu. */
+const SAU_TET = (id, cach, luc, tomTat, thoai, them = {}) => ({
+  id,
+  nhan: "Sau Tết",
+  chuong: 3,
+  luc,
+  tomTat,
+  dieuKien: { sau: "c3_ket", cachNgay: cach, ...(them.dk || {}) },
+  uuTien: 4,
+  thoai,
+  ...(them.luaChon ? { luaChon: them.luaChon } : {}),
+  ...(them.ketQua ? { ketQua: them.ketQua } : {}),
+});
+MAU_CHUYEN.push(
+  SAU_TET("st_so", 2, "dong_cua", "Sổ đủ trang, bà Sáu hỏi để cuốn sổ ở đâu.", [
+    ["sau", "Sổ đủ trang rồi mà tối nào bà cũng lật ra coi."],
+    ["sau", "Chữ ổng xấu hoắc. Vậy mà đọc hoài hông chán."],
+    ["_", "(Mướp nằm đè lên cuốn sổ, kêu một tiếng.)"],
+    ["sau", "Sổ này giờ của tiệm. Con tính để đâu?"],
+  ], {
+    luaChon: [
+      { chu: "Để trên quầy cho khách coi", dat: { so_cho: "quay" }, thoai: [["sau", "Ừ. Ai hỏi thì kể. Ổng khoái được người ta kể."]] },
+      { chu: "Nhờ bà giữ giùm", dat: { so_cho: "ba" }, thoai: [["sau", "Bà giữ thì bà giữ. Mà con pha sai là bà biết liền nghen."]] },
+    ],
+    ketQua: { than: { sau: 1 } },
+  }),
+  SAU_TET("st_khoa", 9, "dong_cua", "Xe của Khoa chạy hết nổi, Khoa góp mua xe khác.", [
+    ["khoa", "Xe em chạy hết nổi rồi {ban}. Em góp mua chiếc khác."],
+    ["khoa", "Tháng này chạy gấp đôi đơn, trà đá tiệm cứu em hoài."],
+    ["khoa", "Hè này em về Bến Tre thăm mẹ. Dừa em nhớ nha!", { co: { khoa_que: true } }],
+    ["khoa", "Mà {ban} pha em ly gừng như bữa mưa nữa được hông?", { co: { khoa_mua: "gung" } }],
+    ["_", "(Khoa ngồi đúng góc trà đá, gác chân lên thùng hàng.)"],
+  ], { ketQua: { than: { khoa: 1 } } }),
+  SAU_TET("st_linh_a", 16, "mo_cua", "Linh học buổi sáng, chiều đứng quầy ở tiệm.", [
+    ["linh", "{Ban} ơi, học kỳ này em học buổi sáng, chiều em đi làm."],
+    ["linh", "Em để dành mua cái máy tính cũ, làm bài cho lẹ."],
+    ["linh", "Ly nào em pha cũng viết một câu cổ vũ, khách khen quá trời.", { co: { linh_co_vu: "viet" } }],
+    ["sau", "Con nhỏ này pha lẹ hơn con rồi đó. Coi chừng."],
+  ], { dk: { nhanh: { linh: "A" }, co: { linh_da_lam: true } } }),
+  SAU_TET("st_linh_cho", 16, "dong_cua", "Linh học buổi sáng, vẫn chờ tiệm gọi đi làm.", [
+    ["linh", "{Ban} ơi, học kỳ này em học buổi sáng. Chiều em rảnh rồi nè."],
+    ["linh", "Tiệm cần người thì gọi em nha. Em vẫn chờ đó."],
+    ["_", "(Linh để lại số điện thoại, viết to trên nắp ly.)"],
+  ], { dk: { nhanh: { linh: "A" }, khongCo: { linh_da_lam: true } } }),
+  SAU_TET("st_linh_b", 16, "dong_cua", "Linh nhắn từ Đà Lạt: mở góc trà nhỏ trong ký túc xá.", [
+    ["tin", "Linh: {Ban} ơi, Đà Lạt lạnh lắm. Em mở góc trà nhỏ trong ký túc xá."],
+    ["tin", "Linh: Em pha trà đào ít đá như cũ, bạn phòng bên uống ghiền."],
+    ["tin", "Linh: Ly nào em cũng bỏ thạch, giống ly bữa đi thi.", { co: { linh_ly: "thach" } }],
+    ["tin", "Linh: Hè này em về, cho em đứng quầy phụ {ban} một tuần nha!"],
+  ], { dk: { nhanh: { linh: "B" } } }),
+  SAU_TET("st_hanh", 23, "mo_cua", "Cô Hạnh tính mở thêm xe bánh mì ở đầu chợ.", [
+    ["hanh", "Combo bán chạy quá, cô tính mở thêm xe bánh mì ở đầu chợ.", { co: { combo_hanh: true } }],
+    ["hanh", "Hẻm đông lên rồi, cô tính mở thêm xe bánh mì ở đầu chợ.", { khongCo: { combo_hanh: true } }],
+    ["hanh", "Mà hai xe thì cô chạy không xuể. Con thấy sao?"],
+  ], {
+    luaChon: [
+      { chu: "Rủ Vy phụ cô", dat: { hanh_xe: "vy" }, thoai: [["hanh", "Con Vy hả? Ừ, cháu cô mà cô quên. Để cô hỏi nó."]] },
+      { chu: "Bán kèm trà của tiệm ở xe mới", dat: { hanh_xe: "tra" }, ketQua: { than: { hanh: 1 } }, thoai: [["hanh", "Được! Xe hai cũng có trà của con. Buôn có bạn mà."]] },
+    ],
+  }),
+  SAU_TET("st_vy_a", 31, "dong_cua", "Vy lên quản lý vùng, giữ trân châu nấu mỗi sáng.", [
+    ["vy", "{Ban} ơi, công ty cho em lên quản lý vùng rồi."],
+    ["vy", "Em xin sếp giữ trân châu nấu mỗi sáng ở tiệm. Sếp chịu liền."],
+    ["vy", "Cả chuỗi đổi sang ngọt vừa, khách khen giống vị quán bà Sáu.", { co: { vy_ly: "vua" } }],
+    ["vy", "Dì Hạnh rủ em phụ xe bánh mì. Cuối tuần em qua phụ dì.", { co: { hanh_xe: "vy" } }],
+    ["vy", "Xe bánh mì mới của dì Hạnh có trà tiệm {ban}, em ghé mua hoài.", { co: { hanh_xe: "tra" } }],
+  ], { dk: { nhanh: { may: "A" } } }),
+  SAU_TET("st_vy_b", 31, "dong_cua", "Xe trà của Vy ở chợ đông khách.", [
+    ["vy", "Xe trà của em ở chợ đông rồi {ban}. Em thuê thêm một bạn phụ."],
+    ["vy", "Nồi nấu cũ của tiệm, em nấu trân châu ngon y như ở đây.", { co: { vy_b: "noi" } }],
+    ["vy", "Sáng nào em cũng qua học nấu với bà Sáu, bà la mà vui lắm.", { co: { vy_b: "hoc" } }],
+    ["vy", "Dì Hạnh mở xe bánh mì cạnh xe trà em. Hai dì cháu bán chung.", { co: { hanh_xe: "vy" } }],
+    ["vy", "Xe bánh mì mới của dì Hạnh bán trà tiệm {ban}, khách chợ khen hoài.", { co: { hanh_xe: "tra" } }],
+  ], { dk: { nhanh: { may: "B" } } }),
+  SAU_TET("st_hana_a", 39, "dong_cua", "Hana nhắn: video Hẻm 42 được một triệu lượt xem.", [
+    ["tin", "Hana: Chào {ban}! Video Hẻm 42 được một triệu lượt xem rồi!"],
+    ["tin", "Hana: Người ta hỏi địa chỉ hoài. Tôi nói: tìm con mèo Mướp."],
+    ["tin", "Hana: Tôi học thêm chữ mới: nhớ. Tôi nhớ hẻm."],
+  ], { dk: { nhanh: { hana: "A" } } }),
+  SAU_TET("st_hana_b", 39, "dong_cua", "Hana nhắn từ nước ngoài: con hẻm vẫn là bí mật.", [
+    ["tin", "Hana: Chào {ban}! Tôi về nước rồi. Video con hẻm đẹp lắm."],
+    ["tin", "Hana: Ai hỏi ở đâu, tôi nói bí mật. Hẻm là của hẻm."],
+    ["tin", "Hana: Bánh tét méo của tôi, bà Sáu còn giữ hình hông?", { co: { hana_tet: true } }],
+    ["tin", "Hana: Tôi học thêm chữ mới: nhớ. Tôi nhớ hẻm."],
+  ], { dk: { nhanh: { hana: "B" } } }),
+  SAU_TET("st_tu", 47, "mo_cua", "Chú Tư chở khách sân bay tới tận quầy.", [
+    ["tu", "Chú mới chở khách ra sân bay. Ổng hỏi tiệm trà Hẻm 42 ở đâu."],
+    ["tu", "Chú chở vô tận quầy luôn. Khách của con đó nghen."],
+    ["tu", "Chú bớt ngọt nửa năm rồi, bác sĩ khen quá trời.", { co: { tu_ly: "it" } }],
+    ["tu", "Ly mang về bữa đó chú quen rồi, chạy xe mà hút rột rột.", { co: { hana_ghe: "mang" } }],
+    ["tu", "Cái ghế có tên chú vẫn đó. Hôm qua có đứa đứng chụp hình với nó.", { co: { hana_ghe: "giu" } }],
+    ["tu", "Xe bánh mì mới của cô Hạnh cũng bán trà của con. Chú ghé rồi.", { co: { hanh_xe: "tra" } }],
+  ], { ketQua: { than: { tu: 1 } } }),
+  SAU_TET("st_me", 56, "dong_cua", "Mẹ nhắn: ba ra đồng lại, mùa này lúa trúng.", [
+    ["tin", "Mẹ: Ba ra đồng lại rồi. Mùa này lúa trúng, con khỏi lo."],
+    ["tin", "Mẹ: Tiền con gửi mẹ vẫn cất. Ba hông biết đâu.", { co: { gui_da: true } }],
+    ["tin", "Mẹ: Lần trước mẹ lên, về kể ba nghe hoài. Ổng đòi lên nữa.", { co: { me_len: true } }],
+    ["tin", "Mẹ: Ăn cơm chưa con?"],
+  ]),
+  SAU_TET("st_muop", 65, "mo_cua", "Mướp tha quà về đặt trước quầy.", [
+    ["_", "(Sáng nay Mướp tha về một con thằn lằn, đặt ngay trước quầy.)"],
+    ["sau", "Nó tặng con đó. Mèo mà thương ai là vậy."],
+    ["khoa", "Quản lý tiệm làm việc chăm quá {ban} ơi!"],
+  ]),
+  SAU_TET("st_sau", 76, "dong_cua", "Khách quán nước năm xưa dắt con cháu tới tiệm.", [
+    ["sau", "Mấy đứa hồi xưa uống trà quán ông, giờ dắt con nít tới tiệm con."],
+    ["sau", "Sổ nằm trên quầy, khách nào cũng lật coi. Ổng thấy chắc mắc cỡ.", { co: { so_cho: "quay" } }],
+    ["sau", "Cuốn sổ bà cất kỹ rồi. Tối nào bà cũng đọc một trang.", { co: { so_cho: "ba" } }],
+    ["_", "(Bà Sáu ngồi đầu quầy, vuốt Mướp, nhìn khách ra vô.)"],
+  ], { ketQua: { than: { sau: 1 } } }),
+  SAU_TET("st_linh_he_a", 85, "mo_cua", "Linh thi học kỳ đậu hết, mời cả tiệm.", [
+    ["linh", "{Ban} ơi, em thi học kỳ đậu hết! Bữa nay em mời cả tiệm."],
+    ["linh", "Ông nội hỏi hoài: tiệm còn tuyển người hông, ông xin đi làm."],
+    ["sau", "Ông nội con Linh uống trà quán ông từ hồi còn trai. Cho ổng ngồi chơi."],
+  ], { dk: { nhanh: { linh: "A" } }, ketQua: { than: { linh: 1 } } }),
+  SAU_TET("st_linh_he_b", 85, "mo_cua", "Linh về hè, mang trà Cầu Đất, xin đứng quầy phụ.", [
+    ["linh", "{Ban} ơi em về hè rồi! Cho em đứng quầy phụ một tuần nha."],
+    ["linh", "Em mang trà Cầu Đất về nè. Pha với sữa ngon hông tin nổi."],
+    ["sau", "Con nhỏ này về là hẻm ồn liền."],
+  ], { dk: { nhanh: { linh: "B" } }, ketQua: { than: { linh: 1 } } }),
+  SAU_TET("st_khoa_dua", 100, "mo_cua", "Khoa về Bến Tre, chở dừa lên như đã hứa.", [
+    ["_", "(Khoa chở hai buồng dừa, cột chặt sau yên xe.)"],
+    ["khoa", "Dừa Bến Tre nè {ban}! Em hứa từ hồi đó lận."],
+    ["khoa", "Mẹ em gửi lời cảm ơn. Mẹ nói ai cho con trà đá là người tốt."],
+  ], { dk: { co: { khoa_que: true } }, ketQua: { than: { khoa: 1 } } }),
+  SAU_TET("st_duong", 94, "mo_cua", "Phường láng lại mặt đường hẻm.", [
+    ["_", "(Phường láng lại mặt đường hẻm. Cả xóm đứng coi xe lu chạy.)"],
+    ["tu", "Hết ổ gà rồi! Chú chạy vô hẻm khỏi thắng gấp nữa."],
+    ["hanh", "Đường đẹp vầy, cô kê thêm cái bàn trước xe bánh mì."],
+    ["sau", "Hồi xưa hẻm này đất đỏ. Mưa là lội, mà quán ông vẫn đông."],
+  ], { ketQua: { than: { hanh: 1 } } }),
+  SAU_TET("st_mua", 106, "dong_cua", "Cơn mưa đầu mùa, cả xóm trú mưa trước hiên tiệm.", [
+    ["_", "(Cơn mưa đầu mùa. Cả xóm đứng trú mưa trước hiên tiệm.)"],
+    ["khoa", "Mưa vầy là em nhớ bữa đầu ghé tiệm {ban} ghê."],
+    ["tu", "Mưa là khách đông. Con nấu thêm nồi trà gừng đi."],
+    ["hanh", "Cô mang bánh mì qua nè. Ăn cho ấm bụng rồi bán."],
+    ["sau", "Hẻm này đổi nhiều rồi. Mà trà tiệm con vẫn vị đó."],
+  ], { ketQua: { than: { sau: 1, tu: 1, khoa: 1, hanh: 1 } } }),
+  SAU_TET("st_nua_nam", 118, "mo_cua", "Tiệm mở được nửa năm, bà Sáu đếm trên lịch.", [
+    ["sau", "Con mở tiệm được nửa năm rồi đó. Bà đếm trên lịch."],
+    ["khoa", "Nửa năm mà em uống hết mấy trăm ly trà đá rồi {ban} ơi."],
+    ["tin", "Mẹ: Nửa năm rồi con. Mẹ vẫn đọc đánh giá mỗi tối."],
+    ["_", "(Mướp ngồi trên quầy liếm chân, như chưa có gì xảy ra.)"],
+  ], { dk: { ngay: 180 } }),
+);

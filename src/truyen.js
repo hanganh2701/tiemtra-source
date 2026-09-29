@@ -32,6 +32,13 @@ const xung = () => (S.xung === "anh" ? "anh" : "chị");
 const hoaDau = (x) => x.charAt(0).toUpperCase() + x.slice(1);
 /* chương theo ngày: cảnh trôi theo độ thân hay theo lúc ra mặt tiền vẫn mang nhãn chương của ngày xem, để nhật ký không lùi chương */
 const chuongLuc = (ngay) => (ngay < 7 ? 0 : ngay < 30 ? 1 : ngay < 60 ? 2 : 3);
+/* nhãn chương của một ngày: qua cảnh mở hàng mùng năm (c3_ket) thì là "Sau Tết" (độ khó vẫn theo Chương 3) */
+function tenChuongNgay(ngay) {
+  const T = TT();
+  if (T.xem.c3_ket != null && ngay > T.xem.c3_ket) return "Sau Tết";
+  const ch = chuongLuc(ngay);
+  return `Chương ${ch} · ${CHUONG_TEN[ch] || ""}`;
+}
 const chuongNay = () => chuongLuc(S.day);
 /* truyện ảnh hưởng lượng khách: combo với cô Hạnh nhỉnh hơn; các ngã rẽ tính trong heSoKhachNhanh (src/nga-re.js) */
 function heSoKhachTruyen() {
@@ -104,6 +111,9 @@ function hopCanh(m, luc) {
   }
   if (d.ngay != null && dn < d.ngay) return false;
   if (d.ngayDen != null && dn > d.ngayDen) return false;
+  if (d.chuaXem && [].concat(d.chuaXem).some((id) => T.xem[id] != null)) return false;
+  /* cảnh Tết ngoài đời không chen vào đoạn Tết của truyện (từ ngày 55 tới khi mở hàng mùng năm) */
+  if (d.ngoaiTetTruyen && dn >= 55 && T.xem.c3_ket == null) return false;
   if (!khopDk({ co: d.co, khongCo: d.khongCo, nhanh: d.nhanh, khongNhanh: d.khongNhanh })) return false;
   if (d.buoc && (S.buoc || 1) < d.buoc) return false;
   if (d.tienDuoi != null && !(S.money < d.tienDuoi)) return false;
@@ -235,8 +245,9 @@ function truyenLuc(luc, xong) {
 function hienCanh(m, xong, xemLai) {
   const card = $("card"),
     dong = locDong(m.thoai),
-    ch = chuongLuc(xemLai ? (TT().xem[khoaXem(m)] ?? S.day) : S.day),
-    nhan = `<small class="trch">${m.nhan ? esc(m.nhan) : `Chương ${ch} · ${CHUONG_TEN[ch] || ""}`}${m.reRe ? ' <span class="trre">Ngã rẽ</span>' : ""}</small>`,
+    /* cảnh sau giờ đóng cửa thuộc ngày vừa bán (S.day đã sang ngày mới) */
+    ngayCanh = xemLai ? (TT().xem[khoaXem(m)] ?? S.day) : ngayCua(m.luc),
+    nhan = `<small class="trch">${esc(m.nhan || tenChuongNgay(ngayCanh))}${m.reRe ? ' <span class="trre">Ngã rẽ</span>' : ""}</small>`,
     baoRe = m.reRe && !xemLai ? `<p class="trrew">${esc(m.reRe)}</p>` : "";
   let i = 0;
   const ketThuc = (chon, boQua) => {

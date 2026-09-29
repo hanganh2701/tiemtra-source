@@ -260,7 +260,7 @@ test("16 tổ hợp ngã rẽ: đủ 12 trang, đúng kết, không lẫn cảnh
     assert.equal(kq.ket, "tiem_cua_xom");
     assert.deepEqual(kq.trang, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
     /* cảnh cần gửi tiền về quê ba tháng hay mua nhà (tab Đời sống) không tới trong 75 ngày: có test riêng */
-    const thieu = JSON.parse(g.run("JSON.stringify(MAU_CHUYEN.filter((m) => { const d = m.dieuKien || {}; return !d.le && !d.buoc && !d.luot && !Object.keys(d.co || {}).some((k) => /^(gui_3|ds_)/.test(k)); }).map((m) => m.id))")).filter(
+    const thieu = JSON.parse(g.run("JSON.stringify(MAU_CHUYEN.filter((m) => { const d = m.dieuKien || {}; return !d.le && !d.buoc && !d.luot && d.sau !== 'c3_ket' && !Object.keys(d.co || {}).some((k) => /^(gui_3|ds_)/.test(k)); }).map((m) => m.id))")).filter(
       (id) => !daThay.has(id),
     );
     assert.deepEqual(thieu, []);
@@ -268,6 +268,65 @@ test("16 tổ hợp ngã rẽ: đủ 12 trang, đúng kết, không lẫn cảnh
     g.close();
   }
   assert.ok(gapMax <= 8, "quãng trống dài nhất " + gapMax + " ngày");
+});
+
+test("Sau Tết: qua cảnh mở hàng mùng năm vẫn có cảnh mỗi tuần tới khoảng ngày 200, đúng nhánh, nhãn Sau Tết", () => {
+  const daThay = new Set();
+  for (const chon of [{ linh: 0, hana: 0, may: 0, tet: 0 }, { linh: 1, hana: 1, may: 1, tet: 1 }]) {
+    const g = boot();
+    try {
+      const kq = moPhongTruyen(g, 200, { chon, cuoi: chon.may === 1, ngheo: chon.tet === 1 }),
+        tag = JSON.stringify(chon) + ": " + kq.xem.join(" "),
+        ket = ngayCanh(kq, "c3_ket");
+      kq.xem.forEach((x) => daThay.add(x.split("@")[0]));
+      const st = kq.xem.filter((x) => x.startsWith("st_")).map((x) => +x.split("@")[1]);
+      assert.ok(st.length >= 11, "ít nhất 11 cảnh Sau Tết · " + tag);
+      assert.ok(st.every((d) => d > ket), tag);
+      const ngay = [ket, ...st].sort((a, b) => a - b);
+      for (let k = 1; k < ngay.length; k++) assert.ok(ngay[k] - ngay[k - 1] <= 13, "quãng trống sau Tết · " + tag);
+      /* đúng nhánh */
+      assert.equal(ngayCanh(kq, chon.linh ? "st_linh_a" : "st_linh_b"), null, tag);
+      assert.equal(ngayCanh(kq, chon.may ? "st_vy_a" : "st_vy_b"), null, tag);
+      assert.equal(ngayCanh(kq, chon.hana ? "st_hana_a" : "st_hana_b"), null, tag);
+      /* nhãn Sau Tết trong Sổ tay */
+      g.run("R.tab = 'hem'; R.sub = { hem: HEM_TAB.findIndex((x) => x[1] === paneSoTay) }; renderPrep()");
+      assert.match(g.run("document.getElementById('pane').textContent"), /Sau Tết/);
+      assert.deepEqual(g.errors.map(String), []);
+    } finally {
+      g.close();
+    }
+  }
+  for (const id of ["st_so", "st_khoa", "st_hanh", "st_tu", "st_me", "st_muop", "st_sau", "st_mua"]) assert.ok(daThay.has(id), id + " chưa hiện");
+});
+
+test("Tết ngoài đời trùng Tết của truyện: không chen cảnh ba mẹ lên thăm, ông Táo vào đoạn ngày 55 tới mùng năm", () => {
+  const g = boot();
+  try {
+    /* cảnh thử có cùng điều kiện với le_tet, le_ong_tao nhưng không cần đúng ngày lễ ngoài đời */
+    assert.ok(g.run("['le_tet', 'le_ong_tao'].every((id) => MAU_CHUYEN.find((m) => m.id === id).dieuKien.ngoaiTetTruyen)"));
+    g.run("MAU_CHUYEN.push({ id: 'thu_tet', luc: 'mo_cua', dieuKien: { ngoaiTetTruyen: true }, thoai: [] })");
+    const hop = () => g.run("hopCanh(MAU_CHUYEN.find((m) => m.id === 'thu_tet'), 'mo_cua')");
+    g.run("S.day = 40");
+    assert.equal(hop(), true);
+    g.run("S.day = 62");
+    assert.equal(hop(), false);
+    g.run("TT().xem.c3_ket = 67; S.day = 70");
+    assert.equal(hop(), true, "qua mùng năm rồi thì Tết ngoài đời hiện bình thường");
+  } finally {
+    g.close();
+  }
+});
+
+test("c1_vay không tới sau khi mẹ đã báo ba trặc lưng", () => {
+  const g = boot();
+  try {
+    g.run("S.day = 40; S.money = 100000; TT().xem.gui_1 = 37");
+    assert.equal(g.run("hopCanh(MAU_CHUYEN.find((m) => m.id === 'c1_vay'), 'dong_cua')"), false);
+    g.run("delete TT().xem.gui_1");
+    assert.equal(g.run("hopCanh(MAU_CHUYEN.find((m) => m.id === 'c1_vay'), 'dong_cua')"), true);
+  } finally {
+    g.close();
+  }
 });
 
 test("Hẻm 42 lần nữa: lượt hai có cảnh riêng, nhắc lại kết đã thấy ở lượt trước", () => {
