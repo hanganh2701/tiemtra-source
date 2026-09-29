@@ -393,6 +393,9 @@ Claude cho 8 agent chơi cùng lúc theo 8 kiểu: pha thật nhanh, bản lưu 
 - [x] Khách bỏ đi vì phần thêm đắt: 25% khi vừa chạm mức đắt, tăng dần, tối đa 80% (cả ly vượt mức tối đa cũng 80%)
 - [x] Ly hơi đắt (`dear`) không được khen rẻ
 - [x] Bản lưu cũ để giá cả ly cao hơn gợi ý từ 20%: trước lần mở cửa đầu hỏi một lần, có nút Về giá gợi ý (`hoiGiaMoi`)
+- [x] Phố Trà: điểm doanh thu không còn chặn ở 700k mỗi ngày, trên đó mỗi lần gấp đôi thêm 5 điểm, tối đa 50 (`diemDoanhThu`); ngày nghỉ không kéo điểm xuống. Tiệm bán 3 triệu mỗi ngày đứng đầu được mà không cần chi nhánh; bán 800k thì vẫn cần chi nhánh. Chỉ báo lên hạng khi cao nhất từ trước tới giờ (`S.hangTot`)
+- [x] Mở rộng chi nhánh (`CN_MO_RONG`), chỗ tiêu tiền cuối game: sau 30 ngày bán, ba nấc lần lượt máy pha thứ hai 30 triệu, thuê thêm gian bên cạnh 80 triệu, bảng hiệu lớn và quảng cáo 180 triệu. Mỗi nấc khách đông hơn 20–25%, bán thêm 25–35 ly, tốn thêm 80–200k mỗi ngày; nấc sau hoàn vốn chậm hơn. Sang nhượng lấy lại 60% cả tiền mở rộng
+- [x] Người pha chậm: mô phỏng 14 giây mỗi ly có thuê người thì ra mặt tiền ngày 61, mở chi nhánh ngày 105, nên không đổi giá mặt tiền. Chỗ kẹt là không thuê ai: thẻ cuối ngày nhắc thuê phụ quầy khi có từ 8 khách bỏ về mà chưa có nhân viên, mỗi tuần tối đa một lần
 
 ## Cổng quyết định
 

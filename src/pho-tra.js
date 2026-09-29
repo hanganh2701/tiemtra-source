@@ -2,12 +2,15 @@
    Chạy hoàn toàn trên máy: bạn bè trao đổi mã hoặc link qua nhóm chat. Nạp trước game.js. */
 
 /* ---------- điểm tiệm ---------- */
+/* điểm doanh thu 7 ngày: tới 700k mỗi ngày thì 1 điểm mỗi 20k (35 điểm); trên đó mỗi lần gấp đôi thêm 5 điểm, tối đa 50.
+   Trước chặn ở 35 nên tiệm bán 5 triệu mỗi ngày cũng như tiệm 700k, chỉ có chi nhánh mới vượt được Mây Tea */
+const diemDoanhThu = (tb) => (tb <= 700000 ? tb / 20000 : Math.min(50, 35 + 5 * Math.log2(tb / 700000)));
 function diemTiem() {
-  const H = (S.history || []).slice(-7),
+  const H = (S.history || []).filter((r) => !r.nghi).slice(-7),
     tb = H.length ? H.reduce((a, r) => a + recRev(r), 0) / H.length : 0,
     trang = S.tr && S.tr.trang ? S.tr.trang.length : 0;
   return Math.round(
-    rating() * 12 + Math.min(35, tb / 20000) + Math.min(25, Math.max(0, S.day - 1) * 0.4) + trang * 1.5 + ((S.buoc || 1) >= 2 ? 10 : 0) + (S.cn ? CHI_NHANH.diemPhoTra : 0),
+    rating() * 12 + diemDoanhThu(tb) + Math.min(25, Math.max(0, S.day - 1) * 0.4) + trang * 1.5 + ((S.buoc || 1) >= 2 ? 10 : 0) + (S.cn ? CHI_NHANH.diemPhoTra + cnMoRong(S.cn).diem : 0),
   );
 }
 function diemMay(t, ngay) {
@@ -23,12 +26,13 @@ function bangPhoTra() {
   return ds.sort((a, b) => b.diem - a.diem);
 }
 const hangMinh = () => bangPhoTra().findIndex((x) => x.minh) + 1;
-/* cuối ngày: báo khi lên hạng */
+/* cuối ngày: chỉ báo khi lên hạng cao nhất từ trước tới giờ (tụt rồi lên lại hạng cũ thì thôi, đỡ báo đi báo lại) */
 function phoTraCuoiNgay() {
   const h = hangMinh(),
-    cu = S.hangCu || h;
+    tot = S.hangTot || S.hangCu || h;
   S.hangCu = h;
-  return h < cu ? `<p class="lvup">🏆 Phố Trà: tiệm bạn lên hạng ${h} (trước là ${cu})</p>` : "";
+  S.hangTot = Math.min(tot, h);
+  return h < tot ? `<p class="lvup">🏆 Phố Trà: tiệm bạn lên hạng ${h}, cao nhất từ trước tới giờ (trước là ${tot})</p>` : "";
 }
 
 /* ---------- danh thiếp tiệm ---------- */

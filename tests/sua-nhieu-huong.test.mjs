@@ -256,3 +256,79 @@ test("Thư giãn ghi đủ những gì được miễn", () => {
     g.close();
   }
 });
+
+test("Phố Trà chỉ báo lên hạng khi cao nhất từ trước tới giờ", () => {
+  const g = boot();
+  try {
+    g.run("S.day = 40");
+    const h = g.run("hangMinh()");
+    assert.ok(h > 1, "chưa đứng đầu: " + h);
+    assert.match(g.run(`(S.hangCu = ${h + 2}, S.hangTot = ${h + 2}, phoTraCuoiNgay())`), new RegExp("lên hạng " + h));
+    assert.equal(g.run("S.hangTot"), h);
+    /* hôm qua tụt, nay lên lại đúng hạng cao nhất cũ: không báo */
+    assert.equal(g.run(`(S.hangCu = ${h + 1}, S.hangTot = ${h}, phoTraCuoiNgay())`), "");
+    /* bản lưu cũ chưa có hạng cao nhất thì lấy hạng hôm qua */
+    assert.match(g.run(`(S.hangCu = ${h + 1}, delete S.hangTot, phoTraCuoiNgay())`), /cao nhất/);
+  } finally {
+    g.close();
+  }
+});
+
+const saoTot = "S.reviews = Array.from({ length: 40 }, () => ({ s: 5, t: 'ngon', k: Math.random(), d: 1 }))";
+const tiemLon = `S.day = 50; S.money = 400000000; ${saoTot}; S.buoc = 2; S.hd = { bd: 30, gia: 330000, ky: 0 };
+  S.history = Array.from({ length: 3 }, (_, i) => { const r = newRec(47 + i); r.sales = { tra: { q: 100, a: 4500000 } }; r.served = 100; r.ing = { tra: { q: 100, v: 900000 } }; return r; });
+  TT().co.chi_nhanh_mo = true`;
+
+test("mở rộng chi nhánh: sau 30 ngày mở lần lượt 3 nấc, bán nhiều hơn, tốn thêm mỗi ngày, sang nhượng lấy lại một phần", () => {
+  const g = boot();
+  try {
+    g.run(tiemLon + "; moChiNhanh('truong'); $('modal').hidden = true; S.cn.ql.kn = 5; S.cn.phu = true");
+    g.run("R.tab = 'nangcap'; R.sub = { upg: 3 }; renderPrep()");
+    assert.ok(g.run("document.querySelector('[data-cnmr]').disabled"), "chưa đủ 30 ngày");
+    assert.equal(g.run("moRongCN()"), false);
+    /* bán một ngày trước và sau khi mở rộng, cùng số ngẫu nhiên */
+    const ban = () =>
+      g.run(`(() => { Math.random = () => 0.5; const r = newRec(S.day); S.cn.viec = null; chiNhanhCuoiNgay(r); S.cn.viec = null; return { ly: r.cn.ly, chi: r.cnChi }; })()`);
+    g.run("S.day = S.cn.bd + 31");
+    const truoc = ban();
+    g.run("R.tab = 'nangcap'; R.sub = { upg: 3 }; renderPrep()");
+    assert.ok(!g.run("document.querySelector('[data-cnmr]').disabled"));
+    const m0 = g.run("S.money");
+    g.run("document.querySelector('[data-cnmr]').click()");
+    [...card(g).querySelectorAll("button")].find((x) => /Mở rộng/.test(x.textContent)).click();
+    assert.equal(g.run("S.cn.mr"), 1);
+    assert.equal(m0 - g.run("S.money"), g.run("CN_MO_RONG[0].gia"));
+    assert.ok(g.run("S.cur.equip.some((e) => /Mở rộng chi nhánh/.test(e.n))"));
+    const sau = ban();
+    assert.ok(sau.ly > truoc.ly, `bán nhiều hơn: ${truoc.ly} → ${sau.ly}`);
+    /* mở tiếp đủ 3 nấc; hết nấc thì không còn nút */
+    g.run("S.cn.mr = 3; S.cn.mrTien = CN_MO_RONG.reduce((a, x) => a + x.gia, 0); R.tab = 'nangcap'; R.sub = { upg: 3 }; renderPrep()");
+    assert.equal(g.run("document.querySelectorAll('[data-cnmr]').length"), 0);
+    assert.match(g.run("document.getElementById('pane').textContent"), /Đã mở rộng: máy pha thứ hai, thuê thêm gian bên cạnh, bảng hiệu lớn/);
+    const du = ban();
+    assert.ok(du.chi > sau.chi, "tốn thêm mỗi ngày");
+    assert.equal(g.run("cnMoRong(S.cn).diem"), 4);
+    /* sang nhượng: lấy lại 60% cả tiền mở rộng */
+    g.run("S.day = S.cn.bd + 200");
+    const m1 = g.run("S.money");
+    g.run("sangNhuongCN()");
+    [...card(g).querySelectorAll("button")].find((x) => /^Sang nhượng$/.test(x.textContent)).click();
+    const lai = g.run("S.money") - m1;
+    assert.ok(lai >= Math.round(290000000 * 0.6), "lấy lại cả phần mở rộng: " + lai);
+    assert.deepEqual(g.errors.map(String), []);
+  } finally {
+    g.close();
+  }
+});
+
+test("khách bỏ về nhiều mà chưa thuê ai: thẻ cuối ngày nhắc thuê phụ quầy, một tuần một lần", () => {
+  const g = boot();
+  try {
+    g.run("S.day = 6; S.cur = newRec(6); __openDay(); R.today.lost = 12; closeEarly()");
+    assert.match(card(g).textContent, /12 khách bỏ về. Thuê nhân viên phụ quầy/);
+    g.run("$('modal').hidden = true; __openDay(); R.today.lost = 12; closeEarly()");
+    assert.doesNotMatch(card(g).textContent, /Thuê nhân viên phụ quầy/);
+  } finally {
+    g.close();
+  }
+});

@@ -145,17 +145,19 @@ test("màn chuẩn bị nhắc thử thách hôm nay từ ngày 3, bấm vào m�
   }
 });
 
-test("Phố Trà: chơi giỏi không lên hạng 1 ngay ngày 2; cuối game Mây Tea mạnh, phải có chi nhánh mới giữ hạng 1", () => {
+test("Phố Trà: chơi giỏi không lên hạng 1 ngay ngày 2; cuối game Mây Tea mạnh, bán vừa thì cần chi nhánh, bán rất đông thì không cần", () => {
   const g = boot();
   try {
-    const hang = (d, mt, cn) =>
+    const hang = (d, mt, cn, dt = 800000) =>
       g.run(`(() => { S.day = ${d}; S.reviews = Array.from({ length: 40 }, (_, i) => ({ s: i < 32 ? 5 : 4 }));
-        S.history = Array.from({ length: 7 }, () => { const r = newRec(1); r.sales = { tra: { q: 1, a: 800000 } }; return r; });
+        S.history = Array.from({ length: 7 }, () => { const r = newRec(1); r.sales = { tra: { q: 1, a: ${dt} } }; return r; });
         S.tr = { trang: Array.from({ length: Math.min(12, Math.floor(${d} / 6)) }, (_, i) => i + 1) }; S.buoc = ${mt} ? 2 : 1;
         S.cn = ${cn} ? { loai: "truong" } : null; return hangMinh(); })()`);
     assert.ok(hang(2, false, false) > 1);
     assert.equal(hang(150, true, false), 2, "chỉ có mặt tiền thì thua Mây Tea");
     assert.equal(hang(150, true, true), 1);
+    assert.equal(hang(150, true, false, 3000000), 1, "bán 3 triệu mỗi ngày thì không cần chi nhánh");
+    assert.ok(hang(10, false, false, 1000000) > 1, "ngày 10 chưa đứng đầu");
   } finally {
     g.close();
   }

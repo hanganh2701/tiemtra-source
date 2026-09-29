@@ -6391,12 +6391,19 @@ function endDay() {
   }
   const nextLv =
     !broke && levelOf(S.day) > levelOf(S.day - 1) ? levelOf(S.day) : 0;
+  /* pha chậm, khách bỏ về nhiều mà chưa thuê ai: nhắc thuê phụ quầy, tối đa một lần mỗi tuần */
+  const nhacNv = !broke && r.day >= 4 && r.lost >= 8 && r.quayKin < 15 && !STAFF.some((x) => S.upg[x.id]) && !(S.day - (S.nhacNv || -99) < 7);
+  if (nhacNv) S.nhacNv = S.day;
   const showCard = () => {
     $("card").innerHTML =
       `<div class="pbig">${broke ? ico("sad") : ico("moon")}</div><h2>${broke ? "Phá sản" : "Hết ngày " + r.day}</h2>
   <div class="kpis"><div><b>${r.served}</b>🧋</div><div><b>${r.lost}</b>${ico("angry")}</div><div><b>${avg ? avg.toFixed(1).replace(".", ",") : "–"}</b>${ico("star")}</div></div>${
     r.quayKin >= 5
       ? `<p class="note">👥 ${r.quayKin} khách tới thấy quầy kín nên đi.${r.quayKin >= 15 ? " Thuê phụ quầy hay mở rộng quầy thì bán được nhiều hơn; biển hiệu, quảng cáo chỉ có ích khi quầy còn chỗ." : ""}</p>`
+      : ""
+  }${
+    nhacNv
+      ? `<p class="note">🤝 ${r.lost} khách bỏ về. Thuê nhân viên phụ quầy (Nâng cấp › Nhân viên, ${fmt(STAFF[0].cost)}) thì mỗi ly pha nhanh hơn, khách đỡ chờ.</p>`
       : ""
   }
   <div class="ledger">

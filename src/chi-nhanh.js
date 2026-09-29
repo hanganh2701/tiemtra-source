@@ -10,7 +10,18 @@ const cuoiTuanNgay = (d) => d > 1 && (d % 7 === 6 || d % 7 === 0);
    ghi số kỳ hợp đồng đã qua để gia hạn không chạy liền sau khi cập nhật */
 const CN_CU = { truong: { tt: 3000000 }, vp: { tt: 4000000 }, kiosk: { tt: 2000000, pt: 0.08 } };
 /* kiosk bán tối đa capMax ly (có người phụ thì bày thêm được một quầy) */
-const cnCapMax = (c, L) => (L.capMax || Infinity) + (c && c.phu ? CHI_NHANH.capPhuKiosk : 0);
+/* các nấc mở rộng đã làm, gộp lại */
+function cnMoRong(c) {
+  const ds = CN_MO_RONG.slice(0, (c && c.mr) || 0);
+  return {
+    cauHs: ds.reduce((a, x) => a * x.cauHs, 1),
+    capThem: ds.reduce((a, x) => a + x.capThem, 0),
+    chiNgay: ds.reduce((a, x) => a + x.chiNgay, 0),
+    sao: ds.reduce((a, x) => a + (x.sao || 0), 0),
+    diem: ds.reduce((a, x) => a + (x.diem || 0), 0),
+  };
+}
+const cnCapMax = (c, L) => (L.capMax || Infinity) + (c && c.phu ? CHI_NHANH.capPhuKiosk : 0) + cnMoRong(c).capThem;
 /* người phụ bán thêm được bao nhiêu ly (kiosk đã chạm mức tối đa thì chỉ còn phần quầy thêm) */
 function cnPhuThem(c, L) {
   const cap = CHI_NHANH.capGoc + CHI_NHANH.capBac * c.ql.kn;
@@ -86,7 +97,8 @@ function chiNhanhCuoiNgay(r) {
   const d = S.day,
     e = ev(),
     ct = cuoiTuanNgay(d),
-    thi = !!L.thi && d % 30 >= 25 && d % 30 <= 27;
+    thi = !!L.thi && d % 30 >= 25 && d % 30 <= 27,
+    mr = cnMoRong(c);
   const cau =
     L.cau *
       (ct ? L.cuoiTuan : 1) *
@@ -96,9 +108,10 @@ function chiNhanhCuoiNgay(r) {
       (S.upg.brandKit ? 1.1 : 1) *
       heSoGiaKhach() /* giá cao thì khách chi nhánh cũng vắng như tiệm gốc */ *
       cnHieu("cauHs", 1) *
+      mr.cauHs *
       (0.85 + Math.random() * 0.3) +
     cnHieu("cauThem", 0);
-  let cap = (CHI_NHANH.capGoc + CHI_NHANH.capBac * c.ql.kn + (c.phu ? CHI_NHANH.capPhu : 0)) * cnHieu("capHs", 1) + cnHieu("capThem", 0);
+  let cap = (CHI_NHANH.capGoc + CHI_NHANH.capBac * c.ql.kn + (c.phu ? CHI_NHANH.capPhu : 0)) * cnHieu("capHs", 1) + cnHieu("capThem", 0) + mr.capThem;
   if (L.capMax) cap = Math.min(cap, cnCapMax(c, L));
   const ly = Math.max(0, Math.round(Math.min(cau, cap))),
     g = cnGiaLy(),
@@ -106,7 +119,7 @@ function chiNhanhCuoiNgay(r) {
     du = cnLayHangDu(ly),
     phanDu = ly ? (du.tra + du.top) / (2 * ly) : 0,
     hang = Math.round(ly * g.hang * CHI_NHANH.muaNgoai * (1 - 0.9 * phanDu) * dsHangCn()),
-    nha = c.gia + (c.pt ? Math.round(thu * c.pt) : 0),
+    nha = c.gia + (c.pt ? Math.round(thu * c.pt) : 0) + mr.chiNgay,
     luong = Math.round(c.ql.luong + thu * CHI_NHANH.phanTramQl + (c.phu ? CHI_NHANH.luongPhu : 0)),
     chi = hang + nha + luong;
   const x = (r.sales.cn = r.sales.cn || { q: 0, a: 0 });
@@ -117,7 +130,7 @@ function chiNhanhCuoiNgay(r) {
   S.totalRev += thu;
   const quaTai = cau > cap * 1.15,
     chamTran = !!L.capMax && cap >= cnCapMax(c, L) /* kiosk đã bán tới mức tối đa: thuê người phụ không bán thêm được */,
-    sao = 3.5 + 0.2 * c.ql.kn + (c.phu ? 0.1 : 0) - (quaTai ? 0.2 : 0) + cnHieu("saoThem", 0) + (Math.random() - 0.5) * 0.3;
+    sao = 3.5 + 0.2 * c.ql.kn + (c.phu ? 0.1 : 0) + mr.sao - (quaTai ? 0.2 : 0) + cnHieu("saoThem", 0) + (Math.random() - 0.5) * 0.3;
   c.sao = Math.round((c.sao * 0.7 + Math.max(3.3, Math.min(4.9, sao)) * 0.3) * 100) / 100;
   const dong = thi
     ? "Tuần thi, học sinh ở nhà ôn bài nên vắng."
@@ -189,8 +202,8 @@ function sangNhuongCN() {
   if (!c || !L) return;
   const kyCoc = c.cocKy || CHI_NHANH.hopDong,
     traCoc = S.day - c.bd >= kyCoc,
-    /* lấy lại phần tiền sang lại và trang trí đã trả lúc mở (chi nhánh mở từ bản cũ không có tiền sang lại) */
-    lai = Math.round((((c.sang || 0) + c.tt) * CHI_NHANH.sangNhuong) / 1000) * 1000;
+    /* lấy lại phần tiền sang lại, trang trí đã trả lúc mở và tiền mở rộng (chi nhánh mở từ bản cũ không có tiền sang lại) */
+    lai = Math.round((((c.sang || 0) + c.tt + (c.mrTien || 0)) * CHI_NHANH.sangNhuong) / 1000) * 1000;
   ask(
     `<div class="pbig">${L.ic}</div><h2>Sang nhượng chi nhánh?</h2><p>Người sang lại trả ${fmtBig(lai)} cho mặt bằng và đồ nghề. ${traCoc ? `Đã qua một kỳ hợp đồng nên lấy lại cọc ${fmtBig(c.coc)}.` : `Chưa hết kỳ hợp đồng đầu (còn ${kyCoc - (S.day - c.bd)} ngày) nên mất cọc ${fmtBig(c.coc)}.`}</p>`,
     [
@@ -227,7 +240,7 @@ function theChiNhanh() {
       hq = c.hq;
     return `<div class="mtcard on cncard"><b>${L.ic} ${esc(L.ten)}</b><p>Quản lý ${esc(c.ql.ten)} · tay nghề ${"★".repeat(c.ql.kn)}${"☆".repeat(5 - c.ql.kn)} · lương ${fmt(c.ql.luong)}/ngày + ${Math.round(CHI_NHANH.phanTramQl * 100)}% doanh thu</p><p>Tiền nhà ${fmt(c.gia)}/ngày${c.pt ? ` + ${Math.round(c.pt * 100)}% doanh thu` : ""}${L.capMax ? ` · bán tối đa ${cnCapMax(c, L)} ly/ngày` : ""} · còn ${con} ngày tới kỳ gia hạn · ${String(c.sao.toFixed(1)).replace(".", ",")}★</p>${
       hq ? `<p>Ngày ${hq.ngay}: ${hq.ly} ly · thu ${fmt(hq.thu)} · lãi <b class="${hq.lai < 0 ? "neg" : "pos"}">${hq.lai < 0 ? "−" : "+"}${fmt(Math.abs(hq.lai))}</b></p>` : `<p class="note">Chưa bán ngày nào. Mở tiệm gốc là chi nhánh bán theo.</p>`
-    }<div class="cnnut"><button class="sbtn${c.phu ? " ghost" : " pri"}" data-cnphu>${c.phu ? "Cho người phụ nghỉ" : `Thuê người phụ<small>+${cnPhuThem(c, L)} ly/ngày · ${fmt(CHI_NHANH.luongPhu)}/ngày</small>`}</button><button class="sbtn ghost" data-cnsang>Sang nhượng</button></div></div>`;
+    }<div class="cnnut"><button class="sbtn${c.phu ? " ghost" : " pri"}" data-cnphu>${c.phu ? "Cho người phụ nghỉ" : `Thuê người phụ<small>+${cnPhuThem(c, L)} ly/ngày · ${fmt(CHI_NHANH.luongPhu)}/ngày</small>`}</button><button class="sbtn ghost" data-cnsang>Sang nhượng</button></div>${theMoRong(c, L)}</div>`;
   }
   const dk = dkChiNhanh(),
     du = dk.every((x) => x.ok);
@@ -320,8 +333,51 @@ function cnChonViec(id, chon) {
   head();
 }
 
+/* ---------- mở rộng chi nhánh ---------- */
+const cnMoRongTiep = (c) => (c ? CN_MO_RONG[c.mr || 0] || null : null);
+const cnMoRongDuoc = (c) => !!c && S.day - c.bd >= CN_MO_RONG_SAU;
+function theMoRong(c, L) {
+  const da = CN_MO_RONG.slice(0, c.mr || 0),
+    x = cnMoRongTiep(c);
+  const daLam = da.length ? `<p class="note">Đã mở rộng: ${da.map((y) => esc(y.ten.toLowerCase())).join(", ")}.</p>` : "";
+  if (!x) return `<div class="cnmr">${daLam}</div>`;
+  const duoc = cnMoRongDuoc(c);
+  return `<div class="cnmr"><b>Mở rộng · nấc ${(c.mr || 0) + 1}/${CN_MO_RONG.length}: ${esc(x.ten)}</b><p>${esc(x.mo)} Khách đông hơn khoảng ${Math.round((x.cauHs - 1) * 100)}%, bán thêm được ${x.capThem} ly/ngày, tốn thêm ${fmt(x.chiNgay)}/ngày${x.diem ? `, thêm ${x.diem} điểm Phố Trà` : ""}.</p>${daLam}${
+    duoc ? "" : `<p class="note">Chi nhánh bán đủ ${CN_MO_RONG_SAU} ngày mới mở rộng được (còn ${CN_MO_RONG_SAU - (S.day - c.bd)} ngày).</p>`
+  }<button class="sbtn pri" data-cnmr ${duoc && S.money >= x.gia && !inDebt() ? "" : "disabled"}><b>${fmtBig(x.gia)}</b>Mở rộng</button></div>`;
+}
+function moRongCN() {
+  const c = cnChuan(S.cn),
+    L = cnLoai(),
+    x = cnMoRongTiep(c);
+  if (!c || !L || !x || !cnMoRongDuoc(c) || S.money < x.gia) return false;
+  ask(
+    `<div class="pbig">${L.ic}</div><h2>${esc(x.ten)}?</h2><p>${esc(x.mo)}</p><p>Trả ${fmtBig(x.gia)}, từ mai chi nhánh tốn thêm ${fmt(x.chiNgay)} mỗi ngày. Sang nhượng thì người mua trả lại ${Math.round(CHI_NHANH.sangNhuong * 100)}% tiền mở rộng.</p>`,
+    [
+      ["Để sau", () => {}],
+      [
+        "Mở rộng",
+        () => {
+          if (S.money < x.gia) return;
+          S.money -= x.gia;
+          S.cur.equip.push({ n: "Mở rộng chi nhánh: " + x.ten.toLowerCase(), v: x.gia });
+          c.mr = (c.mr || 0) + 1;
+          c.mrTien = (c.mrTien || 0) + x.gia;
+          save();
+          head();
+          sfx("lvup");
+          toast(`${L.ic} ${c.ql.ten}: Để em lo, mai khách tới là thấy liền!`, 4500, 1);
+          renderPrep();
+        },
+        1,
+      ],
+    ],
+  );
+  return true;
+}
+
 document.addEventListener("click", (e) => {
-  const t = e.target.closest && e.target.closest("[data-cnmo], [data-cnphu], [data-cnsang]");
+  const t = e.target.closest && e.target.closest("[data-cnmo], [data-cnphu], [data-cnsang], [data-cnmr]");
   if (!t || t.disabled || typeof S === "undefined" || !S) return;
   e.stopPropagation();
   if (t.dataset.cnmo) moChiNhanh(t.dataset.cnmo);
@@ -331,4 +387,5 @@ document.addEventListener("click", (e) => {
     toast(S.cn.phu ? "Đã thuê người phụ cho chi nhánh" : "Người phụ ở chi nhánh nghỉ");
     refreshPrep();
   } else if (t.hasAttribute("data-cnsang")) sangNhuongCN();
+  else if (t.hasAttribute("data-cnmr")) moRongCN();
 });
