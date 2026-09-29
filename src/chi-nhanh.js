@@ -245,7 +245,7 @@ function theChiNhanh() {
 
 /* ---------- buổi sáng (prepChecks): báo cáo hôm qua, rồi tình huống nếu có; trả true nếu đang hỏi ---------- */
 function chiNhanhSang() {
-  const c = S.cn,
+  const c = cnChuan(S.cn),
     L = cnLoai();
   if (!c || !L || R.challenge) return false;
   /* mỗi ngày bán chỉ báo một lần: nghỉ về quê mấy ngày thì không báo lại ngày cũ */
@@ -279,7 +279,7 @@ function chiNhanhSang() {
   return false;
 }
 function cnChonViec(id, chon) {
-  const c = S.cn,
+  const c = cnChuan(S.cn),
     d = S.day,
     v = CN_VIEC[id];
   if (!c || !v) return;

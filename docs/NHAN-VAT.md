@@ -45,7 +45,7 @@ Cột "Mặt" là hàng trong `img/faces.webp` (mỗi hàng 3 biểu cảm: bìn
 - **Khoa:** xưng "em", gọi "{ban}". Luôn vội, nói tắt, hay đùa để giấu mệt. Nhắc tiền xăng, nắng, mưa.
 - **Cô Hạnh:** xưng "cô" với người chơi, gọi "{ban}" hoặc "con". Sắc sảo, soi giá, khen kiểu chê ("Ly cũng được… mà hơi mắc.").
 - **Mẹ:** chỉ qua tin nhắn. Nhắn ngắn, nhiều dấu chấm, lo ăn uống. Không bao giờ nói "mẹ tự hào về con" cho tới cuối Chương 3.
-- **Ba:** không nhắn tin, không có chân dung. Chỉ hiện qua lời mẹ, tấm hình mẹ gửi, hay lúc người chơi về quê. Ít nói, cứng đầu, thương con bằng việc làm ("Ba giành xách cái giỏ nặng nhất"). Mẹ hay giấu ba chuyện tiền nong.
+- **Ba:** không nhắn tin, không có chân dung. Chỉ hiện qua lời mẹ, tấm hình mẹ gửi, hay lúc người chơi về quê. Hậu truyện có một dòng về ba, viết như lời mẹ kể và hiện biểu tượng tin nhắn (bản 5.3). Ít nói, cứng đầu, thương con bằng việc làm ("Ba giành xách cái giỏ nặng nhất"). Mẹ hay giấu ba chuyện tiền nong.
 - **Vy:** xưng "em", gọi "{ban}". Lễ phép, khó xử giữa công ty và xóm cũ. Hay xin lỗi.
 - **Hana:** câu có nhãn [dịch tự động] thì hơi cứng ("Loại trái cây đam mê"). Khi tự nói tiếng Việt thì sai dễ thương ("Chanh… dây! Đúng hông?").
 

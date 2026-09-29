@@ -362,6 +362,38 @@ Thử giá bán (`node tools/mo-phong-kinh-te.mjs gia`, người chơi giỏi 60
 | Trà 39k, matcha 49k | phá sản ngày 9 | – | – |
 | Trà 40k, matcha 50k | 10.328 | 12 | 3,83 |
 
+### Sau 8 lượt chơi thử nhiều hướng (bản 5.3) — đang làm
+
+Claude cho 8 agent chơi cùng lúc theo 8 kiểu: pha thật nhanh, bản lưu cũ, người mới, theo truyện, phụ (thử thách, Phố Trà, bạn bè), tối ưu tiền, lo cho gia đình, mở rộng nhanh. Sửa theo 3 đợt.
+
+Đợt 1 · lỗi:
+
+- [x] Két không đủ nấu hàng để mở cửa thì bà Sáu cho ứng (`baSauUng`), trả dần bằng tiền lãi. Trước kẹt, phải chơi lại
+- [x] Gửi về quê xét sau khi trừ tiền nhà, lương, nợ (`guiVeCuoiNgay` gọi sau `S.money += r.guard`); két chưa dư thì chờ tối đa 3 ngày (`guiHen`); tin nhắn lần đầu theo cờ `ba_khoe`
+- [x] Thẻ cuối ngày: dòng quà, thưởng, tiền vay, tiền ứng; chi phí âm đúng dấu; khách thấy quầy kín bỏ đi (`quayKin`)
+- [x] Tiền mẹ gửi, ba lì xì, bà Sáu lì xì, mẹ gửi lại là tiền vào của chủ tiệm (`ghiCaNhan` với số âm, `tienRieng` trong kết quả cảnh), không tính doanh thu nên không đẩy hạn mức ngân hàng
+- [x] Tip thêm nhờ trang trí, góp hẻm vào két khi có nhân viên; đơn nhóm tip gấp đôi
+- [x] Hết chai hương giữa ngày thì vị đó rời menu
+- [x] Đời sống: không vay dư khi đổi xe, nhà; mục tiêu trả góp không báo đủ khi ngân hàng chưa cho vay; câu hạn mức ghi còn góp thêm được bao nhiêu; Trả hết hỏi lại; bán được nhà, xe, điện thoại (`banDs`); cọc có dòng trong sổ
+- [x] Chi nhánh: khách theo giá như tiệm gốc; giá mỗi ly chi nhánh không bị coi là gian lận khi mở lại game; gia hạn theo số kỳ; kiosk có người phụ bán thêm được (`capPhuKiosk`); từ chối tăng lương thì bị hỏi lại; sang nhượng ghi mất cọc; bản cũ chuẩn hoá qua `cnChuan` ở mọi chỗ đọc
+- [x] Mặt tiền gia hạn theo số kỳ, hợp đồng cũ đắt hơn giá bây giờ thì hạ về
+- [x] Bản lưu cũ: nhà xe, quà trong sổ cũ tách sang chi tiêu (`tachSoCu`). Bước này xét `d.soV53` của bản đọc lên (S đã trộn với `fresh()` nên luôn có cờ, lỗi này làm bước tách không chạy, test mới bắt được)
+- [x] Lì xì bà Sáu từ giao thừa, sau cảnh giao chìa khoá; về quê ăn Tết thì không hỏi nghỉ hay mở cửa
+- [x] Thử thách đóng cửa sớm: khách chưa tới ghi giờ tới nối nhau cách 2 giây nên mã vẫn hợp lệ (trước ra mã hỏng, có khi còn lưu làm kết quả chính thức); `ttDoc` đòi khách cách nhau 2 giây như trong game; mã không hợp lệ không lưu
+- [x] Danh thiếp tiệm có mã riêng của tiệm (`S.maTiem`): gửi lại thì cập nhật, hai tiệm cùng tên "Tiệm Trà Nhỏ" không đè nhau, dán danh thiếp của chính mình thì báo; tab Phố Trà có nút Bỏ từng bạn. Bảng tuần của thử thách ghi "N ly chuẩn · M ngày" (trước ghi kiểu 55/40)
+- [x] Huy hiệu Top 3 và Đứng đầu Phố Trà từ ngày 7 (trước ngày 2 đã có); huy hiệu mới "Tháng nào cũng gửi" (gửi về quê đủ 6 lần)
+- [x] Hậu truyện có dòng về ba (lời mẹ kể, biểu tượng tin nhắn): xây nhà, mái tôn, xe Wave, bảo hiểm, đồng hồ, lưng ba. Mẹ có thêm dòng áo dài; dòng mái nhà không còn bị dòng sổ tiết kiệm che
+- [x] Phá sản giữ mã tiệm và danh sách như Hẻm 42 lần nữa, bỏ cờ nhà xe, tiền gửi, chi nhánh của tiệm cũ
+- [x] Chữ: Thư giãn ghi đủ những gì được miễn; tổng kết ghi "Nhà xe, mua sắm, quà", tiền nhận được có dấu cộng; bỏ tên Zalo, Messenger trong thoại và hướng dẫn (ghi "nhóm chat", "tin nhắn")
+
+Đợt 2 · cân bằng:
+
+- [x] Giá cả ly (`giaTB`): trà trung bình cộng hương (6/10 ly), một phần topping, phụ thu L (khoảng 1/3 ly). Trước chỉ tính trà nên đặt topping, hương, L đắt hơn 30% lãi thêm 25–30% mà khách không vắng
+- [x] Size L ít người chọn dần theo phụ thu (gấp đôi còn một nửa), cảnh báo từ 15k (bước cấu hình 43); tab Giá bán ghi bao nhiêu phần trăm ly chọn size L
+- [x] Khách bỏ đi vì phần thêm đắt: 25% khi vừa chạm mức đắt, tăng dần, tối đa 80% (cả ly vượt mức tối đa cũng 80%)
+- [x] Ly hơi đắt (`dear`) không được khen rẻ
+- [x] Bản lưu cũ để giá cả ly cao hơn gợi ý từ 20%: trước lần mở cửa đầu hỏi một lần, có nút Về giá gợi ý (`hoiGiaMoi`)
+
 ## Cổng quyết định
 
 | Cổng | Ngày | Đi tiếp khi |

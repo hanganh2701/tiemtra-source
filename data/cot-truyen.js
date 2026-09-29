@@ -51,6 +51,7 @@ const NHAN_VAT = {
   hana: { ten: "Hana", ngoiSao: 2 }, /* hàng 2 trong img/star.webp */
   vy: { ten: "Vy", mat: 0 }, /* quản lý chuỗi Mây Tea mở đầu hẻm, cháu cô Hạnh */
   me_gap: { ten: "Mẹ", anh: "me.svg" }, /* mẹ lên thăm (chương 3) */
+  ba: { ten: "Ba", tinNhan: true }, /* ba không có chân dung, chỉ hiện ở hậu truyện qua lời mẹ kể */
 };
 
 const MAU_CHUYEN = [
@@ -732,7 +733,7 @@ MAU_CHUYEN.push(
     uuTien: 8,
     thoai: [
       ["tu", "Chú chở khách nào cũng nói: uống trà thì ghé tiệm {shop}."],
-      ["khoa", "Tụi shipper em đặt tên nhóm Zalo là \"Hội ghé {shop}\" luôn."],
+      ["khoa", "Tụi shipper em đặt tên nhóm chat là \"Hội ghé {shop}\" luôn."],
       ["hanh", "Bánh mì bên cô bán kèm tờ giới thiệu tiệm con nè."],
       ["hanh", "Combo bánh mì với trà bán chạy nhất xóm luôn!", { co: { combo_hanh: true } }],
       ["sau", "Buôn có bạn, bán có phường. Trang này ông viết đúng quá."],
@@ -1333,15 +1334,25 @@ const HAU_TRUYEN = [
   ["me_gap", [
     [{ co: { ds_nha_hem: true } }, "Ba mẹ dọn lên căn nhà cuối Hẻm 42. Sáng nào mẹ cũng ra tiệm phụ rửa ly."],
     [{ co: { gui_so: true } }, "Cuốn sổ tiết kiệm ở bưu điện xã giờ đứng tên con. Mẹ vẫn ghi tay từng tháng con gửi về."],
-    [{ co: { ds_qua_mai_nha: true } }, "Mẹ nhắn: \"Mưa lớn mà ba ngủ ngon, lâu lắm rồi.\" Mái nhà ở quê không còn dột."],
     [{ co: { ds_qua_du_lich: true } }, "Tấm hình ba mẹ đứng ở biển, mẹ để làm hình nền điện thoại."],
-    [{ nhanh: { tet: "A" }, co: { gui_da: true, ba_khoe: true } }, "Lưng ba khỏi hẳn. Tết sau ba đòi tự chạy xe ra bến đón con, mẹ gói sẵn túi mứt gừng."],
-    [{ co: { me_len: true, gui_da: true, ba_khoe: true } }, "Mẹ lên thăm về, kể ba nghe chuyện tiệm. Lưng ba khỏi hẳn, chiều nào cũng ra chợ xã khoe con."],
+    [{ co: { ds_qua_ao_dai: true } }, "Tết nào mẹ cũng mặc chiếc áo dài con may đi chùa. Ai hỏi, mẹ nói: \"Con may cho đó.\""],
     [{ nhanh: { tet: "A" } }, "Mẹ gói cho con túi mứt gừng, dặn: \"Tết sau về nữa nghen. Dẫn Mướp về luôn.\""],
     [{ co: { me_len: true, c1_vay: "me" } }, "Mẹ về quê kể với ba chuyện tiền gửi. Ba chỉ hỏi: \"Tiệm có bán trà đá không?\""],
     [{ co: { me_len: true } }, "Mẹ in đánh giá năm sao của mình ra, dán lên tủ lạnh cạnh tên tiệm."],
-    [{ co: { gui_da: true, ba_khoe: true } }, "Lưng ba khỏi hẳn. Chiều nào ba cũng ra chợ xã uống cà phê, kể chuyện tiệm của con."],
     [{}, "Mẹ vẫn đọc từng đánh giá của tiệm mỗi tối, rồi nhắn: \"Ăn cơm chưa con?\""],
+  ]],
+  /* ba không nhắn tin: dòng hậu truyện là chuyện mẹ kể (hiện biểu tượng tin nhắn) */
+  ["ba", [
+    [{ co: { ds_qua_xay_nha: true } }, "Ba đứng coi thợ xây từng hàng gạch. Căn phòng để dành cho con, ba tự tay quét vôi."],
+    [{ co: { ds_qua_mai_nha: true } }, "Mái tôn mới hết dột. Mẹ kể mưa lớn mà ba ngủ ngon, lâu lắm rồi mới thấy."],
+    [{ co: { ds_qua_xe_may: true } }, "Chiếc Wave con mua, ba chạy ra đồng mỗi sáng. Chiều nào cũng lau bóng rồi mới dắt vô nhà."],
+    [{ nhanh: { tet: "A" }, co: { gui_da: true, ba_khoe: true } }, "Lưng ba khỏi hẳn. Tết sau ba đòi tự chạy xe ra bến đón con."],
+    [{ co: { ds_qua_bao_hiem: true } }, "Có thẻ bảo hiểm, ba chịu đi tái khám đúng hẹn. Mẹ nói ổng còn khoe với bác sĩ."],
+    [{ co: { ds_qua_dong_ho: true } }, "Đi đám nào ba cũng giơ tay coi giờ, dù chẳng cần. Mẹ biết ổng khoe cái đồng hồ."],
+    [{ co: { gui_da: true, ba_khoe: true } }, "Lưng ba khỏi hẳn. Chiều nào ba cũng ra chợ xã uống cà phê, kể chuyện tiệm của con."],
+    [{ co: { ba_khoe: true } }, "Lưng ba khỏi rồi, mùa sau ba tự gặt. Chú Năm qua phụ thì ba đãi một bữa rượu."],
+    [{ xem: "gui_1" }, "Ba vẫn ra đồng mỗi sáng. Mẹ nói ổng ít nói mà tối nào cũng hỏi tiệm con bán được không."],
+    [{ an: true }],
   ]],
 ];
 

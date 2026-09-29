@@ -545,7 +545,7 @@ const DEFAULT_CONFIG = {
   teaCapMatcha: 50000, // matcha từ mức này là đắt
   itemCap: 50000, // 1 món (trà, hương, topping) trên mức này: khách chê mắc, quán vắng 80%
   sizeCap: 50000, // phụ thu size L tối đa; để đúng mức này thì không ai chọn size L, quán vắng 80%
-  sizeWarn: 20000,
+  sizeWarn: 15000, // phụ thu size L trên mức này: hầu như không ai chọn size L, ly size L bị chê đắt
   thiefMoney: 100000000,
   thiefDay: 30,
   thiefLeft: 500000, // két trên mức này trước ngày này thì bị trộm, chừa lại thiefLeft           // phụ thu size L trên mức này là đắt, 90% khách không chọn size L
@@ -579,7 +579,7 @@ try {
     };
   }
 } catch (e) {}
-const CFG_VER = 42; /* phiên bản cấu hình mới nhất: thêm bước nâng cấp mới thì tăng số này */
+const CFG_VER = 43; /* phiên bản cấu hình mới nhất: thêm bước nâng cấp mới thì tăng số này */
 if (!(CFG.cfgVer >= 31)) {
   CFG.dayMin = 4;
 }
@@ -673,6 +673,14 @@ if (!(CFG.cfgVer >= 42)) {
   /* 5.2.1: tiền mặt bằng theo giá ngoài đời, góc dưới gác bà Sáu 70k/ngày (cấu hình chủ game tự đổi thì giữ) */
   if (CFG.rent === 40000) CFG.rent = 70000;
   if (CFG.tablet === 7000000) CFG.tablet = 5500000;
+  CFG.cfgVer = 42;
+  try {
+    localStorage.setItem(OWNER_SAVE, JSON.stringify(CFG));
+  } catch (e) {}
+}
+if (!(CFG.cfgVer >= 43)) {
+  /* 5.3: size L ít người chọn dần theo giá, mức cảnh báo 15k (cấu hình chủ game tự đổi thì giữ) */
+  if (CFG.sizeWarn === 20000) CFG.sizeWarn = 15000;
   CFG.cfgVer = CFG_VER;
   try {
     localStorage.setItem(OWNER_SAVE, JSON.stringify(CFG));
@@ -829,9 +837,11 @@ function loadFrom(d) {
       0,
     );
   /* bản 5.3: sổ cũ ghi nhà xe, quà vào trang bị của tiệm: tách sang chi tiêu cá nhân, bớt khoản đó khỏi lợi nhuận tích luỹ */
-  if (!S.soV53) {
+  if (!d.soV53) {
+    /* xét trên bản đọc lên: S đã trộn với fresh() nên luôn có soV53 */
     tachSoCu();
     S.soV53 = 1;
+    S.giaHoi = 1; /* bản 5.3 tính giá theo cả ly: trước lần mở cửa đầu tiên hỏi lại nếu giá đang cao (hoiGiaMoi) */
   }
   if (!(d.lifeV >= 2)) {
     Object.keys(LIFE_OLD).forEach((k) => {
@@ -1112,34 +1122,41 @@ const unitCost = (o) =>
   (o.cheese ? CFG.cost.cheese : 0) +
   CFG.cost.cup;
 const priceIdx = (o) => price(o) / price(o, DEF_SELL);
-/* giá trà trung bình so với giá gợi ý (1 = đúng giá gợi ý) */
+/* giá một ly điển hình so với giá gợi ý (1 = đúng giá gợi ý): trà trung bình, cộng hương (khoảng 6/10 ly có),
+   một phần topping và phụ thu size L (khoảng 1/3 ly). Tăng giá phần thêm cũng làm khách vắng như tăng giá trà */
+const LY_MAU = { flav: 0.6, top: 1, L: 0.35 };
 const giaTB = () => {
   const ks = BASE_KEYS.filter((k) => S.unlocked[k]);
-  return ks.length ? ks.reduce((a, k) => a + S.sell[k] / DEF_SELL[k], 0) / ks.length : 1;
+  if (!ks.length) return 1;
+  const fl = FLAV_KEYS.filter((k) => S.unlocked[k]),
+    tp = TOP_KEYS.filter((k) => S.unlocked[k]),
+    tb = (ds, sell) => (ds.length ? ds.reduce((a, k) => a + sv(sell, k), 0) / ds.length : 0),
+    ly = (sell) => tb(ks, sell) + LY_MAU.flav * tb(fl, sell) + LY_MAU.top * tb(tp, sell) + LY_MAU.L * sv(sell, "L");
+  return ly(S.sell) / ly(DEF_SELL);
 };
-/* khách ghé theo giá trà: rẻ hơn gợi ý thì đông hơn (tối đa khoảng +18%); đắt hơn thì vắng dần, không nhảy bậc:
+/* khách ghé theo giá cả ly: rẻ hơn gợi ý thì đông hơn (tối đa khoảng +18%); đắt hơn thì vắng dần, không nhảy bậc:
    +10% giá thì bớt khoảng 10% khách, +20% bớt khoảng 24%, +30% bớt khoảng 42%, tối đa bớt 70%.
    Tăng nhẹ thì lãi nhỉnh hơn một chút (quán đông thì nhiều hơn vì bớt khách phải bỏ về), tăng mạnh thì lỗ */
 const heSoGiaKhach = (i = giaTB()) => (i <= 1 ? 1 / Math.max(0.85, i * i) : Math.max(0.3, 1 - 0.8 * (i - 1) - 2 * (i - 1) ** 2));
-/* khách tới quầy thấy ly của mình đắt: trên 20% so với gợi ý thì có người bỏ đi, càng đắt càng nhiều (tối đa một nửa);
-   hương, topping, size L để giá đắt thì 25%; cả ly vượt mức tối đa thì 60% */
-const tiLeBoDiGia = (o) =>
-  overCap(o)
-    ? 0.6
-    : Math.min(
-        0.5,
-        Math.max(
-          (priceIdx(o) - 1.2) * 1.2,
-          [...(o.flav ? [o.flav] : []), ...o.tops, ...(o.size === "L" ? ["L"] : [])].some(itemPricey) ? 0.25 : 0,
-        ),
-      );
+/* khách tới quầy thấy ly của mình đắt: trên 20% so với gợi ý thì có người bỏ đi, càng đắt càng nhiều (tối đa 80%);
+   hương, topping, size L vừa chạm mức đắt thì 25%, đắt hơn nữa thì tăng dần; cả ly vượt mức tối đa thì 80% */
+const nacDat = (k) => (k === "L" ? S.sell.L / CFG.sizeWarn : S.sell[k] / DEF_SELL[k] / 1.3); /* 1 = đúng mức đắt */
+const tiLeBoDiGia = (o) => {
+  if (overCap(o)) return 0.8;
+  const them = [...(o.flav ? [o.flav] : []), ...o.tops, ...(o.size === "L" ? ["L"] : [])].filter(itemPricey),
+    tuThem = them.length ? 0.25 + 0.6 * Math.max(0, Math.max(...them.map(nacDat)) - 1) : 0;
+  return Math.min(0.8, Math.max((priceIdx(o) - 1.2) * 1.2, tuThem));
+};
 const overCap = (o) => price(o) > CFG.priceCap;
 const pricyItems = () => [
   ...BASE_KEYS.filter((k) => S.unlocked[k] && S.sell[k] > CFG.itemCap),
   ...(S.sell.L >= CFG.sizeCap ? ["L"] : []),
 ];
 const lPricey = () => S.sell.L > CFG.sizeWarn;
-const lChance = () => (S.sell.L >= CFG.sizeCap ? 0 : lPricey() ? 0.035 : 0.35);
+/* khách chọn size L: đúng giá gợi ý thì khoảng 1/3 ly; phụ thu cao hơn thì ít người chọn dần (gấp đôi còn một nửa),
+   quá mức cảnh báo thì hầu như không ai. Tăng phụ thu L nhiều không còn là mẹo kiếm lời */
+const lChance = () =>
+  S.sell.L >= CFG.sizeCap ? 0 : lPricey() ? 0.035 : 0.35 * Math.min(1.15, Math.max(0.1, 1 - 0.5 * (S.sell.L / DEF_SELL.L - 1)));
 const upgCount = () => UPG.filter((u) => S.upg[u.id]).length;
 const wageDay = () =>
   STAFF.reduce((a, x) => a + (S.upg[x.id] ? Math.round(CFG[x.wage] * luongNv(x.id)) : 0), 0) * heSoLuongLe();
@@ -1626,7 +1643,7 @@ function reviewFits(t, why, c) {
   )
     return false;
   if (RX.pNeg.test(L) && !f.pricey && !(soft && f.dear)) return false;
-  if (RX.pPos.test(L) && f.pricey) return false;
+  if (RX.pPos.test(L) && (f.pricey || f.dear)) return false; /* ly hơi đắt hơn gợi ý thì không khen rẻ */
   if (RX.wrong.test(L) && !f.wrong) return false;
   if (/đổ ra|rỉ ra|dính (hết )?tay|tràn/.test(L) && !f.spill) return false;
   if (
@@ -2287,8 +2304,32 @@ function baSauUng() {
     ],
   );
 }
+/* bản lưu cũ để giá cao: báo một lần rằng khách giờ nhìn giá cả ly, cho chọn về giá gợi ý */
+function hoiGiaMoi() {
+  delete S.giaHoi;
+  const i = giaTB();
+  if (i < 1.2) return tryOpen();
+  save();
+  ask(
+    `<div class="pbig">${ico("price")}</div><h2>Khách giờ nhìn giá cả ly</h2><p>Từ bản 5.3, khách tính cả hương, topping và phụ thu size L chứ không chỉ giá trà. Một ly của tiệm đang đắt hơn giá gợi ý ${Math.round((i - 1) * 100)}%, khách ghé ít hơn khoảng ${Math.round((1 - heSoGiaKhach(i)) * 100)}%.</p>`,
+    [
+      ["Giữ giá hiện tại", tryOpen],
+      [
+        "Về giá gợi ý",
+        () => {
+          S.sell = { ...S.sell, ...DEF_SELL };
+          save();
+          toast("Đã đặt lại mọi món về giá gợi ý");
+          tryOpen();
+        },
+        1,
+      ],
+    ],
+  );
+}
 function tryOpen() {
   if (performance.now() - (R.cookAt || 0) < 500) return; /* chạm đúp Nấu & nhập: không mở cửa luôn */
+  if (S.giaHoi) return hoiGiaMoi();
   if (veQueSap()) return truyenLuc("mo_cua", startDay);
   const miss = missingPrep();
   if (miss.length && S.money < tienNauToiThieu()) return baSauUng();
@@ -2753,13 +2794,13 @@ function topLine(k) {
 function inputRow(icon, name, sub, group, key, val) {
   return `<div class="rowi">${icon}<div><div class="nm">${name}</div><div class="sub" id="m-${group}-${key}">${sub}</div></div><div class="pin"><input type="number" inputmode="decimal" min="0" step="0.5" value="${val / 1000}" data-g="${group}" data-k="${key}" aria-label="${name} (nghìn đồng)"><span>k</span></div></div>`;
 }
-/* tab Giá bán: giá trà trung bình so với gợi ý và khách ghé ít hay nhiều hơn bao nhiêu */
+/* tab Giá bán: giá một ly trung bình (trà, hương, topping, size L) so với gợi ý và khách ghé ít hay nhiều hơn bao nhiêu */
 function giaWarn() {
   const i = giaTB(),
     pt = Math.round((i - 1) * 100),
     k = Math.round((heSoGiaKhach(i) - 1) * 100);
   if (Math.abs(pt) < 3) return "";
-  return `<div class="fore${k <= -20 ? " warnc2" : ""}">${ico(pt > 0 ? "chartup" : "price")} Giá trà trung bình ${pt > 0 ? "cao" : "thấp"} hơn giá gợi ý ${Math.abs(pt)}% · khách ghé ${k < 0 ? "ít" : "nhiều"} hơn khoảng ${Math.abs(k)}%${
+  return `<div class="fore${k <= -20 ? " warnc2" : ""}">${ico(pt > 0 ? "chartup" : "price")} Giá một ly trung bình ${pt > 0 ? "cao" : "thấp"} hơn giá gợi ý ${Math.abs(pt)}% · khách ghé ${k < 0 ? "ít" : "nhiều"} hơn khoảng ${Math.abs(k)}%${
     pt >= 30 ? ", ly đắt còn bị trừ sao" : ""
   }</div>`;
 }
@@ -2769,10 +2810,10 @@ function sizeLine() {
     "💡 " +
     fmt(DEF_SELL.L) +
     (p >= CFG.sizeCap
-      ? ` · <span class="warnline">${ico("warn")} đắt</span>`
+      ? ` · <span class="warnline">${ico("warn")} đắt, không ai chọn</span>`
       : p > CFG.sizeWarn
-        ? ` · <span class="warnline">${ico("warn")} đắt</span>`
-        : "")
+        ? ` · <span class="warnline">${ico("warn")} đắt, hầu như không ai chọn</span>`
+        : ` · khoảng ${Math.round(lChance() * 100)}% ly chọn size L`)
   );
 }
 function paneGia() {
@@ -6328,12 +6369,18 @@ function endDay() {
   } else {
     /* phá sản: mở quán mới ngay rồi mới lưu, để thoát game vào lại cũng không chơi tiếp được với két âm */
     /* giữ lại câu chuyện, sổ công thức, độ thân, kỷ lục và cách xưng hô */
+    /* giữ như Hẻm 42 lần nữa: huy hiệu, bạn bè, kết quả thử thách, chế độ Thư giãn, cài đặt và câu đã hỏi */
     const n = S.shopName,
-      giu = { tr: S.tr, kl: S.kl, xung: S.xung };
+      giu = { tr: S.tr, kl: S.kl, xung: S.xung, huyHieu: S.huyHieu, banBe: S.banBe, maTiem: S.maTiem, ttKq: S.ttKq, bb: S.bb, thuGian: S.thuGian,
+        dayLen: S.dayLen, coach: S.coach, moiCai: S.moiCai, bakOff: S.bakOff, gopY: S.gopY };
     S = fresh();
     S.shopName = n;
-    Object.assign(S, giu);
-    if (S.tr) Object.assign(S.tr, { qua: {}, ghe: {}, khat: {}, homNay: null });
+    Object.entries(giu).forEach(([k, v]) => v !== undefined && (S[k] = v));
+    if (S.tr) {
+      Object.assign(S.tr, { qua: {}, ghe: {}, khat: {}, homNay: null });
+      /* tiệm mới: nhà, xe, quà, chi nhánh, tiền gửi về quê của tiệm cũ không còn, truyện không nhắc nữa */
+      Object.keys(S.tr.co || {}).forEach((k) => /^(ds_|gui_|chi_nhanh)/.test(k) && delete S.tr.co[k]);
+    }
   }
   save();
   if (!broke) autoBak();
@@ -6607,8 +6654,8 @@ function paneSum() {
   ${g.song ? `<div class="crow"><span>Sinh hoạt của bạn: ăn, ở, đi lại</span><span>${vn(g.song)}</span></div>` : ""}
   ${g.gop ? `<div class="crow"><span>Trả góp nhà, xe</span><span>${vn(g.gop)}</span></div>` : ""}
   ${g.gui ? `<div class="crow"><span>Gửi về quê cho ba mẹ</span><span>${vn(g.gui)}</span></div>` : ""}
-  ${g.caNhan.length ? `<div class="crow"><span>Mua sắm, quà cho ba mẹ</span><span>${vn(muaTot)}</span></div>` : ""}
-  ${g.caNhan.map((e) => `<div class="crow sub"><span>– ${esc(e.n)}${mode !== "day" ? " (ngày " + e.d + ")" : ""}</span><span>${vn(e.v)}</span></div>`).join("")}
+  ${g.caNhan.length ? `<div class="crow"><span>Nhà xe, mua sắm, quà${g.caNhan.some((e) => e.v < 0) ? " (trừ tiền nhận được)" : ""}</span><span>${vn(muaTot)}</span></div>` : ""}
+  ${g.caNhan.map((e) => `<div class="crow sub"><span>– ${esc(e.n)}${mode !== "day" ? " (ngày " + e.d + ")" : ""}</span><span>${e.v < 0 ? "+" + vn(-e.v) : vn(e.v)}</span></div>`).join("")}
   <div class="ttot neg"><span>Tổng chi tiêu</span><span>${vn(caTot)}k</span></div>
   <div class="final ${profit - caTot < 0 ? "neg" : "pos"}"><span>Còn lại sau chi tiêu<small>Lợi nhuận của tiệm − chi tiêu của bạn</small></span><span>${profit - caTot < 0 ? "−" : ""}${vn(Math.abs(profit - caTot))}k</span></div>`
       : ""
@@ -7900,7 +7947,7 @@ async function backupDlg() {
     return;
   }
   $("card").innerHTML =
-    `<h2>Mã sao lưu</h2><p>Chép mã này hoặc lưu thành file rồi cất ở chỗ an toàn (Zalo Cloud, ghi chú điện thoại). Bị mất tiến trình thì vào Cài đặt > Khôi phục từ mã rồi dán mã hoặc chọn file.</p>
+    `<h2>Mã sao lưu</h2><p>Chép mã này hoặc lưu thành file rồi cất ở chỗ an toàn (tin nhắn gửi cho chính mình, ghi chú điện thoại). Bị mất tiến trình thì vào Cài đặt > Khôi phục từ mã rồi dán mã hoặc chọn file.</p>
     <p class="lvup">${esc(shopName())} · Ngày ${S.day} · ${fmt(S.money)}</p>
     <textarea id="bkCode" class="rpin" readonly style="min-height:90px;font-size:12px!important;word-break:break-all">${code}</textarea>
     <div class="sndrow"><button class="sbtn pri" id="bkCopy">Chép mã</button><button class="sbtn ghost" id="bkFile">Lưu thành file</button></div>
@@ -8006,8 +8053,8 @@ function showSettings() {
     <button class="setb" id="sGuide"><span>${ico("book")}</span>Hướng dẫn</button>
     <button class="setb" id="sNews"><span>${ico("gift")}</span>Có gì mới<small>v${GAME_VERSION}</small></button>
     <button class="setb" id="sStory"><span>${ico("book")}</span>Cốt truyện Hẻm 42<small>${CHE_DO_TEN[cheDo()]}${cheDo() === "gon" ? " · gộp cả cảnh vào một khung" : cheDo() === "tat" ? " · không hiện cảnh, vẫn nhận trang sổ" : " · từng câu, bỏ qua được"}</small></button>
-    <button class="setb" id="sRelax"><span>${ico("moon")}</span>Chế độ Thư giãn<small>${S.thuGian ? "Đang bật · khách không bỏ về, không sự cố, không khách khó" : "Đang tắt · bấm để chơi thong thả"}</small></button>
-    <button class="setb" id="sGopY"><span>${ico("pen")}</span>Góp ý cho tiệm<small>Trả lời vài câu, gửi qua Zalo hoặc Messenger</small></button>
+    <button class="setb" id="sRelax"><span>${ico("moon")}</span>Chế độ Thư giãn<small>${S.thuGian ? "Đang bật · khách không bỏ về, không sự cố, không thuế, không tiền sinh hoạt, giá nhập và khách không khó dần theo chương" : "Đang tắt · bấm để chơi thong thả"}</small></button>
+    <button class="setb" id="sGopY"><span>${ico("pen")}</span>Góp ý cho tiệm<small>Trả lời vài câu rồi gửi qua tin nhắn</small></button>
     <button class="setb" id="sXung"><span>${ico("people")}</span>Khách gọi bạn là<small>${hoaDau(xung())} · bấm để đổi</small></button>
     <button class="setb" id="sCoach"><span>${ico("book")}</span>Chỉ dẫn từng bước<small>${S.coach === true ? "Luôn bật" : S.coach === false ? "Tắt" : "Tự động"}</small></button>
     <button class="setb" id="sLen"><span>${ico("clock")}</span>Thời gian bán mỗi ngày<small>${S.dayLen || CFG.dayMin} phút${R.running ? " · áp dụng từ ngày sau" : ""}</small></button>
