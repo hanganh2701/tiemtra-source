@@ -207,7 +207,7 @@ const NGUOI_CHOI = [
   ["Người chơi vừa 200 ngày, mặt tiền, chi nhánh gần trường, sắm đời sống", { giay: 11, matTien: true, nv: true, cn: "truong", ds: true, ngay: 200 }],
   ["Người chơi chậm (14 giây mỗi ly) 150 ngày, mặt tiền, thuê người, chi nhánh gần trường, sắm đời sống", { giay: 14, matTien: true, nv: true, cn: "truong", ds: true, ngay: 150 }],
 ];
-/* thử giá bán: người chơi giỏi ở mặt tiền, 60 ngày, chỉ đổi giá trà (hương, topping giữ giá gợi ý) */
+/* thử giá bán: người chơi giỏi ở mặt tiền, 60 ngày, đổi giá trà hoặc giá phần thêm */
 const datGia = (bt) => `BASE_KEYS.forEach((k) => { if (S.unlocked[k]) S.sell[k] = ${bt}; })`;
 const GIA_THU = [
   ["Giá gợi ý", null],
@@ -215,6 +215,9 @@ const GIA_THU = [
   ["Đắt hơn 15%", datGia("Math.round((DEF_SELL[k] * 1.15) / 500) * 500")],
   ["Sát ngưỡng đắt: trà 39k, matcha 49k", datGia("k === 'matcha' ? 49000 : 39000")],
   ["Qua ngưỡng đắt: trà 40k, matcha 50k", datGia("k === 'matcha' ? 50000 : 40000")],
+  /* bản 5.3: giá cả ly tính cả phần thêm; trước đây đặt phần thêm đắt hơn 30% thì lãi thêm 25–30% mà khách không vắng */
+  ["Phần thêm đắt hơn 30% (hương, topping, size L)", "[...FLAV_KEYS, ...TOP_KEYS, 'L'].forEach((k) => (S.sell[k] = Math.round((DEF_SELL[k] * 1.3) / 500) * 500))"],
+  ["Size L 14k (gấp đôi)", "S.sell.L = 14000"],
 ];
 const arg = process.argv[2];
 if (arg === "gia") {
