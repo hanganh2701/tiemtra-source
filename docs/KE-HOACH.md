@@ -444,4 +444,5 @@ Thử giá (`node tools/mo-phong-kinh-te.mjs gia`, người chơi giỏi, trung 
 
 - `LICH_LE` chỉ có ngày Tết và Trung Thu tới 2030: trước Tết 2031 cần thêm ngày.
 - Game vẫn không có service worker (tác giả gốc cố ý gỡ để tránh kẹt bản cũ), nên chưa chơi được khi mất mạng hẳn.
+- Phần Sau Tết hết khoảng ngày 185 (tính từ ngày mở hàng mùng năm). Người chơi quá mốc đó chỉ còn cảnh lễ ngoài đời, chuyện nhà ở quê và chi nhánh; cần thêm một đợt truyện nữa nếu nhiều người chơi tới đó.
 - Câu đánh giá "Cảm ơn nhân viên đã làm lại đúng ý mình" không bao giờ được chọn (khách bị làm sai luôn đánh giá tiêu cực). Giữ nguyên có chủ ý.
