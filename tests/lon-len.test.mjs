@@ -16,12 +16,12 @@ test("mặt tiền đầu hẻm: đủ điều kiện mới thuê được, ti�
   try {
     g.run("S.day = 10; S.money = 100000");
     assert.equal(g.run("dkMatTien().every((x) => x.ok)"), false);
-    g.run(`S.day = 25; S.money = 10000000; ${saoTot}`);
+    g.run(`S.day = 25; S.money = 30000000; ${saoTot}`);
     const k1 = g.run("traffic()");
     g.run("thueMatTien()");
     clickText(g, /Thuê luôn/);
     assert.equal(g.run("S.buoc"), 2);
-    assert.equal(g.run("S.money"), 10000000 - g.run("MAT_TIEN.thue * MAT_TIEN.cocNgay + MAT_TIEN.trangTri"));
+    assert.equal(g.run("S.money"), 30000000 - g.run("MAT_TIEN.thue * MAT_TIEN.cocNgay + MAT_TIEN.trangTri"));
     assert.equal(g.run("fixed().rent"), g.run("MAT_TIEN.thue"));
     assert.equal(g.run("soCho()"), 4);
     assert.ok(g.run("traffic()") > k1 * 1.3);
@@ -32,11 +32,12 @@ test("mặt tiền đầu hẻm: đủ điều kiện mới thuê được, ti�
   }
 });
 
-test("mặt tiền: tới kỳ gia hạn thì tiền nhà tăng và tổng kết báo", () => {
+test("mặt tiền: hợp đồng sáu tháng, tới kỳ gia hạn thì tiền nhà tăng 6% và tổng kết báo", () => {
   const g = boot();
   try {
-    g.run(`S.day = 40; S.buoc = 2; S.hd = { bd: 13, gia: 115000 }; S.money = 5000000; ${saoTot}; S.tr = { che: 'tat' }; __openDay(); closeEarly()`);
-    assert.equal(g.run("S.hd.gia"), 127000);
+    /* đóng cửa ngày 200 thì sang ngày 201: tròn 180 ngày từ ngày 21 */
+    g.run(`S.day = 200; S.buoc = 2; S.hd = { bd: 21, gia: 330000 }; S.money = 5000000; ${saoTot}; S.tr = { che: 'tat' }; __openDay(); closeEarly()`);
+    assert.equal(g.run("S.hd.gia"), 350000);
     assert.match(card(g).textContent, /Gia hạn hợp đồng mặt tiền/);
   } finally {
     g.close();

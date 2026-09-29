@@ -1,7 +1,26 @@
 /* Phiên bản và danh sách "Có gì mới". Mỗi lần cập nhật: tăng GAME_VERSION và thêm một mục lên ĐẦU CHANGELOG. */
 /* ===== PHIÊN BẢN GAME: mỗi lần cập nhật, tăng số và thêm một mục lên ĐẦU danh sách ===== */
-const GAME_VERSION = "5.2";
+const GAME_VERSION = "5.2.1";
 const CHANGELOG = [
+  {
+    v: "5.2.1",
+    d: "29/09/2026",
+    items: [
+      "Thẻ cuối ngày và Tổng kết tách Lãi của tiệm với Chi tiêu của bạn (sinh hoạt, trả góp, gửi về quê, mua sắm, quà cho ba mẹ). Mua xe, mua nhà không còn hiện như tiệm lỗ; món mua cho tiệm cũng có tên trong thẻ",
+      "Thùng xoài ở quê không còn làm khách gọi xoài rồi bỏ về: tiệm đang bán vị xoài thì được thêm một chai",
+      "Tab Đời sống ghi rõ khi thiếu là thiếu tiền trả trước để vay, và tiền bán xe, nhà cũ đã được tính vào",
+      "Ngân hàng và số ngày ước chừng tới mục tiêu không tính mấy ngày nghỉ Tết",
+      "Mua xong món mục tiêu thì thanh mục tiêu tắt ngay; mục tiêu trả góp mở sẵn cách Trả góp",
+      "Tiệm đông khách tính sao theo đánh giá của hai ngày gần nhất, một buổi kẹt khách không kéo tụt sao cả tiệm",
+      "Mặt bằng theo giá thuê ngoài đời: góc dưới gác bà Sáu 70k/ngày; mặt tiền đầu hẻm 330k/ngày (10 triệu/tháng), cọc một tháng, sửa sang kiosk 8 triệu; hợp đồng 6 tháng, gia hạn tăng 6% (trước 28 ngày tăng 10%)",
+      "Chi nhánh tính như quầy nhỏ ngoài đời: gần trường 53 triệu, toà văn phòng 93 triệu, kiosk trung tâm thương mại 47,5 triệu (gồm cọc, sang lại quầy, sửa sang). Sang nhượng lấy lại 60% phần đã trả",
+      "Trang bị theo giá ngoài đời: máy dán nắp 8,5 triệu, máy lạnh 1,5 HP 10 triệu, quầy dài thêm 8 triệu, biển hiệu LED 4 triệu, bàn ghế 3 triệu, quảng cáo 3 triệu, tablet 5,5 triệu",
+      "Tăng giá đồ uống: giá trà càng cao so với giá gợi ý thì khách càng vắng (không còn mốc 40k mới bị phạt). Ly đắt hơn gợi ý trên 20% thì có khách bỏ đi, trên 30% thì bị trừ sao. Tab Giá bán báo khách ghé ít hay nhiều hơn bao nhiêu",
+      "Qua Tết chợ hạ giá: giá nhập còn cao hơn đầu năm 10% (trước giữ mức giáp Tết 20% mãi)",
+      "Thuê mặt tiền: nhắc nếu thuê xong két còn ít, không đủ nấu hàng",
+      "Sửa vài câu thoại chuyện nhà ở quê và hậu truyện của mẹ",
+    ],
+  },
   {
     v: "5.2",
     d: "29/09/2026",

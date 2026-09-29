@@ -22,7 +22,7 @@ const DS = {
 /* mẹ nhắn lại mỗi lần nhận tiền, theo số tháng đã gửi; hết danh sách thì xoay vòng ba câu cuối */
 const DS_GUI_TIN = [
   "Mẹ: Nhận rồi con.. Mai mẹ chở ba đi châm cứu ở trạm xá.",
-  "Mẹ: Ba đỡ đau rồi. Ổng biểu con gửi ít thôi, để dành.",
+  "Mẹ: Nhận rồi. Ba biểu con gửi ít thôi, để dành mà lo tiệm.",
   "Mẹ: Mẹ mua thêm bầy gà. Tết con về có gà luộc.",
   "Mẹ: Nhận rồi. Ba đi đám giỗ khoe con với cả xóm..",
   "Mẹ: Mưa quá con. Tiệm có dột không..",

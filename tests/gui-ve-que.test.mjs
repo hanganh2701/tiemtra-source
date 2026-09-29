@@ -32,7 +32,8 @@ test("ba trặc lưng: ngày 36 két có 3 triệu thì mẹ nhắn; chọn gử
     const r = dongCua(g);
     assert.equal(r.gui, 2000000);
     assert.equal(g.run("S.money"), m0 - 2000000 - r.song);
-    assert.equal(g.run(`recCost(${JSON.stringify(r)}) >= 2000000`), true);
+    assert.equal(g.run(`recCaNhan(${JSON.stringify(r)})`), 2000000 + r.song, "gửi về quê nằm trong chi tiêu cá nhân");
+    assert.equal(g.run(`recCost(${JSON.stringify(r)})`) < 2000000, true, "không tính vào chi phí của tiệm");
     assert.match(g.run(`dsGuiCuoiNgay(${JSON.stringify(r)})`), /Đã gửi về quê 2 triệu\. Mẹ: Nhận rồi con/);
     assert.equal(g.run("TT().co.gui_da"), true);
     assert.equal(g.run("S.ds.guiToi"), 67);
@@ -126,11 +127,15 @@ test("ba khoẻ lại dù có gửi hay không; gửi đủ 3 tháng thì quê g
     }
     assert.match(thoai("gui_2"), /ba đi châm cứu/);
     assert.equal(g.run("TT().co.gui_3thang"), true);
-    /* thùng hàng quê: mở vị xoài, có xoài trong kho */
-    g.run(`S.unlocked.f_xoai = false; ${xemHet(["gui_3"])}; TT().homNay = 0; TT().che = 'gon'; truyenLuc('mo_cua')`);
+    /* thùng hàng quê: tiệm chưa bán xoài thì không mở vị mới (60% khách sẽ gọi vị đó rồi hết giữa ngày) */
+    g.run(`S.unlocked.f_xoai = false; S.stock.f_xoai = []; ${xemHet(["gui_3"])}; TT().homNay = 0; TT().che = 'gon'; truyenLuc('mo_cua')`);
     assert.match(card(g).textContent, /xoài cát/);
     bam(g, "#trOk");
-    assert.equal(g.run("S.unlocked.f_xoai"), true);
+    assert.equal(g.run("S.unlocked.f_xoai"), false);
+    assert.equal(g.run("qty('f_xoai')"), 0);
+    /* đang bán xoài thì thêm một chai */
+    g.run("addStock('f_xoai', 10); syncFlav(); guiVeXoai()");
+    assert.equal(g.run("qty('f_xoai')"), g.run("10 + CFG.bottleN"));
     /* mua nhà: mẹ gửi lại một nửa số đã gửi (6 triệu) */
     g.run("$('modal').hidden = true; TT().co.ds_co_nha = true; TT().xem.gui_so = undefined; delete TT().xem.gui_so; TT().homNay = 0");
     const m0 = g.run("S.money");
