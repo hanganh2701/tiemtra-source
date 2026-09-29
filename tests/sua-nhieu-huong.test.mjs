@@ -332,3 +332,32 @@ test("khách bỏ về nhiều mà chưa thuê ai: thẻ cuối ngày nhắc thu
     g.close();
   }
 });
+
+test("chưa ra mặt tiền: màn chuẩn bị có thanh để dành, bấm vào mở thẻ mặt tiền; đặt mục tiêu đời sống thì thanh đó nhường chỗ", () => {
+  const g = boot();
+  try {
+    g.run("S.day = 10; S.money = 3000000; renderPrep()");
+    assert.equal(g.run("document.querySelectorAll('[data-mtxem]').length"), 0, "ngày 10 chưa hiện");
+    g.run("S.day = 18; renderPrep()");
+    assert.match(g.run("document.querySelector('[data-mtxem]').textContent"), /Ra mặt tiền đầu hẻm.*3 triệu \/ 17,9 triệu/s);
+    g.run("document.querySelector('[data-mtxem]').click()");
+    assert.equal(g.run("R.tab"), "nangcap");
+    assert.match(g.run("document.getElementById('pane').textContent"), /Mặt tiền đầu hẻm/);
+    g.run("dsS().muc = { dong: 'xm', id: 'wave' }; renderPrep()");
+    assert.equal(g.run("document.querySelectorAll('[data-mtxem]').length"), 0);
+    g.run("delete dsS().muc; S.buoc = 2; S.hd = { bd: 18, gia: 330000, ky: 0 }; renderPrep()");
+    assert.equal(g.run("document.querySelectorAll('[data-mtxem]').length"), 0, "ra mặt tiền rồi thì thôi");
+  } finally {
+    g.close();
+  }
+});
+
+test("ngày mua đồ cho tiệm: thẻ cuối ngày ghi bán hàng vẫn lãi nếu chưa tính đồ mua", () => {
+  const g = boot();
+  try {
+    g.run("S.day = 12; S.cur = newRec(12); __openDay(); S.cur.sales.tra = { q: 20, a: 700000 }; S.cur.served = 20; S.cur.equip.push({ n: 'Bàn ghế cho khách ngồi', v: 3000000 }); closeEarly()");
+    assert.match(card(g).textContent, /Chưa tính đồ mua cho tiệm thì bán hàng vẫn lãi\+/);
+  } finally {
+    g.close();
+  }
+});

@@ -6420,6 +6420,7 @@ function endDay() {
     ${r.spoil && r.spoil.n ? `<div><span class="wl">🥤 ${r.spoil.n} ly hỏng</span><span class="wl">${fmt(r.spoil.v)}</span></div>` : ""}
     ${wv ? `<div><span class="wl">${ico("trash")} ${waste.map((x) => ITEMS[x.k].s + " " + x.q).join(", ")}</span><span class="wl">${fmt(wv)}</span></div>` : ""}
     <div class="tot"><span>${ico("chartup")} ${ca ? "Lãi của tiệm" : "Lãi"}</span><span class="${profit < 0 ? "neg" : "pos"}">${profit < 0 ? "−" : "+"}${fmt(Math.abs(profit))}</span></div>
+    ${eqv > 0 && profit < 0 && profit + eqv > 0 ? `<div><span class="wl">Chưa tính đồ mua cho tiệm thì bán hàng vẫn lãi</span><span class="wl pos">+${fmt(profit + eqv)}</span></div>` : ""}
     ${
       ca
         ? `<div class="tot"><span>🏡 Chi tiêu của bạn</span><span class="${ca > 0 ? "neg" : "pos"}">${ca > 0 ? "−" : "+"}${fmt(Math.abs(ca))}</span></div>

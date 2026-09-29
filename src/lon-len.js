@@ -163,3 +163,28 @@ document.addEventListener("click", (e) => {
   e.stopPropagation();
   thueMatTien();
 });
+
+/* màn chuẩn bị: chưa ra mặt tiền (từ 5 ngày trước ngày được thuê) và chưa đặt mục tiêu đời sống thì có thanh để dành ra mặt tiền.
+   Người chơi mua đồ trang trí, trang bị dần dần thường không biết mình còn cách mặt tiền bao xa */
+function mtMucNho() {
+  if (buoc() >= 2 || S.day < MAT_TIEN.tuNgay - 5 || (R && R.challenge)) return "";
+  const can = tienCoc() + MAT_TIEN.trangTri,
+    pt = Math.min(1, Math.max(0, S.money / can)),
+    ngay = dsSoNgay(can - S.money);
+  return `<div class="dsmucnho"><button class="dsmuc" data-mtxem><span class="dsmh mtmh">🏠</span><span class="dsmt"><b>🎯 Ra mặt tiền đầu hẻm</b><i><b style="width:${Math.round(pt * 100)}%"></b></i><small>${
+    pt >= 1
+      ? dkMatTien().every((x) => x.ok)
+        ? "Đủ rồi! Bấm để xem"
+        : "Đủ tiền, còn điều kiện khác: bấm để xem"
+      : `${fmtBig(Math.max(0, S.money))} / ${fmtBig(can)}${ngay ? ` · ~${ngay} ngày nếu giữ nhịp tuần này` : ""}`
+  }</small></span></button></div>`;
+}
+document.addEventListener("click", (e) => {
+  const b = e.target.closest && e.target.closest("[data-mtxem]");
+  if (!b || typeof S === "undefined" || !S) return;
+  e.stopPropagation();
+  R.tab = "nangcap";
+  R.sub = R.sub || {};
+  R.sub.upg = 3;
+  renderPrep();
+});

@@ -523,7 +523,7 @@ const dsMucHTML = (m) =>
 /* màn chuẩn bị: thanh mục tiêu dưới bảng hiệu */
 function dsMucNhacNho() {
   const m = S && S.ds && dsMucTieu();
-  return m ? `<div class="dsmucnho">${dsMucHTML(m)}</div>` : "";
+  return m ? `<div class="dsmucnho">${dsMucHTML(m)}</div>` : S ? mtMucNho() : "";
 }
 /* thẻ cuối ngày: mục tiêu đi được bao nhiêu */
 function dsMucCuoiNgay() {
