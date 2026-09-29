@@ -6,7 +6,8 @@
 
 const cnLoai = () => (S && S.cn ? CN_LOAI.find((x) => x.id === S.cn.loai) : null);
 const cuoiTuanNgay = (d) => d > 1 && (d % 7 === 6 || d % 7 === 0);
-const cnTien = (L) => L.thue * CHI_NHANH.cocNgay + (L.sangLai || 0) + L.trangTri;
+const cnCoc = (L) => L.thue * (L.cocNgay || CHI_NHANH.cocNgay);
+const cnTien = (L) => cnCoc(L) + (L.sangLai || 0) + L.trangTri;
 
 /* điều kiện mở chi nhánh */
 function dkChiNhanh() {
@@ -130,7 +131,7 @@ function chiNhanhCuoiNgay(r) {
 function moChiNhanh(id) {
   const L = CN_LOAI.find((x) => x.id === id);
   if (!L || S.cn || !dkChiNhanh().every((x) => x.ok) || S.money < cnTien(L)) return false;
-  const coc = L.thue * CHI_NHANH.cocNgay;
+  const coc = cnCoc(L);
   S.money -= coc + (L.sangLai || 0) + L.trangTri;
   if (L.sangLai) S.cur.equip.push({ n: "Sang lại mặt bằng " + L.ngan, v: L.sangLai });
   S.cur.equip.push({ n: "Trang trí " + L.ten.toLowerCase(), v: L.trangTri });
@@ -200,7 +201,7 @@ function theChiNhanh() {
     du
       ? CN_LOAI.map(
           (L) =>
-            `<div class="cnloai"><b>${L.ic} ${esc(L.ten)}</b><p>${esc(L.mo)}</p><p class="note">Tiền nhà ${fmt(L.thue)}/ngày${L.phanTram ? ` + ${Math.round(L.phanTram * 100)}% doanh thu` : ""} · cọc ${fmtBig(L.thue * CHI_NHANH.cocNgay)} · sang lại mặt bằng, đồ nghề ${fmtBig(L.sangLai || 0)} · trang trí ${fmtBig(L.trangTri)}</p><button class="sbtn pri" data-cnmo="${L.id}" ${S.money < cnTien(L) ? "disabled" : ""}><b>${fmtBig(cnTien(L))}</b>Mở</button></div>`,
+            `<div class="cnloai"><b>${L.ic} ${esc(L.ten)}</b><p>${esc(L.mo)}</p><p class="note">Tiền nhà ${fmt(L.thue)}/ngày${L.phanTram ? ` + ${Math.round(L.phanTram * 100)}% doanh thu` : ""} (khoảng ${fmtBig(L.thue * 30)}/tháng) · cọc ${fmtBig(cnCoc(L))} · ${L.sangLai ? `sang lại quầy, đồ nghề ${fmtBig(L.sangLai)} · ` : ""}${L.sangLai ? "sửa sang" : "làm quầy mới"} ${fmtBig(L.trangTri)}</p><button class="sbtn pri" data-cnmo="${L.id}" ${S.money < cnTien(L) ? "disabled" : ""}><b>${fmtBig(cnTien(L))}</b>Mở</button></div>`,
         ).join("")
       : ""
   }</div>`;
@@ -257,9 +258,9 @@ function cnChonViec(id, chon) {
   if (id === "che") A ? hieu({ den: d + 2, saoThem: 0.1 }) : (c.sao = Math.max(3.3, c.sao - 0.3));
   if (id === "luong") A ? (c.ql.luong = Math.round((c.ql.luong * 1.1) / 1000) * 1000) : hieu({ den: d + 4, capHs: 0.85 });
   if (id === "nha") {
-    const tang = A ? 1.1 : Math.random() < 0.5 ? 1 : 1.2;
+    const tang = A ? 1.06 : Math.random() < 0.5 ? 1 : 1.12;
     c.gia = Math.round((c.gia * tang) / 1000) * 1000;
-    if (!A) toast(tang === 1 ? "Chủ nhà đồng ý giữ giá" : "Chủ nhà không chịu, tăng 20%", 3500);
+    if (!A) toast(tang === 1 ? "Chủ nhà đồng ý giữ giá" : "Chủ nhà không chịu, tăng 12%", 3500);
   }
   if (id === "truong" && A) hieu({ den: d + 4, cauHs: 1.2 });
   if (id === "vp" && A) hieu({ den: d, cauThem: 40, capThem: 40 });

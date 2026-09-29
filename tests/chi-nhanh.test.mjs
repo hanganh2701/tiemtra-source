@@ -11,7 +11,7 @@ const clickText = (g, re) => {
 };
 const saoTot = "S.reviews = Array.from({ length: 40 }, () => ({ s: 5, t: 'ngon', k: Math.random(), d: 1 }))";
 /* tiệm đã ra mặt tiền từ ngày 30, bán 3 ngày gần nhất mỗi ngày 100 ly, 4,5 triệu */
-const tiemLon = `S.day = 50; S.money = 60000000; ${saoTot}; S.buoc = 2; S.hd = { bd: 30, gia: 220000 };
+const tiemLon = `S.day = 50; S.money = 150000000; ${saoTot}; S.buoc = 2; S.hd = { bd: 30, gia: 220000 };
   S.history = Array.from({ length: 3 }, (_, i) => { const r = newRec(47 + i); r.sales = { tra: { q: 100, a: 4500000 } }; r.served = 100; r.ing = { tra: { q: 100, v: 900000 } }; return r; });
   TT().co.chi_nhanh_mo = true`;
 
@@ -104,14 +104,14 @@ test("sang nhượng chi nhánh: lấy lại 60% tiền sang lại mặt bằng 
     assert.match(card(g).textContent, /mất cọc/);
     clickText(g, /^Sang nhượng$/);
     assert.equal(g.run("S.cn"), null);
-    assert.equal(g.run("S.money") - m0, Math.round(((30000000 + 4000000) * 0.6) / 1000) * 1000);
+    assert.equal(g.run("S.money") - m0, g.run("Math.round(((CN_LOAI[1].sangLai + CN_LOAI[1].trangTri) * 0.6) / 1000) * 1000"));
     assert.ok(g.run("S.cnDaMo"), "huy hiệu vẫn giữ");
     /* chi nhánh mở từ bản cũ (chưa trả tiền sang lại) thì chỉ lấy lại phần trang trí */
-    g.run("S.cn = null; S.money = 60000000; moChiNhanh('vp'); $('modal').hidden = true; delete S.cn.sang; S.day = 200");
+    g.run("S.cn = null; S.money = 150000000; moChiNhanh('vp'); $('modal').hidden = true; delete S.cn.sang; S.day = 300");
     const m1 = g.run("S.money");
     g.run("sangNhuongCN()");
     clickText(g, /^Sang nhượng$/);
-    assert.equal(g.run("S.money") - m1, 2400000 + 3600000, "60% trang trí và lấy lại cọc");
+    assert.equal(g.run("S.money") - m1, g.run("Math.round((CN_LOAI[1].trangTri * 0.6) / 1000) * 1000 + cnCoc(CN_LOAI[1])"), "60% trang trí và lấy lại cọc");
   } finally {
     g.close();
   }

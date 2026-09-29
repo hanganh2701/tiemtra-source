@@ -17,6 +17,7 @@ File này là nguồn sự thật cho việc làm game. Mỗi phiên làm việc
 6. Sau lần chơi thử thứ ba của Claude (game dễ, tới ngày 49 là hết việc): chế độ thường khó dần theo chương (Thư giãn giữ nguyên), và làm chi nhánh ngay, không chờ cổng C3.
 7. Tab Đời sống (bản 5.0): có chi phí sinh hoạt nhẹ mỗi ngày (Thư giãn miễn), có cả đồ cho bản thân và quà cho gia đình.
 8. Nhà xe và đồ mua sắm chi tiết như ngoài đời (bản 5.1, chốt 29/09): diện tích, số phòng, tên hãng và mẫu thật dạng chữ (xe, điện thoại, đồng hồ, túi, điện máy), giá tham khảo ngoài đời, có hình vẽ riêng (không logo).
+9. Tiệm cũng theo giá ngoài đời cho đồng bộ với tab Đời sống (bản 5.2.1, chốt 29/09): tiền thuê, cọc, sang lại, sửa sang mặt bằng và giá trang bị lấy từ tin cho thuê và cửa hàng ở TP.HCM; hợp đồng 6 tháng. Tăng giá đồ uống thì khách vắng dần theo đường cong mượt.
 
 Hệ quả: **không làm tính năng qua máy chủ** (bảng xếp hạng online, kết bạn, tặng quà qua mạng), không quảng cáo, không thanh toán. Mọi thứ chạy trên máy người chơi. Theo Nghị định 147/2024, game có máy chủ cho người chơi tương tác cần giấy phép mà chỉ doanh nghiệp xin được.
 
@@ -319,17 +320,47 @@ Claude chơi bản 5.2 trên trang thật, khung điện thoại: tiệm mới t
 - [x] Thoại: câu ba xách giỏ ở `que_1` không lặp; hậu truyện của mẹ gộp chuyện Tết với chuyện lưng ba; các cảnh `gui_*` mang nhãn "Chuyện nhà ở quê"; câu mở `gui_so` và tin nhắn tháng thứ hai không trùng ý
 - [x] Thuê mặt tiền: thông báo "Mở cửa là bán ở chỗ mới"; hộp xác nhận nhắc khi thuê xong két còn dưới `MAT_TIEN.vonNau` (1 triệu)
 - [x] Sao (`rating`): 40 đánh giá gần nhất, tiệm đông thì lấy hết đánh giá của hôm nay và 2 ngày trước (tối đa 400). Trước đây bán 130 ly mỗi ngày thì một buổi kẹt khách kéo sao từ 4,80 xuống 4,15
-- [x] Chi nhánh có tiền sang lại mặt bằng và đồ nghề (`sangLai`: gần trường 15 triệu, văn phòng 30 triệu, kiosk 14 triệu), sang nhượng lấy lại 60% phần đã trả (chi nhánh mở từ bản cũ chỉ lấy lại phần trang trí). Vốn mở chi nhánh giờ cùng thang với giá xe, nhà; hoàn vốn chừng 5–6 tuần
+- [x] Chi nhánh có tiền sang lại mặt bằng và đồ nghề (`sangLai`), sang nhượng lấy lại 60% phần đã trả (chi nhánh mở từ bản cũ chỉ lấy lại phần trang trí); con số tính lại theo giá ngoài đời ở dưới
+- [x] Mặt bằng theo giá thuê ngoài đời (chủ dự án yêu cầu đồng bộ với tab Đời sống; tra tin cho thuê muaban, mogi, alonhadat và bài báo tháng 9/2026). Chi nhánh bán 50–100 ly mỗi ngày nên tính như quầy take-away nhỏ:
 
-Mô phỏng người chơi thật sau khi sửa (nghìn đồng):
+  | Chỗ | Trước | Giờ | Ngoài đời |
+  |---|---|---|---|
+  | Góc dưới gác bà Sáu (`CFG.rent`) | 40k/ngày | 70k/ngày (bà Sáu lấy rẻ) | thuê chung góc 2–3 triệu/tháng, góc hẻm khoảng 4,5 triệu |
+  | Mặt tiền đầu hẻm (`MAT_TIEN`) | 220k/ngày, cọc 12 ngày, trang trí 2,5 triệu | 330k/ngày, cọc 1 tháng (chủ nhà bạn bà Sáu), sửa sang kiosk cũ 8 triệu | 8–16 triệu/tháng, cọc 2–3 tháng, sửa sang kiosk 28–58 triệu |
+  | Chi nhánh gần trường | 150k/ngày, tổng 4,8 triệu | 300k/ngày, cọc 2 tháng, sang lại quầy 30 triệu, sửa sang 5 triệu (53 triệu) | 8–20 triệu/tháng; sang quán 60–250 triệu |
+  | Chi nhánh toà văn phòng | 300k/ngày, tổng 7,6 triệu | 500k/ngày, cọc 3 tháng, sang lại 40 triệu, sửa sang 8 triệu (93 triệu) | 12–25 triệu/tháng cộng phí dịch vụ |
+  | Kiosk trung tâm thương mại | 180k/ngày + 8% doanh thu | 250k/ngày + 12% doanh thu, cọc 3 tháng, làm quầy mới 25 triệu (47,5 triệu) | ngoại ô 8–25 triệu/tháng, hoặc 20–25% doanh thu |
 
-| Người chơi | Mở chi nhánh | Két ngày 100 | Két ngày 200 | Mốc mua sắm |
-|---|---|---|---|---|
-| Giỏi, gần trường, 70 ngày | ngày 69 | – | – | két ngày 70: 7.339 |
-| Vừa, gần trường, 70 ngày | chưa mở | – | – | két ngày 70: 11.633 |
-| Giỏi, văn phòng | ngày 58 | – | – | két ngày 70: 53.065 |
-| Giỏi, 200 ngày | ngày 65 | 40.356 | 49.394 | Wave 73, SH 110, Kia Morning trả góp 138, nhà ở xã hội trả góp 192, mẹ gửi lại 6.000 |
-| Vừa, 200 ngày | ngày 84 | 16.078 | 84.478 | Wave 93, SH 140, Kia Morning trả góp 176 |
+  Hợp đồng mặt tiền và chi nhánh 180 ngày, gia hạn tăng 6% (trước 28 ngày tăng 10%, sau 200 ngày gần gấp đôi). Bước cấu hình 42 đổi tiền nhà trong hẻm cho người chơi cũ
+- [x] Trang bị theo giá cửa hàng: máy dán nắp tự động 8,5 triệu (trước 3 triệu), máy lạnh 1,5 HP gồm công lắp 10 triệu (900k), quầy dài thêm 8 triệu (800k), biển hiệu LED 4 triệu (400k), bàn ghế 3 triệu (500k), quảng cáo 3 triệu (600k), tablet 5,5 triệu (7 triệu). Đồ trang trí và góp hẻm vốn đã sát giá thật nên giữ
+- [x] Tăng giá đồ uống. Trước: dưới mốc "đắt" (trà 40k, matcha 50k) thì không mất khách, không mất sao; chạm mốc thì 40% khách bỏ về và trừ sao. Người chơi máy đặt trà 39k, matcha 49k thì lãi gấp 2,2 lần giá gợi ý (két ngày 60: 132 triệu so với 60 triệu), trà 40k thì tụt còn 42 ly mỗi ngày (`node tools/mo-phong-kinh-te.mjs gia`). Giờ:
+  - `heSoGiaKhach`: khách ghé theo giá trà trung bình so với gợi ý, rẻ hơn thì đông hơn tối đa khoảng 18%, đắt hơn thì vắng dần (+10% giá bớt khoảng 10% khách, +20% bớt 24%, +30% bớt 42%, tối đa bớt 70%). Tăng nhẹ thì lãi nhỉnh hơn một chút, quán đông có khách phải bỏ về thì lợi hơn; tăng mạnh thì lỗ
+  - `tiLeBoDiGia`: ly đắt hơn gợi ý trên 20% thì có khách bỏ đi, càng đắt càng nhiều (tối đa một nửa); hương, topping, size L đắt thì 25%; cả ly vượt mức tối đa thì 60%
+  - Trà từ 130% giá gợi ý là đắt (hoặc chạm 40k, matcha 50k như cũ), ly đắt bị trừ một sao
+  - Tab Giá bán có dòng "Giá trà trung bình cao hơn giá gợi ý X% · khách ghé ít hơn khoảng Y%"
+- [x] Giá nhập: giáp Tết tăng 20%, qua Tết (xong cảnh giao thừa hay từ ngày 75) còn 10%, thẻ cuối ngày báo một lần (`quaTet`, `giaSauTet`). Trước giữ mức 20% tới hết game
+
+Người chơi máy (`nguoi`) giờ biết để dành: từ ngày 15 chưa ra mặt tiền thì chỉ thuê người, ra mặt tiền rồi mới sắm trang bị, nghe Vy kể chỗ sang nhượng thì hoãn trang trí, góp hẻm, đời sống cho tới khi mở chi nhánh (máy mua mọi thứ ngay khi có tiền thì với giá thật tới ngày 132 mới ra được mặt tiền). Mô phỏng sau khi sửa (nghìn đồng):
+
+| Người chơi | Ra mặt tiền | Mở chi nhánh | Lãi chi nhánh mỗi ngày | Két ngày 200 | Mốc mua sắm |
+|---|---|---|---|---|---|
+| Giỏi, gần trường, 70 ngày | ngày 32 | – | – | – | két ngày 70: 45.429 |
+| Vừa, gần trường, 70 ngày | ngày 48 | – | – | – | két ngày 70: 9.752 |
+| Giỏi, văn phòng, 70 ngày | ngày 32 | – | – | – | két ngày 70: 50.445 |
+| Giỏi, 200 ngày | ngày 31 | ngày 78 | 679 | 116.761 | Wave 103, SH 142, Kia Morning trả góp 171; nhà sau ngày 200 |
+| Vừa, 200 ngày | ngày 40 | ngày 88 | 604 | 100.953 | Wave 126, SH 172 |
+
+So với trước (bản 5.2): ra mặt tiền muộn 3–8 ngày, chi nhánh muộn khoảng 13 ngày, đời sống muộn khoảng một tháng vì tiền giờ chi thật cho trang bị và chi nhánh.
+
+Thử giá bán (`node tools/mo-phong-kinh-te.mjs gia`, người chơi giỏi 60 ngày, chỉ đổi giá trà):
+
+| Giá trà | Két ngày 60 | Ly mỗi ngày | Sao |
+|---|---|---|---|
+| Rẻ hơn 15% | 11.730 | 95 | 4,89 |
+| Giá gợi ý | 12.603 | 90 | 4,80 |
+| Đắt hơn 15% | 14.576 | 94 | 4,80 |
+| Trà 39k, matcha 49k | phá sản ngày 9 | – | – |
+| Trà 40k, matcha 50k | 10.328 | 12 | 3,83 |
 
 ## Cổng quyết định
 

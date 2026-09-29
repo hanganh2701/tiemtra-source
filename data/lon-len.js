@@ -1,15 +1,17 @@
 /* Lớn lên: mặt tiền đầu hẻm, nhân viên có tính cách, đơn nhóm. Nạp trước game.js.
-   Tiền nhà trong game thu nhỏ khoảng 1/5 đến 1/8 so với ngoài đời; mặt tiền đắt gấp khoảng 5 lần trong hẻm. */
+   Tiền nhà theo giá thuê ngoài đời ở TP.HCM (tra 29/09/2026, bản 5.2.1), cùng thang với giá xe, nhà ở tab Đời sống:
+   mặt tiền nhỏ 15–25 m² 8–16 triệu/tháng, cọc 2–3 tháng; sửa sang một kiosk 28–58 triệu. Mặt tiền đầu hẻm là kiosk cũ của
+   chuỗi còn quầy nên chỉ sửa sang, chủ nhà là bạn bà Sáu nên chỉ lấy cọc một tháng. Hợp đồng 6 tháng, gia hạn tăng 6%. */
 const MAT_TIEN = {
-  thue: 220000, /* tiền nhà mỗi ngày */
-  cocNgay: 12, /* cọc bằng bấy nhiêu ngày tiền nhà */
+  thue: 330000, /* tiền nhà mỗi ngày: 10 triệu/tháng */
+  cocNgay: 30, /* cọc bằng bấy nhiêu ngày tiền nhà (một tháng) */
   khach: 1.4, /* khách vãng lai đông hơn trong hẻm bấy nhiêu lần */
-  trangTri: 2500000,
+  trangTri: 8000000, /* sửa sang kiosk cũ, bảng hiệu */
   vonNau: 1000000, /* thuê xong mà két còn dưới bấy nhiêu thì hộp xác nhận nhắc có thể không đủ nấu hàng */
   tuNgay: 20,
   sao: 4.2,
-  hopDong: 28, /* ngày mỗi kỳ hợp đồng */
-  tang: 0.1, /* gia hạn thì tiền nhà tăng */
+  hopDong: 180, /* ngày mỗi kỳ hợp đồng (6 tháng) */
+  tang: 0.06, /* gia hạn thì tiền nhà tăng */
 };
 
 /* tên nhân viên theo vị trí; ai mới thuê thì lấy ngẫu nhiên */

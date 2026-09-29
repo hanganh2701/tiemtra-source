@@ -3,11 +3,13 @@
    - nhanh (mặc định, dùng để so các nhánh truyện): sáng nào cũng nấu đủ hàng, pha đúng mọi ly ngay khi khách chờ đủ vài giây,
      kể cả đơn nhiều ly; không mua gì, không thuê nhân viên, không ra mặt tiền. Nhanh hơn người thật nhiều.
    - nguoi (giống người chơi thật): mỗi lúc chỉ pha một ly, mỗi ly mất vài giây (thuê phụ quầy thì nhanh hơn),
-     tự mua trang bị, trang trí, góp hẻm, ra mặt tiền, mở chi nhánh, sắm đời sống (nhà, xe, quà), thuê Linh, nhân viên pha chế và nhân viên đơn online, mua tablet khi mở online.
+     tự mua trang bị, trang trí, góp hẻm, ra mặt tiền, mở chi nhánh, sắm đời sống (nhà, xe, quà), thuê Linh, nhân viên pha chế và nhân viên đơn online, mua tablet khi mở online;
+     biết để dành: gom tiền ra mặt tiền trước, rồi mở chi nhánh, mới tới trang trí, góp hẻm, đời sống.
    Chạy: node tools/mo-phong-kinh-te.mjs            (các kịch bản nhánh truyện, kiểu nhanh)
          node tools/mo-phong-kinh-te.mjs 2          (chỉ kịch bản nhánh số 2)
          node tools/mo-phong-kinh-te.mjs nguoi      (người chơi giỏi và người chơi vừa, kiểu nguoi)
-         node tools/mo-phong-kinh-te.mjs nguoi 1    (chỉ kịch bản người chơi số 1) */
+         node tools/mo-phong-kinh-te.mjs nguoi 1    (chỉ kịch bản người chơi số 1)
+         node tools/mo-phong-kinh-te.mjs gia        (cùng người chơi giỏi 60 ngày, đổi giá bán đồ uống; gia 2 = chỉ mức số 2) */
 import { boot } from "../tests/harness.mjs";
 
 const doi = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -59,21 +61,27 @@ function __nguoiNhip(giay) {
     if (R.online[j] === c) N.ban = __giayLy(giay); else N.dang = null;
   }
 }
-/* sáng: mua như người chơi, luôn chừa một khoản để nấu hàng */
+/* sáng: mua như người chơi, luôn chừa một khoản để nấu hàng. Người chơi biết để dành: từ ngày 15 chưa ra mặt tiền thì chỉ thuê
+   người, dồn tiền ra mặt tiền; ra mặt tiền rồi mới sắm trang bị; nghe Vy kể chỗ sang nhượng thì hoãn trang trí, góp hẻm,
+   đời sống cho tới khi mở chi nhánh */
 function __muaSam(kieu) {
   const chua = 900000, mua = (gia) => S.money >= gia + chua && ((S.money -= gia), true), ghi = (n, v) => S.cur.equip.push({ n, v });
-  ["sign", "seats", "slot4", "ads", "ac", "sealer"].forEach((id) => { const u = UPG.find((x) => x.id === id); if (!S.upg[id] && mua(u.cost)) { S.upg[id] = true; ghi(u.n, u.cost); window.__muaNgay[id] = S.day; } });
+  const choMT = kieu.matTien && buoc() < 2 && S.day >= 15,
+    choCN = kieu.cn && buoc() >= 2 && !S.cn && TT().co.chi_nhanh_mo,
+    deDanh = choMT || choCN;
   if (kieu.matTien && buoc() < 2 && dkMatTien().every((x) => x.ok) && mua(tienCoc() + MAT_TIEN.trangTri)) {
     S.coc = tienCoc(); S.buoc = 2; S.hd = { bd: S.day, gia: MAT_TIEN.thue }; ghi("Mặt tiền", tienCoc() + MAT_TIEN.trangTri); window.__muaNgay.matTien = S.day;
   }
+  if (!choMT) ["sign", "seats", "slot4", "ads", "ac", "sealer"].forEach((id) => { const u = UPG.find((x) => x.id === id); if (!S.upg[id] && mua(u.cost)) { S.upg[id] = true; ghi(u.n, u.cost); window.__muaNgay[id] = S.day; } });
   const thue = (id) => { const u = STAFF.find((x) => x.id === id); if (!S.upg[id] && mua(u.cost)) { S.upg[id] = true; (S.hired = S.hired || {})[id] = true; nvThue(id); ghi(u.n, u.cost); window.__muaNgay[id] = S.day; } };
   if (kieu.nv && TT().co.linh_lam) thue("staff1");
   if (kieu.nv && S.day >= 30 && buoc() >= 2) thue("staff2");
   if (kieu.nv && S.online) thue("staffOn");
   if (S.online && !(S.tablets > 0) && mua(CFG.tablet)) { S.tablets = 1; ghi("Tablet", CFG.tablet); window.__muaNgay.tablet = S.day; }
+  if (kieu.cn && typeof moChiNhanh === "function" && !S.cn && dkChiNhanh().every((x) => x.ok) && S.money >= cnTien(CN_LOAI.find((x) => x.id === kieu.cn)) + chua && moChiNhanh(kieu.cn)) { window.__muaNgay.chiNhanh = S.day; $("modal").hidden = true; }
+  if (deDanh) return;
   if (typeof TRANG_TRI !== "undefined") TRANG_TRI.forEach((t) => { if (!coTri(t.id) && mua(t.gia)) { (S.tri = S.tri || []).push(t.id); ghi(t.ten, t.gia); } });
   if (!S.upg.brandKit && S.upg.sealer && mua(BRAND_COST)) { S.upg.brandKit = true; ghi("Thương hiệu", BRAND_COST); window.__muaNgay.brand = S.day; }
-  if (kieu.cn && typeof moChiNhanh === "function" && !S.cn && dkChiNhanh().every((x) => x.ok) && S.money >= cnTien(CN_LOAI.find((x) => x.id === kieu.cn)) + chua && moChiNhanh(kieu.cn)) { window.__muaNgay.chiNhanh = S.day; $("modal").hidden = true; }
   /* đời sống: mua dần khi dư (chừa 5 triệu), ô tô và nhà thì trả góp khi đủ tiền trả trước và ngân hàng cho; không mua đồ đắt cho bản thân;
      gửi về quê mỗi tháng */
   if (kieu.ds && typeof muaDs === "function") {
@@ -116,6 +124,8 @@ async function choi(ten, chon, kieu = {}, soNgay = kieu.ngay || 70) {
         await doi(2);
       }
       if (kieu.giay) g.run(`__muaSam(${JSON.stringify(kieu)})`);
+      /* thử giá bán: đặt lại giá mỗi sáng (món mới mở cũng theo) */
+      if (kieu.gia) g.run(kieu.gia);
       /* nấu hàng: bù cho đủ mức, hoặc hơn hôm qua dùng một chút như người thật nhìn cột "hôm qua dùng";
          nhánh bắt tay Mây Tea nấu dư trân châu cho đơn sỉ */
       g.run(`(() => {
@@ -148,11 +158,16 @@ async function choi(ten, chon, kieu = {}, soNgay = kieu.ngay || 70) {
         );
       }
       const x = JSON.parse(
-        g.run("JSON.stringify((() => { const r = S.history[S.history.length - 1]; return { rev: recRev(r), cost: recCost(r), ban: R.today.served, mat: R.today.lost, het: R.today.soldLost || 0 }; })())"),
+        g.run("JSON.stringify((() => { const r = S.history[S.history.length - 1]; if (!r) return null; return { rev: recRev(r), cost: recCost(r), ban: R.today.served, mat: R.today.lost, het: R.today.soldLost || 0, chaDat: R.today.priceLost || 0, sao: r.starN ? r.starSum / r.starN : 0, cn: r.cn ? r.cn.lai : null }; })())"),
       );
       g.run("__closeDialogs(12)");
       await doi(5);
-      ngay.push({ ngay: truoc, tien: g.run("S.money"), rev: x.rev, loi: x.rev - x.cost, ban: x.ban, mat: x.mat, het: x.het });
+      /* phá sản: game mở quán mới, sổ trống */
+      if (!x) {
+        ngay.push({ ngay: truoc, tien: 0, phaSan: true });
+        break;
+      }
+      ngay.push({ ngay: truoc, tien: g.run("S.money"), rev: x.rev, loi: x.rev - x.cost, ban: x.ban, mat: x.mat, het: x.het, chaDat: x.chaDat, sao: x.sao, cn: x.cn });
     }
     const T = JSON.parse(g.run("JSON.stringify({ nhanh: TT().nhanh, trang: TT().trang.length, ket: (TT().ket || {}).id, mua: window.__muaNgay, sao: +rating().toFixed(2), hang: hangMinh(), gui: S.ds ? { lan: S.ds.guiThang || 0, tong: S.ds.guiTong || 0, bo: S.ds.guiBo || 0, traLai: S.ds.guiTraLai || 0 } : null, canhGui: ['gui_1', 'gui_2', 'gui_3', 'gui_so'].map((id) => id + ' ' + (TT().xem[id] ?? '–')).join(', ') })"));
     return { ten, chon, ngay, T, err: g.errors.map(String), giay: Math.round((Date.now() - t0) / 1000) };
@@ -186,8 +201,27 @@ const NGUOI_CHOI = [
   ["Người chơi giỏi 200 ngày, mặt tiền, chi nhánh gần trường, sắm đời sống", { giay: 7, matTien: true, nv: true, cn: "truong", ds: true, ngay: 200 }],
   ["Người chơi vừa 200 ngày, mặt tiền, chi nhánh gần trường, sắm đời sống", { giay: 11, matTien: true, nv: true, cn: "truong", ds: true, ngay: 200 }],
 ];
+/* thử giá bán: người chơi giỏi ở mặt tiền, 60 ngày, chỉ đổi giá trà (hương, topping giữ giá gợi ý) */
+const datGia = (bt) => `BASE_KEYS.forEach((k) => { if (S.unlocked[k]) S.sell[k] = ${bt}; })`;
+const GIA_THU = [
+  ["Giá gợi ý", null],
+  ["Rẻ hơn 15%", datGia("Math.round((DEF_SELL[k] * 0.85) / 500) * 500")],
+  ["Đắt hơn 15%", datGia("Math.round((DEF_SELL[k] * 1.15) / 500) * 500")],
+  ["Sát ngưỡng đắt: trà 39k, matcha 49k", datGia("k === 'matcha' ? 49000 : 39000")],
+  ["Qua ngưỡng đắt: trà 40k, matcha 50k", datGia("k === 'matcha' ? 50000 : 40000")],
+];
 const arg = process.argv[2];
-if (arg === "nguoi") {
+if (arg === "gia") {
+  console.log("Nghìn đồng, trung bình mỗi ngày bán từ ngày 21 tới 60 · người chơi giỏi, mặt tiền, thuê người\n");
+  for (const [ten, gia] of GIA_THU.filter((x, i) => !process.argv[3] || String(i) === process.argv[3])) {
+    const kq = await choi(ten, { linh: 0, hana: 0, may: 1, tet: 1 }, { giay: 7, matTien: true, nv: true, gia, ngay: 60 });
+    const n = kq.ngay;
+    const ps = n.find((d) => d.phaSan);
+    console.log(`${ten}  (${kq.giay}s, cuối cùng ${kq.T.sao}★${ps ? `, phá sản ngày ${ps.ngay}` : ""})`);
+    console.log(`  doanh thu ${tb(n, 21, 60, "rev")} · lãi ${tb(n, 21, 60, "loi")} · ly ${tb(n, 21, 60, "ban")} · khách bỏ về ${tb(n, 21, 60, "mat")} (chê đắt ${tb(n, 21, 60, "chaDat")}) · sao trong ngày ${(n.filter((d) => d.ngay >= 21 && !d.nghi).reduce((a, d) => a + d.sao, 0) / n.filter((d) => d.ngay >= 21 && !d.nghi).length).toFixed(2)} · két ngày 60 ${tienNgay(n, 60)}`);
+    if (kq.err.length) console.log("  LỖI:", kq.err.slice(0, 3));
+  }
+} else if (arg === "nguoi") {
   console.log("Nghìn đồng. Két theo ngày · lãi trung bình mỗi ngày bán · ly bán và khách mất mỗi ngày\n");
   for (const [ten, kieu, doi] of NGUOI_CHOI.filter((x, i) => !process.argv[3] || String(i) === process.argv[3])) {
     const kq = await choi(ten, { linh: 0, hana: 0, may: 1, tet: 1, ...doi }, kieu);
@@ -197,6 +231,8 @@ if (arg === "nguoi") {
     console.log(`  lãi/ngày: 1–20 ${tb(n, 1, 20, "loi")} · 21–40 ${tb(n, 21, 40, "loi")} · 41–60 ${tb(n, 41, 60, "loi")} · 61–70 ${tb(n, 61, 70, "loi")}`);
     console.log(`  ly/ngày: 1–20 ${tb(n, 1, 20, "ban")} · 21–40 ${tb(n, 21, 40, "ban")} · 41–70 ${tb(n, 41, 70, "ban")} (46–55 ${tb(n, 46, 55, "ban")})   khách mất/ngày: 21–40 ${tb(n, 21, 40, "mat")} · 41–70 ${tb(n, 41, 70, "mat")} (vì hết hàng ${tb(n, 41, 70, "het")})`);
     console.log(`  mua (ngày): ${Object.entries(kq.T.mua || {}).map(([k, v]) => k + " " + v).join(", ") || "–"}`);
+    const cnNgay = n.filter((d) => d.cn != null);
+    if (cnNgay.length) console.log(`  chi nhánh: ${cnNgay.length} ngày bán, lãi trung bình ${Math.round(cnNgay.reduce((a, d) => a + d.cn, 0) / cnNgay.length / 1000)}/ngày`);
     if (kq.T.gui && kq.T.gui.lan) console.log(`  gửi về quê: ${kq.T.gui.lan} lần, tổng ${Math.round(kq.T.gui.tong / 1000)}, bỏ ${kq.T.gui.bo} tháng, mẹ gửi lại ${Math.round(kq.T.gui.traLai / 1000)} · cảnh ${kq.T.canhGui}`);
     if (kq.err.length) console.log("  LỖI:", kq.err.slice(0, 3));
   }

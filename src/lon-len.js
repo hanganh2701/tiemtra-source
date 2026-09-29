@@ -23,7 +23,7 @@ function dkMatTien() {
   return [
     { t: "Mở cửa từ ngày " + MAT_TIEN.tuNgay, ok: S.day >= MAT_TIEN.tuNgay },
     { t: "Đánh giá từ " + String(MAT_TIEN.sao).replace(".", ",") + " sao", ok: rating() >= MAT_TIEN.sao },
-    { t: "Có " + fmtBig(can) + " (cọc " + fmtBig(tienCoc()) + " + trang trí " + fmtBig(MAT_TIEN.trangTri) + ")", ok: S.money >= can },
+    { t: "Có " + fmtBig(can) + " (cọc " + fmtBig(tienCoc()) + " + sửa sang " + fmtBig(MAT_TIEN.trangTri) + ")", ok: S.money >= can },
     { t: "Không đang nợ ngân hàng", ok: !inDebt() },
   ];
 }
@@ -44,7 +44,7 @@ function theMatTien() {
 function thueMatTien() {
   if (buoc() >= 2 || !dkMatTien().every((x) => x.ok)) return;
   ask(
-    `<div class="pbig">🏠</div><h2>Ra mặt tiền đầu hẻm?</h2><p>Đặt cọc ${fmtBig(tienCoc())} và trang trí ${fmtBig(MAT_TIEN.trangTri)}. Tiền nhà từ ${fmt(CFG.rent)} lên ${fmt(MAT_TIEN.thue)}/ngày, mỗi ${MAT_TIEN.hopDong} ngày gia hạn tăng khoảng ${Math.round(MAT_TIEN.tang * 100)}%.</p>${
+    `<div class="pbig">🏠</div><h2>Ra mặt tiền đầu hẻm?</h2><p>Đặt cọc ${fmtBig(tienCoc())} (một tháng, chủ nhà là bạn bà Sáu) và sửa sang kiosk ${fmtBig(MAT_TIEN.trangTri)}. Tiền nhà từ ${fmt(CFG.rent)} lên ${fmt(MAT_TIEN.thue)}/ngày (khoảng ${fmtBig(MAT_TIEN.thue * 30)}/tháng), hợp đồng ${MAT_TIEN.hopDong} ngày, gia hạn tăng khoảng ${Math.round(MAT_TIEN.tang * 100)}%.</p>${
       S.money - tienCoc() - MAT_TIEN.trangTri < MAT_TIEN.vonNau
         ? `<p class="note">⚠️ Thuê xong két còn ${fmt(S.money - tienCoc() - MAT_TIEN.trangTri)}. Mặt tiền đông khách, chừng đó có thể không đủ nấu hàng hôm nay.</p>`
         : ""
@@ -56,7 +56,7 @@ function thueMatTien() {
         () => {
           S.money -= tienCoc() + MAT_TIEN.trangTri;
           S.coc = tienCoc();
-          S.cur.equip.push({ n: "Trang trí mặt tiền", v: MAT_TIEN.trangTri });
+          S.cur.equip.push({ n: "Sửa sang kiosk mặt tiền", v: MAT_TIEN.trangTri });
           S.buoc = 2;
           S.hd = { bd: S.day, gia: MAT_TIEN.thue };
           save();

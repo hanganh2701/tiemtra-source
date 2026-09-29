@@ -198,42 +198,42 @@ const UPG = [
     id: "sealer",
     n: "Máy dán nắp tự động",
     d: "Pha đúng món là máy tự dán nắp và giao ly, khách tip thêm 30%",
-    cost: 3000000,
+    cost: 8500000,
     i: ico("upcups"),
   },
   {
     id: "sign",
     n: "Biển hiệu đèn LED",
     d: "Thêm 20% khách ghé quán",
-    cost: 400000,
+    cost: 4000000,
     i: ico("upbulb"),
   },
   {
     id: "seats",
     n: "Bàn ghế cho khách ngồi",
     d: "Khách chịu chờ lâu hơn 25%",
-    cost: 500000,
+    cost: 3000000,
     i: ico("upchair"),
   },
   {
     id: "ads",
     n: "Quảng cáo mạng xã hội",
-    d: "Thêm 25% khách ghé quán",
-    cost: 600000,
+    d: "Chụp ảnh menu, chạy quảng cáo. Thêm 25% khách ghé quán",
+    cost: 3000000,
     i: ico("upmega"),
   },
   {
     id: "slot4",
     n: "Mở rộng quầy",
-    d: "Phục vụ cùng lúc 4 khách",
-    cost: 800000,
+    d: "Quầy inox dài thêm, phục vụ cùng lúc 4 khách",
+    cost: 8000000,
     i: "🧱",
   },
   {
     id: "ac",
-    n: "Máy lạnh",
-    d: "Khách ít chê khi phải chờ",
-    cost: 900000,
+    n: "Máy lạnh 1,5 HP",
+    d: "Khách ít chê khi phải chờ. Giá gồm công lắp",
+    cost: 10000000,
     i: ico("upsnow"),
   },
 ];
@@ -535,7 +535,7 @@ const DEFAULT_CONFIG = {
   bottle: 200000,
   bottleN: 45,
   bottleLife: 7, // chai hương: giá, số ly mỗi chai, hạn dùng (ngày)
-  tablet: 7000000, // mỗi tablet chạy 1 app giao hàng
+  tablet: 5500000, // mỗi tablet chạy 1 app giao hàng
   bankMax: 1000000,
   bankRate: 25,
   hotMax: 3000000,
@@ -550,7 +550,7 @@ const DEFAULT_CONFIG = {
   thiefDay: 30,
   thiefLeft: 500000, // két trên mức này trước ngày này thì bị trộm, chừa lại thiefLeft           // phụ thu size L trên mức này là đắt, 90% khách không chọn size L
   loanLow: 200000, // két dưới mức này thì cho vay ngân hàng // lương mỗi ngày: nhân viên phụ quầy, nhân viên pha chế
-  rent: 40000, // tiền mặt bằng mỗi ngày
+  rent: 70000, // tiền góc dưới gác bà Sáu mỗi ngày (khoảng 2,1 triệu/tháng; ngoài đời thuê chung một góc 2–3 triệu)
   utilBase: 20000, // điện nước cơ bản mỗi ngày
   utilPerUpg: 8000, // điện nước tăng thêm cho mỗi trang bị
   taxThreshold: 1000000000, // ngưỡng doanh thu năm không chịu thuế (hộ kinh doanh, 2026)
@@ -579,7 +579,7 @@ try {
     };
   }
 } catch (e) {}
-const CFG_VER = 41; /* phiên bản cấu hình mới nhất: thêm bước nâng cấp mới thì tăng số này */
+const CFG_VER = 42; /* phiên bản cấu hình mới nhất: thêm bước nâng cấp mới thì tăng số này */
 if (!(CFG.cfgVer >= 31)) {
   CFG.dayMin = 4;
 }
@@ -664,6 +664,15 @@ if (!(CFG.cfgVer >= 40)) {
 if (!(CFG.cfgVer >= 41)) {
   /* 4.8: đơn online mở từ ngày 40 thay vì 60, để giữa game có mục tiêu mới (cấu hình chủ game tự đổi thì giữ) */
   if (CFG.online.fromDay === 60) CFG.online.fromDay = 40;
+  CFG.cfgVer = 41;
+  try {
+    localStorage.setItem(OWNER_SAVE, JSON.stringify(CFG));
+  } catch (e) {}
+}
+if (!(CFG.cfgVer >= 42)) {
+  /* 5.2.1: tiền mặt bằng theo giá ngoài đời, góc dưới gác bà Sáu 70k/ngày (cấu hình chủ game tự đổi thì giữ) */
+  if (CFG.rent === 40000) CFG.rent = 70000;
+  if (CFG.tablet === 7000000) CFG.tablet = 5500000;
   CFG.cfgVer = CFG_VER;
   try {
     localStorage.setItem(OWNER_SAVE, JSON.stringify(CFG));
@@ -1094,6 +1103,27 @@ const unitCost = (o) =>
   (o.cheese ? CFG.cost.cheese : 0) +
   CFG.cost.cup;
 const priceIdx = (o) => price(o) / price(o, DEF_SELL);
+/* giá trà trung bình so với giá gợi ý (1 = đúng giá gợi ý) */
+const giaTB = () => {
+  const ks = BASE_KEYS.filter((k) => S.unlocked[k]);
+  return ks.length ? ks.reduce((a, k) => a + S.sell[k] / DEF_SELL[k], 0) / ks.length : 1;
+};
+/* khách ghé theo giá trà: rẻ hơn gợi ý thì đông hơn (tối đa khoảng +18%); đắt hơn thì vắng dần, không nhảy bậc:
+   +10% giá thì bớt khoảng 10% khách, +20% bớt khoảng 24%, +30% bớt khoảng 42%, tối đa bớt 70%.
+   Tăng nhẹ thì lãi nhỉnh hơn một chút (quán đông thì nhiều hơn vì bớt khách phải bỏ về), tăng mạnh thì lỗ */
+const heSoGiaKhach = (i = giaTB()) => (i <= 1 ? 1 / Math.max(0.85, i * i) : Math.max(0.3, 1 - 0.8 * (i - 1) - 2 * (i - 1) ** 2));
+/* khách tới quầy thấy ly của mình đắt: trên 20% so với gợi ý thì có người bỏ đi, càng đắt càng nhiều (tối đa một nửa);
+   hương, topping, size L để giá đắt thì 25%; cả ly vượt mức tối đa thì 60% */
+const tiLeBoDiGia = (o) =>
+  overCap(o)
+    ? 0.6
+    : Math.min(
+        0.5,
+        Math.max(
+          (priceIdx(o) - 1.2) * 1.2,
+          [...(o.flav ? [o.flav] : []), ...o.tops, ...(o.size === "L" ? ["L"] : [])].some(itemPricey) ? 0.25 : 0,
+        ),
+      );
 const overCap = (o) => price(o) > CFG.priceCap;
 const pricyItems = () => [
   ...BASE_KEYS.filter((k) => S.unlocked[k] && S.sell[k] > CFG.itemCap),
@@ -1539,19 +1569,13 @@ function traffic() {
     (S.upg.sign ? 0.2 : 0) +
     (S.upg.ads ? 0.25 : 0) +
     Math.min(S.day, 40) * 0.012;
-  const avgIdx =
-    BASE_KEYS.filter((k) => S.unlocked[k]).reduce(
-      (a, k) => a + S.sell[k] / DEF_SELL[k],
-      0,
-    ) / BASE_KEYS.filter((k) => S.unlocked[k]).length;
   const e = ev(),
     so =
       (coTrang(6) && evIs("rain") ? 1.15 : 1) *
       (coTrang(7) && (evIs("holiday") || leHoiNay()) ? 1.2 : 1) *
       (coTrang(10) ? 1.05 : 1);
   return (
-    (rf * boost * so * heSoKhachBuoc() * heSoKhachLe() * heSoKhachTruyen() * heSoKhachTri() * dsKhach() * (e ? EVS[e.id].mul : 1)) /
-    Math.max(0.85, Math.min(1, avgIdx) ** 2)
+    rf * boost * so * heSoKhachBuoc() * heSoKhachLe() * heSoKhachTruyen() * heSoKhachTri() * dsKhach() * (e ? EVS[e.id].mul : 1) * heSoGiaKhach()
   );
 }
 const RX = {
@@ -2681,11 +2705,15 @@ function topLine(k) {
 function inputRow(icon, name, sub, group, key, val) {
   return `<div class="rowi">${icon}<div><div class="nm">${name}</div><div class="sub" id="m-${group}-${key}">${sub}</div></div><div class="pin"><input type="number" inputmode="decimal" min="0" step="0.5" value="${val / 1000}" data-g="${group}" data-k="${key}" aria-label="${name} (nghìn đồng)"><span>k</span></div></div>`;
 }
+/* tab Giá bán: giá trà trung bình so với gợi ý và khách ghé ít hay nhiều hơn bao nhiêu */
 function giaWarn() {
-  return "";
-  const pi = pricyItems(),
-    bad = pi.length;
-  return `<div class="fore${bad ? " warnc2" : ""}">${ico("warn")} Món nào (trà, hương, topping) trên ${fmt(CFG.itemCap)} thì khách chê mắc, quán vắng 80% khách. Một ly trên ${fmt(CFG.priceCap)} thì 60% khách bỏ đi. Size L trên ${fmt(CFG.sizeWarn)} là đắt, 90% khách không chọn size L. Size L tối đa ${fmt(CFG.sizeCap)}, để đúng mức đó thì không ai chọn size L và quán vắng 80% khách.${bad ? ` <b>Đang quá giá: ${pi.map((k) => (k === "L" ? "Size L" : ITEMS[k].n)).join(", ")}</b>` : ""}</div>`;
+  const i = giaTB(),
+    pt = Math.round((i - 1) * 100),
+    k = Math.round((heSoGiaKhach(i) - 1) * 100);
+  if (Math.abs(pt) < 3) return "";
+  return `<div class="fore${k <= -20 ? " warnc2" : ""}">${ico(pt > 0 ? "chartup" : "price")} Giá trà trung bình ${pt > 0 ? "cao" : "thấp"} hơn giá gợi ý ${Math.abs(pt)}% · khách ghé ${k < 0 ? "ít" : "nhiều"} hơn khoảng ${Math.abs(k)}%${
+    pt >= 30 ? ", ly đắt còn bị trừ sao" : ""
+  }</div>`;
 }
 function sizeLine() {
   const p = S.sell.L;
@@ -5178,13 +5206,7 @@ function spawn() {
     fl($("lane"), "🚫 Hết " + low(ITEMS[so.so].n) + ", khách về", true);
     return;
   }
-  const over = cups.some(overCap);
-  if (
-    (over && Math.random() < 0.6) ||
-    (!over /* vượt mức tối đa chỉ tính 60%, không cộng thêm lượt 40% */ &&
-      cups.some(orderPricey) &&
-      Math.random() < 0.4)
-  ) {
+  if (Math.random() < Math.max(...cups.map(tiLeBoDiGia))) {
     R.today.priceLost++;
     toast("Có khách chê đắt, bỏ đi");
     return;
@@ -5387,16 +5409,18 @@ const matches = (a, b) =>
   a.cheese === b.cheese &&
   a.tops.length === b.tops.length &&
   a.tops.every((t) => b.tops.includes(t));
-/* giá "đắt" đúng như cảnh báo trong tab Giá bán: trà >115% giá gợi ý, hương/topping/size >130%, hoặc cả ly vượt mức tối đa */
+/* giá "đắt" đúng như cảnh báo trong tab Giá bán: trà, hương, topping từ 130% giá gợi ý (trà chạm 40k, matcha 50k cũng là đắt),
+   size L trên mức cảnh báo, hoặc cả ly vượt mức tối đa. Ly đắt thì khách trừ một sao */
 const teaCap = (k) => (k === "matcha" ? CFG.teaCapMatcha : CFG.teaCap);
 const itemPricey = (k) =>
   k === "L"
     ? lPricey()
     : ITEMS[k] && ITEMS[k].type === "base"
-      ? S.sell[k] >= teaCap(k)
+      ? S.sell[k] >= teaCap(k) || S.sell[k] / DEF_SELL[k] >= 1.3
       : S.sell[k] / DEF_SELL[k] > 1.3;
 const orderPricey = (o) =>
   overCap(o) ||
+  priceIdx(o) >= 1.3 ||
   [
     o.base,
     ...(o.flav ? [o.flav] : []),

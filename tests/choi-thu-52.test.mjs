@@ -129,3 +129,63 @@ test("chuyện nhà ở quê: nhãn riêng, không lặp câu ba xách giỏ, h�
     g.close();
   }
 });
+
+test("tăng giá đồ uống: khách vắng dần theo giá, không nhảy bậc ở 40k; ly đắt hơn gợi ý trên 20% thì có người bỏ đi; tab Giá bán báo", () => {
+  const g = boot();
+  try {
+    const hs = (i) => g.run(`heSoGiaKhach(${i})`);
+    assert.equal(hs(1), 1);
+    assert.ok(hs(0.85) > 1.15 && hs(0.85) < 1.2, "rẻ hơn 15% thì đông hơn khoảng 18%");
+    assert.ok(hs(1.1) > 0.88 && hs(1.1) < 0.92, "đắt hơn 10% thì bớt khoảng 10%");
+    assert.ok(hs(1.3) > 0.55 && hs(1.3) < 0.62, "đắt hơn 30% thì bớt khoảng 42%");
+    assert.equal(hs(1.6), 0.3);
+    /* trà 39k (sát mức 40k cũ) không còn là mẹo: khách vắng hẳn */
+    g.run("S.day = 30; S.unlocked = { ...S.unlocked, tra: true }; BASE_KEYS.forEach((k) => S.sell[k] = DEF_SELL[k])");
+    const k0 = g.run("traffic()");
+    g.run("BASE_KEYS.forEach((k) => { if (S.unlocked[k]) S.sell[k] = k === 'matcha' ? 49000 : 39000; })");
+    assert.ok(g.run("traffic()") < k0 * 0.5, "giá sát 40k thì khách còn chưa tới một nửa");
+    assert.ok(g.run("itemPricey('tra')"), "trà 39k là đắt (130% giá gợi ý)");
+    /* một ly đắt hơn gợi ý 25%: có khoảng 6% khách bỏ đi; đúng giá gợi ý thì không ai bỏ đi vì giá */
+    const o = { base: "tra", flav: null, tops: [], cheese: false, size: "M" };
+    g.run("BASE_KEYS.forEach((k) => S.sell[k] = DEF_SELL[k])");
+    assert.equal(g.run(`tiLeBoDiGia(${JSON.stringify(o)})`), 0);
+    g.run("S.sell.tra = Math.round(DEF_SELL.tra * 1.25)");
+    assert.ok(Math.abs(g.run(`tiLeBoDiGia(${JSON.stringify(o)})`) - 0.06) < 0.01);
+    g.run("R.tab = 'gia'; renderPrep()");
+    assert.match(g.w.document.getElementById("giaWarn").textContent, /cao hơn giá gợi ý \d+% · khách ghé ít hơn khoảng \d+%/);
+  } finally {
+    g.close();
+  }
+});
+
+test("giá nhập: giáp Tết tăng 20%, qua Tết còn 10% và báo một lần; Thư giãn không đổi", () => {
+  const g = boot();
+  try {
+    g.run("S.day = 62");
+    assert.equal(g.run("heSoGiaNhap()"), 1.2);
+    g.run("TT().xem.c3_ket = 68; S.day = 69");
+    assert.equal(g.run("heSoGiaNhap()"), 1.1);
+    assert.match(g.run("doKhoCuoiNgay()"), /Qua Tết/);
+    assert.equal(g.run("doKhoCuoiNgay()"), "");
+    g.run("delete TT().xem.c3_ket; S.day = 80");
+    assert.equal(g.run("heSoGiaNhap()"), 1.1, "từ ngày 75 cũng tính là qua Tết");
+    g.run("S.thuGian = true");
+    assert.equal(g.run("heSoGiaNhap()"), 1);
+  } finally {
+    g.close();
+  }
+});
+
+test("trang bị và mặt bằng theo giá ngoài đời, cùng thang với tab Đời sống", () => {
+  const g = boot();
+  try {
+    const gia = (id) => g.run(`UPG.find((u) => u.id === '${id}').cost`);
+    assert.ok(gia("ac") >= 8000000, "máy lạnh cho tiệm không rẻ hơn máy lạnh tặng ba mẹ quá nhiều");
+    assert.ok(gia("sealer") >= 5000000 && gia("sign") >= 2000000 && gia("slot4") >= 5000000);
+    assert.ok(g.run("MAT_TIEN.thue * 30") >= 8000000, "mặt tiền từ 8 triệu/tháng");
+    assert.ok(g.run("CN_LOAI.every((L) => cnTien(L) >= 40000000)"), "mở chi nhánh cỡ vài chục triệu trở lên");
+    assert.equal(g.run("MAT_TIEN.hopDong"), 180);
+  } finally {
+    g.close();
+  }
+});
