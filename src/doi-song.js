@@ -10,6 +10,13 @@ function dsS() {
   const d = S.ds;
   if (d.o !== undefined || d.xe !== undefined) chuyenDs50(d);
   d.vay = d.vay || {};
+  /* bản 5.3: bản lưu từng hoàn tiền nhà xe mà cờ còn sót thì xoá cờ nhà, ô tô không còn có (một lần) */
+  if (!d.coV) {
+    d.coV = 1;
+    const co = TT().co;
+    if (!(DS_NHA.some((x) => x.id === d.nha))) ["ds_co_nha", "ds_nha_hem"].forEach((k) => delete co[k]);
+    if (!(DS_OT.some((x) => x.id === d.ot))) delete co.ds_o_to;
+  }
   return d;
 }
 /* bản lưu 5.0 (nhà xe giá thu nhỏ): hoàn lại tiền đã mua nhà xe, điện thoại và món đồ không còn bán; giữ nấc thuê, báo một lần */
@@ -36,6 +43,9 @@ function chuyenDs50(d) {
     S.money += hoan;
     S.dsHoan = hoan;
   }
+  /* nhà xe giá cũ đã hoàn tiền: truyện không nhắc nhà mới, ô tô nữa */
+  const co = TT().co;
+  ["ds_co_nha", "ds_nha_hem", "ds_o_to"].forEach((k) => delete co[k]);
 }
 const dsMuc = (dong) => DS_DONG[dong].find((x) => x.id === dsS()[dong]) || null;
 const dsTro = () => dsMuc("tro") || DS_TRO[0];
@@ -54,6 +64,24 @@ const dsKhach = () => 1 + dsUu("khach");
 const dsTienNgay = () =>
   !S || thuGian() ? 0 : DS.anUong + (dsO().ngay || 0) + (dsXm().ngay || 0) + ((dsOt() && dsOt().ngay) || 0);
 const dsTienGop = () => Object.values(dsS().vay).reduce((a, v) => a + v.gop, 0);
+
+/* bản 5.3: bản lưu cũ ghi nhà xe, quà, đồ đời sống trong r.equip (trang bị của tiệm). Chuyển sang r.caNhan, cộng lại
+   vào lợi nhuận tích luỹ (không thì lợi nhuận âm, khoá đơn online). Nhận theo tên: tiền tố của các bản 5.0–5.2 và tên nhà xe */
+const DS_TEN_CU = ["Xe số cũ", "Xe tay ga", "Ô tô cũ", "Ô tô mới", "Điện thoại thông minh", "Điện thoại chụp ảnh đẹp"];
+function tachSoCu() {
+  const ten = new Set([...DS_TRO, ...DS_NHA, ...DS_XM, ...DS_OT, ...DS_DT].map((x) => x.ten).concat(DS_TEN_CU)),
+    laDoiSong = (e) => /^(Mua |Quà|Bán lại |Trả trước |Trả hết nợ góp)/.test(e.n) || ten.has(e.n);
+  let them = 0;
+  [...(S.history || []), S.cur].forEach((r) => {
+    if (!r || !r.equip) return;
+    const ds = r.equip.filter(laDoiSong);
+    if (!ds.length) return;
+    r.equip = r.equip.filter((e) => !laDoiSong(e));
+    r.caNhan = (r.caNhan || []).concat(ds);
+    if (r !== S.cur) them += ds.reduce((a, e) => a + e.v, 0);
+  });
+  S.totalProfit = (S.totalProfit || 0) + them;
+}
 
 /* ---------- trả góp ---------- */
 /* tiền góp mỗi ngày để trả hết khoản vay trong n ngày, lãi mỗi năm (360 ngày) */
@@ -95,9 +123,12 @@ function dsTinh(dong, x, gop) {
   const thuVe = dsThuVe(dong),
     v = gop && DS.vay[dong] && { ...DS.vay[dong], ...(x.vay || {}) };
   if (!v) return { can: (x.gia || 0) + (x.coc || 0) - thuVe, thuVe, vay: 0, gop: 0 };
-  const vay = Math.round((x.gia * (1 - v.truoc)) / 1000) * 1000;
+  /* vay tối đa phần giá trừ tiền trả trước, và không quá phần còn thiếu sau khi bán đồ cũ (không vay dư để cầm tiền về) */
+  const vay = Math.max(0, Math.min(Math.round((x.gia * (1 - v.truoc)) / 1000) * 1000, x.gia - thuVe));
   return { can: x.gia - vay - thuVe, thuVe, vay, gop: gopNgay(vay, v.lai, v.ngay), ngay: v.ngay, lai: v.lai };
 }
+/* tiền góp mỗi ngày của các khoản vay khác (khoản cùng dòng sẽ được trả bằng tiền bán lại khi đổi món) */
+const dsGopKhac = (dong) => Object.entries(dsS().vay).filter(([k]) => k !== dong).reduce((a, [, v]) => a + v.gop, 0);
 /* có mua được không; trả chuỗi lý do nếu không */
 function dsKhongDuoc(dong, x, gop) {
   const d = dsS(),
@@ -110,8 +141,11 @@ function dsKhongDuoc(dong, x, gop) {
   } else if (ds.indexOf(x) <= ds.indexOf(dsMuc(dong) || ds[0])) return "Đã qua";
   if (S.money < t.can) return "Chưa đủ tiền";
   if (gop) {
-    const khac = Object.entries(d.vay).filter(([k]) => k !== dong).reduce((a, [, v]) => a + v.gop, 0);
-    if (khac + t.gop > thuNhapNgay() * DS.gopToiDa) return `Ngân hàng chỉ cho góp tới nửa thu nhập (khoảng ${fmt(Math.max(0, thuNhapNgay() * DS.gopToiDa))}/ngày)`;
+    const tn = thuNhapNgay(),
+      khac = dsGopKhac(dong);
+    if (tn <= 0) return "Ngân hàng cần xem thu nhập ít nhất 3 ngày bán hàng mới cho vay";
+    if (khac + t.gop > tn * DS.gopToiDa)
+      return `Ngân hàng chỉ cho góp tới nửa thu nhập: còn góp thêm được khoảng ${fmt(Math.max(0, tn * DS.gopToiDa - khac))}/ngày, món này cần ${fmt(t.gop)}/ngày`;
   }
   return "";
 }
@@ -156,10 +190,14 @@ function muaDs(dong, id, gop) {
   if (!x || dsKhongDuoc(dong, x, gop)) return false;
   const t = dsTinh(dong, x, gop),
     cu = dsMuc(dong) || (dong === "nha" ? null : DS_DONG[dong][0]);
+  const cocCu = d.coc || 0,
+    thueCu = dong === "tro" || (dong === "nha" && !dsNha()) ? dsTro() : null;
   S.money -= t.can;
-  /* ghi vào chi tiêu cá nhân theo dòng tiền: tiền trả ngay, tiền bán lại đồ cũ (đã trừ nợ) thì trừ ra; cọc không ghi */
+  /* ghi vào chi tiêu cá nhân theo dòng tiền: tiền trả ngay, tiền bán lại đồ cũ (đã trừ nợ) thì trừ ra; tiền cọc đặt, lấy lại */
   if (x.gia) ghiCaNhan((t.vay ? "Trả trước " : "Mua ") + x.ten, x.gia - t.vay);
-  if (dong !== "tro" && cu && cu.gia && t.thuVe) ghiCaNhan("Bán lại " + cu.ten, -t.thuVe);
+  if (dong !== "tro" && cu && cu.gia && t.thuVe) ghiCaNhan("Bán lại " + cu.ten + (d.vay[dong] ? " (đã trừ nợ góp)" : ""), -t.thuVe);
+  if (thueCu && cocCu) ghiCaNhan("Lấy lại cọc " + thueCu.ten.toLowerCase(), -cocCu);
+  if (dong === "tro" && x.coc) ghiCaNhan("Đặt cọc " + x.ten.toLowerCase(), x.coc);
   if (dong === "nha") d.coc = 0; /* dọn khỏi chỗ thuê, lấy lại cọc (đã tính trong tiền thu về) */
   if (dong === "tro") d.coc = x.coc || 0;
   d[dong] = id;
@@ -167,6 +205,31 @@ function muaDs(dong, id, gop) {
   if (t.vay) d.vay[dong] = { id, con: t.vay, gop: t.gop, lai: t.lai, ngay: t.ngay };
   xongMuc();
   dsXong(x, x.phan, t.vay ? `Vay ${fmtBig(t.vay)}, góp ${fmt(t.gop)}/ngày trong ${DS.vay[dong].ten}.` : "");
+  return true;
+}
+/* bán nhà, ô tô, xe máy, điện thoại đang có (lúc cần tiền); nhà bán thì về ở ghép phòng trọ */
+const dsBanDuoc = (dong) => {
+  const cu = ["nha", "ot", "xm", "dt"].includes(dong) && dsMuc(dong);
+  return !!(cu && cu.gia);
+};
+function banDs(dong) {
+  const d = dsS(),
+    cu = dsMuc(dong),
+    v = dsThuVe(dong);
+  if (!dsBanDuoc(dong) || S.money + v < 0) return false;
+  S.money += v;
+  ghiCaNhan("Bán " + cu.ten + (d.vay[dong] ? " (đã trừ nợ góp)" : ""), -v);
+  delete d.vay[dong];
+  if (dong === "nha") {
+    d.nha = null;
+    d.tro = DS_TRO[0].id;
+    d.coc = 0;
+  } else if (dong === "ot") d.ot = null;
+  else d[dong] = DS_DONG[dong][0].id;
+  save();
+  head();
+  toast(`Đã bán ${cu.ten}${v ? (v > 0 ? ", nhận " + fmtBig(v) : ", bù " + fmtBig(-v)) : ""}`, 3500);
+  refreshPrep(1);
   return true;
 }
 /* trả hết nợ góp của một món */
@@ -204,7 +267,7 @@ function doiSongCuoiNgay(r) {
       r.gopXong = ((DS_DONG[dong].find((x) => x.id === vay.id) || {}).ten || "") + (r.gopXong ? ", " + r.gopXong : "");
     }
   });
-  guiVeCuoiNgay(r);
+  /* gửi về quê gọi riêng ở cuối endDay, sau khi đã trừ tiền nhà, lương, nợ */
 }
 
 /* ---------- gửi tiền về quê mỗi tháng: mở từ cảnh gui_1 (data/cot-truyen.js), chỉnh ở khối Quà cho ba mẹ ----------
@@ -235,18 +298,31 @@ function guiVeMo() {
 const dsGuiTin = (n) => {
   const L = DS_GUI_TIN.length,
     i = n - 1;
+  /* lần đầu gửi mà ba đã khoẻ (cảnh gui_2 tới trước) thì mẹ nói khác */
+  if (i === 0 && S && S.tr && S.tr.co && S.tr.co.ba_khoe) return DS_GUI_TIN_KHOE;
   return DS_GUI_TIN[i < L ? i : L - 3 + ((i - L) % 3)];
 };
 /* lúc đóng cửa: tới hẹn thì gửi; két không còn dư phòng sau khi gửi thì tháng đó thôi, mẹ nhắn không sao */
 function guiVeCuoiNgay(r) {
   const d = dsS();
   if (!d.gui || !(S.day >= d.guiToi)) return;
-  d.guiToi = S.day + DS.gui.chuKy;
+  const hen = d.guiHen || d.guiToi;
   if (S.money - d.gui < DS.gui.duPhong) {
+    /* két chưa dư: chờ thêm tối đa 3 ngày rồi mới thôi tháng này */
+    if (S.day - hen < 3) {
+      d.guiHen = hen;
+      d.guiToi = S.day + 1;
+      r.guiCho = 1;
+      return;
+    }
+    d.guiHen = null;
+    d.guiToi = hen + DS.gui.chuKy;
     d.guiBo = (d.guiBo || 0) + 1;
     r.guiLo = 1;
     return;
   }
+  d.guiHen = null;
+  d.guiToi = hen + DS.gui.chuKy;
   S.money -= d.gui;
   r.gui = (r.gui || 0) + d.gui;
   d.guiThang = (d.guiThang || 0) + 1;
@@ -260,6 +336,7 @@ function guiVeCuoiNgay(r) {
 function dsGuiCuoiNgay(r) {
   if (r.gui) return `<p class="lvup">💌 Đã gửi về quê ${fmtBig(r.gui)}. ${esc(dsGuiTin(r.guiN || 1))}</p>`;
   if (r.guiLo) return `<p class="lvup">💌 Két không còn dư để gửi về quê tháng này. ${esc(DS_GUI_KET)}</p>`;
+  if (r.guiCho) return `<p class="lvup">💌 Két chưa dư để gửi về quê, mai gửi (két phải còn ${fmtBig(DS.gui.duPhong)} sau khi gửi).</p>`;
   return "";
 }
 /* cảnh gui_3: thùng xoài ở quê. Chỉ thêm hàng khi tiệm đang bán vị xoài, để không mở vị mới rồi hết giữa ngày */
@@ -275,7 +352,7 @@ function guiVeTraLai() {
   if (!v || d.guiTraLai) return;
   d.guiTraLai = v;
   S.money += v;
-  S.cur.gift = (S.cur.gift || 0) + v;
+  ghiCaNhan("Mẹ gửi lại tiền để dành", -v);
   head();
   setTimeout(() => toast("💌 Mẹ gửi lại " + fmtBig(v), 4000, 1), 700);
 }
@@ -434,12 +511,14 @@ function dsMucTieu() {
   if (!x) return null;
   const t = dsTinhTrang(m.dong, x);
   if (t.co || t.qua) return null;
-  const can = Math.max(1, m.gop && DS.vay[m.dong] ? dsTinh(m.dong, x, true).can : t.gia);
-  return { dong: m.dong, x, can, gop: !!m.gop, pt: Math.min(1, Math.max(0, S.money / can)), ngay: dsSoNgay(can - S.money) };
+  const gop = !!(m.gop && DS.vay[m.dong]),
+    can = Math.max(1, gop ? dsTinh(m.dong, x, true).can : t.gia),
+    nganHang = gop && S.money >= can && /Ngân hàng/.test(dsKhongDuoc(m.dong, x, true));
+  return { dong: m.dong, x, can, gop, nganHang, pt: Math.min(nganHang ? 0.99 : 1, Math.max(0, S.money / can)), ngay: dsSoNgay(can - S.money) };
 }
 const dsMucHTML = (m) =>
   `<button class="dsmuc" data-dsxem="${m.dong}:${m.x.id}"><span class="dsmh">${dsHinh(m.dong, m.x)}</span><span class="dsmt"><b>🎯 ${esc(m.x.ten)}</b><i><b style="width:${Math.round(m.pt * 100)}%"></b></i><small>${
-    m.pt >= 1 ? "Đủ tiền rồi! Bấm để mua" : `${fmtBig(S.money)} / ${fmtBig(m.can)}${m.gop ? " trả trước" : ""}${m.ngay ? ` · ~${m.ngay} ngày nếu giữ nhịp tuần này` : ""}`
+    m.nganHang ? "Đủ trả trước, ngân hàng chưa cho vay: cần thu nhập cao hơn" : m.pt >= 1 ? "Đủ tiền rồi! Bấm để mua" : `${fmtBig(S.money)} / ${fmtBig(m.can)}${m.gop ? " trả trước" : ""}${m.ngay ? ` · ~${m.ngay} ngày nếu giữ nhịp tuần này` : ""}`
   }</small></span></button>`;
 /* màn chuẩn bị: thanh mục tiêu dưới bảng hiệu */
 function dsMucNhacNho() {
@@ -535,7 +614,13 @@ function xemDs(dong, id) {
     }${gop ? `<div><span class="wl">Vay ngân hàng, lãi ${String(Math.round(v.lai * 1000) / 10).replace(".", ",")}%/năm</span><span class="wl">−${fmtBig(tc.vay)}</span></div>` : ""}<div class="tot"><span>Trả ngay</span><span>${fmtBig(Math.max(0, tc.can))}</span></div>${
       gop ? `<div><span>Góp mỗi ngày trong ${esc(v.ten)}</span><span>${fmt(tc.gop)}</span></div>` : ""
     }</div>`;
-    giua += `${gop ? `<p class="note">Ngân hàng cho góp tối đa ${fmt(Math.max(0, thuNhapNgay() * DS.gopToiDa))}/ngày (nửa thu nhập 7 ngày qua)${dsTienGop() ? `, đang góp ${fmt(dsTienGop())}` : ""}.</p>` : ""}`;
+    giua += `${
+      gop
+        ? thuNhapNgay() > 0
+          ? `<p class="note">Ngân hàng cho góp tối đa ${fmt(thuNhapNgay() * DS.gopToiDa)}/ngày (nửa thu nhập 7 ngày mở cửa gần nhất)${dsGopKhac(dong) ? `, đang góp khoản khác ${fmt(dsGopKhac(dong))}` : ""}.</p>`
+          : ""
+        : ""
+    }`;
   }
   const nutChinh =
     t.co || t.qua || !(x.gia || x.coc)
@@ -546,7 +631,11 @@ function xemDs(dong, id) {
     x.uuDai ? `<p class="dsuuhop">★ ${esc(x.uuDai)}</p>` : ""
   }${cu && !t.co && phiMoi !== phiCu ? `<p class="note">Chi phí mỗi ngày ${fmt(phiCu)} → ${fmt(phiMoi)} (${phiMoi > phiCu ? "+" : "−"}${fmt(Math.abs(phiMoi - phiCu))})</p>` : ""}${giua}${
     t.co ? `<p class="okline">✓ ${dong === "qua" ? "Đã tặng" : "Đang có"}</p>` : ""
-  }${t.co && vayCu ? `<div class="dsvay"><span>Còn nợ góp ${fmtBig(vayCu.con)}</span><button class="sbtn ghost" data-dstra="${dong}" ${S.money < vayCu.con ? "disabled" : ""}>Trả hết</button></div>` : ""}<div class="askbtns">${nutChinh}${
+  }${t.co && vayCu ? `<div class="dsvay"><span>Còn nợ góp ${fmtBig(vayCu.con)}</span><button class="sbtn ghost" data-dstra="${dong}" ${S.money < vayCu.con ? "disabled" : ""}>Trả hết</button></div>` : ""}${
+    t.co && dsBanDuoc(dong)
+      ? `<div class="dsvay"><span>${dsThuVe(dong) >= 0 ? `Bán lại được ${fmtBig(dsThuVe(dong))}${vayCu ? " (đã trừ nợ góp)" : ""}` : `Bán thì phải bù ${fmtBig(-dsThuVe(dong))} trả nợ`}</span><button class="sbtn ghost" data-dsban="${dong}" ${S.money + dsThuVe(dong) < 0 ? "disabled" : ""}>Bán</button></div>`
+      : ""
+  }<div class="askbtns">${nutChinh}${
     !t.co && !t.qua && (x.gia || x.coc) ? `<button class="sbtn ghost" data-dsmucchon>${dsLaMuc(dong, id) ? "Bỏ mục tiêu" : "🎯 Đặt làm mục tiêu để dành"}</button>` : ""
   }<button class="sbtn ghost" data-dsdong>Đóng</button></div>`;
   $("modal").classList.add("sheet");
@@ -589,12 +678,39 @@ document.addEventListener("keydown", (e) => {
   if (dsBangMo && e.key === "Escape") dongBangDs(true);
 });
 document.addEventListener("click", (e) => {
-  const b = e.target.closest && e.target.closest("[data-dsxem], [data-dstra], [data-dskhoi], [data-dsqua], [data-dsgui]");
+  const b = e.target.closest && e.target.closest("[data-dsxem], [data-dstra], [data-dsban], [data-dskhoi], [data-dsqua], [data-dsgui]");
   if (!b || b.disabled || typeof S === "undefined" || !S) return;
   e.stopPropagation();
   if (b.dataset.dstra) {
+    const dong = b.dataset.dstra,
+      v = dsS().vay[dong];
     dongBangDs(true);
-    return traHetVay(b.dataset.dstra);
+    if (!v) return;
+    return setTimeout(
+      () =>
+        ask(`<h2>Trả hết nợ góp?</h2><p>Trả ${fmtBig(v.con)} một lần, hết góp ${fmt(v.gop)}/ngày. Két còn ${fmtBig(S.money - v.con)} sau khi trả.</p>`, [
+          ["Thôi", () => {}],
+          ["Trả hết", () => traHetVay(dong), 1],
+        ]),
+      30,
+    );
+  }
+  if (b.dataset.dsban) {
+    const dong = b.dataset.dsban,
+      cu = dsMuc(dong),
+      v = dsThuVe(dong);
+    dongBangDs(true);
+    return setTimeout(
+      () =>
+        ask(
+          `<h2>Bán ${esc(cu.ten)}?</h2><p>${v >= 0 ? `Nhận về ${fmtBig(v)}` : `Phải bù ${fmtBig(-v)} để trả hết nợ`} (bán lại ${dong === "nha" ? "90%" : dong === "dt" ? "50%" : "70%"} giá mua${dsS().vay[dong] ? ", đã trừ nợ góp" : ""}).${dong === "nha" ? " Bán nhà thì về ở ghép phòng trọ." : ""}</p>`,
+          [
+            ["Thôi", () => {}],
+            ["Bán", () => banDs(dong), 1],
+          ],
+        ),
+      30,
+    );
   }
   if (b.dataset.dskhoi) {
     R.dsMo = R.dsMo === b.dataset.dskhoi ? null : b.dataset.dskhoi;

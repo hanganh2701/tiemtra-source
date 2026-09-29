@@ -82,7 +82,7 @@ test("trả góp: trả trước 30%, góp mỗi ngày có lãi, ngân hàng ch�
   const g = boot();
   try {
     g.run("S.money = 200000000");
-    assert.match(g.run("dsKhongDuoc('ot', DS_OT.find((x) => x.id === 'morning'), true)"), /nửa thu nhập/, "chưa có thu nhập thì chưa cho vay");
+    assert.match(g.run("dsKhongDuoc('ot', DS_OT.find((x) => x.id === 'morning'), true)"), /Ngân hàng cần xem thu nhập/, "chưa có thu nhập thì chưa cho vay");
     g.run(coThuNhap);
     assert.equal(g.run("dsKhongDuoc('ot', DS_OT.find((x) => x.id === 'morning'), true)"), "");
     const t = g.run("dsTinh('ot', DS_OT.find((x) => x.id === 'morning'), true)");

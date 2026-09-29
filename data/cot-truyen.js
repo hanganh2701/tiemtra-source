@@ -397,7 +397,7 @@ MAU_CHUYEN.push(
       ["_", "(Két chỉ còn vài trăm nghìn.)"],
     ],
     luaChon: [
-      { chu: "Nhận tiền mẹ gửi", dat: { c1_vay: "me" }, ketQua: { tien: 1000000 }, thoai: [["tin", "Mẹ: Ừ. Đừng nói với ba nghen."]] },
+      { chu: "Nhận tiền mẹ gửi", dat: { c1_vay: "me" }, ketQua: { tienRieng: 1000000, tienNhan: "Mẹ gửi lên" }, thoai: [["tin", "Mẹ: Ừ. Đừng nói với ba nghen."]] },
       { chu: "Nói mẹ con tự lo được", dat: { c1_vay: "tu" }, thoai: [["tin", "Mẹ: Cứng đầu y chang ba con. Có gì phải nói mẹ."]] },
     ],
   },
@@ -1134,7 +1134,7 @@ MAU_CHUYEN.push(
       ["khoa", "Linh ghé phụ em một buổi, pha lẹ hơn em nữa.", { nhanh: { linh: "A" } }],
       ["khoa", "Hana ghé chúc Tết, nói được câu \"An khang thịnh vượng\" luôn.", { co: { hana_tet: true } }],
     ],
-    ketQua: { tien: 500000 },
+    ketQua: { tienRieng: 500000, tienNhan: "Lì xì của ba" },
   },
   {
     id: "tet_b1",

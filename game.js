@@ -737,6 +737,7 @@ const newRec = (d) => ({
 function fresh() {
   const s = {
     lifeV: 2,
+    soV53: 1,
     off: {},
     badPlan: mkBadPlan(1),
     money: CFG.startMoney,
@@ -827,6 +828,11 @@ function loadFrom(d) {
       (a, r) => a + recRev(r) - recCost(r),
       0,
     );
+  /* bản 5.3: sổ cũ ghi nhà xe, quà vào trang bị của tiệm: tách sang chi tiêu cá nhân, bớt khoản đó khỏi lợi nhuận tích luỹ */
+  if (!S.soV53) {
+    tachSoCu();
+    S.soV53 = 1;
+  }
   if (!(d.lifeV >= 2)) {
     Object.keys(LIFE_OLD).forEach((k) => {
       if (conv[k]) return;
@@ -900,6 +906,8 @@ function take(k) {
   if (!b) return false;
   b.q--;
   S.stock[k] = S.stock[k].filter((x) => x.q > 0);
+  /* hết chai hương giữa ngày thì bỏ khỏi menu liền, khách sau không gọi vị đã hết */
+  if (ITEMS[k] && ITEMS[k].type === "flav" && !qty(k)) S.unlocked[k] = false;
   return true;
 }
 function expireStock() {
@@ -1065,6 +1073,7 @@ function sanitize() {
     if (!r || !r.sales) return;
     let f = false;
     Object.entries(r.sales).forEach(([k, x]) => {
+      if (!ITEMS[k] && k !== "L") return; /* chi nhánh (cn), đơn sỉ (si), phụ thu app: giá mỗi ly riêng, không so với trần một món */
       if (x && x.q > 0 && !(x.a / x.q <= capHiMax(k))) {
         x.a = x.q * Math.min(DEF_SELL[k] || sellMax(k), sellMax(k));
         f = true;
@@ -1161,7 +1170,11 @@ const evIs = (id) => {
   return !!e && e.id === id;
 };
 /* "%" đầu câu là chỗ điền tên món; sự kiện không gắn món (trời nóng, mưa…) giữ nguyên dấu % */
-const evText = (e) => (e.k && ITEMS[e.k] ? EVS[e.id].d.replace("%", low(ITEMS[e.k].n)) : EVS[e.id].d);
+/* câu mô tả sự kiện; tên món thay vào chỗ %, món đứng đầu câu thì viết hoa */
+const evText = (e) => {
+  const t = e.k && ITEMS[e.k] ? EVS[e.id].d.replace("%", low(ITEMS[e.k].n)) : EVS[e.id].d;
+  return t.charAt(0).toUpperCase() + t.slice(1);
+};
 function rollDay(d) {
   let e = null;
   if (d > 1 && d % 30 === 0) e = { id: "holiday" };
@@ -1270,6 +1283,7 @@ function bindLoan() {
             () => {
               S[L.id] = { left: 10, pay: d, int: it, amt: v };
               S.money += v;
+              S.cur.vay = (S.cur.vay || 0) + v;
               save();
               toast("Đã nhận " + fmt(v));
               head();
@@ -2176,7 +2190,7 @@ function paneKho() {
   let h =
     loanCard() +
     evCard() +
-    `<div class="fore big2">${ico("people")} ~${ex.walk}${ex.onl ? ` &nbsp; 📱 ~${ex.onl}` : ""}</div>`;
+    `<div class="fore big2">${ico("people")} ~${ex.walk} khách ghé${ex.onl ? ` &nbsp; 📱 ~${ex.onl} đơn` : ""}</div>`;
   h += subTabs("kho", [
     [ico("teapot") + " Trà", BASE_KEYS.filter(un).map(row).join("")],
     [ico("pearlbowl") + " Topping", groupRows(tp, row)],
@@ -2242,10 +2256,42 @@ function missingPrep() {
     !qty("cup") && [ico("cupempty") + " Ly", 2, "Ly"],
   ].filter(Boolean);
 }
+/* tiền nấu mức hàng ít nhất để mở cửa: 10 phần trà, 10 phần topping rẻ nhất đang bán và 20 ly */
+function tienNauToiThieu() {
+  const re = (ks) => Math.min(...ks.filter((k) => S.unlocked[k]).map((k) => ecost(k)), Infinity);
+  const tra = BASE_KEYS.some((k) => S.unlocked[k] && qty(k) > 0) ? 0 : 10 * re(BASE_KEYS),
+    top = TOP_KEYS.some((k) => S.unlocked[k] && qty(k) > 0) ? 0 : 10 * re(TOP_KEYS),
+    ly = qty("cup") ? 0 : 20 * ecost("cup");
+  return (isFinite(tra) ? tra : 0) + (isFinite(top) ? top : 0) + ly;
+}
+/* két không đủ nấu hàng để mở cửa: bà Sáu cho ứng, trả dần bằng một nửa tiền lãi như tiền khất */
+function baSauUng() {
+  const v = Math.ceil((tienNauToiThieu() - S.money + 100000) / 100000) * 100000;
+  ask(
+    `<div class="pbig">${ico("people")}</div><h2>Két không đủ nấu hàng</h2><p>Két còn ${fmt(S.money)}, cần khoảng ${fmt(tienNauToiThieu())} để nấu đủ hàng mở cửa.</p><p>Bà Sáu: "Bà ứng cho ${fmtBig(v)}. Bán có lãi thì trả dần, không tính lời."</p>`,
+    [
+      ["Để sau", () => {}],
+      [
+        "Nhận tiền bà Sáu ứng",
+        () => {
+          S.money += v;
+          S.noSau = (S.noSau || 0) + v;
+          S.cur.vay = (S.cur.vay || 0) + v;
+          save();
+          head();
+          refreshPrep();
+          toast("Đã nhận " + fmt(v) + " bà Sáu ứng. Vào Kho nấu hàng rồi mở cửa");
+        },
+        1,
+      ],
+    ],
+  );
+}
 function tryOpen() {
   if (performance.now() - (R.cookAt || 0) < 500) return; /* chạm đúp Nấu & nhập: không mở cửa luôn */
   if (veQueSap()) return truyenLuc("mo_cua", startDay);
   const miss = missingPrep();
+  if (miss.length && S.money < tienNauToiThieu()) return baSauUng();
   if (miss.length) {
     R.tab = "kho";
     R.sub = R.sub || {};
@@ -2684,7 +2730,9 @@ function marginLine(k) {
         : idx < 0.9
           ? ' · <span class="okline">👍 rẻ</span>'
           : "";
-  return `Vốn ${fmt(c)} · Lãi ${fmt(p - c)}${w}`;
+  return p < c
+    ? `Vốn ${fmt(c)} · <span class="warnline">${ico("warn")} Lỗ ${fmt(c - p)} mỗi ly</span>`
+    : `Vốn ${fmt(c)} · Lãi ${fmt(p - c)}${w}`;
 }
 function topLine(k) {
   const p = S.sell[k],
@@ -2805,6 +2853,7 @@ function paneGia() {
       i.value = (S[i.dataset.g][i.dataset.k] || 0) / 1000;
       return;
     }
+    if (+i.value < 0) toast("Giá không âm được, để 0đ");
     let v = Math.max(0, Math.round(+i.value * 2) * 500);
     if (i.dataset.k === "L" && v > CFG.sizeCap) {
       v = CFG.sizeCap;
@@ -5148,6 +5197,7 @@ const isSto = (c) => !!(c && R.sto && c.id === R.sto.id),
 function spawn() {
   if (R.challenge) return ttSpawn();
   const i = R.slots.findIndex((s) => !s);
+  if (i < 0) R.today.quayKin = (R.today.quayKin || 0) + 1; /* khách tới thấy quầy kín nên đi (hiện ở thẻ cuối ngày) */
   if (i < 0 || bigOrder()) return;
   if (R.starPend) {
     R.starPend = false;
@@ -5616,6 +5666,7 @@ function serve(i) {
         (evIs("holiday") ? 2 : 1) *
         (coTrang(3) ? 1.1 : 1) *
         (c.ban ? 2 : 1) *
+        (c.nhom ? 2 : 1) *
         heSoTipLe() *
         heSoTipTri() *
         heSoTipNhanh() *
@@ -5624,7 +5675,13 @@ function serve(i) {
       rv = stars(c, false);
     const toStaff = STAFF.some((x) => S.upg[x.id] && !x.guard);
     if (toStaff) {
-      S.cur.staffTip = (S.cur.staffTip || 0) + tip;
+      /* nhân viên giữ phần tip gốc; phần tăng thêm nhờ trang trí, góp hẻm là của quán */
+      const them = Math.round(tip - tip / (heSoTipLe() * heSoTipTri()));
+      S.cur.staffTip = (S.cur.staffTip || 0) + tip - them;
+      S.cur.tips += them;
+      S.money += them;
+      S.totalRev += them;
+      R.today.tips += them;
     } else {
       S.cur.tips += tip;
       S.money += tip;
@@ -6194,9 +6251,9 @@ function endDay() {
     S.taxYear = yi;
     S.yearRev = 0;
   }
-  const rev = recRev(r) + r.onl * 0,
+  const rev0 = recRev(r),
     before = S.yearRev;
-  S.yearRev += rev;
+  S.yearRev += rev0;
   const taxable = Math.max(0, S.yearRev - Math.max(CFG.taxThreshold, before));
   r.tax = thuGian() ? 0 : Math.round((taxable * (CFG.vat + CFG.pit)) / 100);
   r.ev = ev() ? { id: ev().id, k: ev().k } : null;
@@ -6219,7 +6276,13 @@ function endDay() {
     gRun = T.gRun || 0;
   r.guard = gMac + gRun;
   S.money += r.guard;
-  const cost = recCost(r),
+  /* gửi tiền về quê sau cùng, khi đã trừ tiền nhà, lương, nợ: két còn dư thật mới gửi */
+  guiVeCuoiNgay(r);
+  /* mục tiêu tuần (doanh thu) xét trước khi làm thẻ, để tiền thưởng nằm trong doanh thu của thẻ */
+  ghiNgay(r, rev0);
+  r.quayKin = T.quayKin || 0;
+  const rev = recRev(r),
+    cost = recCost(r),
     profit = rev - cost,
     ca = recCaNhan(r) /* chi tiêu của chủ tiệm: hiện riêng dưới lãi của tiệm */,
     eqv = r.equip.reduce((a, e) => a + e.v, 0),
@@ -6229,7 +6292,6 @@ function endDay() {
   noteCaps();
   S.history.push(r);
   if (S.history.length > 400) S.history.shift();
-  ghiNgay(r, rev);
   S.totalProfit = (S.totalProfit || 0) + profit;
   /* trả dần tiền bà Sáu cho khất: một nửa tiền lãi mỗi ngày, không tính lãi */
   if (S.noSau > 0 && profit > 0 && S.money > 0) {
@@ -6285,10 +6347,15 @@ function endDay() {
   const showCard = () => {
     $("card").innerHTML =
       `<div class="pbig">${broke ? ico("sad") : ico("moon")}</div><h2>${broke ? "Phá sản" : "Hết ngày " + r.day}</h2>
-  <div class="kpis"><div><b>${r.served}</b>🧋</div><div><b>${r.lost}</b>${ico("angry")}</div><div><b>${avg ? avg.toFixed(1).replace(".", ",") : "–"}</b>${ico("star")}</div></div>
+  <div class="kpis"><div><b>${r.served}</b>🧋</div><div><b>${r.lost}</b>${ico("angry")}</div><div><b>${avg ? avg.toFixed(1).replace(".", ",") : "–"}</b>${ico("star")}</div></div>${
+    r.quayKin >= 5
+      ? `<p class="note">👥 ${r.quayKin} khách tới thấy quầy kín nên đi.${r.quayKin >= 15 ? " Thuê phụ quầy hay mở rộng quầy thì bán được nhiều hơn; biển hiệu, quảng cáo chỉ có ích khi quầy còn chỗ." : ""}</p>`
+      : ""
+  }
   <div class="ledger">
     <div><span>${ico("price")} Doanh thu</span><span class="revc">+${fmt(rev)}</span></div>
-    <div><span>${ico("receipt")} Chi phí</span><span class="neg">−${fmt(cost)}</span></div>
+    ${r.gift ? `<div><span class="wl">🎁 Trong đó quà, thưởng</span><span class="wl">+${fmt(r.gift)}</span></div>` : ""}
+    <div><span>${ico("receipt")} Chi phí</span><span class="${cost < 0 ? "pos" : "neg"}">${cost < 0 ? "+" : "−"}${fmt(Math.abs(cost))}</span></div>
     ${r.wage - (r.ot || 0) ? `<div><span class="wl">${ico("people")} Lương nhân viên</span><span class="wl">${fmt(r.wage - (r.ot || 0))}</span></div>` : ""}${r.ot ? `<div><span class="wl">${ico("clock")} Tăng ca nhân viên pha chế</span><span class="wl">${fmt(r.ot)}</span></div>` : ""}${r.bad ? `<div><span class="wl">${ico("warn")} Sự cố mất tiền</span><span class="wl">${fmt(r.bad)}</span></div>` : ""}
     ${r.loanInt ? `<div><span class="wl">${ico("money")} Trả nợ (lãi ${fmt(r.loanInt)})</span><span class="wl">${fmt(r.loanOut + r.loanInt)}</span></div>` : ""}
     ${r.guard ? `<div><span class="wl">${ico("people")} Bảo vệ thu lại</span><span class="wl">+${fmt(r.guard)}</span></div>` : ""}
@@ -6308,7 +6375,8 @@ function endDay() {
     ${(r.caNhan || []).map((e) => `<div><span class="wl">🛍️ ${esc(e.n)}</span><span class="wl">${e.v < 0 ? "+" : ""}${fmt(Math.abs(e.v))}</span></div>`).join("")}`
         : ""
     }
-    <div class="tot"><span>${ico("money")} Két</span><span>${fmt(endMoney)}</span></div>
+    ${r.vay ? `<div><span class="wl">🏦 Tiền vay, tiền ứng nhận về (không tính vào lãi)</span><span class="wl">+${fmt(r.vay)}</span></div>` : ""}
+    <div class="tot"><span>${ico("money")} Két</span><span>${endMoney < 0 ? "−" : ""}${fmt(Math.abs(endMoney))}</span></div>
   </div>
   ${
     broke

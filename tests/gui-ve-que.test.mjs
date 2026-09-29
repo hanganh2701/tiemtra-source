@@ -8,7 +8,7 @@ const xemHet = (tru) => `MAU_CHUYEN.forEach((m) => { if (!${JSON.stringify(tru)}
 const card = (g) => g.w.document.getElementById("card");
 const bam = (g, sel) => g.run(`document.querySelector(${JSON.stringify(sel)}).click()`);
 /* đóng cửa ngày S.day (chỉ phần đời sống), trả về bản ghi của ngày */
-const dongCua = (g) => g.run("(() => { const r = newRec(S.day); doiSongCuoiNgay(r); return r; })()");
+const dongCua = (g) => g.run("(() => { const r = newRec(S.day); doiSongCuoiNgay(r); guiVeCuoiNgay(r); return r; })()");
 
 test("ba trặc lưng: ngày 36 két có 3 triệu thì mẹ nhắn; chọn gửi 2 triệu thì gửi lúc đóng cửa, 30 ngày sau gửi tiếp", () => {
   const g = boot();
@@ -62,17 +62,33 @@ test("đóng cửa thật: thẻ cuối ngày có dòng gửi về quê trong s�
   }
 });
 
-test("két không còn dư 500 nghìn sau khi gửi thì tháng đó thôi, không trừ tiền, mẹ nhắn không sao", () => {
+test("két không còn dư 500 nghìn sau khi gửi thì chờ thêm 3 ngày, vẫn không dư thì tháng đó thôi, không trừ tiền, mẹ nhắn không sao", () => {
   const g = boot();
   try {
     g.run("S.day = 40; S.money = 5200000; TT().co.gui_ve = 'nam'; dsGuiDat(5000000)");
+    const r1 = dongCua(g);
+    assert.equal(r1.gui, undefined);
+    assert.equal(r1.guiCho, 1, "chưa dư thì mai gửi lại");
+    assert.match(g.run(`dsGuiCuoiNgay(${JSON.stringify(r1)})`), /mai gửi/);
+    assert.equal(g.run("S.ds.guiToi"), 41);
+    g.run("S.day = 41; S.money = 5200000");
+    dongCua(g);
+    g.run("S.day = 42; S.money = 5200000");
+    dongCua(g);
+    g.run("S.day = 43; S.money = 5200000");
     const r = dongCua(g);
     assert.equal(r.gui, undefined);
     assert.equal(r.guiLo, 1);
     assert.equal(g.run("S.money"), 5200000 - r.song);
     assert.equal(g.run("S.ds.guiBo"), 1);
-    assert.equal(g.run("S.ds.guiToi"), 70, "hẹn tháng sau");
+    assert.equal(g.run("S.ds.guiToi"), 70, "hẹn tháng sau tính từ ngày hẹn gốc");
     assert.match(g.run(`dsGuiCuoiNgay(${JSON.stringify(r)})`), /Tháng này con kẹt thì thôi/);
+    /* chờ một ngày mà két dư thì gửi, hẹn vẫn tính từ ngày hẹn gốc */
+    g.run("S.day = 70; S.money = 5200000");
+    dongCua(g);
+    g.run("S.day = 71; S.money = 20000000");
+    assert.equal(dongCua(g).gui, 5000000);
+    assert.equal(g.run("S.ds.guiToi"), 100);
   } finally {
     g.close();
   }

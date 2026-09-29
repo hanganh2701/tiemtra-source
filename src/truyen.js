@@ -44,7 +44,9 @@ const coTrang = (n) => !!(S && S.tr && S.tr.trang && S.tr.trang.includes(n));
 
 /* chèn cách xưng hô và tên tiệm vào câu; thô = không thoát HTML (dùng trong câu gọi món) */
 function thayTen(t, tho) {
-  const s = tho ? String(t) : esc(t);
+  /* tên tiệm đã bắt đầu bằng "Tiệm", "Quán" thì bỏ chữ "tiệm" đứng trước {shop} (tránh "tiệm Tiệm Trà Nhỏ") */
+  const s0 = /^(tiệm|quán)\s/i.test(shopName()) ? String(t).replace(/(^|\s)(tiệm|quán) \{shop\}/gi, "$1{shop}") : String(t);
+  const s = tho ? s0 : esc(s0);
   return s
     .replace(/\{Ban\}/g, hoaDau(xung()))
     .replace(/\{ban\}/g, xung())
@@ -152,6 +154,11 @@ function apKetQua(kq, moi) {
   if (kq.tien) {
     S.money += kq.tien;
     S.cur.gift = (S.cur.gift || 0) + kq.tien;
+  }
+  /* tiền người nhà cho (mẹ gửi, ba lì xì): tiền vào của chủ tiệm, ghi ở Chi tiêu của bạn, không tính doanh thu */
+  if (kq.tienRieng) {
+    S.money += kq.tienRieng;
+    ghiCaNhan(kq.tienNhan || "Tiền người nhà cho", -kq.tienRieng);
   }
   /* quà trong truyện: mở nguyên liệu, thêm hàng vào kho, hoặc gọi một hàm của game */
   if (kq.mo && ITEMS[kq.mo] && !S.unlocked[kq.mo]) {

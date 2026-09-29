@@ -58,7 +58,7 @@ function thueMatTien() {
           S.coc = tienCoc();
           S.cur.equip.push({ n: "Sửa sang kiosk mặt tiền", v: MAT_TIEN.trangTri });
           S.buoc = 2;
-          S.hd = { bd: S.day, gia: MAT_TIEN.thue };
+          S.hd = { bd: S.day, gia: MAT_TIEN.thue, ky: 0 };
           save();
           sfx("lvup");
           if (typeof track === "function") track("thue-mat-tien");
@@ -70,12 +70,24 @@ function thueMatTien() {
     ],
   );
 }
-/* cuối ngày (sau khi sang ngày mới): gia hạn hợp đồng thì tăng tiền nhà */
+/* hợp đồng mặt tiền: số kỳ đã qua (bản lưu cũ lấy số kỳ tới hôm nay để không gia hạn liền sau khi cập nhật);
+   hợp đồng cũ theo luật 28 ngày tăng 10% mà đắt hơn giá thuê bây giờ thì hạ về giá bây giờ */
+function hdChuan() {
+  const h = S.hd;
+  if (!h || h.ky != null) return h;
+  h.ky = Math.floor((S.day - h.bd) / MAT_TIEN.hopDong);
+  if (h.gia > MAT_TIEN.thue) h.gia = MAT_TIEN.thue;
+  return h;
+}
+/* cuối ngày (sau khi sang ngày mới): tới kỳ gia hạn thì tăng tiền nhà; tính theo số kỳ đã qua nên ngày nghỉ không làm lỡ */
 function matTienCuoiNgay() {
   if (buoc() < 2 || !S.hd) return "";
-  if ((S.day - S.hd.bd) % MAT_TIEN.hopDong !== 0) return "";
+  const h = hdChuan(),
+    ky = Math.floor((S.day - h.bd) / MAT_TIEN.hopDong);
+  if (ky <= h.ky) return "";
+  h.ky = ky;
   const cu = S.hd.gia;
-  S.hd.gia = Math.round((cu * (1 + MAT_TIEN.tang)) / 1000) * 1000;
+  S.hd.gia = Math.max(Math.round((cu * (1 + MAT_TIEN.tang)) / 1000) * 1000, Math.round((MAT_TIEN.thue * 0.9) / 1000) * 1000);
   return `<p class="lvup">🏠 Gia hạn hợp đồng mặt tiền: tiền nhà ${fmt(cu)} → ${fmt(S.hd.gia)}/ngày</p>`;
 }
 

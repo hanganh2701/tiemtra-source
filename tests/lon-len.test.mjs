@@ -36,9 +36,25 @@ test("mặt tiền: hợp đồng sáu tháng, tới kỳ gia hạn thì tiền 
   const g = boot();
   try {
     /* đóng cửa ngày 200 thì sang ngày 201: tròn 180 ngày từ ngày 21 */
-    g.run(`S.day = 200; S.buoc = 2; S.hd = { bd: 21, gia: 330000 }; S.money = 5000000; ${saoTot}; S.tr = { che: 'tat' }; __openDay(); closeEarly()`);
+    g.run(`S.day = 200; S.buoc = 2; S.hd = { bd: 21, gia: 330000, ky: 0 }; S.money = 5000000; ${saoTot}; S.tr = { che: 'tat' }; __openDay(); closeEarly()`);
     assert.equal(g.run("S.hd.gia"), 350000);
     assert.match(card(g).textContent, /Gia hạn hợp đồng mặt tiền/);
+  } finally {
+    g.close();
+  }
+});
+
+test("hợp đồng mặt tiền từ bản cũ: không gia hạn liền sau khi cập nhật, đắt hơn giá bây giờ thì hạ về giá bây giờ; ngày tới kỳ là ngày nghỉ cũng không lỡ gia hạn", () => {
+  const g = boot();
+  try {
+    g.run(`S.day = 250; S.buoc = 2; S.hd = { bd: 30, gia: 428000 }; ${saoTot}`);
+    assert.equal(g.run("matTienCuoiNgay()"), "");
+    assert.equal(g.run("S.hd.gia"), g.run("MAT_TIEN.thue"));
+    assert.equal(g.run("S.hd.ky"), 1);
+    /* ngày 390 là ngày nghỉ: sang ngày 391 vẫn gia hạn */
+    g.run("S.day = 391");
+    assert.match(g.run("matTienCuoiNgay()"), /Gia hạn hợp đồng mặt tiền/);
+    assert.equal(g.run("S.hd.ky"), 2);
   } finally {
     g.close();
   }
@@ -119,7 +135,7 @@ test("lịch lễ: Noel, Tết, Trung Thu theo ngày thật", () => {
 test("Tết: bà Sáu lì xì một lần, mùng 1 chọn nghỉ Tết thì qua ngày không tốn tiền nhà", () => {
   const g = boot();
   try {
-    g.run("window.__ngay = '2027-02-06'; S.day = 20; S.money = 500000");
+    g.run("window.__ngay = '2027-02-06'; S.day = 20; S.money = 500000; TT().xem.c0_chia_khoa = 1");
     assert.equal(g.run("leHoiCheck()"), true);
     clickText(g, /cảm ơn bà/);
     assert.equal(g.run("S.money"), 700000);
