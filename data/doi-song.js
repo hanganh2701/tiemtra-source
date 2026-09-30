@@ -30,6 +30,8 @@ const DS_GUI_TIN = [
   "Mẹ: Ba sơn lại cái cổng rồi. Mẹ gửi hình con coi nè.",
 ];
 const DS_GUI_KET = "Mẹ: Tháng này con kẹt thì thôi. Ba mẹ còn lúa..";
+/* lần gửi đầu mà ba đã khoẻ lại (cảnh gui_2 tới trước lần gửi đầu) */
+const DS_GUI_TIN_KHOE = "Mẹ: Nhận rồi con.. Ba khoẻ rồi mà mẹ vẫn cất, để ổng đi tái khám.";
 
 /* thuê chỗ ở: nấc sau thay nấc trước, dọn đi thì lấy lại cọc */
 const DS_TRO = [

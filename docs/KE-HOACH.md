@@ -362,6 +362,75 @@ Thử giá bán (`node tools/mo-phong-kinh-te.mjs gia`, người chơi giỏi 60
 | Trà 39k, matcha 49k | phá sản ngày 9 | – | – |
 | Trà 40k, matcha 50k | 10.328 | 12 | 3,83 |
 
+### Sau 8 lượt chơi thử nhiều hướng (bản 5.3) — xong 29/09
+
+Claude cho 8 agent chơi cùng lúc theo 8 kiểu: pha thật nhanh, bản lưu cũ, người mới, theo truyện, phụ (thử thách, Phố Trà, bạn bè), tối ưu tiền, lo cho gia đình, mở rộng nhanh. Sửa theo 3 đợt.
+
+Đợt 1 · lỗi:
+
+- [x] Két không đủ nấu hàng để mở cửa thì bà Sáu cho ứng (`baSauUng`), trả dần bằng tiền lãi. Trước kẹt, phải chơi lại
+- [x] Gửi về quê xét sau khi trừ tiền nhà, lương, nợ (`guiVeCuoiNgay` gọi sau `S.money += r.guard`); két chưa dư thì chờ tối đa 3 ngày (`guiHen`); tin nhắn lần đầu theo cờ `ba_khoe`
+- [x] Thẻ cuối ngày: dòng quà, thưởng, tiền vay, tiền ứng; chi phí âm đúng dấu; khách thấy quầy kín bỏ đi (`quayKin`)
+- [x] Tiền mẹ gửi, ba lì xì, bà Sáu lì xì, mẹ gửi lại là tiền vào của chủ tiệm (`ghiCaNhan` với số âm, `tienRieng` trong kết quả cảnh), không tính doanh thu nên không đẩy hạn mức ngân hàng
+- [x] Tip thêm nhờ trang trí, góp hẻm vào két khi có nhân viên; đơn nhóm tip gấp đôi
+- [x] Hết chai hương giữa ngày thì vị đó rời menu
+- [x] Đời sống: không vay dư khi đổi xe, nhà; mục tiêu trả góp không báo đủ khi ngân hàng chưa cho vay; câu hạn mức ghi còn góp thêm được bao nhiêu; Trả hết hỏi lại; bán được nhà, xe, điện thoại (`banDs`); cọc có dòng trong sổ
+- [x] Chi nhánh: khách theo giá như tiệm gốc; giá mỗi ly chi nhánh không bị coi là gian lận khi mở lại game; gia hạn theo số kỳ; kiosk có người phụ bán thêm được (`capPhuKiosk`); từ chối tăng lương thì bị hỏi lại; sang nhượng ghi mất cọc; bản cũ chuẩn hoá qua `cnChuan` ở mọi chỗ đọc
+- [x] Mặt tiền gia hạn theo số kỳ, hợp đồng cũ đắt hơn giá bây giờ thì hạ về
+- [x] Bản lưu cũ: nhà xe, quà trong sổ cũ tách sang chi tiêu (`tachSoCu`). Bước này xét `d.soV53` của bản đọc lên (S đã trộn với `fresh()` nên luôn có cờ, lỗi này làm bước tách không chạy, test mới bắt được)
+- [x] Lì xì bà Sáu từ giao thừa, sau cảnh giao chìa khoá; về quê ăn Tết thì không hỏi nghỉ hay mở cửa
+- [x] Thử thách đóng cửa sớm: khách chưa tới ghi giờ tới nối nhau cách 2 giây nên mã vẫn hợp lệ (trước ra mã hỏng, có khi còn lưu làm kết quả chính thức); `ttDoc` đòi khách cách nhau 2 giây như trong game; mã không hợp lệ không lưu
+- [x] Danh thiếp tiệm có mã riêng của tiệm (`S.maTiem`): gửi lại thì cập nhật, hai tiệm cùng tên "Tiệm Trà Nhỏ" không đè nhau, dán danh thiếp của chính mình thì báo; tab Phố Trà có nút Bỏ từng bạn. Bảng tuần của thử thách ghi "N ly chuẩn · M ngày" (trước ghi kiểu 55/40)
+- [x] Huy hiệu Top 3 và Đứng đầu Phố Trà từ ngày 7 (trước ngày 2 đã có); huy hiệu mới "Tháng nào cũng gửi" (gửi về quê đủ 6 lần)
+- [x] Hậu truyện có dòng về ba (lời mẹ kể, biểu tượng tin nhắn): xây nhà, mái tôn, xe Wave, bảo hiểm, đồng hồ, lưng ba. Mẹ có thêm dòng áo dài; dòng mái nhà không còn bị dòng sổ tiết kiệm che
+- [x] Phá sản giữ mã tiệm và danh sách như Hẻm 42 lần nữa, bỏ cờ nhà xe, tiền gửi, chi nhánh của tiệm cũ
+- [x] Chữ: Thư giãn ghi đủ những gì được miễn; tổng kết ghi "Nhà xe, mua sắm, quà", tiền nhận được có dấu cộng; bỏ tên Zalo, Messenger trong thoại và hướng dẫn (ghi "nhóm chat", "tin nhắn")
+
+Đợt 2 · cân bằng:
+
+- [x] Giá cả ly (`giaTB`): trà trung bình cộng hương (6/10 ly), một phần topping, phụ thu L (khoảng 1/3 ly). Trước chỉ tính trà nên đặt topping, hương, L đắt hơn 30% lãi thêm 25–30% mà khách không vắng
+- [x] Size L ít người chọn dần theo phụ thu (gấp đôi còn một nửa), cảnh báo từ 15k (bước cấu hình 43); tab Giá bán ghi bao nhiêu phần trăm ly chọn size L
+- [x] Khách bỏ đi vì phần thêm đắt: 25% khi vừa chạm mức đắt, tăng dần, tối đa 80% (cả ly vượt mức tối đa cũng 80%)
+- [x] Ly hơi đắt (`dear`) không được khen rẻ
+- [x] Bản lưu cũ để giá cả ly cao hơn gợi ý từ 20%: trước lần mở cửa đầu hỏi một lần, có nút Về giá gợi ý (`hoiGiaMoi`)
+- [x] Phố Trà: điểm doanh thu không còn chặn ở 700k mỗi ngày, trên đó mỗi lần gấp đôi thêm 5 điểm, tối đa 50 (`diemDoanhThu`); ngày nghỉ không kéo điểm xuống. Tiệm bán 3 triệu mỗi ngày đứng đầu được mà không cần chi nhánh; bán 800k thì vẫn cần chi nhánh. Chỉ báo lên hạng khi cao nhất từ trước tới giờ (`S.hangTot`)
+- [x] Mở rộng chi nhánh (`CN_MO_RONG`), chỗ tiêu tiền cuối game: sau 30 ngày bán, ba nấc lần lượt máy pha thứ hai 30 triệu, thuê thêm gian bên cạnh 80 triệu, bảng hiệu lớn và quảng cáo 180 triệu. Mỗi nấc khách đông hơn 20–25%, bán thêm 25–35 ly, tốn thêm 80–200k mỗi ngày; nấc sau hoàn vốn chậm hơn. Sang nhượng lấy lại 60% cả tiền mở rộng
+- [x] Người pha chậm: mô phỏng 14 giây mỗi ly có thuê người thì ra mặt tiền ngày 60–61, mở chi nhánh ngày 94–105, nên không đổi giá mặt tiền. Người chơi thật hay tiêu dần vào trang trí, trang bị (lượt chơi thử "người mới": ngày 60 két cao nhất 6,7 triệu, chưa lần nào đủ 17,9 triệu). Sửa: màn chuẩn bị có thanh "Ra mặt tiền đầu hẻm" từ ngày 15 khi chưa đặt mục tiêu đời sống (`mtMucNho`), bấm vào mở thẻ mặt tiền; thẻ cuối ngày nhắc thuê phụ quầy khi có từ 8 khách bỏ về mà chưa có nhân viên, mỗi tuần tối đa một lần; ngày mua đồ cho tiệm mà lãi âm thì ghi "Chưa tính đồ mua cho tiệm thì bán hàng vẫn lãi"
+
+Đợt 3 · truyện:
+
+- [x] Đoạn Tết đúng thứ tự: `c3_ket` là ngày mùng năm hẻm mở hàng lại (trước là đêm giao thừa tới sau mùng một ở cả 16 tổ hợp); câu Vy đổi thành xông đất; mẹ nói "tự hào" ở `c3_ket` chỉ khi không về quê (về quê thì mẹ đã nói ở `que_2`)
+- [x] Tết ngoài đời trùng đoạn Tết của truyện (ngày 55 tới khi xem `c3_ket`): `le_tet`, `le_ong_tao` không chạy (`ngoaiTetTruyen` trong `hopCanh`)
+- [x] Trang 11: `que_2` "Hồi quán dẹp, bà Sáu gửi thư về, kẹp trang này"; `c3_me` "trang giấy bà Sáu vừa dúi cho mẹ ngoài đầu hẻm"
+- [x] `c2_ba_sau` không kể lại chuyện dẹp quán; `gui_1` câu ba cứng đầu không tự mâu thuẫn; `c1_vay` không tới sau `gui_1` (`hopCanh` giờ đọc `chuaXem` trong điều kiện cảnh)
+- [x] Lựa chọn trước giờ không được nhắc lại: ly gừng (`khoa_3`, `st_khoa`), ly tặng Linh (`linh_3`), combo để tính sau (`may_a2`, `c2_ket`), trà đá mời Hana (`hana_2`), ly mang về của chú Tư (hậu truyện, `st_tu`), ly ngọt của chú Tư (`may_a1`, `may_b2`), ly kiểu chuỗi của Vy (`c2_nga_re`), tên tiệm chưa nhắn mẹ ở nhánh về quê (`que_2`)
+- [x] Linh: "còn mấy tuần nữa là thi", `linh_2` "mấy bữa nữa em thi", bỏ "thêm trân châu" (đơn gợi ý là thạch); Khoa ở `c3_vang` không đòi ly thứ hai đã được mời
+- [x] Trung Thu thật rơi vào Chương 1: `hanh_1` chờ tới ngày 30; `c2_trung_thu` không bảo treo lồng đèn lần hai (cờ `den_treo`)
+- [x] Hana: sau `hana_3` bong bóng gọi món không còn nhãn dịch; tiểu sử dòng ba theo nhánh (`KHACH_QUEN` cho `xin`, `tieuSu` là hàm)
+- [x] Hậu truyện Khoa: gộp chuyện Tết với chuyện quê, góc trà đá (trước `c3_vang` luôn đặt `khoa_tet` nên hai dòng đó không bao giờ hiện)
+- [x] Nhãn chương của cảnh sau giờ đóng cửa theo ngày vừa bán (`ngayCua`); qua `c3_ket` thì nhãn "Sau Tết" ở cảnh và Sổ tay (`tenChuongNgay`)
+- [x] Phần Sau Tết: 20 cảnh (`SAU_TET` cuối data/cot-truyen.js), tính ngày từ lúc xem `c3_ket`, mỗi người chơi gặp 13–15 cảnh tuỳ nhánh, từ ngày 69 tới khoảng ngày 185, quãng trống không quá 12 ngày. Hai lựa chọn mới: để cuốn sổ ở đâu (`so_cho`, nhắc lại ở `st_sau`), xe bánh mì thứ hai của cô Hạnh (`hanh_xe`, nhắc lại ở `st_vy_*`, `st_tu`)
+
+Mô phỏng sau khi sửa (`node tools/mo-phong-kinh-te.mjs nguoi`, nghìn đồng; người chơi máy giờ biết mở rộng chi nhánh khi dư 10 triệu):
+
+| Người chơi | Ra mặt tiền | Mở chi nhánh | Mở rộng chi nhánh | Két ngày 200 | Mốc mua sắm |
+|---|---|---|---|---|---|
+| Giỏi, 200 ngày | ngày 31 | ngày 78 | nấc 1 ngày 115, nấc 2 ngày 170 | 18.850 | Wave 101, SH 147, Kia Morning trả góp 198 |
+| Vừa, 200 ngày | ngày 38 | ngày 87 | nấc 1 ngày 132, nấc 2 ngày 190 | 50.127 | Wave 116, SH 164 |
+| Chậm (14 giây mỗi ly), 150 ngày | ngày 60 | ngày 94 | – | két ngày 150: 31.826 | Wave 131, Vision 138 |
+
+Mỗi nấc mở rộng chi nhánh (đo riêng, quản lý 2–5 sao, 28 ngày): nấc 1 thêm khoảng 190–290k lãi mỗi ngày (hoàn vốn khoảng 120 ngày), nấc 2 khoảng 250–330k (khoảng 285 ngày), nấc 3 khoảng 200–420k (khoảng 600 ngày).
+
+Thử giá (`node tools/mo-phong-kinh-te.mjs gia`, người chơi giỏi, trung bình mỗi ngày bán từ ngày 21 tới 60; két ngày 60 dao động nhiều theo lúc mua mặt tiền nên so doanh thu và số ly):
+
+| Giá | Doanh thu | Ly | Sao |
+|---|---|---|---|
+| Giá gợi ý | 3.740 | 89 | 4,84 |
+| Trà rẻ hơn 15% | 3.307 | 88 | 4,84 |
+| Trà đắt hơn 15% | 3.897 | 86 | 4,78 |
+| Hương, topping, size L đắt hơn 30% (mẹo cũ) | 3.121 | 70 | 4,18 |
+| Size L 14k | 3.689 | 89 | 4,82 |
+
 ## Cổng quyết định
 
 | Cổng | Ngày | Đi tiếp khi |
@@ -375,4 +444,5 @@ Thử giá bán (`node tools/mo-phong-kinh-te.mjs gia`, người chơi giỏi 60
 
 - `LICH_LE` chỉ có ngày Tết và Trung Thu tới 2030: trước Tết 2031 cần thêm ngày.
 - Game vẫn không có service worker (tác giả gốc cố ý gỡ để tránh kẹt bản cũ), nên chưa chơi được khi mất mạng hẳn.
+- Phần Sau Tết hết khoảng ngày 185 (tính từ ngày mở hàng mùng năm). Người chơi quá mốc đó chỉ còn cảnh lễ ngoài đời, chuyện nhà ở quê và chi nhánh; cần thêm một đợt truyện nữa nếu nhiều người chơi tới đó.
 - Câu đánh giá "Cảm ơn nhân viên đã làm lại đúng ý mình" không bao giờ được chọn (khách bị làm sai luôn đánh giá tiêu cực). Giữ nguyên có chủ ý.

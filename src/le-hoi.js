@@ -19,11 +19,16 @@ function leHoiCheck() {
     hom = homNayVN();
   if (le !== "tet") return false;
   const nam = LICH_LE.tet.find((t) => Math.abs(cachNgayLich(hom, t)) <= 20) || hom.slice(0, 4);
+  const d = cachNgayLich(hom, nam),
+    T = TT();
+  /* truyện đang cho về quê ăn Tết (ngã rẽ tet A): các ngày đó truyện tự cho tiệm nghỉ, không hỏi */
+  if (T.nhanh.tet === "A" && T.xem.que_3 == null && T.xem.c3_vang != null) return false;
   S.liXi = S.liXi || {};
-  if (!S.liXi[nam]) {
+  /* lì xì từ giao thừa, và sau khi đã nhận chìa khoá tiệm */
+  if (!S.liXi[nam] && d >= -1 && T.xem.c0_chia_khoa != null) {
     S.liXi[nam] = true;
     S.money += 200000;
-    S.cur.gift = (S.cur.gift || 0) + 200000;
+    ghiCaNhan("Lì xì bà Sáu", -200000);
     save();
     sfx("lvup");
     ask(
@@ -33,7 +38,6 @@ function leHoiCheck() {
     return true;
   }
   /* từ giao thừa tới mùng 4: mỗi ngày chơi hỏi nghỉ Tết hay mở cửa */
-  const d = cachNgayLich(hom, nam);
   S.tetChon = S.tetChon || {};
   if (d >= -1 && d <= 3 && S.tetChon[S.day] == null) {
     ask(

@@ -1,13 +1,16 @@
 /* ---------- PHỐ TRÀ: bảng xếp hạng với tiệm máy, danh thiếp tiệm, bạn bè thành khách VIP ----------
-   Chạy hoàn toàn trên máy: bạn bè trao đổi mã qua Zalo, Messenger hoặc link. Nạp trước game.js. */
+   Chạy hoàn toàn trên máy: bạn bè trao đổi mã hoặc link qua nhóm chat. Nạp trước game.js. */
 
 /* ---------- điểm tiệm ---------- */
+/* điểm doanh thu 7 ngày: tới 700k mỗi ngày thì 1 điểm mỗi 20k (35 điểm); trên đó mỗi lần gấp đôi thêm 5 điểm, tối đa 50.
+   Trước chặn ở 35 nên tiệm bán 5 triệu mỗi ngày cũng như tiệm 700k, chỉ có chi nhánh mới vượt được Mây Tea */
+const diemDoanhThu = (tb) => (tb <= 700000 ? tb / 20000 : Math.min(50, 35 + 5 * Math.log2(tb / 700000)));
 function diemTiem() {
-  const H = (S.history || []).slice(-7),
+  const H = (S.history || []).filter((r) => !r.nghi).slice(-7),
     tb = H.length ? H.reduce((a, r) => a + recRev(r), 0) / H.length : 0,
     trang = S.tr && S.tr.trang ? S.tr.trang.length : 0;
   return Math.round(
-    rating() * 12 + Math.min(35, tb / 20000) + Math.min(25, Math.max(0, S.day - 1) * 0.4) + trang * 1.5 + ((S.buoc || 1) >= 2 ? 10 : 0) + (S.cn ? CHI_NHANH.diemPhoTra : 0),
+    rating() * 12 + diemDoanhThu(tb) + Math.min(25, Math.max(0, S.day - 1) * 0.4) + trang * 1.5 + ((S.buoc || 1) >= 2 ? 10 : 0) + (S.cn ? CHI_NHANH.diemPhoTra + cnMoRong(S.cn).diem : 0),
   );
 }
 function diemMay(t, ngay) {
@@ -23,12 +26,13 @@ function bangPhoTra() {
   return ds.sort((a, b) => b.diem - a.diem);
 }
 const hangMinh = () => bangPhoTra().findIndex((x) => x.minh) + 1;
-/* cuối ngày: báo khi lên hạng */
+/* cuối ngày: chỉ báo khi lên hạng cao nhất từ trước tới giờ (tụt rồi lên lại hạng cũ thì thôi, đỡ báo đi báo lại) */
 function phoTraCuoiNgay() {
   const h = hangMinh(),
-    cu = S.hangCu || h;
+    tot = S.hangTot || S.hangCu || h;
   S.hangCu = h;
-  return h < cu ? `<p class="lvup">🏆 Phố Trà: tiệm bạn lên hạng ${h} (trước là ${cu})</p>` : "";
+  S.hangTot = Math.min(tot, h);
+  return h < tot ? `<p class="lvup">🏆 Phố Trà: tiệm bạn lên hạng ${h}, cao nhất từ trước tới giờ (trước là ${tot})</p>` : "";
 }
 
 /* ---------- danh thiếp tiệm ---------- */
@@ -37,8 +41,10 @@ function monTuHao() {
     k = Object.entries(mon).sort((a, b) => b[1] - a[1])[0];
   return k ? k[0] : "tra||tcden|";
 }
+/* mã riêng của tiệm, để bạn bè cập nhật danh thiếp không bị trùng hay lẫn với tiệm khác cùng tên */
+const maTiem = () => (S.maTiem = S.maTiem || Math.random().toString(36).slice(2, 10).padEnd(8, "0"));
 function maQuan() {
-  const d = { v: 1, n: shopName().slice(0, 24), d: S.day, r: Math.round(rating() * 10) / 10, m: monTuHao(), p: diemTiem() },
+  const d = { v: 1, n: shopName().slice(0, 24), d: S.day, r: Math.round(rating() * 10) / 10, m: monTuHao(), p: diemTiem(), i: maTiem() },
     body = b64e(new TextEncoder().encode(JSON.stringify(d)));
   return "QN1." + body + "." + bakHash(body);
 }
@@ -50,7 +56,8 @@ function docMaQuan(ma) {
     if (!d || typeof d.n !== "string" || !Number.isInteger(d.d) || typeof d.m !== "string") return null;
     const [b] = d.m.split("|");
     if (!ITEMS[b]) return null;
-    return { id: m[2], ten: d.n.slice(0, 24), ngay: d.d, sao: Math.max(1, Math.min(5, +d.r || 4)), mon: d.m, diem: Math.max(0, Math.min(200, Math.round(+d.p || 0))) };
+    const khoa = typeof d.i === "string" && /^[0-9a-z]{6,12}$/.test(d.i) ? d.i : null;
+    return { id: khoa ? "k" + khoa : m[2], khoa, ten: d.n.slice(0, 24), ngay: d.d, sao: Math.max(1, Math.min(5, +d.r || 4)), mon: d.m, diem: Math.max(0, Math.min(200, Math.round(+d.p || 0))) };
   } catch (e) {
     return null;
   }
@@ -61,12 +68,25 @@ function nhapMaQuan(ma) {
     toast("⚠️ Mã quán không đọc được", 3500, 1);
     return false;
   }
-  S.banBe = (S.banBe || []).filter((x) => x.ten !== b.ten);
-  S.banBe.unshift(b);
-  S.banBe = S.banBe.slice(0, 20);
+  if (b.khoa && b.khoa === S.maTiem) {
+    toast("Đây là danh thiếp tiệm của chính bạn", 3500, 1);
+    return false;
+  }
+  /* cùng tiệm (cùng mã riêng) thì cập nhật; danh thiếp bản cũ không có mã riêng thì nhận theo tên */
+  const cu = S.banBe || [],
+    moi = cu.filter((x) => x.id !== b.id && !(!x.khoa && x.ten === b.ten));
+  S.banBe = [b, ...moi].slice(0, 20);
   save();
-  toast(`🏠 Đã thêm tiệm ${b.ten}. Chủ tiệm sẽ ghé uống thử món ruột của họ!`, 4000, 1);
+  toast(moi.length < cu.length ? `🏠 Đã cập nhật danh thiếp tiệm ${b.ten}` : `🏠 Đã thêm tiệm ${b.ten}. Chủ tiệm sẽ ghé uống thử món ruột của họ!`, 4000, 1);
   return true;
+}
+function xoaBan(id) {
+  const b = (S.banBe || []).find((x) => x.id === id);
+  if (!b) return;
+  S.banBe = S.banBe.filter((x) => x.id !== id);
+  if (S.banGhe) delete S.banGhe[id];
+  save();
+  toast(`Đã bỏ tiệm ${b.ten} khỏi Phố Trà`, 3000, 1);
 }
 const linkQuan = () => location.origin + location.pathname + "#q=" + maQuan();
 
@@ -135,7 +155,13 @@ function panePhoTra() {
   <div class="sec">Danh thiếp tiệm</div><p class="note">Gửi danh thiếp cho bạn bè. Họ dán vào game thì tiệm bạn vào bảng Phố Trà của họ, và bạn thỉnh thoảng ghé tiệm họ làm khách VIP gọi món ruột của bạn.</p>
   <div class="askbtns"><button class="big" id="qnShare">Gửi danh thiếp tiệm</button><button class="big" id="qnKhoe">Khoe ảnh tiệm</button></div>
   <textarea id="qnMa" class="rpin" placeholder="Dán link hoặc mã QN1… của bạn bè" style="min-height:60px;font-size:12px!important"></textarea><div class="askbtns"><button class="sbtn ghost" id="qnNhap">Thêm tiệm bạn bè</button></div>
-  ${(S.banBe || []).length ? `<p class="note">Bạn bè: ${S.banBe.map((b) => esc(b.ten)).join(", ")}</p>` : ""}`;
+  ${
+    (S.banBe || []).length
+      ? `<div class="sec">Tiệm bạn bè</div>${S.banBe
+          .map((b) => `<div class="crow"><span>${esc(b.ten)}<small>danh thiếp ngày ${b.ngay}</small></span><button class="sbtn ghost" data-xoaban="${esc(b.id)}">Bỏ</button></div>`)
+          .join("")}`
+      : ""
+  }`;
 }
 function phoTraGan() {
   if ($("qnShare"))
@@ -148,6 +174,13 @@ function phoTraGan() {
         ma = (v.match(/QN1\.[^\s#&]+/) || [v])[0];
       if (nhapMaQuan(ma)) renderPrep();
     };
+  document.querySelectorAll("[data-xoaban]").forEach(
+    (b) =>
+      (b.onclick = () => {
+        xoaBan(b.dataset.xoaban);
+        renderPrep();
+      }),
+  );
 }
 function hemBind() {
   ttGan();

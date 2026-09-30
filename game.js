@@ -545,7 +545,7 @@ const DEFAULT_CONFIG = {
   teaCapMatcha: 50000, // matcha từ mức này là đắt
   itemCap: 50000, // 1 món (trà, hương, topping) trên mức này: khách chê mắc, quán vắng 80%
   sizeCap: 50000, // phụ thu size L tối đa; để đúng mức này thì không ai chọn size L, quán vắng 80%
-  sizeWarn: 20000,
+  sizeWarn: 15000, // phụ thu size L trên mức này: hầu như không ai chọn size L, ly size L bị chê đắt
   thiefMoney: 100000000,
   thiefDay: 30,
   thiefLeft: 500000, // két trên mức này trước ngày này thì bị trộm, chừa lại thiefLeft           // phụ thu size L trên mức này là đắt, 90% khách không chọn size L
@@ -579,7 +579,7 @@ try {
     };
   }
 } catch (e) {}
-const CFG_VER = 42; /* phiên bản cấu hình mới nhất: thêm bước nâng cấp mới thì tăng số này */
+const CFG_VER = 43; /* phiên bản cấu hình mới nhất: thêm bước nâng cấp mới thì tăng số này */
 if (!(CFG.cfgVer >= 31)) {
   CFG.dayMin = 4;
 }
@@ -673,6 +673,14 @@ if (!(CFG.cfgVer >= 42)) {
   /* 5.2.1: tiền mặt bằng theo giá ngoài đời, góc dưới gác bà Sáu 70k/ngày (cấu hình chủ game tự đổi thì giữ) */
   if (CFG.rent === 40000) CFG.rent = 70000;
   if (CFG.tablet === 7000000) CFG.tablet = 5500000;
+  CFG.cfgVer = 42;
+  try {
+    localStorage.setItem(OWNER_SAVE, JSON.stringify(CFG));
+  } catch (e) {}
+}
+if (!(CFG.cfgVer >= 43)) {
+  /* 5.3: size L ít người chọn dần theo giá, mức cảnh báo 15k (cấu hình chủ game tự đổi thì giữ) */
+  if (CFG.sizeWarn === 20000) CFG.sizeWarn = 15000;
   CFG.cfgVer = CFG_VER;
   try {
     localStorage.setItem(OWNER_SAVE, JSON.stringify(CFG));
@@ -737,6 +745,7 @@ const newRec = (d) => ({
 function fresh() {
   const s = {
     lifeV: 2,
+    soV53: 1,
     off: {},
     badPlan: mkBadPlan(1),
     money: CFG.startMoney,
@@ -827,6 +836,13 @@ function loadFrom(d) {
       (a, r) => a + recRev(r) - recCost(r),
       0,
     );
+  /* bản 5.3: sổ cũ ghi nhà xe, quà vào trang bị của tiệm: tách sang chi tiêu cá nhân, bớt khoản đó khỏi lợi nhuận tích luỹ */
+  if (!d.soV53) {
+    /* xét trên bản đọc lên: S đã trộn với fresh() nên luôn có soV53 */
+    tachSoCu();
+    S.soV53 = 1;
+    S.giaHoi = 1; /* bản 5.3 tính giá theo cả ly: trước lần mở cửa đầu tiên hỏi lại nếu giá đang cao (hoiGiaMoi) */
+  }
   if (!(d.lifeV >= 2)) {
     Object.keys(LIFE_OLD).forEach((k) => {
       if (conv[k]) return;
@@ -900,6 +916,8 @@ function take(k) {
   if (!b) return false;
   b.q--;
   S.stock[k] = S.stock[k].filter((x) => x.q > 0);
+  /* hết chai hương giữa ngày thì bỏ khỏi menu liền, khách sau không gọi vị đã hết */
+  if (ITEMS[k] && ITEMS[k].type === "flav" && !qty(k)) S.unlocked[k] = false;
   return true;
 }
 function expireStock() {
@@ -1065,6 +1083,7 @@ function sanitize() {
     if (!r || !r.sales) return;
     let f = false;
     Object.entries(r.sales).forEach(([k, x]) => {
+      if (!ITEMS[k] && k !== "L") return; /* chi nhánh (cn), đơn sỉ (si), phụ thu app: giá mỗi ly riêng, không so với trần một món */
       if (x && x.q > 0 && !(x.a / x.q <= capHiMax(k))) {
         x.a = x.q * Math.min(DEF_SELL[k] || sellMax(k), sellMax(k));
         f = true;
@@ -1103,34 +1122,41 @@ const unitCost = (o) =>
   (o.cheese ? CFG.cost.cheese : 0) +
   CFG.cost.cup;
 const priceIdx = (o) => price(o) / price(o, DEF_SELL);
-/* giá trà trung bình so với giá gợi ý (1 = đúng giá gợi ý) */
+/* giá một ly điển hình so với giá gợi ý (1 = đúng giá gợi ý): trà trung bình, cộng hương (khoảng 6/10 ly có),
+   một phần topping và phụ thu size L (khoảng 1/3 ly). Tăng giá phần thêm cũng làm khách vắng như tăng giá trà */
+const LY_MAU = { flav: 0.6, top: 1, L: 0.35 };
 const giaTB = () => {
   const ks = BASE_KEYS.filter((k) => S.unlocked[k]);
-  return ks.length ? ks.reduce((a, k) => a + S.sell[k] / DEF_SELL[k], 0) / ks.length : 1;
+  if (!ks.length) return 1;
+  const fl = FLAV_KEYS.filter((k) => S.unlocked[k]),
+    tp = TOP_KEYS.filter((k) => S.unlocked[k]),
+    tb = (ds, sell) => (ds.length ? ds.reduce((a, k) => a + sv(sell, k), 0) / ds.length : 0),
+    ly = (sell) => tb(ks, sell) + LY_MAU.flav * tb(fl, sell) + LY_MAU.top * tb(tp, sell) + LY_MAU.L * sv(sell, "L");
+  return ly(S.sell) / ly(DEF_SELL);
 };
-/* khách ghé theo giá trà: rẻ hơn gợi ý thì đông hơn (tối đa khoảng +18%); đắt hơn thì vắng dần, không nhảy bậc:
+/* khách ghé theo giá cả ly: rẻ hơn gợi ý thì đông hơn (tối đa khoảng +18%); đắt hơn thì vắng dần, không nhảy bậc:
    +10% giá thì bớt khoảng 10% khách, +20% bớt khoảng 24%, +30% bớt khoảng 42%, tối đa bớt 70%.
    Tăng nhẹ thì lãi nhỉnh hơn một chút (quán đông thì nhiều hơn vì bớt khách phải bỏ về), tăng mạnh thì lỗ */
 const heSoGiaKhach = (i = giaTB()) => (i <= 1 ? 1 / Math.max(0.85, i * i) : Math.max(0.3, 1 - 0.8 * (i - 1) - 2 * (i - 1) ** 2));
-/* khách tới quầy thấy ly của mình đắt: trên 20% so với gợi ý thì có người bỏ đi, càng đắt càng nhiều (tối đa một nửa);
-   hương, topping, size L để giá đắt thì 25%; cả ly vượt mức tối đa thì 60% */
-const tiLeBoDiGia = (o) =>
-  overCap(o)
-    ? 0.6
-    : Math.min(
-        0.5,
-        Math.max(
-          (priceIdx(o) - 1.2) * 1.2,
-          [...(o.flav ? [o.flav] : []), ...o.tops, ...(o.size === "L" ? ["L"] : [])].some(itemPricey) ? 0.25 : 0,
-        ),
-      );
+/* khách tới quầy thấy ly của mình đắt: trên 20% so với gợi ý thì có người bỏ đi, càng đắt càng nhiều (tối đa 80%);
+   hương, topping, size L vừa chạm mức đắt thì 25%, đắt hơn nữa thì tăng dần; cả ly vượt mức tối đa thì 80% */
+const nacDat = (k) => (k === "L" ? S.sell.L / CFG.sizeWarn : S.sell[k] / DEF_SELL[k] / 1.3); /* 1 = đúng mức đắt */
+const tiLeBoDiGia = (o) => {
+  if (overCap(o)) return 0.8;
+  const them = [...(o.flav ? [o.flav] : []), ...o.tops, ...(o.size === "L" ? ["L"] : [])].filter(itemPricey),
+    tuThem = them.length ? 0.25 + 0.6 * Math.max(0, Math.max(...them.map(nacDat)) - 1) : 0;
+  return Math.min(0.8, Math.max((priceIdx(o) - 1.2) * 1.2, tuThem));
+};
 const overCap = (o) => price(o) > CFG.priceCap;
 const pricyItems = () => [
   ...BASE_KEYS.filter((k) => S.unlocked[k] && S.sell[k] > CFG.itemCap),
   ...(S.sell.L >= CFG.sizeCap ? ["L"] : []),
 ];
 const lPricey = () => S.sell.L > CFG.sizeWarn;
-const lChance = () => (S.sell.L >= CFG.sizeCap ? 0 : lPricey() ? 0.035 : 0.35);
+/* khách chọn size L: đúng giá gợi ý thì khoảng 1/3 ly; phụ thu cao hơn thì ít người chọn dần (gấp đôi còn một nửa),
+   quá mức cảnh báo thì hầu như không ai. Tăng phụ thu L nhiều không còn là mẹo kiếm lời */
+const lChance = () =>
+  S.sell.L >= CFG.sizeCap ? 0 : lPricey() ? 0.035 : 0.35 * Math.min(1.15, Math.max(0.1, 1 - 0.5 * (S.sell.L / DEF_SELL.L - 1)));
 const upgCount = () => UPG.filter((u) => S.upg[u.id]).length;
 const wageDay = () =>
   STAFF.reduce((a, x) => a + (S.upg[x.id] ? Math.round(CFG[x.wage] * luongNv(x.id)) : 0), 0) * heSoLuongLe();
@@ -1161,7 +1187,11 @@ const evIs = (id) => {
   return !!e && e.id === id;
 };
 /* "%" đầu câu là chỗ điền tên món; sự kiện không gắn món (trời nóng, mưa…) giữ nguyên dấu % */
-const evText = (e) => (e.k && ITEMS[e.k] ? EVS[e.id].d.replace("%", low(ITEMS[e.k].n)) : EVS[e.id].d);
+/* câu mô tả sự kiện; tên món thay vào chỗ %, món đứng đầu câu thì viết hoa */
+const evText = (e) => {
+  const t = e.k && ITEMS[e.k] ? EVS[e.id].d.replace("%", low(ITEMS[e.k].n)) : EVS[e.id].d;
+  return t.charAt(0).toUpperCase() + t.slice(1);
+};
 function rollDay(d) {
   let e = null;
   if (d > 1 && d % 30 === 0) e = { id: "holiday" };
@@ -1270,6 +1300,7 @@ function bindLoan() {
             () => {
               S[L.id] = { left: 10, pay: d, int: it, amt: v };
               S.money += v;
+              S.cur.vay = (S.cur.vay || 0) + v;
               save();
               toast("Đã nhận " + fmt(v));
               head();
@@ -1612,7 +1643,7 @@ function reviewFits(t, why, c) {
   )
     return false;
   if (RX.pNeg.test(L) && !f.pricey && !(soft && f.dear)) return false;
-  if (RX.pPos.test(L) && f.pricey) return false;
+  if (RX.pPos.test(L) && (f.pricey || f.dear)) return false; /* ly hơi đắt hơn gợi ý thì không khen rẻ */
   if (RX.wrong.test(L) && !f.wrong) return false;
   if (/đổ ra|rỉ ra|dính (hết )?tay|tràn/.test(L) && !f.spill) return false;
   if (
@@ -2176,7 +2207,7 @@ function paneKho() {
   let h =
     loanCard() +
     evCard() +
-    `<div class="fore big2">${ico("people")} ~${ex.walk}${ex.onl ? ` &nbsp; 📱 ~${ex.onl}` : ""}</div>`;
+    `<div class="fore big2">${ico("people")} ~${ex.walk} khách ghé${ex.onl ? ` &nbsp; 📱 ~${ex.onl} đơn` : ""}</div>`;
   h += subTabs("kho", [
     [ico("teapot") + " Trà", BASE_KEYS.filter(un).map(row).join("")],
     [ico("pearlbowl") + " Topping", groupRows(tp, row)],
@@ -2242,10 +2273,66 @@ function missingPrep() {
     !qty("cup") && [ico("cupempty") + " Ly", 2, "Ly"],
   ].filter(Boolean);
 }
+/* tiền nấu mức hàng ít nhất để mở cửa: 10 phần trà, 10 phần topping rẻ nhất đang bán và 20 ly */
+function tienNauToiThieu() {
+  const re = (ks) => Math.min(...ks.filter((k) => S.unlocked[k]).map((k) => ecost(k)), Infinity);
+  const tra = BASE_KEYS.some((k) => S.unlocked[k] && qty(k) > 0) ? 0 : 10 * re(BASE_KEYS),
+    top = TOP_KEYS.some((k) => S.unlocked[k] && qty(k) > 0) ? 0 : 10 * re(TOP_KEYS),
+    ly = qty("cup") ? 0 : 20 * ecost("cup");
+  return (isFinite(tra) ? tra : 0) + (isFinite(top) ? top : 0) + ly;
+}
+/* két không đủ nấu hàng để mở cửa: bà Sáu cho ứng, trả dần bằng một nửa tiền lãi như tiền khất */
+function baSauUng() {
+  const v = Math.ceil((tienNauToiThieu() - S.money + 100000) / 100000) * 100000;
+  ask(
+    `<div class="pbig">${ico("people")}</div><h2>Két không đủ nấu hàng</h2><p>Két còn ${fmt(S.money)}, cần khoảng ${fmt(tienNauToiThieu())} để nấu đủ hàng mở cửa.</p><p>Bà Sáu: "Bà ứng cho ${fmtBig(v)}. Bán có lãi thì trả dần, không tính lời."</p>`,
+    [
+      ["Để sau", () => {}],
+      [
+        "Nhận tiền bà Sáu ứng",
+        () => {
+          S.money += v;
+          S.noSau = (S.noSau || 0) + v;
+          S.cur.vay = (S.cur.vay || 0) + v;
+          save();
+          head();
+          refreshPrep();
+          toast("Đã nhận " + fmt(v) + " bà Sáu ứng. Vào Kho nấu hàng rồi mở cửa");
+        },
+        1,
+      ],
+    ],
+  );
+}
+/* bản lưu cũ để giá cao: báo một lần rằng khách giờ nhìn giá cả ly, cho chọn về giá gợi ý */
+function hoiGiaMoi() {
+  delete S.giaHoi;
+  const i = giaTB();
+  if (i < 1.2) return tryOpen();
+  save();
+  ask(
+    `<div class="pbig">${ico("price")}</div><h2>Khách giờ nhìn giá cả ly</h2><p>Từ bản 5.3, khách tính cả hương, topping và phụ thu size L chứ không chỉ giá trà. Một ly của tiệm đang đắt hơn giá gợi ý ${Math.round((i - 1) * 100)}%, khách ghé ít hơn khoảng ${Math.round((1 - heSoGiaKhach(i)) * 100)}%.</p>`,
+    [
+      ["Giữ giá hiện tại", tryOpen],
+      [
+        "Về giá gợi ý",
+        () => {
+          S.sell = { ...S.sell, ...DEF_SELL };
+          save();
+          toast("Đã đặt lại mọi món về giá gợi ý");
+          tryOpen();
+        },
+        1,
+      ],
+    ],
+  );
+}
 function tryOpen() {
   if (performance.now() - (R.cookAt || 0) < 500) return; /* chạm đúp Nấu & nhập: không mở cửa luôn */
+  if (S.giaHoi) return hoiGiaMoi();
   if (veQueSap()) return truyenLuc("mo_cua", startDay);
   const miss = missingPrep();
+  if (miss.length && S.money < tienNauToiThieu()) return baSauUng();
   if (miss.length) {
     R.tab = "kho";
     R.sub = R.sub || {};
@@ -2684,7 +2771,9 @@ function marginLine(k) {
         : idx < 0.9
           ? ' · <span class="okline">👍 rẻ</span>'
           : "";
-  return `Vốn ${fmt(c)} · Lãi ${fmt(p - c)}${w}`;
+  return p < c
+    ? `Vốn ${fmt(c)} · <span class="warnline">${ico("warn")} Lỗ ${fmt(c - p)} mỗi ly</span>`
+    : `Vốn ${fmt(c)} · Lãi ${fmt(p - c)}${w}`;
 }
 function topLine(k) {
   const p = S.sell[k],
@@ -2705,13 +2794,13 @@ function topLine(k) {
 function inputRow(icon, name, sub, group, key, val) {
   return `<div class="rowi">${icon}<div><div class="nm">${name}</div><div class="sub" id="m-${group}-${key}">${sub}</div></div><div class="pin"><input type="number" inputmode="decimal" min="0" step="0.5" value="${val / 1000}" data-g="${group}" data-k="${key}" aria-label="${name} (nghìn đồng)"><span>k</span></div></div>`;
 }
-/* tab Giá bán: giá trà trung bình so với gợi ý và khách ghé ít hay nhiều hơn bao nhiêu */
+/* tab Giá bán: giá một ly trung bình (trà, hương, topping, size L) so với gợi ý và khách ghé ít hay nhiều hơn bao nhiêu */
 function giaWarn() {
   const i = giaTB(),
     pt = Math.round((i - 1) * 100),
     k = Math.round((heSoGiaKhach(i) - 1) * 100);
   if (Math.abs(pt) < 3) return "";
-  return `<div class="fore${k <= -20 ? " warnc2" : ""}">${ico(pt > 0 ? "chartup" : "price")} Giá trà trung bình ${pt > 0 ? "cao" : "thấp"} hơn giá gợi ý ${Math.abs(pt)}% · khách ghé ${k < 0 ? "ít" : "nhiều"} hơn khoảng ${Math.abs(k)}%${
+  return `<div class="fore${k <= -20 ? " warnc2" : ""}">${ico(pt > 0 ? "chartup" : "price")} Giá một ly trung bình ${pt > 0 ? "cao" : "thấp"} hơn giá gợi ý ${Math.abs(pt)}% · khách ghé ${k < 0 ? "ít" : "nhiều"} hơn khoảng ${Math.abs(k)}%${
     pt >= 30 ? ", ly đắt còn bị trừ sao" : ""
   }</div>`;
 }
@@ -2721,10 +2810,10 @@ function sizeLine() {
     "💡 " +
     fmt(DEF_SELL.L) +
     (p >= CFG.sizeCap
-      ? ` · <span class="warnline">${ico("warn")} đắt</span>`
+      ? ` · <span class="warnline">${ico("warn")} đắt, không ai chọn</span>`
       : p > CFG.sizeWarn
-        ? ` · <span class="warnline">${ico("warn")} đắt</span>`
-        : "")
+        ? ` · <span class="warnline">${ico("warn")} đắt, hầu như không ai chọn</span>`
+        : ` · khoảng ${Math.round(lChance() * 100)}% ly chọn size L`)
   );
 }
 function paneGia() {
@@ -2805,6 +2894,7 @@ function paneGia() {
       i.value = (S[i.dataset.g][i.dataset.k] || 0) / 1000;
       return;
     }
+    if (+i.value < 0) toast("Giá không âm được, để 0đ");
     let v = Math.max(0, Math.round(+i.value * 2) * 500);
     if (i.dataset.k === "L" && v > CFG.sizeCap) {
       v = CFG.sizeCap;
@@ -5148,6 +5238,7 @@ const isSto = (c) => !!(c && R.sto && c.id === R.sto.id),
 function spawn() {
   if (R.challenge) return ttSpawn();
   const i = R.slots.findIndex((s) => !s);
+  if (i < 0) R.today.quayKin = (R.today.quayKin || 0) + 1; /* khách tới thấy quầy kín nên đi (hiện ở thẻ cuối ngày) */
   if (i < 0 || bigOrder()) return;
   if (R.starPend) {
     R.starPend = false;
@@ -5616,6 +5707,7 @@ function serve(i) {
         (evIs("holiday") ? 2 : 1) *
         (coTrang(3) ? 1.1 : 1) *
         (c.ban ? 2 : 1) *
+        (c.nhom ? 2 : 1) *
         heSoTipLe() *
         heSoTipTri() *
         heSoTipNhanh() *
@@ -5624,7 +5716,13 @@ function serve(i) {
       rv = stars(c, false);
     const toStaff = STAFF.some((x) => S.upg[x.id] && !x.guard);
     if (toStaff) {
-      S.cur.staffTip = (S.cur.staffTip || 0) + tip;
+      /* nhân viên giữ phần tip gốc; phần tăng thêm nhờ trang trí, góp hẻm là của quán */
+      const them = Math.round(tip - tip / (heSoTipLe() * heSoTipTri()));
+      S.cur.staffTip = (S.cur.staffTip || 0) + tip - them;
+      S.cur.tips += them;
+      S.money += them;
+      S.totalRev += them;
+      R.today.tips += them;
     } else {
       S.cur.tips += tip;
       S.money += tip;
@@ -6194,9 +6292,9 @@ function endDay() {
     S.taxYear = yi;
     S.yearRev = 0;
   }
-  const rev = recRev(r) + r.onl * 0,
+  const rev0 = recRev(r),
     before = S.yearRev;
-  S.yearRev += rev;
+  S.yearRev += rev0;
   const taxable = Math.max(0, S.yearRev - Math.max(CFG.taxThreshold, before));
   r.tax = thuGian() ? 0 : Math.round((taxable * (CFG.vat + CFG.pit)) / 100);
   r.ev = ev() ? { id: ev().id, k: ev().k } : null;
@@ -6219,7 +6317,13 @@ function endDay() {
     gRun = T.gRun || 0;
   r.guard = gMac + gRun;
   S.money += r.guard;
-  const cost = recCost(r),
+  /* gửi tiền về quê sau cùng, khi đã trừ tiền nhà, lương, nợ: két còn dư thật mới gửi */
+  guiVeCuoiNgay(r);
+  /* mục tiêu tuần (doanh thu) xét trước khi làm thẻ, để tiền thưởng nằm trong doanh thu của thẻ */
+  ghiNgay(r, rev0);
+  r.quayKin = T.quayKin || 0;
+  const rev = recRev(r),
+    cost = recCost(r),
     profit = rev - cost,
     ca = recCaNhan(r) /* chi tiêu của chủ tiệm: hiện riêng dưới lãi của tiệm */,
     eqv = r.equip.reduce((a, e) => a + e.v, 0),
@@ -6229,7 +6333,6 @@ function endDay() {
   noteCaps();
   S.history.push(r);
   if (S.history.length > 400) S.history.shift();
-  ghiNgay(r, rev);
   S.totalProfit = (S.totalProfit || 0) + profit;
   /* trả dần tiền bà Sáu cho khất: một nửa tiền lãi mỗi ngày, không tính lãi */
   if (S.noSau > 0 && profit > 0 && S.money > 0) {
@@ -6266,12 +6369,18 @@ function endDay() {
   } else {
     /* phá sản: mở quán mới ngay rồi mới lưu, để thoát game vào lại cũng không chơi tiếp được với két âm */
     /* giữ lại câu chuyện, sổ công thức, độ thân, kỷ lục và cách xưng hô */
+    /* giữ như Hẻm 42 lần nữa: huy hiệu, bạn bè, kết quả thử thách, chế độ Thư giãn, cài đặt và câu đã hỏi */
     const n = S.shopName,
-      giu = { tr: S.tr, kl: S.kl, xung: S.xung };
+      giu = { tr: S.tr, kl: S.kl, xung: S.xung, huyHieu: S.huyHieu, banBe: S.banBe, maTiem: S.maTiem, ttKq: S.ttKq, bb: S.bb, thuGian: S.thuGian,
+        dayLen: S.dayLen, coach: S.coach, moiCai: S.moiCai, bakOff: S.bakOff, gopY: S.gopY };
     S = fresh();
     S.shopName = n;
-    Object.assign(S, giu);
-    if (S.tr) Object.assign(S.tr, { qua: {}, ghe: {}, khat: {}, homNay: null });
+    Object.entries(giu).forEach(([k, v]) => v !== undefined && (S[k] = v));
+    if (S.tr) {
+      Object.assign(S.tr, { qua: {}, ghe: {}, khat: {}, homNay: null });
+      /* tiệm mới: nhà, xe, quà, chi nhánh, tiền gửi về quê của tiệm cũ không còn, truyện không nhắc nữa */
+      Object.keys(S.tr.co || {}).forEach((k) => /^(ds_|gui_|chi_nhanh)/.test(k) && delete S.tr.co[k]);
+    }
   }
   save();
   if (!broke) autoBak();
@@ -6282,13 +6391,25 @@ function endDay() {
   }
   const nextLv =
     !broke && levelOf(S.day) > levelOf(S.day - 1) ? levelOf(S.day) : 0;
+  /* pha chậm, khách bỏ về nhiều mà chưa thuê ai: nhắc thuê phụ quầy, tối đa một lần mỗi tuần */
+  const nhacNv = !broke && r.day >= 4 && r.lost >= 8 && r.quayKin < 15 && !STAFF.some((x) => S.upg[x.id]) && !(S.day - (S.nhacNv || -99) < 7);
+  if (nhacNv) S.nhacNv = S.day;
   const showCard = () => {
     $("card").innerHTML =
       `<div class="pbig">${broke ? ico("sad") : ico("moon")}</div><h2>${broke ? "Phá sản" : "Hết ngày " + r.day}</h2>
-  <div class="kpis"><div><b>${r.served}</b>🧋</div><div><b>${r.lost}</b>${ico("angry")}</div><div><b>${avg ? avg.toFixed(1).replace(".", ",") : "–"}</b>${ico("star")}</div></div>
+  <div class="kpis"><div><b>${r.served}</b>🧋</div><div><b>${r.lost}</b>${ico("angry")}</div><div><b>${avg ? avg.toFixed(1).replace(".", ",") : "–"}</b>${ico("star")}</div></div>${
+    r.quayKin >= 5
+      ? `<p class="note">👥 ${r.quayKin} khách tới thấy quầy kín nên đi.${r.quayKin >= 15 ? " Thuê phụ quầy hay mở rộng quầy thì bán được nhiều hơn; biển hiệu, quảng cáo chỉ có ích khi quầy còn chỗ." : ""}</p>`
+      : ""
+  }${
+    nhacNv
+      ? `<p class="note">🤝 ${r.lost} khách bỏ về. Thuê nhân viên phụ quầy (Nâng cấp › Nhân viên, ${fmt(STAFF[0].cost)}) thì mỗi ly pha nhanh hơn, khách đỡ chờ.</p>`
+      : ""
+  }
   <div class="ledger">
     <div><span>${ico("price")} Doanh thu</span><span class="revc">+${fmt(rev)}</span></div>
-    <div><span>${ico("receipt")} Chi phí</span><span class="neg">−${fmt(cost)}</span></div>
+    ${r.gift ? `<div><span class="wl">🎁 Trong đó quà, thưởng</span><span class="wl">+${fmt(r.gift)}</span></div>` : ""}
+    <div><span>${ico("receipt")} Chi phí</span><span class="${cost < 0 ? "pos" : "neg"}">${cost < 0 ? "+" : "−"}${fmt(Math.abs(cost))}</span></div>
     ${r.wage - (r.ot || 0) ? `<div><span class="wl">${ico("people")} Lương nhân viên</span><span class="wl">${fmt(r.wage - (r.ot || 0))}</span></div>` : ""}${r.ot ? `<div><span class="wl">${ico("clock")} Tăng ca nhân viên pha chế</span><span class="wl">${fmt(r.ot)}</span></div>` : ""}${r.bad ? `<div><span class="wl">${ico("warn")} Sự cố mất tiền</span><span class="wl">${fmt(r.bad)}</span></div>` : ""}
     ${r.loanInt ? `<div><span class="wl">${ico("money")} Trả nợ (lãi ${fmt(r.loanInt)})</span><span class="wl">${fmt(r.loanOut + r.loanInt)}</span></div>` : ""}
     ${r.guard ? `<div><span class="wl">${ico("people")} Bảo vệ thu lại</span><span class="wl">+${fmt(r.guard)}</span></div>` : ""}
@@ -6299,6 +6420,7 @@ function endDay() {
     ${r.spoil && r.spoil.n ? `<div><span class="wl">🥤 ${r.spoil.n} ly hỏng</span><span class="wl">${fmt(r.spoil.v)}</span></div>` : ""}
     ${wv ? `<div><span class="wl">${ico("trash")} ${waste.map((x) => ITEMS[x.k].s + " " + x.q).join(", ")}</span><span class="wl">${fmt(wv)}</span></div>` : ""}
     <div class="tot"><span>${ico("chartup")} ${ca ? "Lãi của tiệm" : "Lãi"}</span><span class="${profit < 0 ? "neg" : "pos"}">${profit < 0 ? "−" : "+"}${fmt(Math.abs(profit))}</span></div>
+    ${eqv > 0 && profit < 0 && profit + eqv > 0 ? `<div><span class="wl">Chưa tính đồ mua cho tiệm thì bán hàng vẫn lãi</span><span class="wl pos">+${fmt(profit + eqv)}</span></div>` : ""}
     ${
       ca
         ? `<div class="tot"><span>🏡 Chi tiêu của bạn</span><span class="${ca > 0 ? "neg" : "pos"}">${ca > 0 ? "−" : "+"}${fmt(Math.abs(ca))}</span></div>
@@ -6308,7 +6430,8 @@ function endDay() {
     ${(r.caNhan || []).map((e) => `<div><span class="wl">🛍️ ${esc(e.n)}</span><span class="wl">${e.v < 0 ? "+" : ""}${fmt(Math.abs(e.v))}</span></div>`).join("")}`
         : ""
     }
-    <div class="tot"><span>${ico("money")} Két</span><span>${fmt(endMoney)}</span></div>
+    ${r.vay ? `<div><span class="wl">🏦 Tiền vay, tiền ứng nhận về (không tính vào lãi)</span><span class="wl">+${fmt(r.vay)}</span></div>` : ""}
+    <div class="tot"><span>${ico("money")} Két</span><span>${endMoney < 0 ? "−" : ""}${fmt(Math.abs(endMoney))}</span></div>
   </div>
   ${
     broke
@@ -6539,8 +6662,8 @@ function paneSum() {
   ${g.song ? `<div class="crow"><span>Sinh hoạt của bạn: ăn, ở, đi lại</span><span>${vn(g.song)}</span></div>` : ""}
   ${g.gop ? `<div class="crow"><span>Trả góp nhà, xe</span><span>${vn(g.gop)}</span></div>` : ""}
   ${g.gui ? `<div class="crow"><span>Gửi về quê cho ba mẹ</span><span>${vn(g.gui)}</span></div>` : ""}
-  ${g.caNhan.length ? `<div class="crow"><span>Mua sắm, quà cho ba mẹ</span><span>${vn(muaTot)}</span></div>` : ""}
-  ${g.caNhan.map((e) => `<div class="crow sub"><span>– ${esc(e.n)}${mode !== "day" ? " (ngày " + e.d + ")" : ""}</span><span>${vn(e.v)}</span></div>`).join("")}
+  ${g.caNhan.length ? `<div class="crow"><span>Nhà xe, mua sắm, quà${g.caNhan.some((e) => e.v < 0) ? " (trừ tiền nhận được)" : ""}</span><span>${vn(muaTot)}</span></div>` : ""}
+  ${g.caNhan.map((e) => `<div class="crow sub"><span>– ${esc(e.n)}${mode !== "day" ? " (ngày " + e.d + ")" : ""}</span><span>${e.v < 0 ? "+" + vn(-e.v) : vn(e.v)}</span></div>`).join("")}
   <div class="ttot neg"><span>Tổng chi tiêu</span><span>${vn(caTot)}k</span></div>
   <div class="final ${profit - caTot < 0 ? "neg" : "pos"}"><span>Còn lại sau chi tiêu<small>Lợi nhuận của tiệm − chi tiêu của bạn</small></span><span>${profit - caTot < 0 ? "−" : ""}${vn(Math.abs(profit - caTot))}k</span></div>`
       : ""
@@ -7832,7 +7955,7 @@ async function backupDlg() {
     return;
   }
   $("card").innerHTML =
-    `<h2>Mã sao lưu</h2><p>Chép mã này hoặc lưu thành file rồi cất ở chỗ an toàn (Zalo Cloud, ghi chú điện thoại). Bị mất tiến trình thì vào Cài đặt > Khôi phục từ mã rồi dán mã hoặc chọn file.</p>
+    `<h2>Mã sao lưu</h2><p>Chép mã này hoặc lưu thành file rồi cất ở chỗ an toàn (tin nhắn gửi cho chính mình, ghi chú điện thoại). Bị mất tiến trình thì vào Cài đặt > Khôi phục từ mã rồi dán mã hoặc chọn file.</p>
     <p class="lvup">${esc(shopName())} · Ngày ${S.day} · ${fmt(S.money)}</p>
     <textarea id="bkCode" class="rpin" readonly style="min-height:90px;font-size:12px!important;word-break:break-all">${code}</textarea>
     <div class="sndrow"><button class="sbtn pri" id="bkCopy">Chép mã</button><button class="sbtn ghost" id="bkFile">Lưu thành file</button></div>
@@ -7938,8 +8061,8 @@ function showSettings() {
     <button class="setb" id="sGuide"><span>${ico("book")}</span>Hướng dẫn</button>
     <button class="setb" id="sNews"><span>${ico("gift")}</span>Có gì mới<small>v${GAME_VERSION}</small></button>
     <button class="setb" id="sStory"><span>${ico("book")}</span>Cốt truyện Hẻm 42<small>${CHE_DO_TEN[cheDo()]}${cheDo() === "gon" ? " · gộp cả cảnh vào một khung" : cheDo() === "tat" ? " · không hiện cảnh, vẫn nhận trang sổ" : " · từng câu, bỏ qua được"}</small></button>
-    <button class="setb" id="sRelax"><span>${ico("moon")}</span>Chế độ Thư giãn<small>${S.thuGian ? "Đang bật · khách không bỏ về, không sự cố, không khách khó" : "Đang tắt · bấm để chơi thong thả"}</small></button>
-    <button class="setb" id="sGopY"><span>${ico("pen")}</span>Góp ý cho tiệm<small>Trả lời vài câu, gửi qua Zalo hoặc Messenger</small></button>
+    <button class="setb" id="sRelax"><span>${ico("moon")}</span>Chế độ Thư giãn<small>${S.thuGian ? "Đang bật · khách không bỏ về, không sự cố, không thuế, không tiền sinh hoạt, giá nhập và khách không khó dần theo chương" : "Đang tắt · bấm để chơi thong thả"}</small></button>
+    <button class="setb" id="sGopY"><span>${ico("pen")}</span>Góp ý cho tiệm<small>Trả lời vài câu rồi gửi qua tin nhắn</small></button>
     <button class="setb" id="sXung"><span>${ico("people")}</span>Khách gọi bạn là<small>${hoaDau(xung())} · bấm để đổi</small></button>
     <button class="setb" id="sCoach"><span>${ico("book")}</span>Chỉ dẫn từng bước<small>${S.coach === true ? "Luôn bật" : S.coach === false ? "Tắt" : "Tự động"}</small></button>
     <button class="setb" id="sLen"><span>${ico("clock")}</span>Thời gian bán mỗi ngày<small>${S.dayLen || CFG.dayMin} phút${R.running ? " · áp dụng từ ngày sau" : ""}</small></button>

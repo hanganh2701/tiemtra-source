@@ -1,7 +1,26 @@
 /* Phiên bản và danh sách "Có gì mới". Mỗi lần cập nhật: tăng GAME_VERSION và thêm một mục lên ĐẦU CHANGELOG. */
 /* ===== PHIÊN BẢN GAME: mỗi lần cập nhật, tăng số và thêm một mục lên ĐẦU danh sách ===== */
-const GAME_VERSION = "5.2.1";
+const GAME_VERSION = "5.3";
 const CHANGELOG = [
+  {
+    v: "5.3",
+    d: "29/09/2026",
+    items: [
+      "Truyện có phần Sau Tết: qua ngày mùng năm mở hàng, mỗi tuần một chuyện mới tới khoảng ngày 185 (xe bánh mì thứ hai của cô Hạnh, Linh năm nhất, Khoa về Bến Tre, Hana nhắn tin, cơn mưa đầu mùa…)",
+      "Đoạn Tết đúng thứ tự: cảnh kết là ngày mùng năm hẻm mở hàng lại, không còn giao thừa tới sau mùng một. Tết ngoài đời trùng Tết trong truyện thì không chen thêm cảnh",
+      "Nhiều lựa chọn cũ giờ được nhắc lại: ly gừng của Khoa, ly tặng Linh, combo để tính sau, trà đá mời Hana, ly ngọt của chú Tư, ly kiểu chuỗi của Vy. Hậu truyện có thêm một dòng về ba",
+      "Két không đủ tiền nấu hàng để mở cửa thì bà Sáu cho ứng, trả dần bằng tiền lãi, không còn kẹt phải chơi lại",
+      "Giá tính theo cả ly: tăng giá hương, topping, size L cũng làm khách vắng như tăng giá trà. Size L đắt thì ít người chọn dần. Bản lưu cũ để giá cao được hỏi một lần có muốn về giá gợi ý không",
+      "Mở rộng chi nhánh ba nấc (máy pha thứ hai, thuê thêm gian bên cạnh, bảng hiệu lớn): bán thêm, tốn thêm mỗi ngày",
+      "Màn chuẩn bị có thanh để dành ra mặt tiền; ngày mua đồ cho tiệm thì thẻ cuối ngày ghi bán hàng vẫn lãi bao nhiêu; khách bỏ về nhiều mà chưa có nhân viên thì được nhắc thuê phụ quầy",
+      "Thẻ cuối ngày có dòng quà, thưởng, tiền vay, tiền ứng; khách tới thấy quầy kín bỏ đi cũng được đếm. Tiền mẹ gửi, lì xì là tiền của bạn, không tính doanh thu của tiệm",
+      "Gửi về quê xét sau khi trừ tiền nhà, lương; két chưa dư thì chờ vài ngày. Huy hiệu mới: gửi về quê đủ 6 lần",
+      "Đời sống: bán được nhà, xe, điện thoại; Trả hết nợ góp hỏi lại trước khi trả; câu từ chối của ngân hàng ghi rõ còn góp thêm được bao nhiêu",
+      "Phố Trà: tiệm bán rất đông đứng đầu được mà không cần chi nhánh; chỉ báo khi lên hạng cao nhất từ trước tới giờ. Danh thiếp tiệm gửi lại thì cập nhật, hai tiệm cùng tên không đè nhau, bỏ được bạn",
+      "Thử thách đóng cửa sớm vẫn ra mã hợp lệ",
+      "Chi nhánh, mặt tiền gia hạn đúng kỳ dù ngày đó nghỉ; chi nhánh kiosk có người phụ bán thêm được; hết chai hương giữa ngày thì vị đó rời menu ngay",
+    ],
+  },
   {
     v: "5.2.1",
     d: "29/09/2026",

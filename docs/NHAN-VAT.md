@@ -17,7 +17,8 @@ Tài liệu gốc để viết mọi câu thoại. Viết cảnh mới phải kh
 - Truyện làm dịu áp lực tiền bạc, không bao giờ doạ người chơi. Ngày tệ thì có cảnh tử tế.
 - Lựa chọn nhỏ đặt cờ rồi quay về mạch chính. Lựa chọn nào cũng phải được nhắc lại ít nhất một lần về sau (câu thoại có điều kiện hoặc hậu truyện).
 - Ngã rẽ lớn (`reRe`) mới được tách nhánh thật: hai điều tốt đánh đổi nhau, không có phương án "sai". Mỗi nhánh 3–5 cảnh riêng, đổi cả cách chơi, rồi hợp lại ở cảnh chốt cuối chương. Mỗi nhân vật chỉ có một ngã rẽ đang mở. Cảnh chốt có hạn chót (`chot`) để truyện không kẹt.
-- Kết truyện: một đêm giao thừa chung, tên kết theo các ngã rẽ lớn, rồi mỗi nhân vật một thẻ hậu truyện (`HAU_TRUYEN`). Không có kết xấu.
+- Kết truyện: ngày mùng năm hẻm mở hàng lại (cảnh `c3_ket`, sau đoạn về quê hay ở lại ăn Tết), tên kết theo các ngã rẽ lớn, rồi mỗi nhân vật một thẻ hậu truyện (`HAU_TRUYEN`). Không có kết xấu. Trước bản 5.3 cảnh kết là đêm giao thừa nên tới sau mùng một; đừng viết lại cảnh giao thừa sau đoạn Tết.
+- Tết ngoài đời trùng đoạn Tết của truyện (ngày 55 tới cảnh mở hàng mùng năm) thì cảnh lễ Tết (`le_tet`, `le_ong_tao`) không chen vào (`ngoaiTetTruyen`).
 - Nhân vật có đời sống riêng không xoay quanh người chơi. Có chuyện người chơi không giải quyết được.
 - Không dùng tên thương hiệu thật cho tiệm, chuỗi, nhãn hàng trong truyện. Chuỗi đối thủ là tên hư cấu. Riêng món mua sắm trong tab Đời sống (xe, điện thoại, máy tính, đồng hồ, túi, quần áo, điện máy làm quà) ghi tên hãng và mẫu thật dạng chữ để giá sát ngoài đời (chủ dự án chốt 29/09/2026), không vẽ logo, không ai trong truyện quảng cáo cho hãng; khu vực nhà là tên gọi quen, không nêu dự án thật.
 
@@ -45,9 +46,9 @@ Cột "Mặt" là hàng trong `img/faces.webp` (mỗi hàng 3 biểu cảm: bìn
 - **Khoa:** xưng "em", gọi "{ban}". Luôn vội, nói tắt, hay đùa để giấu mệt. Nhắc tiền xăng, nắng, mưa.
 - **Cô Hạnh:** xưng "cô" với người chơi, gọi "{ban}" hoặc "con". Sắc sảo, soi giá, khen kiểu chê ("Ly cũng được… mà hơi mắc.").
 - **Mẹ:** chỉ qua tin nhắn. Nhắn ngắn, nhiều dấu chấm, lo ăn uống. Không bao giờ nói "mẹ tự hào về con" cho tới cuối Chương 3.
-- **Ba:** không nhắn tin, không có chân dung. Chỉ hiện qua lời mẹ, tấm hình mẹ gửi, hay lúc người chơi về quê. Ít nói, cứng đầu, thương con bằng việc làm ("Ba giành xách cái giỏ nặng nhất"). Mẹ hay giấu ba chuyện tiền nong.
+- **Ba:** không nhắn tin, không có chân dung. Chỉ hiện qua lời mẹ, tấm hình mẹ gửi, hay lúc người chơi về quê. Hậu truyện có một dòng về ba, viết như lời mẹ kể và hiện biểu tượng tin nhắn (bản 5.3). Ít nói, cứng đầu, thương con bằng việc làm ("Ba giành xách cái giỏ nặng nhất"). Mẹ hay giấu ba chuyện tiền nong.
 - **Vy:** xưng "em", gọi "{ban}". Lễ phép, khó xử giữa công ty và xóm cũ. Hay xin lỗi.
-- **Hana:** câu có nhãn [dịch tự động] thì hơi cứng ("Loại trái cây đam mê"). Khi tự nói tiếng Việt thì sai dễ thương ("Chanh… dây! Đúng hông?").
+- **Hana:** câu có nhãn [dịch tự động] thì hơi cứng ("Loại trái cây đam mê"). Khi tự nói tiếng Việt thì sai dễ thương ("Chanh… dây! Đúng hông?"). Sau `hana_3` bong bóng gọi món ở quầy bỏ nhãn dịch; sau Tết Hana nhắn tin tiếng Việt ngắn.
 
 ## Cung truyện theo chương
 
@@ -56,6 +57,7 @@ Cột "Mặt" là hàng trong `img/faces.webp` (mỗi hàng 3 biểu cảm: bìn
 | 0 · Khai trương | 1–6 | Làm quen bà Sáu, Mướp, chú Tư, Khoa, cô Hạnh, tin nhắn của mẹ; ngày 6 đóng tiền nhà lần đầu | 1 |
 | 1 · Người trong hẻm | 6–30 | Thanh thân thiết, mỗi khách quen 3 cảnh; ngày mưa của Khoa; mùa thi của Linh quanh ngày 20 (ngã rẽ: ở lại làm thêm hay đi học Đà Lạt); lựa chọn vay ngân hàng hay phong bì của mẹ | 2–5 |
 | 2 · Mùa trăng | 30–60 | Trung Thu; Hana ghé 3 lần (ngã rẽ: ghi tên tiệm lên video hay giữ kín); ngã rẽ chính: bắt tay Mây Tea hay giữ hẻm cùng xóm; chuỗi Mây Tea mở đầu hẻm (quản lý là Vy, cháu cô Hạnh, không phải phản diện); bà Sáu kể chuyện cũ; Vy kể về mấy chỗ sang nhượng (mở chi nhánh, chú Tư nhận chở hàng) | 6–10 |
-| 3 · Về nhà ăn Tết (ngã rẽ: về quê hay ở lại) | 60+ | Chợ giáp Tết lên giá; ông Táo; thành phố vắng, mở cửa cho người ở lại như Khoa; mẹ lên thăm; đủ 12 trang | 11–12 |
+| 3 · Về nhà ăn Tết (ngã rẽ: về quê hay ở lại) | 60–67 | Chợ giáp Tết lên giá; thành phố vắng, mở cửa cho người ở lại như Khoa; về quê hay mẹ lên thăm; mùng năm mở hàng lại, đủ 12 trang | 11–12 |
+| Sau Tết (bản 5.3) | 68–190 | Mỗi tuần một cảnh nhãn "Sau Tết", tính từ ngày mở hàng: bà Sáu hỏi để cuốn sổ ở đâu, xe của Khoa, Linh năm nhất (đứng quầy, chờ được gọi hay ở Đà Lạt), cô Hạnh mở xe bánh mì thứ hai, Vy lên quản lý vùng hay xe trà ở chợ, Hana nhắn tin, chú Tư chở khách sân bay, mẹ kể ba ra đồng lại, Mướp tha quà, khách quán nước xưa dắt cháu tới, Linh về hè, Khoa chở dừa Bến Tre, đường hẻm láng lại, mưa đầu mùa, tiệm tròn nửa năm | – |
 
 **Chuyện nhà ở quê (bản 5.2, xuyên Chương 2–3 và sau kết):** ba trặc lưng lúc gặt lúa (từ ngày 36, khi két có chút tiền). Mẹ nhắn, dặn con đừng lo, đừng gửi. Người chơi chọn gửi mỗi tháng hay để tính sau. Có gửi hay không ba vẫn khoẻ lại: có gửi thì ba đi châm cứu, không gửi thì chú Năm bên nhà gặt giùm. Truyện không bao giờ trách người chơi không gửi, tháng nào két không dư thì mẹ nhắn "kẹt thì thôi". Gửi đủ ba tháng thì quê gửi lên thùng xoài, hũ mắm; khi con mua nhà, mẹ gửi lại một nửa số tiền đã lén để dành ở bưu điện xã.

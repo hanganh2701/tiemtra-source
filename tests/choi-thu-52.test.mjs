@@ -29,7 +29,7 @@ test("mua xe là chi tiêu của bạn, không phải lỗ của tiệm: thẻ c
     g.run("$('modal').hidden = true; R.tab = 'tongket'; R.sumMode = 'day'; R.sumIdx = null; renderPrep()");
     const p = pane(g).textContent;
     assert.match(p, /Lợi nhuận của tiệm/);
-    assert.match(p, /Mua sắm, quà cho ba mẹ/);
+    assert.match(p, /Nhà xe, mua sắm, quà/);
     assert.match(p, /Còn lại sau chi tiêu/);
     assert.doesNotMatch(p.split("Chi tiêu của bạn")[0], /Honda Wave/, "xe không nằm trong mục máy móc, trang bị");
     assert.deepEqual(g.errors.map(String), []);
@@ -114,7 +114,7 @@ test("thuê mặt tiền: nhắc khi thuê xong két còn ít, thông báo đún
   }
 });
 
-test("chuyện nhà ở quê: nhãn riêng, không lặp câu ba xách giỏ, hậu truyện của mẹ nhắc cả Tết lẫn tiền gửi", () => {
+test("chuyện nhà ở quê: nhãn riêng, không lặp câu ba xách giỏ, hậu truyện của mẹ và ba nhắc cả Tết lẫn tiền gửi", () => {
   const g = boot();
   try {
     assert.equal(g.run("MAU_CHUYEN.filter((m) => /^gui_/.test(m.id)).every((m) => m.nhan === 'Chuyện nhà ở quê')"), true);
@@ -122,9 +122,19 @@ test("chuyện nhà ở quê: nhãn riêng, không lặp câu ba xách giỏ, h�
     const q1 = g.run("locDong(MAU_CHUYEN.find((m) => m.id === 'que_1').thoai).map((d) => d[1]).join('|')");
     assert.equal((q1.match(/giỏ/g) || []).length, 1, q1);
     g.run("TT().co.gui_da = true; TT().nhanh.tet = 'A'");
-    assert.match(g.run("hauTruyen().find((h) => h.ai === 'me_gap').chu"), /Tết sau.*mứt gừng/);
+    assert.match(g.run("hauTruyen().find((h) => h.ai === 'me_gap').chu"), /mứt gừng.*Tết sau/);
+    assert.match(g.run("hauTruyen().find((h) => h.ai === 'ba').chu"), /Lưng ba khỏi hẳn. Tết sau/);
     g.run("TT().nhanh.tet = 'B'; TT().co.me_len = true");
-    assert.match(g.run("hauTruyen().find((h) => h.ai === 'me_gap').chu"), /Mẹ lên thăm về.*Lưng ba khỏi hẳn/);
+    assert.match(g.run("hauTruyen().find((h) => h.ai === 'me_gap').chu"), /đánh giá năm sao/);
+    assert.match(g.run("hauTruyen().find((h) => h.ai === 'ba').chu"), /chợ xã uống cà phê/);
+    /* quà lớn cho ba được nhắc lại, không bị dòng tiền gửi che mất */
+    g.run("TT().co.ds_qua_xe_may = true");
+    assert.match(g.run("hauTruyen().find((h) => h.ai === 'ba').chu"), /Chiếc Wave con mua/);
+    g.run("TT().co.ds_qua_xay_nha = true; TT().co.gui_so = true");
+    assert.match(g.run("hauTruyen().find((h) => h.ai === 'ba').chu"), /thợ xây/);
+    assert.match(g.run("hauTruyen().find((h) => h.ai === 'me_gap').chu"), /sổ tiết kiệm/);
+    /* ba không có chân dung: hiện biểu tượng tin nhắn */
+    assert.match(g.run("chanDung('ba')"), /trf-ic/);
   } finally {
     g.close();
   }

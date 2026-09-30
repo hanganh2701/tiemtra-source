@@ -315,6 +315,7 @@ function choiLai() {
     kl: K,
     huyHieu: S.huyHieu,
     banBe: S.banBe,
+    maTiem: S.maTiem,
     ttKq: S.ttKq,
     bb: S.bb,
     thuGian: S.thuGian,

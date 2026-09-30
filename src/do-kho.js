@@ -26,11 +26,12 @@ const tienSuCo = (v0) =>
 /* cuối ngày: sang chương mới thì báo trước trong thẻ tổng kết */
 function doKhoCuoiNgay() {
   const d = DO_KHO[chuongNay()];
-  /* qua Tết thì báo một lần giá nhập hạ */
+  /* qua Tết thì báo một lần giá nhập hạ (bản lưu đã qua Tết từ lâu thì thôi, không báo) */
   if (d && d.giaSauTet && !thuGian() && quaTet() && !S.quaTetBao) {
     S.quaTetBao = true;
-    return `<p class="lvup">📉 Qua Tết, chợ hạ giá: giá nhập còn cao hơn đầu năm ${Math.round((d.giaSauTet - 1) * 100)}%.</p>`;
+    const moc = S.tr && S.tr.xem && S.tr.xem.c3_ket != null ? S.tr.xem.c3_ket : 75;
+    if (S.day - moc <= 5) return `<p class="lvup">📉 Qua Tết, chợ hạ giá: giá nhập còn cao hơn đầu năm ${Math.round((d.giaSauTet - 1) * 100)}%.</p>`;
   }
   if (!d || thuGian() || chuongLuc(S.day - 1) === chuongNay()) return "";
-  return `<p class="lvup">📈 Từ hôm nay (Chương ${chuongNay()}): ${d.chu}. Chế độ Thư giãn thì không đổi.</p>`;
+  return `<p class="lvup">📈 Từ mai (Chương ${chuongNay()}): ${d.chu}. Chế độ Thư giãn thì không đổi.</p>`;
 }

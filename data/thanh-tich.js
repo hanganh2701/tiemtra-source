@@ -29,6 +29,7 @@ const HUY_HIEU = [
   { id: "mat_tien", nhom: "Tiệm", ic: "🏠", ten: "Ra mặt tiền", mo: "Thuê mặt tiền đầu hẻm", dk: () => buoc() >= 2 },
   { id: "an_cu", nhom: "Tiệm", ic: "🏡", ten: "An cư", mo: "Mua được nhà của mình", dk: () => !!(S.ds && S.ds.nha) },
   { id: "hieu_thao", nhom: "Tiệm", ic: "💝", ten: "Con có hiếu", mo: "Gửi 3 món quà về cho ba mẹ", dk: () => Object.keys((S.ds && S.ds.qua) || {}).length >= 3 },
+  { id: "gui_6", nhom: "Tiệm", ic: "✉️", ten: "Tháng nào cũng gửi", mo: "Gửi tiền về quê đủ 6 lần", dk: () => ((S.ds && S.ds.guiThang) || 0) >= 6 },
   { id: "chi_nhanh", nhom: "Tiệm", ic: "🏪", ten: "Hai tiệm một chủ", mo: "Mở chi nhánh", dk: () => !!S.cnDaMo },
   { id: "nv_dau", nhom: "Tiệm", ic: "🤝", ten: "Người đồng hành", mo: "Thuê nhân viên đầu tiên", dk: () => Object.keys(S.nv || {}).length >= 1 },
   { id: "nv_tho_ca", nhom: "Tiệm", ic: "🎓", ten: "Thợ cả", mo: "Có nhân viên tay nghề 5/5", dk: () => Object.values(S.nv || {}).some((n) => n.kn >= 5) },
@@ -58,8 +59,8 @@ const HUY_HIEU = [
   { id: "tt_40", nhom: "Bạn bè", ic: "🥇", ten: "Không trượt ly nào", mo: "Thử thách đạt 40/40 ly chuẩn", dk: () => Object.values(S.ttKq || {}).some((k) => k.chuan >= 40) },
   { id: "tt_7", nhom: "Bạn bè", ic: "🗂️", ten: "Bảy lần thử thách", mo: "Chơi thử thách 7 ngày (không cần liền nhau)", dk: () => Object.keys(S.ttKq || {}).length >= 7 },
   { id: "ban_be", nhom: "Bạn bè", ic: "💌", ten: "Có bạn Phố Trà", mo: "Thêm danh thiếp tiệm của bạn bè", dk: () => (S.banBe || []).length >= 1 },
-  { id: "top3", nhom: "Bạn bè", ic: "🥉", ten: "Top 3 Phố Trà", mo: "Lên hạng 3 Phố Trà", dk: () => S.day > 1 && hangMinh() <= 3 },
-  { id: "top1", nhom: "Bạn bè", ic: "🏆", ten: "Đứng đầu Phố Trà", mo: "Lên hạng 1 Phố Trà", dk: () => S.day > 1 && hangMinh() === 1 },
+  { id: "top3", nhom: "Bạn bè", ic: "🥉", ten: "Top 3 Phố Trà", mo: "Lên hạng 3 Phố Trà", dk: () => S.day >= 7 && hangMinh() <= 3 },
+  { id: "top1", nhom: "Bạn bè", ic: "🏆", ten: "Đứng đầu Phố Trà", mo: "Lên hạng 1 Phố Trà", dk: () => S.day >= 7 && hangMinh() === 1 },
 
   /* ---------- Mùa lễ ---------- */
   { id: "li_xi", nhom: "Mùa lễ", ic: "🧧", ten: "Lì xì bà Sáu", mo: "Nhận lì xì dịp Tết", dk: () => Object.keys(S.liXi || {}).length >= 1 },

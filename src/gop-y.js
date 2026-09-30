@@ -1,6 +1,6 @@
 /* ---------- GÓP Ý CHO ĐỢT CHƠI THỬ ----------
    Game không có máy chủ: người chơi trả lời vài câu, game ghép thành một đoạn chữ kèm tóm tắt tiến trình
-   (không có tên tiệm hay thông tin cá nhân). Người chơi tự chép hoặc chia sẻ qua Zalo, Messenger. Nạp trước game.js. */
+   (không có tên tiệm hay thông tin cá nhân). Người chơi tự chép hoặc chia sẻ qua tin nhắn. Nạp trước game.js. */
 
 const GOP_Y_HOI = [
   { id: "ai", chu: "Bạn là", chon: ["Học sinh", "Sinh viên", "Đi làm", "Khác"] },
@@ -43,7 +43,7 @@ function moGopY() {
         }</div>`,
     ).join("");
   $("card").onchange = null;
-  $("card").innerHTML = `<h2>Góp ý cho tiệm</h2><p class="note">Không có gì tự gửi đi. Trả lời xong bấm Chia sẻ hoặc Chép, rồi gửi cho người rủ bạn chơi qua Zalo, Messenger. Góp ý không kèm tên tiệm hay thông tin cá nhân.</p>${hoi}<details class="gytt"><summary>Kèm theo tóm tắt tiến trình</summary><pre>${esc(
+  $("card").innerHTML = `<h2>Góp ý cho tiệm</h2><p class="note">Không có gì tự gửi đi. Trả lời xong bấm Chia sẻ hoặc Chép, rồi gửi qua tin nhắn cho người rủ bạn chơi. Góp ý không kèm tên tiệm hay thông tin cá nhân.</p>${hoi}<details class="gytt"><summary>Kèm theo tóm tắt tiến trình</summary><pre>${esc(
     tomTatTienTrinh().join("\n"),
   )}</pre></details><div class="askbtns"><button class="big" id="gyShare">Chia sẻ góp ý</button><button class="sbtn ghost" id="gyCopy">Chép góp ý</button><button class="sbtn ghost" id="gyClose">Đóng</button></div>`;
   $("modal").hidden = false;
@@ -69,7 +69,7 @@ function moGopY() {
     xong();
     try {
       await navigator.clipboard.writeText(chuGopY());
-      toast("Đã chép góp ý, dán vào Zalo hoặc Messenger nhé");
+      toast("Đã chép góp ý, dán vào tin nhắn gửi đi nhé");
     } catch (e) {
       /* máy không cho chép tự động: hiện đoạn chữ để người chơi tự chọn và chép */
       card.querySelector(".gytt").open = true;

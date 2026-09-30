@@ -82,7 +82,7 @@ test("trả góp: trả trước 30%, góp mỗi ngày có lãi, ngân hàng ch�
   const g = boot();
   try {
     g.run("S.money = 200000000");
-    assert.match(g.run("dsKhongDuoc('ot', DS_OT.find((x) => x.id === 'morning'), true)"), /nửa thu nhập/, "chưa có thu nhập thì chưa cho vay");
+    assert.match(g.run("dsKhongDuoc('ot', DS_OT.find((x) => x.id === 'morning'), true)"), /Ngân hàng cần xem thu nhập/, "chưa có thu nhập thì chưa cho vay");
     g.run(coThuNhap);
     assert.equal(g.run("dsKhongDuoc('ot', DS_OT.find((x) => x.id === 'morning'), true)"), "");
     const t = g.run("dsTinh('ot', DS_OT.find((x) => x.id === 'morning'), true)");
@@ -160,7 +160,8 @@ test("quà gia đình có tin nhắn mẹ, đủ 3 món thì có huy hiệu, h�
     ["qua_ao_dai", "qua_dong_ho", "qua_mai_nha"].forEach((id) => g.run(`$('modal').hidden = true; muaDs('qua', '${id}')`));
     assert.match(card(g).textContent, /Mẹ: Mưa bão mà nhà hết dột/);
     assert.ok(g.run("S.huyHieu.hieu_thao"));
-    assert.match(g.run("hauTruyen().find((h) => h.ai === 'me_gap').chu"), /Mưa lớn mà ba ngủ ngon/);
+    assert.match(g.run("hauTruyen().find((h) => h.ai === 'ba').chu"), /mưa lớn mà ba ngủ ngon/);
+    assert.match(g.run("hauTruyen().find((h) => h.ai === 'me_gap').chu"), /áo dài con may/);
   } finally {
     g.close();
   }

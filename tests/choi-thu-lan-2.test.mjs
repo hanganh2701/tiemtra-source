@@ -16,7 +16,7 @@ test("thẻ sự kiện giữ dấu % khi sự kiện không gắn món, vẫn �
   try {
     assert.equal(g.run("evText({ id: 'weekend' })"), "Khách đông hơn 25%, nhiều người mua 2 ly");
     assert.match(g.run("evText({ id: 'rain' })"), /ít hơn 30%/);
-    assert.match(g.run("evText({ id: 'trend', k: 'matcha' })"), /^matcha được gọi/);
+    assert.match(g.run("evText({ id: 'trend', k: 'matcha' })"), /^Matcha được gọi/);
   } finally {
     g.close();
   }

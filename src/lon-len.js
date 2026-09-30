@@ -58,7 +58,7 @@ function thueMatTien() {
           S.coc = tienCoc();
           S.cur.equip.push({ n: "Sửa sang kiosk mặt tiền", v: MAT_TIEN.trangTri });
           S.buoc = 2;
-          S.hd = { bd: S.day, gia: MAT_TIEN.thue };
+          S.hd = { bd: S.day, gia: MAT_TIEN.thue, ky: 0 };
           save();
           sfx("lvup");
           if (typeof track === "function") track("thue-mat-tien");
@@ -70,12 +70,24 @@ function thueMatTien() {
     ],
   );
 }
-/* cuối ngày (sau khi sang ngày mới): gia hạn hợp đồng thì tăng tiền nhà */
+/* hợp đồng mặt tiền: số kỳ đã qua (bản lưu cũ lấy số kỳ tới hôm nay để không gia hạn liền sau khi cập nhật);
+   hợp đồng cũ theo luật 28 ngày tăng 10% mà đắt hơn giá thuê bây giờ thì hạ về giá bây giờ */
+function hdChuan() {
+  const h = S.hd;
+  if (!h || h.ky != null) return h;
+  h.ky = Math.floor((S.day - h.bd) / MAT_TIEN.hopDong);
+  if (h.gia > MAT_TIEN.thue) h.gia = MAT_TIEN.thue;
+  return h;
+}
+/* cuối ngày (sau khi sang ngày mới): tới kỳ gia hạn thì tăng tiền nhà; tính theo số kỳ đã qua nên ngày nghỉ không làm lỡ */
 function matTienCuoiNgay() {
   if (buoc() < 2 || !S.hd) return "";
-  if ((S.day - S.hd.bd) % MAT_TIEN.hopDong !== 0) return "";
+  const h = hdChuan(),
+    ky = Math.floor((S.day - h.bd) / MAT_TIEN.hopDong);
+  if (ky <= h.ky) return "";
+  h.ky = ky;
   const cu = S.hd.gia;
-  S.hd.gia = Math.round((cu * (1 + MAT_TIEN.tang)) / 1000) * 1000;
+  S.hd.gia = Math.max(Math.round((cu * (1 + MAT_TIEN.tang)) / 1000) * 1000, Math.round((MAT_TIEN.thue * 0.9) / 1000) * 1000);
   return `<p class="lvup">🏠 Gia hạn hợp đồng mặt tiền: tiền nhà ${fmt(cu)} → ${fmt(S.hd.gia)}/ngày</p>`;
 }
 
@@ -150,4 +162,29 @@ document.addEventListener("click", (e) => {
   if (!b || b.disabled || typeof S === "undefined" || !S) return;
   e.stopPropagation();
   thueMatTien();
+});
+
+/* màn chuẩn bị: chưa ra mặt tiền (từ 5 ngày trước ngày được thuê) và chưa đặt mục tiêu đời sống thì có thanh để dành ra mặt tiền.
+   Người chơi mua đồ trang trí, trang bị dần dần thường không biết mình còn cách mặt tiền bao xa */
+function mtMucNho() {
+  if (buoc() >= 2 || S.day < MAT_TIEN.tuNgay - 5 || (R && R.challenge)) return "";
+  const can = tienCoc() + MAT_TIEN.trangTri,
+    pt = Math.min(1, Math.max(0, S.money / can)),
+    ngay = dsSoNgay(can - S.money);
+  return `<div class="dsmucnho"><button class="dsmuc" data-mtxem><span class="dsmh mtmh">🏠</span><span class="dsmt"><b>🎯 Ra mặt tiền đầu hẻm</b><i><b style="width:${Math.round(pt * 100)}%"></b></i><small>${
+    pt >= 1
+      ? dkMatTien().every((x) => x.ok)
+        ? "Đủ rồi! Bấm để xem"
+        : "Đủ tiền, còn điều kiện khác: bấm để xem"
+      : `${fmtBig(Math.max(0, S.money))} / ${fmtBig(can)}${ngay ? ` · ~${ngay} ngày nếu giữ nhịp tuần này` : ""}`
+  }</small></span></button></div>`;
+}
+document.addEventListener("click", (e) => {
+  const b = e.target.closest && e.target.closest("[data-mtxem]");
+  if (!b || typeof S === "undefined" || !S) return;
+  e.stopPropagation();
+  R.tab = "nangcap";
+  R.sub = R.sub || {};
+  R.sub.upg = 3;
+  renderPrep();
 });

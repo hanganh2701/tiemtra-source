@@ -68,7 +68,7 @@ function spawnQuen(i, k) {
     sf: NHAN_VAT[k].ngoiSao, /* Hana vẽ bằng ảnh ngôi sao */
     face: "🙂",
     name: NHAN_VAT[k].ten,
-    say: thayTen(q.xin, true),
+    say: thayTen(typeof q.xin === "function" ? q.xin() : q.xin, true),
     end: o.quen ? q.het : "!",
     cups: [o],
     done: [false],
@@ -198,7 +198,7 @@ function paneQuen() {
           gap = (T.lan[k] || 0) > 0;
         if (!gap)
           return `<div class="kq an"><span class="trf">?</span><div><b>Chưa gặp</b><small>Thường ghé từ ngày ${q.tuNgay}</small></div></div>`;
-        const ts = q.tieuSu.filter((_, i) => than >= [0, 3, 6][i]);
+        const ts = q.tieuSu.map((t) => (typeof t === "function" ? t() : t)).filter((_, i) => than >= [0, 3, 6][i]);
         return `<div class="kq"><span class="trf" style="${nv.ngoiSao != null ? starBg(nv.ngoiSao, than >= 6 ? 1 : 0, 64, 63) : faceBg(nv.mat, than >= 6 ? 1 : 0, 64, 63)}"></span><div><b>${esc(nv.ten)}</b> ${timThan(than)}<small>Đã ghé ${T.lan[k]} lần · thân ${than}/10${vangMat(k) ? " · đang học ở Đà Lạt" : ""}</small>${ts.map((t) => `<p>${esc(t)}</p>`).join("")}${
           T.lan[k] >= 2 ? `<p class="kqmon">Món quen: ${esc(moTaMon(q.mon))}</p>` : ""
         }</div></div>`;
@@ -240,7 +240,7 @@ function paneSoTay() {
     xem
       .map(
         (m) =>
-          `<button class="stl" data-canh="${m.id}"><small>Ngày ${T.xem[m.id]} · Chương ${chuongLuc(T.xem[m.id])}</small>${esc(m.tomTat || m.id)}</button>`,
+          `<button class="stl" data-canh="${m.id}"><small>Ngày ${T.xem[m.id]} · ${esc(tenChuongNgay(T.xem[m.id]).split(" · ")[0])}</small>${esc(m.tomTat || m.id)}</button>`,
       )
       .join("") + `<p class="note">Bấm vào một chuyện để xem lại.</p>`
   );

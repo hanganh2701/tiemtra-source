@@ -137,14 +137,23 @@ function ttKetThuc(dung) {
   R.running = false;
   pourSnd(false);
   R.slots.forEach((c) => c && ttGhi(c, c.wrong ? 2 : 3));
-  for (let k = 0; k < TT_SO; k++)
-    if (!C.kq[k]) C.kq[k] = { kq: 3, den: Math.floor(C.t), xong: Math.floor(C.t), o: null };
+  /* đóng cửa sớm: khách chưa tới ghi là bỏ về, giờ tới nối tiếp nhau cách 2 giây như trong game để mã vẫn hợp lệ */
+  let truoc = -2;
+  for (let k = 0; k < TT_SO; k++) {
+    if (C.kq[k]) {
+      truoc = C.kq[k].den;
+      continue;
+    }
+    const den = Math.max(truoc + 2, Math.floor(C.t));
+    C.kq[k] = { kq: 3, den, xong: den, o: null };
+    truoc = den;
+  }
   const ma = ttMa(C.ngay, C.S0.shopName || "Tiệm Trà Nhỏ", C.kq, dung),
     kq = ttDoc(ma);
   S = C.S0;
   R.challenge = null;
   S.ttKq = S.ttKq || {};
-  const lanDau = !S.ttKq[C.ngay];
+  const lanDau = !S.ttKq[C.ngay] && kq.hopLe;
   if (lanDau) S.ttKq[C.ngay] = { ma, chuan: kq.chuan, tam: kq.tam, giay: kq.giay };
   ttLuuBang(kq, true);
   save();
@@ -210,7 +219,8 @@ function ttDoc(ma) {
   }
   for (let k = 0; k < TT_SO; k++) {
     const x = ds[k];
-    if (k && x.den < ds[k - 1].den + 1) return { ...out, lyDo: "Khách " + (k + 1) + " tới sớm hơn luật cho phép" };
+    /* trong game khách tới cách nhau ít nhất 2 giây */
+    if (k && x.den < ds[k - 1].den + 2) return { ...out, lyDo: "Khách " + (k + 1) + " tới sớm hơn luật cho phép" };
     const dangCho = ds.slice(0, k).filter((y) => y.den <= x.den && y.xong > x.den).length;
     if (dangCho > 2) return { ...out, lyDo: "Quầy chỉ có 3 chỗ, mã có quá nhiều khách cùng lúc" };
     if (x.kq === 3 && dung === "x" && x.xong - x.den < TT_CHO - 2)
@@ -238,7 +248,7 @@ async function chiaSe(chu, tieuDe) {
   }
   try {
     await navigator.clipboard.writeText(chu);
-    toast("Đã chép, dán vào nhóm Zalo hoặc Messenger nhé");
+    toast("Đã chép, dán vào nhóm chat với bạn bè nhé");
     return true;
   } catch (e) {}
   return false;
@@ -299,13 +309,13 @@ function paneThuThach() {
     .forEach(([, ds]) =>
       ds.forEach((x) => {
         const k = x.minh ? "Bạn" : x.ten;
-        tuan[k] = tuan[k] || { ten: k, chuan: 0, ngay: 0, minh: x.minh };
+        tuan[k] = tuan[k] || { ten: k, chuan: 0, ngay: 0, minh: x.minh, tuan: 1 };
         tuan[k].chuan += x.chuan;
         tuan[k].ngay++;
       }),
     );
   const dongBang = (x, i) =>
-    `<div class="crow${x.minh ? " minh" : ""}"><span>${i + 1}. ${esc(x.ten)}</span><span>${x.chuan}/${TT_SO}${x.giay != null ? " · " + ttGio(x.giay) : " · " + x.ngay + " ngày"}</span></div>`;
+    `<div class="crow${x.minh ? " minh" : ""}"><span>${i + 1}. ${esc(x.ten)}</span><span>${x.tuan ? x.chuan + " ly chuẩn · " + x.ngay + " ngày" : x.chuan + "/" + TT_SO + " · " + ttGio(x.giay)}</span></div>`;
   return `<div class="ttcard"><b>Thử thách ${ttNgayDep(ngay)}</b><p>${TT_SO} khách giống nhau cho mọi người, cùng vốn và menu. Không ảnh hưởng tiệm của bạn.</p>${
     minh ? `<p class="ttdiem"><b>${minh.chuan}/${TT_SO}</b> ly chuẩn · ${minh.tam} tạm · ${ttGio(minh.giay)}</p>` : ""
   }<div class="askbtns"><button class="big" id="ttGo">${minh ? "Chơi lại để luyện tay" : "Bắt đầu thử thách"}</button>${

@@ -80,6 +80,11 @@ function __muaSam(kieu) {
   if (S.online && !(S.tablets > 0) && mua(CFG.tablet)) { S.tablets = 1; ghi("Tablet", CFG.tablet); window.__muaNgay.tablet = S.day; }
   if (kieu.cn && typeof moChiNhanh === "function" && !S.cn && dkChiNhanh().every((x) => x.ok) && S.money >= cnTien(CN_LOAI.find((x) => x.id === kieu.cn)) + chua && moChiNhanh(kieu.cn)) { window.__muaNgay.chiNhanh = S.day; $("modal").hidden = true; }
   if (deDanh) return;
+  /* mở rộng chi nhánh khi dư (chừa 10 triệu) */
+  if (typeof cnMoRongTiep === "function" && S.cn && cnMoRongDuoc(S.cn)) {
+    const x = cnMoRongTiep(S.cn);
+    if (x && S.money >= x.gia + 10000000) { S.money -= x.gia; S.cn.mr = (S.cn.mr || 0) + 1; S.cn.mrTien = (S.cn.mrTien || 0) + x.gia; ghi("Mở rộng chi nhánh", x.gia); window.__muaNgay["moRong" + S.cn.mr] = S.day; }
+  }
   if (typeof TRANG_TRI !== "undefined") TRANG_TRI.forEach((t) => { if (!coTri(t.id) && mua(t.gia)) { (S.tri = S.tri || []).push(t.id); ghi(t.ten, t.gia); } });
   if (!S.upg.brandKit && S.upg.sealer && mua(BRAND_COST)) { S.upg.brandKit = true; ghi("Thương hiệu", BRAND_COST); window.__muaNgay.brand = S.day; }
   /* đời sống: mua dần khi dư (chừa 5 triệu), ô tô và nhà thì trả góp khi đủ tiền trả trước và ngân hàng cho; không mua đồ đắt cho bản thân;
@@ -200,8 +205,9 @@ const NGUOI_CHOI = [
   ["Người chơi giỏi, mặt tiền, thuê người, chi nhánh văn phòng, Hana giữ kín", { giay: 7, matTien: true, nv: true, cn: "vp" }, { hana: 1 }],
   ["Người chơi giỏi 200 ngày, mặt tiền, chi nhánh gần trường, sắm đời sống", { giay: 7, matTien: true, nv: true, cn: "truong", ds: true, ngay: 200 }],
   ["Người chơi vừa 200 ngày, mặt tiền, chi nhánh gần trường, sắm đời sống", { giay: 11, matTien: true, nv: true, cn: "truong", ds: true, ngay: 200 }],
+  ["Người chơi chậm (14 giây mỗi ly) 150 ngày, mặt tiền, thuê người, chi nhánh gần trường, sắm đời sống", { giay: 14, matTien: true, nv: true, cn: "truong", ds: true, ngay: 150 }],
 ];
-/* thử giá bán: người chơi giỏi ở mặt tiền, 60 ngày, chỉ đổi giá trà (hương, topping giữ giá gợi ý) */
+/* thử giá bán: người chơi giỏi ở mặt tiền, 60 ngày, đổi giá trà hoặc giá phần thêm */
 const datGia = (bt) => `BASE_KEYS.forEach((k) => { if (S.unlocked[k]) S.sell[k] = ${bt}; })`;
 const GIA_THU = [
   ["Giá gợi ý", null],
@@ -209,6 +215,9 @@ const GIA_THU = [
   ["Đắt hơn 15%", datGia("Math.round((DEF_SELL[k] * 1.15) / 500) * 500")],
   ["Sát ngưỡng đắt: trà 39k, matcha 49k", datGia("k === 'matcha' ? 49000 : 39000")],
   ["Qua ngưỡng đắt: trà 40k, matcha 50k", datGia("k === 'matcha' ? 50000 : 40000")],
+  /* bản 5.3: giá cả ly tính cả phần thêm; trước đây đặt phần thêm đắt hơn 30% thì lãi thêm 25–30% mà khách không vắng */
+  ["Phần thêm đắt hơn 30% (hương, topping, size L)", "[...FLAV_KEYS, ...TOP_KEYS, 'L'].forEach((k) => (S.sell[k] = Math.round((DEF_SELL[k] * 1.3) / 500) * 500))"],
+  ["Size L 14k (gấp đôi)", "S.sell.L = 14000"],
 ];
 const arg = process.argv[2];
 if (arg === "gia") {

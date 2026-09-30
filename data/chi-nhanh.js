@@ -15,6 +15,7 @@ const CHI_NHANH = {
   capBac: 12,
   luongPhu: 150000 /* người phụ ở chi nhánh */,
   capPhu: 30 /* người phụ bán thêm được bấy nhiêu ly mỗi ngày */,
+  capPhuKiosk: 25 /* kiosk có người phụ thì bày thêm được bấy nhiêu ly trên mức tối đa */,
   muaNgoai: 1.3 /* hàng mua ngoài đắt hơn hàng tiệm gốc nấu */,
   lapLai: 7 /* một tình huống không lặp lại trong bấy nhiêu ngày */,
   sangNhuong: 0.6 /* sang nhượng lại cho người khác thì lấy lại phần này của tiền sang lại và trang trí */,
@@ -26,12 +27,12 @@ const CHI_NHANH = {
 const CN_LOAI = [
   {
     id: "truong", ic: "🏫", ten: "Chi nhánh gần trường", ngan: "gần trường",
-    thue: 300000, cocNgay: 60, trangTri: 5000000, sangLai: 30000000, cau: 105, cuoiTuan: 0.4, thi: 0.5, mua: 0.75, nong: 1.15, gia: 0.85,
+    thue: 300000, cocNgay: 60, trangTri: 5000000, sangLai: 30000000, cau: 105, cuoiTuan: 0.4, thi: 0.5, mua: 0.75, nong: 1.15, gia: 0.92,
     mo: "Học sinh đông, thích ngọt và nhiều topping, giá mềm hơn tiệm gốc. Cuối tuần và tuần thi vắng.",
   },
   {
     id: "vp", ic: "🏢", ten: "Chi nhánh dưới toà văn phòng", ngan: "toà văn phòng",
-    thue: 500000, cocNgay: 90, trangTri: 8000000, sangLai: 40000000, cau: 95, cuoiTuan: 0.3, mua: 0.85, nong: 1.1, gia: 1.1,
+    thue: 500000, cocNgay: 90, trangTri: 8000000, sangLai: 40000000, cau: 95, cuoiTuan: 0.3, mua: 0.85, nong: 1.1, gia: 1,
     mo: "Trưa ngày thường đông nghẹt, khách chịu chi hơn. Cuối tuần gần như vắng.",
   },
   {
@@ -41,6 +42,16 @@ const CN_LOAI = [
   },
 ];
 const CN_TEN_QL = ["Chị Ngọc", "Anh Tâm", "Chị Uyên", "Anh Phát", "Chị Diễm"];
+
+/* mở rộng chi nhánh (bản 5.3): chỗ tiêu tiền cuối game. Mở lần lượt từng nấc sau khi chi nhánh bán được moSau ngày.
+   cauHs nhân vào khách, capThem cộng vào sức bán (kiosk cộng cả vào mức tối đa), chiNgay tốn thêm mỗi ngày (điện nước, người, tiền thuê),
+   sao cộng vào sao chi nhánh, diem cộng điểm Phố Trà. Nấc sau đắt hơn, lời chậm hơn: nấc 1 hoàn vốn khoảng nửa năm, nấc 3 gần hai năm */
+const CN_MO_RONG = [
+  { id: "may", ten: "Máy pha thứ hai", gia: 30000000, cauHs: 1.2, capThem: 25, chiNgay: 80000, mo: "Thêm máy pha và một người đứng quầy giờ cao điểm, khách bớt chờ." },
+  { id: "gian", ten: "Thuê thêm gian bên cạnh", gia: 80000000, cauHs: 1.25, capThem: 35, chiNgay: 200000, sao: 0.1, mo: "Kê bàn ghế, máy lạnh làm chỗ ngồi, khách ngồi lại gọi thêm ly." },
+  { id: "bien", ten: "Bảng hiệu lớn, quảng cáo quanh khu", gia: 180000000, cauHs: 1.2, capThem: 30, chiNgay: 150000, diem: 4, mo: "Cả khu biết tên tiệm, khách ở xa cũng tìm tới." },
+];
+const CN_MO_RONG_SAU = 30; /* chi nhánh bán được bấy nhiêu ngày mới mở rộng được */
 
 /* tình huống buổi sáng, tối đa một mỗi ngày: a tốn tiền (gia), b chịu thiệt kiểu khác. {ql} = tên quản lý.
    Hệ quả nằm trong cnChonViec (src/chi-nhanh.js). */
