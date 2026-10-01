@@ -617,6 +617,14 @@ body:not(.selling)::before{content:'';position:fixed;inset:0;z-index:-1;backgrou
 .trch{display:block;font-size:.72rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--soft);margin-bottom:10px}
 .trskip{position:absolute;right:8px;top:6px;text-decoration:none;font-size:.82rem}
 .trch{padding-inline:58px}.trch .trre{display:table;margin:5px auto 0}
+/* tranh cảnh (bản 5.6): tràn hết bề ngang thẻ, mặt người đang có mặt đứng dưới tranh */
+.tctranh{position:relative;margin:0 -20px 12px;aspect-ratio:320/140;overflow:hidden;background:var(--bg)}
+.tctranh .tcsvg{display:block;width:100%;height:100%}
+.tcnguoi{position:absolute;left:0;right:0;bottom:6px;display:flex;justify-content:center;gap:6px;pointer-events:none}
+.tcmat{width:44px;height:43px;border-radius:50%;border:3px solid #fffaf2;background-color:var(--bg);box-shadow:0 3px 6px rgba(58,35,23,.25);transition:transform .2s,opacity .2s}
+.tcmat.noi{transform:translateY(-4px) scale(1.12);border-color:var(--pink)}
+.tcnguoi:has(.noi) .tcmat:not(.noi){opacity:.7}
+@media (prefers-reduced-motion:reduce){.tcmat{transition:none}}
 .goiyb{display:block;margin-top:5px;font-size:.8em;line-height:1.3;color:#7a5aa8;font-weight:700}
 .ttnhac{display:block;margin:12px auto -4px;padding:6px 14px;border-radius:999px;border:2px solid #7a5aa8;background:var(--panel);color:#7a5aa8;font:inherit;font-weight:800;font-size:.82rem;cursor:pointer;max-width:calc(100% - 24px);position:relative;z-index:1}
 .trw{display:flex;gap:12px;align-items:flex-start;text-align:left;margin:8px 0}
@@ -766,10 +774,12 @@ body.hem-den.selling .awning::before{display:none}
 <script src="data/chi-nhanh.js"></script>
 <script src="data/doi-song.js"></script>
 <script src="data/cot-truyen.js"></script>
+<script src="data/tranh-canh.js"></script>
 <script src="data/thanh-tich.js"></script>
 <script src="data/trang-tri.js"></script>
 <script src="data/logo.js"></script>
 <script src="src/truyen.js"></script>
+<script src="src/tranh-canh.js"></script>
 <script src="src/khach-quen.js"></script>
 <script src="src/nga-re.js"></script>
 <script src="src/cam-giac.js"></script>

@@ -259,7 +259,7 @@ function hienCanh(m, xong, xemLai) {
       hienTrangMoi(moi, xong);
     };
     if (sau.length && !boQua) {
-      card.innerHTML = `${nhan}${sau.map(dongThoai).join("")}<div class="askbtns"><button class="big" id="trOk">Tiếp tục</button></div>`;
+      card.innerHTML = `${nhan}${tranhCanh(m)}${sau.map(dongThoai).join("")}<div class="askbtns"><button class="big" id="trOk">Tiếp tục</button></div>`;
       $("trOk").onclick = dong2;
     } else dong2();
   };
@@ -276,7 +276,7 @@ function hienCanh(m, xong, xemLai) {
         m.reRe && m.luaChon && m.luaChon.length ? veChon() : ketThuc((m.luaChon || [])[m.macDinh || 0] || null, true);
   };
   const veChon = () => {
-    card.innerHTML = `${nhan}<p class="trl trn">${thayTen(m.tomTat || "")}</p>${nutChon()}`;
+    card.innerHTML = `${nhan}${tranhCanh(m)}<p class="trl trn">${thayTen(m.tomTat || "")}</p>${nutChon()}`;
     ganNut();
   };
   const boQuaNut = xemLai ? "" : `<button class="sp-link trskip" id="trSkip">Bỏ qua ›</button>`;
@@ -284,10 +284,11 @@ function hienCanh(m, xong, xemLai) {
     /* đã đọc ở lượt chơi trước thì hiện gọn cả cảnh */
     const gon = cheDo() !== "day" || xemLai || !!((S.kl || {}).daDoc || {})[m.id];
     if (gon) {
-      card.innerHTML = `${boQuaNut}${nhan}${dong.map(dongThoai).join("")}${nutChon()}`;
+      card.innerHTML = `${boQuaNut}${nhan}${tranhCanh(m)}${dong.map(dongThoai).join("")}${nutChon()}`;
     } else {
       const cuoi = i >= dong.length - 1;
-      card.innerHTML = `${boQuaNut}${nhan}${dongThoai(dong[i])}<div class="trdots">${dong.map((_, k) => `<i class="${k <= i ? "on" : ""}"></i>`).join("")}</div>${
+      /* tranh giữ nguyên qua từng câu, người đang nói nhô lên */
+      card.innerHTML = `${boQuaNut}${nhan}${tranhCanh(m, tcAiNoi(dong[i]))}${dongThoai(dong[i])}<div class="trdots">${dong.map((_, k) => `<i class="${k <= i ? "on" : ""}"></i>`).join("")}</div>${
         cuoi ? nutChon() : `<div class="askbtns"><button class="big" id="trNext">Tiếp ›</button></div>`
       }`;
       if ($("trNext"))

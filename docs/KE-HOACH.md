@@ -455,6 +455,17 @@ Trước: 6 mục con xếp hai hàng, trộn chọn món, mua hàng và làm ti
 - [x] Chai hương (siro) chuyển sang Kho, mục Hương nằm giữa Trà và Topping; chai đang có lên trước. Thiếu topping thì nút mở cửa đưa tới mục Topping (giờ số 2)
 - [x] Giá, tác dụng mọi món giữ nguyên. Bỏ hàm `theTrangTri` không còn dùng
 
+### Tranh cho cảnh truyện (bản 5.6) — xong 01/10
+
+Chủ dự án muốn cảnh truyện có hình cho sinh động (trước chỉ có chữ và chân dung nhỏ cạnh từng câu).
+
+- [x] Mỗi cảnh có tranh tràn ngang đầu thẻ, ghép từ: bối cảnh vẽ bằng SVG (Claude tự vẽ, cùng tông kem hồng, nét nâu như tranh của game), giờ trong ngày, lớp phủ mùa lễ, thời tiết và hàng mặt người đang có mặt (ảnh gốc `faces.webp`, `star.webp`, Mướp, mẹ). 85 cảnh, không cảnh nào giống hệt cảnh nào
+- [x] 10 bối cảnh (`TC_NEN`): quầy dưới gác (ra mặt tiền rồi thì thành kiosk có tên tiệm), mặt tiền, con hẻm, căn gác bà Sáu (có hình ông), chợ, quê, bến xe, đầu hẻm (mặt bằng cho thuê trước khi Mây Tea mở, sau đó là cửa hàng Mây Tea), cổng trường, điện thoại cho cảnh tin nhắn
+- [x] Lớp phủ: buổi tối (trời tím, trăng sao, đèn toả sáng), mưa, Trung Thu (trăng, lồng đèn ông sao), Tết (cành mai, lồng đèn đỏ). Mướp nằm ngủ trên quầy khi lời thoại nhắc Mướp
+- [x] Đọc từng câu thì người đang nói nhô lên, viền hồng; đọc gọn thì cả nhóm đứng ngang nhau. Tranh hiện cả khi xem lại trong Sổ tay
+- [x] Bối cảnh từng cảnh ghi trong `data/tranh-canh.js`; cảnh không ghi thì toàn tin nhắn là điện thoại, `que_*` là quê, còn lại là quầy. Tết, Trung Thu, mưa thêm tự động theo điều kiện cảnh
+- [x] Ảnh cảnh truyện trên trang giới thiệu chụp lại có tranh
+
 ## Cổng quyết định
 
 | Cổng | Ngày | Đi tiếp khi |

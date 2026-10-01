@@ -1,0 +1,48 @@
+/* Bối cảnh tranh cho từng cảnh truyện (bản 5.6). Vẽ ở src/tranh-canh.js. Nạp trước game.js.
+   nen: quay (tiệm dưới gác; đã ra mặt tiền thì tự thành mattien) · hem · gac · cho · que · benxe · dauhem · truong · dienthoai
+   gio: sang | toi (không ghi: trước giờ mở cửa là sáng, sau giờ đóng cửa là tối)
+   them: mua · trungthu · tet (Tết, Trung Thu theo lịch lễ và mưa theo điều kiện cảnh được thêm tự động)
+   meo: true/false để hiện hay ẩn Mướp nằm trên quầy (không ghi: hiện khi lời thoại nhắc Mướp)
+   Cảnh không có ở đây: toàn tin nhắn thì là điện thoại, que_* là quê, còn lại là quầy. */
+const TRANH_CANH = {
+  c0_chu_tu: { nen: "hem" },
+  c0_co_hanh: { nen: "hem" },
+  c0_tien_nha: { nen: "gac" },
+  c1_sang_nhuong: { nen: "dauhem" },
+  c1_ket: { nen: "gac" },
+  le_ong_tao: { nen: "hem" },
+  le_tet: { nen: "hem" },
+  le_trung_thu: { nen: "hem" },
+  hanh_1: { nen: "hem" },
+  hanh_2: { nen: "hem" },
+  c2_may: { nen: "dauhem" },
+  hana_a1: { nen: "hem" },
+  c2_trung_thu: { nen: "hem" },
+  c2_vy: { nen: "dauhem" },
+  c2_ba_sau: { nen: "gac" },
+  c2_ket: { nen: "hem" },
+  c2_ket_a: { nen: "hem" },
+  c2_nga_re: { nen: "dauhem" },
+  may_a1: { nen: "dauhem" },
+  may_a2: { nen: "hem" },
+  may_b1: { nen: "hem" },
+  may_b2: { nen: "hem" },
+  may_b3: { nen: "hem" },
+  c2_chi_nhanh: { nen: "hem" },
+  cn_cho_hang: { nen: "hem" },
+  c3_gia_tet: { nen: "cho" },
+  c3_vang: { nen: "hem" },
+  que_1: { nen: "benxe" },
+  que_3: { nen: "hem" },
+  linh_3: { nen: "truong" },
+  gui_2: { nen: "que" },
+  st_so: { nen: "gac", meo: true },
+  st_linh_a: { nen: "truong" },
+  st_hanh: { nen: "hem" },
+  st_vy_a: { nen: "dauhem" },
+  st_vy_b: { nen: "cho" },
+  st_khoa_dua: { nen: "hem" },
+  st_duong: { nen: "hem" },
+  st_mua: { nen: "hem", them: ["mua"] },
+  st_muop: { meo: true },
+};
