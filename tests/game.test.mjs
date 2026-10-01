@@ -203,7 +203,7 @@ test("câu đánh giá: chỉ 1 câu không bao giờ được chọn (đã bi�
   }
 });
 
-test("đo lường: chưa gắn địa chỉ thì không gửi gì, vẫn nhớ ngày chơi đầu", () => {
+test("đo lường: chạy ở máy thì không gửi gì, vẫn nhớ ngày chơi đầu", () => {
   const g = boot();
   try {
     let sent = 0;
@@ -212,6 +212,29 @@ test("đo lường: chưa gắn địa chỉ thì không gửi gì, vẫn nhớ 
     g.run('track("thu"); trackReturn()');
     assert.equal(sent, 0);
     assert.match(g.w.localStorage.getItem("tsFirst"), /^\d{4}-\d{2}-\d{2}$/);
+  } finally {
+    g.close();
+  }
+});
+
+test("đo lường trên trang thật: mỗi sự kiện gửi một lần tới GoatCounter, không kèm dữ liệu game; tắt trong Cài đặt thì thôi", () => {
+  const g = boot({ url: "https://hanganh2701.github.io/tiemtra-source/" });
+  try {
+    const src = [];
+    g.w.Image = function () { const o = {}; Object.defineProperty(o, "src", { set: (v) => src.push(v) }); return o; };
+    g.run('track("xong-ngay-1"); track("xong-ngay-1")');
+    assert.equal(src.length, 1);
+    assert.match(src[0], /^https:\/\/tiemtranho\.goatcounter\.com\/count\?p=%2Fxong-ngay-1&e=true&rnd=[0-9a-z]+$/);
+    g.run("showSettings()");
+    assert.match(g.w.document.getElementById("sTele").textContent, /Đang bật/);
+    g.w.document.getElementById("sTele").click();
+    assert.equal(g.w.localStorage.getItem("tsNoTele"), "1");
+    assert.match(g.w.document.getElementById("sTele").textContent, /Đang tắt/);
+    g.run('track("thue-mat-tien")');
+    assert.equal(src.length, 1, "đã tắt thì không gửi");
+    g.w.document.getElementById("sTele").click();
+    g.run('track("thue-mat-tien")');
+    assert.equal(src.length, 2);
   } finally {
     g.close();
   }

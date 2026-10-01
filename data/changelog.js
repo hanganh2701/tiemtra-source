@@ -1,7 +1,14 @@
 /* Phiên bản và danh sách "Có gì mới". Mỗi lần cập nhật: tăng GAME_VERSION và thêm một mục lên ĐẦU CHANGELOG. */
 /* ===== PHIÊN BẢN GAME: mỗi lần cập nhật, tăng số và thêm một mục lên ĐẦU danh sách ===== */
-const GAME_VERSION = "5.3";
+const GAME_VERSION = "5.3.1";
 const CHANGELOG = [
+  {
+    v: "5.3.1",
+    d: "01/10/2026",
+    items: [
+      "Game đếm ẩn danh vài mốc chơi (xong ngày đầu, quay lại hôm sau, chọn ngã rẽ…) để biết chỗ nào cần sửa. Không cookie, không gửi tên tiệm, tiền hay bản lưu. Tắt được ở Cài đặt › Đếm lượt chơi ẩn danh",
+    ],
+  },
   {
     v: "5.3",
     d: "29/09/2026",
