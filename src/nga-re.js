@@ -86,7 +86,7 @@ function truyenDauNgay() {
 }
 /* dòng cho thẻ Ngày mai */
 function ngayMaiNhanh() {
-  if (nhanh("linh") === "A" && !TT().co.linh_da_lam) return "🎒 Linh chờ bạn thuê làm phụ quầy (Nâng cấp › Nhân viên)";
+  if (nhanh("linh") === "A" && !TT().co.linh_da_lam) return "🎒 Linh chờ bạn thuê làm phụ quầy (Nâng cấp › Người)";
   if (nhanhMay() === "A" && ngayReMay() != null)
     return `🚚 Sáng mai xe Mây Tea lấy ${SI_MAY.n} phần trân châu đen (${fmt(SI_MAY.gia)}/phần). Nhớ nấu dư`;
   if (dangMungMoLai()) return `🏮 Khách quen mừng tiệm mở lại sau Tết: còn ${ngayVeLai() + 3 - S.day} ngày đông hơn`;

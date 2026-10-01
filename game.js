@@ -1962,7 +1962,7 @@ function onlineCard() {
       )
       .join("")}</div>`;
   }
-  h += `<div class="note">Cần 1 tablet (mua ở Trang bị) thì đơn Soppi mới đổ về. Đơn online chiếm khoảng 20% tổng khách. Phí app −${CFG.commission}%.</div>`;
+  h += `<div class="note">Đơn online chiếm khoảng 20% tổng khách, app lấy ${CFG.commission}% tiền mỗi đơn. Mỗi app cần 1 tablet (ngay dưới đây).</div>`;
   h += APPS.map((a) => {
     const j = appJoined(a),
       act = on.includes(a),
@@ -2204,12 +2204,23 @@ function paneKho() {
     "</p>";
   const fl = FLAV_KEYS.filter(un),
     tp = TOP_KEYS.filter(un);
+  /* hương (siro) mua theo chai, không nấu: chai đang có lên trước (bản 5.5 chuyển từ Nâng cấp sang đây) */
+  const chai = (k) => {
+    const n = qty(k),
+      bs = S.stock[k].filter((b) => b.q > 0),
+      c = bottleCost(k);
+    return `<div class="rowi">${itemIcon(k)}<div><div class="nm">${ITEMS[k].n}</div><div class="sub">${n ? `${ico("box")} ${n} ly · hết hạn ngày ${bs.map((b) => b.exp).join(", ")}` : "Chưa có chai, chưa lên menu"}</div></div><button class="sbtn pri" data-bottle="${k}" ${S.money < c ? "disabled" : ""}><b>${fmt(c)}</b>Mua chai</button></div>`;
+  };
+  const huong =
+    ncInfo("Chai hương dùng thế nào", `1 chai = ${CFG.bottleN} ly, dùng được ${CFG.bottleLife} ngày tính cả ngày mua. Hết chai thì vị đó rời menu, chai quá hạn bị đổ bỏ. Có vị nào trên menu là khoảng 6/10 khách gọi thêm hương.`) +
+    [...FLAV_KEYS.filter((k) => qty(k) > 0), ...FLAV_KEYS.filter((k) => !qty(k))].map(chai).join("");
   let h =
     loanCard() +
     evCard() +
     `<div class="fore big2">${ico("people")} ~${ex.walk} khách ghé${ex.onl ? ` &nbsp; 📱 ~${ex.onl} đơn` : ""}</div>`;
   h += subTabs("kho", [
     [ico("teapot") + " Trà", BASE_KEYS.filter(un).map(row).join("")],
+    [ico("strawberry") + " Hương", huong],
     [ico("pearlbowl") + " Topping", groupRows(tp, row)],
     [ico("cupempty") + " Ly", row("cup")],
   ]);
@@ -2232,6 +2243,22 @@ function paneKho() {
     renderObar();
   };
   $("pane").onclick = (e) => {
+    const bt = e.target.closest("[data-bottle]");
+    if (bt) {
+      const k = bt.dataset.bottle,
+        c = bottleCost(k);
+      if (S.money < c) return;
+      S.money -= c;
+      addStock(k, CFG.bottleN);
+      const g = (S.cur.ing[k] = S.cur.ing[k] || { q: 0, v: 0 });
+      g.q += CFG.bottleN;
+      g.v += c;
+      syncFlav();
+      save();
+      toast("Đã mua chai " + low(ITEMS[k].n) + ": " + qty(k) + " ly");
+      refreshPrep(1);
+      return;
+    }
     const b = e.target.closest("[data-d]");
     if (!b) return;
     const k = b.dataset.d;
@@ -2266,11 +2293,11 @@ function cook() {
 }
 function missingPrep() {
   const has = (ks) => ks.some((k) => S.unlocked[k] && qty(k) > 0);
-  /* [nhãn có icon, tab con trong Kho (Trà 0, Topping 1, Ly 2), nhãn chữ cho toast] */
+  /* [nhãn có icon, tab con trong Kho (Trà 0, Hương 1, Topping 2, Ly 3), nhãn chữ cho toast] */
   return [
     !has(BASE_KEYS) && [ico("teapot") + " Trà", 0, "Trà"],
-    !has(TOP_KEYS) && [ico("pearlbowl") + " Topping", 1, "Topping"],
-    !qty("cup") && [ico("cupempty") + " Ly", 2, "Ly"],
+    !has(TOP_KEYS) && [ico("pearlbowl") + " Topping", 2, "Topping"],
+    !qty("cup") && [ico("cupempty") + " Ly", 3, "Ly"],
   ].filter(Boolean);
 }
 /* tiền nấu mức hàng ít nhất để mở cửa: 10 phần trà, 10 phần topping rẻ nhất đang bán và 20 ly */
@@ -2343,51 +2370,127 @@ function tryOpen() {
   }
   truyenLuc("mo_cua", startDay);
 }
-function paneUpg() {
-  const row = (k) =>
-    `<div class="rowi${(S.off || {})[k] ? " offm" : ""}">${itemIcon(k)}<div><div class="nm">${ITEMS[k].n}</div>${(S.off || {})[k] ? '<div class="sub">Đã bỏ khỏi menu</div>' : ""}</div>${S.unlocked[k] ? `<button class="sbtn ghost" data-moff="${k}"><b>✓</b>Bỏ khỏi menu</button>` : (S.off || {})[k] ? `<button class="sbtn pri" data-mon="${k}"><b>Miễn phí</b>Thêm lại</button>` : `<button class="sbtn pri" data-un="${k}" ${S.money < ITEMS[k].unlock ? "disabled" : ""}><b>${fmt(ITEMS[k].unlock)}</b>Mua</button>`}</div>`;
-  const tea = BASE_KEYS.map(row).join("");
-  const bRow = (k) => {
-    const n = qty(k),
-      bs = S.stock[k].filter((b) => b.q > 0),
-      c = bottleCost(k);
-    return `<div class="rowi">${itemIcon(k)}<div><div class="nm">${ITEMS[k].n}</div><div class="sub${n ? "" : " low"}">${n ? `${ico("box")} Còn ${n} ly · ` + bs.map((b) => `${b.q} ly hết hạn ngày ${b.exp}`).join(", ") : "Hết hàng, chưa có trong menu"}</div></div><button class="sbtn pri" data-bottle="${k}" ${S.money < c ? "disabled" : ""}><b>${fmt(c)}</b>Mua chai</button></div>`;
+/* tab Nâng cấp (bản 5.5): bốn mục theo việc người chơi muốn làm, một hàng nút.
+   Menu: mở món mới (rẻ lên trước), món đang bán gọn một dòng. Quầy: trang bị, tem thương hiệu, trang trí; món đã có gom vào "Đã có".
+   Người: nhân viên. Mở rộng: các nấc lớn của tiệm (góc dưới gác, mặt tiền, đơn online, chi nhánh).
+   Chai hương (siro) mua ở Kho. Giá, tác dụng từng món giữ nguyên như trước. */
+const ncInfo = (tom, chu) => `<details class="ncinfo"><summary>${ico("book")} ${tom}</summary><p>${chu}</p></details>`;
+const ncDaCo = (n, rows) => (n ? `<details class="ncdaco"><summary>Đã có ${n} món</summary>${rows}</details>` : "");
+function ncMenu() {
+  const off = S.off || {},
+    gia = (k) => ITEMS[k].unlock;
+  const moRow = (k) =>
+    `<div class="rowi">${itemIcon(k)}<div><div class="nm">${ITEMS[k].n}</div><div class="sub">Giá gợi ý ${fmt(DEF_SELL[k])} · vốn ${fmt(CFG.cost[k])}</div></div><button class="sbtn pri" data-un="${k}" ${S.money < gia(k) ? "disabled" : ""}><b>${fmt(gia(k))}</b>Mua</button></div>`;
+  const coRow = (k) =>
+    off[k]
+      ? `<div class="rowi gon offm">${itemIcon(k)}<div class="nm">${ITEMS[k].n}<small>Đã bỏ khỏi menu</small></div><button class="sbtn" data-mon="${k}">Thêm lại</button></div>`
+      : `<div class="rowi gon">${itemIcon(k)}<div class="nm">${ITEMS[k].n}</div><button class="sbtn ghost" data-moff="${k}">Bỏ khỏi menu</button></div>`;
+  const nhom = (ks, ten) => {
+    const moi = ks.filter((k) => !S.unlocked[k] && !off[k]).sort((a, b) => gia(a) - gia(b)),
+      co = ks.filter((k) => S.unlocked[k] || off[k]);
+    return (
+      `<div class="sec">${ten} <small class="wl">${ks.filter((k) => S.unlocked[k]).length}/${ks.length} món đang bán</small></div>` +
+      (moi.length ? `<div class="tgl">Mở thêm</div>${moi.map(moRow).join("")}` : "") +
+      (co.length ? `<div class="tgl">Đang có</div>${co.map(coRow).join("")}` : "")
+    );
   };
-  const flav =
-    `<div class="note">1 chai = ${CFG.bottleN} ly, dùng được ${CFG.bottleLife} ngày tính cả ngày mua. Mua 2 chai được ${CFG.bottleN * 2} ly. Hết chai thì phải mua chai mới mới dùng được, chai quá hạn bị đổ bỏ.</div>` +
-    FLAV_KEYS.map(bRow).join("");
-  const top = groupRows(TOP_KEYS, row);
-  const brandRow =
-    `<div class="rowi"><span class="icon">🎨</span><div><div class="nm">Bộ nhận diện thương hiệu</div><div class="sub">Tự thiết kế tem thương hiệu in lên ly: màu nền, logo, tên quán, khẩu hiệu</div></div>${S.upg.brandKit ? `<button class="sbtn" data-brand="1">🎨 Thiết kế</button>` : `<button class="sbtn pri" data-buybrand="1" ${S.money < BRAND_COST ? "disabled" : ""}><b>${fmt(BRAND_COST)}</b>Mua</button>`}</div>` +
-    (S.upg.brandKit && S.brand
-      ? `<div class="brandprevrow">${temHTML(S.brand, 88, true)}</div>`
-      : "");
-  const tbN = S.tablets || 0,
-    tabRow = `<div class="rowi"><span class="icon">${ico("phone")}</span><div><div class="nm">Tablet nhận đơn online (${tbN}/${APPS.length})</div><div class="sub">Mỗi tablet chạy 1 app giao hàng. Phải có tablet thì đơn Soppi mới đổ về, shipper mới tới lấy hàng</div></div>${tbN >= APPS.length ? '<span class="okline">✓</span>' : !S.online ? '<span class="wl">Mở đơn online trước</span>' : `<button class="sbtn pri" data-tablet="1" ${S.money < CFG.tablet ? "disabled" : ""}><b>${fmtTr(CFG.tablet)}</b>Mua</button>`}</div>`;
-  const eq =
-    theMatTien() +
-    theChiNhanh() +
-    `<div class="wl" style="text-align:right;margin-bottom:2px">⚡ +${fmt(CFG.utilPerUpg)}/ngày</div>` +
-    UPG.map(
-      (u) =>
-        `<div class="rowi"><span class="icon">${u.i}</span><div><div class="nm">${u.n}</div><div class="sub">${u.d}</div></div>${S.upg[u.id] ? '<span class="okline">✓</span>' : `<button class="sbtn pri" data-up="${u.id}" ${S.money < u.cost ? "disabled" : ""}><b>${fmt(u.cost)}</b>Mua</button>`}</div>`,
-    ).join("") +
-    brandRow +
-    tabRow +
-    theTrangTri();
-  const staff =
-    `<div class="note">Thuê một lần, sau đó trả lương mỗi ngày mở cửa. Có nhân viên thì toàn bộ tiền tip của khách là của nhân viên, quán không nhận. Cho nghỉ thì hết trả lương, gọi đi làm lại lúc nào cũng được, không tốn tiền thuê.</div>` +
-    STAFF.map(
-      (u) =>
-        `<div class="rowi"><span class="icon">${ico("people")}</span><div><div class="nm">${u.n}</div>${u.d ? `<div class="sub">${u.d}</div>` : ""}<div class="sub">Lương ${fmt(Math.round(CFG[u.wage] * luongNv(u.id)))}/ngày</div>${nvDong(u.id)}</div>${S.upg[u.id] ? `<button class="sbtn" data-fire="${u.id}"><b>✓</b>Cho nghỉ</button>` : S.day < u.from ? `<span class="wl">Ngày ${u.from}</span>` : u.need && !u.need() ? `<span class="wl">${u.needT}</span>` : (S.hired || {})[u.id] ? `<button class="sbtn pri" data-hire="${u.id}"><b>Gọi</b>đi làm</button>` : `<button class="sbtn pri" data-hire="${u.id}" ${S.money < u.cost ? "disabled" : ""}><b>${u.cost ? fmt(u.cost) : "Không phí"}</b>Thuê</button>`}</div>`,
-    ).join("");
+  return nhom(BASE_KEYS, "Trà") + nhom(TOP_KEYS, "Topping") + `<p class="note">Hương (siro) mua theo chai ở tab Kho.</p>`;
+}
+function ncQuay() {
+  const upRow = (u, co) =>
+    `<div class="rowi"><span class="icon">${u.i}</span><div><div class="nm">${u.n}</div><div class="sub">${u.d}</div></div>${co ? '<span class="okline">✓</span>' : `<button class="sbtn pri" data-up="${u.id}" ${S.money < u.cost ? "disabled" : ""}><b>${fmt(u.cost)}</b>Mua</button>`}</div>`;
+  const triRow = (t, co) =>
+    `<div class="rowi"><span class="icon"><img class="ico" src="img/tt_${t.id}.svg" alt=""></span><div><div class="nm">${esc(t.ten)}</div><div class="sub">${esc(t.uuDai)}</div></div>${co ? '<span class="okline">✓</span>' : `<button class="sbtn pri" data-tri="${t.id}" ${S.money < t.gia ? "disabled" : ""}><b>${fmt(t.gia)}</b>Mua</button>`}</div>`;
+  const brand = S.upg.brandKit
+    ? `<div class="rowi"><span class="icon">🎨</span><div><div class="nm">Tem thương hiệu</div><div class="sub">Màu nền, logo, tên quán, khẩu hiệu in lên ly</div></div><button class="sbtn" data-brand="1">🎨 Thiết kế</button></div>${S.brand ? `<div class="brandprevrow">${temHTML(S.brand, 88, true)}</div>` : ""}`
+    : `<div class="rowi"><span class="icon">🎨</span><div><div class="nm">Bộ nhận diện thương hiệu</div><div class="sub">Tự thiết kế tem in lên ly: màu nền, logo, tên quán, khẩu hiệu</div></div><button class="sbtn pri" data-buybrand="1" ${S.money < BRAND_COST ? "disabled" : ""}><b>${fmt(BRAND_COST)}</b>Mua</button></div>`;
+  const upChua = UPG.filter((u) => !S.upg[u.id]).sort((a, b) => a.cost - b.cost),
+    upCo = UPG.filter((u) => S.upg[u.id]),
+    triChua = TRANG_TRI.filter((t) => !coTri(t.id)),
+    triCo = TRANG_TRI.filter((t) => coTri(t.id));
+  return (
+    `<div class="sec">Trang bị <small class="wl">⚡ mỗi món +${fmt(CFG.utilPerUpg)} tiền điện mỗi ngày</small></div>` +
+    upChua.map((u) => upRow(u, false)).join("") +
+    brand +
+    ncDaCo(upCo.length, upCo.map((u) => upRow(u, true)).join("")) +
+    `<div class="sec">Trang trí <small class="wl">mua một lần, hiện trước tiệm</small></div>` +
+    (triChua.length ? triChua.map((t) => triRow(t, false)).join("") : '<p class="note">Đã trang trí đủ mọi món.</p>') +
+    ncDaCo(triCo.length, triCo.map((t) => triRow(t, true)).join(""))
+  );
+}
+function ncNguoi() {
+  const nut = (u) =>
+    S.upg[u.id]
+      ? `<button class="sbtn ghost" data-fire="${u.id}">Cho nghỉ</button>`
+      : S.day < u.from
+        ? `<span class="wl">Ngày ${u.from}</span>`
+        : u.need && !u.need()
+          ? `<span class="wl">${u.needT}</span>`
+          : (S.hired || {})[u.id]
+            ? `<button class="sbtn pri" data-hire="${u.id}"><b>Gọi</b>đi làm</button>`
+            : `<button class="sbtn pri" data-hire="${u.id}" ${S.money < u.cost ? "disabled" : ""}><b>${u.cost ? fmt(u.cost) : "Không phí"}</b>Thuê</button>`;
+  const luong = (u) => `Lương ${fmt(Math.round(CFG[u.wage] * luongNv(u.id)))}/ngày`;
+  const lam = STAFF.filter((u) => S.upg[u.id]),
+    chua = STAFF.filter((u) => !S.upg[u.id]);
+  const dong = (u) =>
+    `<div class="rowi"><span class="icon">${ico("people")}</span><div><div class="nm">${u.n}</div><div class="sub">${luong(u)}${S.upg[u.id] ? "" : (S.hired || {})[u.id] ? " · đang nghỉ" : ""}</div>${S.upg[u.id] ? nvDong(u.id) : u.d ? `<div class="sub">${u.d}</div>` : ""}</div>${nut(u)}</div>`;
+  return (
+    ncInfo(
+      "Lương, tiền tip, cho nghỉ",
+      "Thuê một lần, sau đó trả lương mỗi ngày mở cửa. Có nhân viên thì toàn bộ tiền tip của khách là của nhân viên, quán không nhận. Cho nghỉ thì hết trả lương, gọi đi làm lại lúc nào cũng được, không tốn tiền thuê.",
+    ) +
+    (lam.length ? `<div class="sec">Đang làm</div>${lam.map(dong).join("")}` : "") +
+    (chua.length ? `<div class="sec">${lam.length ? "Thuê thêm" : "Thuê người"}</div>${chua.map(dong).join("")}` : "")
+  );
+}
+/* các nấc lớn của tiệm: nấc đã xong một dòng, nấc đang tới mở rộng, nấc còn xa chỉ có tên và điều kiện */
+function ncMoRong() {
+  const mt = buoc() >= 2,
+    on = appsOn().length > 0,
+    tbN = S.tablets || 0;
+  const tablet = `<div class="rowi"><span class="icon">${ico("phone")}</span><div><div class="nm">Tablet nhận đơn (${tbN}/${APPS.length})</div><div class="sub">Mỗi app giao hàng cần 1 tablet thì đơn mới đổ về</div></div>${tbN >= APPS.length ? '<span class="okline">✓</span>' : !S.online ? '<span class="wl">Mở đơn online trước</span>' : `<button class="sbtn pri" data-tablet="1" ${S.money < CFG.tablet ? "disabled" : ""}><b>${fmtTr(CFG.tablet)}</b>Mua</button>`}</div>`;
+  const hd = mt && S.hd ? hdChuan() : null;
+  const nac = [
+    { ten: "Góc dưới gác bà Sáu", xong: true, tt: mt ? "Giờ là bếp nấu hàng của tiệm" : `Đang bán ở đây · tiền nhà ${fmt(CFG.rent)}/ngày` },
+    {
+      ten: "Mặt tiền đầu hẻm",
+      xong: mt,
+      tt: mt ? `Tiền nhà ${fmt(hd.gia)}/ngày · còn ${MAT_TIEN.hopDong - ((S.day - hd.bd) % MAT_TIEN.hopDong)} ngày tới gia hạn` : `Từ ngày ${MAT_TIEN.tuNgay}, cần ${fmtBig(tienCoc() + MAT_TIEN.trangTri)}`,
+      than: mt ? "" : theMatTien(),
+    },
+    {
+      ten: "Đơn online",
+      xong: on,
+      tt: on ? `Đang nhận đơn ${appsOn().length} app` : S.online ? "Đã mở, cần tablet hoặc đủ sao" : `Mở từ ngày ${CFG.online.fromDay}`,
+      than: onlineCard() + tablet,
+      mo: !!S.online /* đã mở online thì còn app, tablet để quản lý */,
+    },
+    {
+      ten: "Chi nhánh",
+      xong: !!S.cn,
+      tt: S.cn ? (cnLoai() || {}).ten || "" : mt ? "Mở tiệm thứ hai" : "Ra mặt tiền trước",
+      than: mt ? theChiNhanh() : "",
+      mo: mt /* điều kiện mở, hay quản lý chi nhánh đang có */,
+    },
+  ];
+  const toi = nac.findIndex((x) => !x.xong);
+  return (
+    `<div class="nacl">` +
+    nac
+      .map((x, i) => {
+        const mo = x.than && (i === toi || x.mo);
+        return `<div class="nac${x.xong ? " xong" : i === toi ? " toi" : " xa"}"><div class="nach"><span class="nacd">${x.xong ? "✓" : i + 1}</span><div><b>${x.ten}</b><small>${x.tt}</small></div></div>${mo ? `<div class="nacb">${x.than}</div>` : ""}</div>`;
+      })
+      .join("") +
+    `</div>`
+  );
+}
+function paneUpg() {
   $("pane").innerHTML = subTabs("upg", [
-    [ico("teapot") + " Trà", tea],
-    [ico("strawberry") + " Hương", flav],
-    [ico("pearlbowl") + " Topping", top],
-    [ico("tools") + " Trang bị", eq],
-    [ico("people") + " Nhân viên", staff],
-    [ico("phone") + " Online", onlineCard()],
+    [ico("cupfull") + " Menu", ncMenu()],
+    [ico("tools") + " Quầy", ncQuay()],
+    [ico("people") + " Người", ncNguoi()],
+    [ico("home") + " Mở rộng", ncMoRong()],
   ]);
   bindSub("upg");
   $("pane").onclick = (e) => {
@@ -2397,24 +2500,8 @@ function paneUpg() {
       fi = e.target.closest("[data-fire]"),
       bb = e.target.closest("[data-buybrand]"),
       bd = e.target.closest("[data-brand]"),
-      bt = e.target.closest("[data-bottle]"),
       tb = e.target.closest("[data-tablet]"),
       aj = e.target.closest("[data-join]");
-    if (bt) {
-      const k = bt.dataset.bottle,
-        c = bottleCost(k);
-      if (S.money < c) return;
-      S.money -= c;
-      addStock(k, CFG.bottleN);
-      const g = (S.cur.ing[k] = S.cur.ing[k] || { q: 0, v: 0 });
-      g.q += CFG.bottleN;
-      g.v += c;
-      syncFlav();
-      save();
-      toast("Đã mua chai " + low(ITEMS[k].n) + ": " + qty(k) + " ly");
-      refreshPrep(1);
-      return;
-    }
     const recall = hi && S.hired && S.hired[hi.dataset.hire]; /* gọi lại nhân viên đã thuê: miễn phí, không tính là mua */
     if ((a || b || (hi && !recall) || bb || tb || aj) && inDebt()) {
       toast("Đang nợ, trả xong mới mua được");
@@ -4314,7 +4401,7 @@ function q3act(a, el) {
       toast(
         (S.off || {})[k]
           ? "Siro " + low(ITEMS[k].n) + " đã bỏ khỏi menu"
-          : "Chưa mở siro " + low(ITEMS[k].n) + " (Nâng cấp)",
+          : "Chưa có siro " + low(ITEMS[k].n) + " (mua chai ở Kho)",
       );
       return;
     }
@@ -6403,7 +6490,7 @@ function endDay() {
       : ""
   }${
     nhacNv
-      ? `<p class="note">🤝 ${r.lost} khách bỏ về. Thuê nhân viên phụ quầy (Nâng cấp › Nhân viên, ${fmt(STAFF[0].cost)}) thì mỗi ly pha nhanh hơn, khách đỡ chờ.</p>`
+      ? `<p class="note">🤝 ${r.lost} khách bỏ về. Thuê nhân viên phụ quầy (Nâng cấp › Người, ${fmt(STAFF[0].cost)}) thì mỗi ly pha nhanh hơn, khách đỡ chờ.</p>`
       : ""
   }
   <div class="ledger">
@@ -6436,7 +6523,7 @@ function endDay() {
   ${
     broke
       ? `<p>${ico("trophy")} ${best} ngày</p><p class="note">Câu chuyện Hẻm 42, sổ công thức, độ thân với khách quen và kỷ lục vẫn được giữ.</p><button class="big" id="go">Mở quán mới</button>`
-      : `${khat ? `<p class="lvup">${ico("people")} Két âm ${fmt(khat)}. Bà Sáu cho khất, trả dần bằng một nửa tiền lãi những ngày sau, không tính lãi. Mỗi chương bà chỉ cho khất một lần.</p>` : ""}${!broke && S.ev ? `<p class="lvup">${ico(EVS[S.ev.id].ic)} Ngày mai: <b>${EVS[S.ev.id].n}</b>. ${evText(S.ev)}</p>` : ""}${nextLv ? `<p class="lvup">${ico("warn")} Từ ngày ${S.day}: ${LV_TXT[nextLv].toLowerCase()}. Đầu ngày sẽ có hướng dẫn.</p>` : ""}${justOnline ? `<p class="lvup">${ico("phone")} Mở đơn online Soppi! ${S.tablets || 0 ? "" : "Mua tablet ở Nâng cấp > Trang bị để đơn đổ về."}</p>` : ""}${mtHtml}${doKhoCuoiNgay()}${phoTraCuoiNgay()}${dsGuiCuoiNgay(r)}${dsMucCuoiNgay()}${ngayMaiHTML()}<button class="sbtn" id="seeSum" style="width:100%;padding:10px;margin-top:6px">${ico("chart")} Tổng kết</button><button class="big" id="go" style="margin-top:8px">Ngày ${S.day} ➜</button>`
+      : `${khat ? `<p class="lvup">${ico("people")} Két âm ${fmt(khat)}. Bà Sáu cho khất, trả dần bằng một nửa tiền lãi những ngày sau, không tính lãi. Mỗi chương bà chỉ cho khất một lần.</p>` : ""}${!broke && S.ev ? `<p class="lvup">${ico(EVS[S.ev.id].ic)} Ngày mai: <b>${EVS[S.ev.id].n}</b>. ${evText(S.ev)}</p>` : ""}${nextLv ? `<p class="lvup">${ico("warn")} Từ ngày ${S.day}: ${LV_TXT[nextLv].toLowerCase()}. Đầu ngày sẽ có hướng dẫn.</p>` : ""}${justOnline ? `<p class="lvup">${ico("phone")} Mở đơn online Soppi! ${S.tablets || 0 ? "" : "Mua tablet ở Nâng cấp › Mở rộng để đơn đổ về."}</p>` : ""}${mtHtml}${doKhoCuoiNgay()}${phoTraCuoiNgay()}${dsGuiCuoiNgay(r)}${dsMucCuoiNgay()}${ngayMaiHTML()}<button class="sbtn" id="seeSum" style="width:100%;padding:10px;margin-top:6px">${ico("chart")} Tổng kết</button><button class="big" id="go" style="margin-top:8px">Ngày ${S.day} ➜</button>`
   }`;
     $("modal").hidden = false;
     $("go").focus();

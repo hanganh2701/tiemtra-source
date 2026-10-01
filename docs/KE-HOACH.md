@@ -443,6 +443,18 @@ Chủ dự án mua tên miền meomeo.app (DNS ở Cloudflare), game chạy ở 
 - [x] Ảnh chụp game làm bằng Chrome chạy ẩn qua giao thức DevTools (script tạm, không nằm trong repo): dựng một tiệm ngày 40 đã ra mặt tiền, khung 390×844
 - [x] Chân trang ghi "Created by 1conmeo" (01/10). 1conmeo là biệt danh của chủ dự án: chỗ nào cần ghi tác giả thì dùng tên này
 
+### Tab Nâng cấp gọn lại (bản 5.5) — xong 01/10
+
+Trước: 6 mục con xếp hai hàng, trộn chọn món, mua hàng và làm tiệm lớn lên. Mục Trang bị dài gần 3 màn hình (mặt tiền, chi nhánh, 6 trang bị, tem, tablet, 8 trang trí). Tablet ở Trang bị mà app ở Online. Món đã có chiếm chỗ bằng món chưa có. Giờ:
+
+- [x] Bốn mục một hàng: **Menu** (trà, topping), **Quầy** (trang bị, tem thương hiệu, trang trí), **Người** (nhân viên), **Mở rộng** (`ncMenu`, `ncQuay`, `ncNguoi`, `ncMoRong` trong game.js). Số thứ tự Mở rộng vẫn là 3 nên chỗ nhảy tới thẻ mặt tiền, chi nhánh không đổi
+- [x] Menu: món mở thêm xếp từ rẻ tới đắt, kèm giá gợi ý và vốn; món đang bán gọn một dòng với nút nhỏ Bỏ khỏi menu
+- [x] Quầy: món chưa có lên trước, món đã có gom vào ô "Đã có N món" (bấm mới mở); tiền điện mỗi món ghi ở tiêu đề; tem thương hiệu đã mua luôn có nút Thiết kế
+- [x] Người: nhân viên đang làm lên đầu kèm tính nết, tay nghề; đoạn giải thích lương, tip, cho nghỉ nằm trong ô ⓘ
+- [x] Mở rộng là chuỗi nấc: góc dưới gác bà Sáu → mặt tiền → đơn online (app và tablet cùng một chỗ) → chi nhánh (kèm mở rộng chi nhánh). Nấc đã xong một dòng ✓, nấc kế tiếp mở ra, nấc còn xa chỉ có tên và điều kiện
+- [x] Chai hương (siro) chuyển sang Kho, mục Hương nằm giữa Trà và Topping; chai đang có lên trước. Thiếu topping thì nút mở cửa đưa tới mục Topping (giờ số 2)
+- [x] Giá, tác dụng mọi món giữ nguyên. Bỏ hàm `theTrangTri` không còn dùng
+
 ## Cổng quyết định
 
 | Cổng | Ngày | Đi tiếp khi |
@@ -457,4 +469,5 @@ Chủ dự án mua tên miền meomeo.app (DNS ở Cloudflare), game chạy ở 
 - `LICH_LE` chỉ có ngày Tết và Trung Thu tới 2030: trước Tết 2031 cần thêm ngày.
 - Game vẫn không có service worker (tác giả gốc cố ý gỡ để tránh kẹt bản cũ), nên chưa chơi được khi mất mạng hẳn.
 - Phần Sau Tết hết khoảng ngày 185 (tính từ ngày mở hàng mùng năm). Người chơi quá mốc đó chỉ còn cảnh lễ ngoài đời, chuyện nhà ở quê và chi nhánh; cần thêm một đợt truyện nữa nếu nhiều người chơi tới đó.
+- Test "danh thiếp tiệm… khách VIP, sổ vẫn khớp két" (tests/choi-cung-ban.test.mjs) thỉnh thoảng trượt, khoảng 1/15–1/30 lần chạy cả file, có từ trước bản 5.5 (đo trên `main` 01/10/2026). Chạy riêng 40 lần không trượt, chưa tìm ra nguyên nhân. Nếu CI đỏ ở test này thì chạy lại trước khi sửa.
 - Câu đánh giá "Cảm ơn nhân viên đã làm lại đúng ý mình" không bao giờ được chọn (khách bị làm sai luôn đánh giá tiêu cực). Giữ nguyên có chủ ý.

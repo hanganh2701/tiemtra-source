@@ -140,7 +140,7 @@ test("tablet chỉ mua được khi đã mở online; online mở từ ngày 40"
     assert.equal(g.run("CFG.online.fromDay"), 40);
     g.run("S.day = 30; S.money = 50000000; R.tab = 'nangcap'; renderPrep()");
     assert.equal(g.run("!!document.querySelector('[data-tablet]')"), false);
-    assert.match(g.w.document.getElementById("pane").textContent, /Mở đơn online trước/);
+    assert.match(g.w.document.getElementById("pane").textContent, /Đơn onlineMở từ ngày 40/, "nấc Đơn online ở mục Mở rộng báo ngày mở");
     g.run("S.online = true; renderPrep()");
     assert.equal(g.run("!!document.querySelector('[data-tablet]')"), true);
   } finally {
