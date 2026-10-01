@@ -485,7 +485,8 @@ Chủ dự án muốn bảng xếp hạng chung trên mạng, xếp theo tiền 
   - chặn chơi nhanh hơn 3 phút đời thực mỗi ngày;
   - hai lần gửi cách nhau ít nhất 30 giây;
   - chủ dự án ẩn được dòng gian lận (cột `an`, lệnh trong `may-chu/bxh/README.md`)
-- [ ] Chủ dự án đăng nhập Cloudflare để đưa máy chủ lên (`npx wrangler login`)
+- [x] Đưa lên 01/10/2026: chủ dự án đăng nhập Cloudflare (`wrangler login`), cơ sở dữ liệu D1 `tiemtra-bxh` (vùng APAC), Worker chạy ở https://bxh.meomeo.app. Đã thử thật: đọc bảng, gửi, chặn số vô lý, rời bảng, gọi từ game qua CORS
+- [x] Mục Bảng chung tự tải bảng ngay khi vẽ, không nhờ hàm của file khác: sau mỗi lần cập nhật, trình duyệt có thể giữ bản cũ của từng file JS vài phút (game không có số phiên bản trong đường dẫn file)
 
 ## Cổng quyết định
 

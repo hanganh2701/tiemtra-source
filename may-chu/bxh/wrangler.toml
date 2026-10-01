@@ -7,4 +7,4 @@ routes = [{ pattern = "bxh.meomeo.app", custom_domain = true }]
 [[d1_databases]]
 binding = "DB"
 database_name = "tiemtra-bxh"
-database_id = "DIEN_SAU_KHI_TAO" # npx wrangler d1 create tiemtra-bxh rồi dán id vào đây
+database_id = "c58eb85b-dc57-4149-8d61-88916259d7b8"

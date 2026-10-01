@@ -55,6 +55,7 @@ test("game: chưa tham gia thì không gửi gì; tham gia thì cuối ngày g�
     assert.equal(goi.filter((x) => /\/diem$/.test(x.url)).length, 0, "chưa tham gia");
     g.run("$('modal').hidden = true; R.tab = 'hem'; R.sub = { hem: HEM_TAB.findIndex((x) => x[1] === paneBangChung) }; renderPrep()");
     assert.match(g.run("document.getElementById('pane').textContent"), /Tham gia bảng chung/);
+    await new Promise((r) => setTimeout(r, 10)); /* nút gắn việc ngay sau khi vẽ */
     g.run("document.getElementById('bxhVao').click()");
     await new Promise((r) => setTimeout(r, 20));
     const d = goi.find((x) => /\/diem$/.test(x.url));

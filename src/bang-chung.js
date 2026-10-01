@@ -65,8 +65,10 @@ function bxhRoi() {
     ],
   ]);
 }
-/* tab Hẻm 42 › Bảng chung: vẽ khung trước, tải bảng sau */
+/* tab Hẻm 42 › Bảng chung: vẽ khung trước, tải bảng sau. Tự gắn nút và tải bảng sau khi vẽ (không nhờ hemBind của pho-tra.js:
+   sau mỗi lần cập nhật, trình duyệt có thể còn giữ bản cũ của file khác vài phút) */
 function paneBangChung() {
+  setTimeout(bxhGan, 0);
   const co = bxhCo();
   return `<div class="ttcard"><b>Bảng xếp hạng chung</b><p>Tiệm nào kiếm được nhiều tiền nhất: xếp theo lãi tích luỹ của tiệm (doanh thu trừ chi phí từ ngày khai trương). Tiền mua nhà, xe không làm tụt hạng.</p>${
     co

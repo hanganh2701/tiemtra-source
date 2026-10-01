@@ -185,7 +185,6 @@ function phoTraGan() {
 function hemBind() {
   ttGan();
   phoTraGan();
-  if (typeof bxhGan === "function") bxhGan();
 }
 HEM_TAB.push([() => "🎯 Thử thách", paneThuThach], [() => "🏆 Phố Trà", panePhoTra]);
 
