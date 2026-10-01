@@ -21,7 +21,8 @@ function bxhGoi(duong, body) {
 /* cuối ngày (endDay): gửi lãi tích luỹ nếu đã tham gia; lỗi mạng thì thôi, mai gửi lại */
 function bxhGui() {
   if (!bxhCo() || R.challenge) return Promise.resolve(null);
-  return bxhGoi("/diem", { khoa: bxhKhoa(), ten: shopName(), lai: Math.round(S.totalProfit || 0), ngay: S.day, sao: +rating().toFixed(2), ban: GAME_VERSION })
+  /* ngay = số ngày đã mở cửa (lúc gửi cuối ngày, S.day đã sang ngày mới) */
+  return bxhGoi("/diem", { khoa: bxhKhoa(), ten: shopName(), lai: Math.round(S.totalProfit || 0), ngay: Math.max(1, S.day - 1), sao: +rating().toFixed(2), ban: GAME_VERSION })
     .then((j) => {
       S.bxhHang = j.hang;
       return j;
@@ -87,7 +88,7 @@ function bxhVe(j) {
     return;
   }
   const dong = (x) =>
-    `<div class="crow ptr${x.minh ? " minh" : ""}"><span><b>${x.hang}.</b> ${esc(x.ten)}<small>Ngày ${x.ngay} · ${String(x.sao).replace(".", ",")}★</small></span><span>${fmtBig(x.lai)}</span></div>`;
+    `<div class="crow ptr${x.minh ? " minh" : ""}"><span><b>${x.hang}.</b> ${esc(x.ten)}<small>${x.ngay} ngày mở cửa · ${String(x.sao).replace(".", ",")}★</small></span><span>${fmtBig(x.lai)}</span></div>`;
   el.innerHTML =
     (j.bang.length
       ? `<div class="sec">Top ${j.bang.length} trên ${j.tong} tiệm</div>${j.bang.map(dong).join("")}`
