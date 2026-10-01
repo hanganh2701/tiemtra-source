@@ -23,7 +23,7 @@ Hệ quả: **không làm tính năng qua máy chủ** (bảng xếp hạng onli
 
 ## Quy ước
 
-- **Không bước build.** HTML, CSS, JS thuần. `index.html` nạp `data/*.js` rồi `game.js` bằng thẻ script thường; hằng số cấp cao dùng chung giữa các file.
+- **Không bước build.** HTML, CSS, JS thuần. `index.html` là trang giới thiệu, game ở `choi.html` (từ bản 5.4); `choi.html` nạp `data/*.js` rồi `game.js` bằng thẻ script thường; hằng số cấp cao dùng chung giữa các file.
 - **Nội dung nằm trong `data/`:** changelog, khách, câu đánh giá, sự kiện, cốt truyện. Code nằm trong `game.js`.
 - **Test:** `npm test` (Node + jsdom). Sửa lỗi nào thì thêm test cho lỗi đó. Không commit khi test đỏ.
 - **CI:** GitHub Actions (`.github/workflows/test.yml`) chạy `npm test` cho mọi pull request và mỗi lần push lên `main`. Chỉ gộp khi CI xanh.
@@ -430,6 +430,17 @@ Thử giá (`node tools/mo-phong-kinh-te.mjs gia`, người chơi giỏi, trung 
 | Trà đắt hơn 15% | 3.897 | 86 | 4,78 |
 | Hương, topping, size L đắt hơn 30% (mẹo cũ) | 3.121 | 70 | 4,18 |
 | Size L 14k | 3.689 | 89 | 4,82 |
+
+### Trang giới thiệu (bản 5.4) — xong 01/10
+
+Chủ dự án mua tên miền meomeo.app (DNS ở Cloudflare), game chạy ở https://tiemtra.meomeo.app từ bản 5.3.2. Bản 5.4 cho người mới vào trang giới thiệu trước.
+
+- [x] `index.html` là trang giới thiệu tự viết (không nạp code game), game đổi tên thành `choi.html` cùng thư mục nên đường dẫn ảnh, âm thanh và bản lưu (localStorage cùng địa chỉ) giữ nguyên
+- [x] Nội dung: tranh mở đầu của game, một ngày ở tiệm (ảnh chụp game thật: menu, quầy pha, thẻ cuối ngày), Hẻm 42 (8 nhân vật lấy từ `img/faces.webp`, `img/star.webp`, ảnh cảnh ngã rẽ), tiệm lớn dần, Đời sống, cách cài lên điện thoại, chân trang ghi rõ không quảng cáo và đếm ẩn danh. Ảnh ở `img/gioi-thieu/` (webp, tổng khoảng 225KB) và ảnh xem trước khi chia sẻ link `og.jpg` 1200×630
+- [x] Người chơi cũ thấy nút "Chơi tiếp · Ngày N" và tên tiệm; Android Chrome có nút Cài lên máy khi trình duyệt cho phép
+- [x] Link chia sẻ cũ `/#q=` (danh thiếp), `/#c=` (thử thách) và ứng dụng đã cài trước bản 5.4 (mở `/` ở chế độ standalone) chuyển thẳng vào `choi.html`; manifest `start_url` là `./choi.html` nên cài mới thì mở thẳng game
+- [x] Trang giới thiệu đếm lượt xem `/trang-chu` trên GoatCounter, cùng luật với game (chỉ trang thật, tôn trọng Do Not Track và nút tắt trong Cài đặt)
+- [x] Ảnh chụp game làm bằng Chrome chạy ẩn qua giao thức DevTools (script tạm, không nằm trong repo): dựng một tiệm ngày 40 đã ra mặt tiền, khung 390×844
 
 ## Cổng quyết định
 

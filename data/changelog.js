@@ -1,7 +1,15 @@
 /* Phiên bản và danh sách "Có gì mới". Mỗi lần cập nhật: tăng GAME_VERSION và thêm một mục lên ĐẦU CHANGELOG. */
 /* ===== PHIÊN BẢN GAME: mỗi lần cập nhật, tăng số và thêm một mục lên ĐẦU danh sách ===== */
-const GAME_VERSION = "5.3.2";
+const GAME_VERSION = "5.4";
 const CHANGELOG = [
+  {
+    v: "5.4",
+    d: "01/10/2026",
+    items: [
+      "Trang giới thiệu ở tiemtra.meomeo.app: một ngày ở tiệm, người trong Hẻm 42, cách cài lên điện thoại. Game nằm ở tiemtra.meomeo.app/choi.html, bản lưu giữ nguyên",
+      "Mở từ biểu tượng trên màn hình chính, hay bấm link danh thiếp tiệm, link thử thách thì vào thẳng game",
+    ],
+  },
   {
     v: "5.3.2",
     d: "01/10/2026",
