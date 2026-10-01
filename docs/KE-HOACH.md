@@ -469,4 +469,5 @@ Trước: 6 mục con xếp hai hàng, trộn chọn món, mua hàng và làm ti
 - `LICH_LE` chỉ có ngày Tết và Trung Thu tới 2030: trước Tết 2031 cần thêm ngày.
 - Game vẫn không có service worker (tác giả gốc cố ý gỡ để tránh kẹt bản cũ), nên chưa chơi được khi mất mạng hẳn.
 - Phần Sau Tết hết khoảng ngày 185 (tính từ ngày mở hàng mùng năm). Người chơi quá mốc đó chỉ còn cảnh lễ ngoài đời, chuyện nhà ở quê và chi nhánh; cần thêm một đợt truyện nữa nếu nhiều người chơi tới đó.
+- Test "danh thiếp tiệm… khách VIP, sổ vẫn khớp két" (tests/choi-cung-ban.test.mjs) thỉnh thoảng trượt, khoảng 1/15–1/30 lần chạy cả file, có từ trước bản 5.5 (đo trên `main` 01/10/2026). Chạy riêng 40 lần không trượt, chưa tìm ra nguyên nhân. Nếu CI đỏ ở test này thì chạy lại trước khi sửa.
 - Câu đánh giá "Cảm ơn nhân viên đã làm lại đúng ý mình" không bao giờ được chọn (khách bị làm sai luôn đánh giá tiêu cực). Giữ nguyên có chủ ý.
