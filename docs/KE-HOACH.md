@@ -28,7 +28,7 @@ Hệ quả: **không làm tính năng qua máy chủ** (bảng xếp hạng onli
 - **Test:** `npm test` (Node + jsdom). Sửa lỗi nào thì thêm test cho lỗi đó. Không commit khi test đỏ.
 - **CI:** GitHub Actions (`.github/workflows/test.yml`) chạy `npm test` cho mọi pull request và mỗi lần push lên `main`. Chỉ gộp khi CI xanh.
 - **Chạy thử:** `python3 -m http.server 8765` rồi mở http://localhost:8765.
-- **Phát hành:** làm trên nhánh riêng, test xanh, gộp vào `main`. GitHub Pages tự cập nhật (https://hanganh2701.github.io/tiemtra-source/). Tính năng mới lên vào thứ Năm; sửa lỗi gấp lên bất cứ lúc nào. Tuần Tết 01–07/02/2027 không phát hành.
+- **Phát hành:** làm trên nhánh riêng, test xanh, gộp vào `main`. GitHub Pages tự cập nhật (https://tiemtra.meomeo.app từ 01/10/2026; tên miền của chủ dự án, DNS ở Cloudflare, file `CNAME` ở gốc repo. Địa chỉ cũ https://hanganh2701.github.io/tiemtra-source/ tự chuyển sang). Bản lưu nằm trong trình duyệt theo từng địa chỉ nên không tự sang địa chỉ mới: chuyển bằng mã sao lưu. Tính năng mới lên vào thứ Năm; sửa lỗi gấp lên bất cứ lúc nào. Tuần Tết 01–07/02/2027 không phát hành.
 - **Mỗi bản:** tăng `GAME_VERSION`, thêm mục lên đầu `CHANGELOG` trong `data/changelog.js` (người chơi thấy ở "Có gì mới"). Đổi cấu trúc bản lưu thì thêm bước nâng cấp trong `loadFrom`.
 - **Đổi cấu hình chủ game** (`DEFAULT_CONFIG`) mà muốn áp cho người chơi cũ: thêm bước `if (!(CFG.cfgVer >= N))` và tăng `CFG_VER`.
 - **Riêng tư:** đo lường chỉ đếm gộp, không mã định danh (`track()`, `TELE_URL`). Không gửi dữ liệu game đi đâu.
@@ -46,7 +46,7 @@ Hệ quả: **không làm tính năng qua máy chủ** (bảng xếp hạng onli
 - [x] Vẽ 21 icon SVG còn thiếu (`img/ic_*.svg`, danh sách trong `ICO_SVG`)
 - [x] Bible nhân vật (`docs/NHAN-VAT.md`) và 6 cảnh Chương 0 (`data/cot-truyen.js`, chưa nối vào game)
 - [ ] Chủ dự án lập nhóm chơi thử
-- [x] Chủ dự án tạo tài khoản GoatCounter (01/10/2026, mã `tiemtranho`), gắn vào `TELE_URL` ở bản 5.3.1: chỉ đếm trên trang github.io, người chơi tắt được trong Cài đặt (khoá `tsNoTele` theo máy)
+- [x] Chủ dự án tạo tài khoản GoatCounter (01/10/2026, mã `tiemtranho`), gắn vào `TELE_URL` ở bản 5.3.1: chỉ đếm trên trang thật (github.io, meomeo.app), người chơi tắt được trong Cài đặt (khoá `tsNoTele` theo máy)
 
 ### Mốc 1 · Lý do quay lại ngày mai (bản 4.0 "Hẻm 42") — xong 28/09
 

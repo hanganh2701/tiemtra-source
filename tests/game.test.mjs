@@ -238,6 +238,16 @@ test("đo lường trên trang thật: mỗi sự kiện gửi một lần tới
   } finally {
     g.close();
   }
+  /* tên miền riêng cũng đếm */
+  const m = boot({ url: "https://tiemtra.meomeo.app/" });
+  try {
+    let n = 0;
+    m.w.Image = function () { n++; return {}; };
+    m.run('track("xong-ngay-1")');
+    assert.equal(n, 1);
+  } finally {
+    m.close();
+  }
 });
 
 test("nhập mã 8 số cũ thì được hướng dẫn dùng mã dài, không gọi máy chủ", async () => {

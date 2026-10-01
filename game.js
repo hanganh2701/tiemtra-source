@@ -8182,7 +8182,7 @@ function showSettings() {
 
 /* ---------- ĐO LƯỜNG CHỈ ĐẾM GỘP ----------
    Không mã định danh, không gửi dữ liệu game, chỉ gửi tên sự kiện (ví dụ "xong-ngay-1") tới công cụ đếm không lưu IP.
-   Gửi tới GoatCounter của chủ dự án (gắn 01/10/2026, không cookie). Chỉ đếm khi chơi trên trang thật (github.io): chạy thử ở máy,
+   Gửi tới GoatCounter của chủ dự án (gắn 01/10/2026, không cookie). Chỉ đếm khi chơi trên trang thật (tiemtra.meomeo.app, hay github.io cũ): chạy thử ở máy,
    test và mô phỏng không gửi. Người chơi tắt được trong Cài đặt (lưu theo máy, khoá tsNoTele), trình duyệt bật Do Not Track thì cũng không gửi. */
 const TELE_URL = "https://tiemtranho.goatcounter.com/count";
 const teleSent = new Set();
@@ -8194,7 +8194,7 @@ const teleTat = () => {
   }
 };
 function track(ev) {
-  if (!TELE_URL || teleSent.has(ev) || !/\.github\.io$/.test(location.hostname) || teleTat()) return;
+  if (!TELE_URL || teleSent.has(ev) || !/(\.github\.io|(^|\.)meomeo\.app)$/.test(location.hostname) || teleTat()) return;
   teleSent.add(ev);
   try {
     if (navigator.doNotTrack === "1") return;
