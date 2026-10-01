@@ -31,6 +31,7 @@ test("trang giới thiệu: mọi nút chơi dẫn tới choi.html, không nạp
   assert.ok(anh.length > 8);
   for (const f of anh) assert.ok(existsSync(path.join(ROOT, f)), "thiếu " + f);
   assert.ok(existsSync(path.join(ROOT, "img/gioi-thieu/og.jpg")), "ảnh xem trước khi chia sẻ link");
+  assert.equal(w.document.querySelector("footer .ky").textContent, "Created by 1conmeo", "chân trang ghi tên tác giả");
   /* ứng dụng cài mới mở thẳng vào game */
   assert.equal(JSON.parse(readFileSync(path.join(ROOT, "manifest.webmanifest"), "utf8")).start_url, "./choi.html");
 });

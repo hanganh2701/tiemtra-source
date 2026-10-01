@@ -6,6 +6,7 @@
 <meta name="color-scheme" content="only light">
 <title>Tiệm Trà Nhỏ · game mở tiệm trà sữa</title>
 <meta name="description" content="Game mở tiệm trà sữa nhỏ dưới căn gác của bà Sáu ở Hẻm 42: nấu trân châu, pha từng ly đúng ý khách, ghép lại cuốn sổ công thức. Miễn phí, không quảng cáo, chơi ngay trên trình duyệt.">
+<meta name="author" content="1conmeo">
 <meta name="theme-color" content="#fdf3e4">
 <link rel="canonical" href="https://tiemtra.meomeo.app/">
 <link rel="manifest" href="manifest.webmanifest">
@@ -132,6 +133,8 @@ p{margin:0}
 .moi ul{list-style:none;padding:0;margin:4px 0 0;display:flex;flex-direction:column;gap:4px;font-weight:600;color:#d9e4da;font-size:.95rem}
 .chan{padding-block:32px calc(32px + env(safe-area-inset-bottom,0px));color:var(--soft);font-size:.9rem;font-weight:600}
 .chan .wrap{display:flex;flex-direction:column;gap:6px}
+.ky{color:var(--ink);font-weight:700;font-size:1rem}
+.ky b{color:var(--pink-d);font-weight:800}
 
 @media (min-width:860px){
   .mo{padding-block:36px 72px}
@@ -285,7 +288,8 @@ p{margin:0}
 
 <footer class="chan">
   <div class="wrap">
-    <p>Tiệm Trà Nhỏ là dự án cá nhân của 1conmeo. Không quảng cáo, không thu tiền, mọi thứ chạy trên máy bạn.</p>
+    <p class="ky">Created by <b>1conmeo</b></p>
+    <p>Tiệm Trà Nhỏ là dự án cá nhân. Không quảng cáo, không thu tiền, mọi thứ chạy trên máy bạn.</p>
     <p>Game đếm ẩn danh vài mốc chơi (xong ngày đầu, quay lại hôm sau) để biết chỗ nào cần sửa, không gửi tên tiệm hay bản lưu. Tắt được trong Cài đặt của game.</p>
     <p id="banGame"></p>
   </div>
