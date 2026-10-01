@@ -125,7 +125,8 @@ test("danh thiếp tiệm: đọc lại được, bạn vào Phố Trà và ghé
     a.run("S.shopName = 'Quán Mây'; S.day = 20; S.tr = { mon: { 'tra||tcden|': 30 } }");
     ma = a.run("maQuan()");
     assert.equal(a.run(`docMaQuan(${JSON.stringify(ma)}).ten`), "Quán Mây");
-    assert.equal(a.run(`docMaQuan(${JSON.stringify(ma.slice(0, -1) + "z")})`), null);
+    /* sửa ký tự cuối thành ký tự khác (mã ngẫu nhiên có khi đã tận cùng bằng "z") */
+    assert.equal(a.run(`docMaQuan(${JSON.stringify(ma.slice(0, -1) + (ma.endsWith("z") ? "y" : "z"))})`), null);
   } finally {
     a.close();
   }
