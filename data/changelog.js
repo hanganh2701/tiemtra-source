@@ -1,7 +1,12 @@
 /* Phiên bản và danh sách "Có gì mới". Mỗi lần cập nhật: tăng GAME_VERSION và thêm một mục lên ĐẦU CHANGELOG. */
 /* ===== PHIÊN BẢN GAME: mỗi lần cập nhật, tăng số và thêm một mục lên ĐẦU danh sách ===== */
-const GAME_VERSION = "5.3.1";
+const GAME_VERSION = "5.3.2";
 const CHANGELOG = [
+  {
+    v: "5.3.2",
+    d: "01/10/2026",
+    items: ["Tiệm có địa chỉ mới: tiemtra.meomeo.app. Địa chỉ cũ tự chuyển sang đây"],
+  },
   {
     v: "5.3.1",
     d: "01/10/2026",
