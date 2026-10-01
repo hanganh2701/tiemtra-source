@@ -12,7 +12,7 @@ export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "
  * Trả về run(code): chạy code trong trang và trả kết quả (đọc được biến toàn cục của game như S, R, CFG).
  */
 export function boot({ storage = {}, url = "http://localhost/" } = {}) {
-  let html = readFileSync(path.join(ROOT, "index.html"), "utf8");
+  let html = readFileSync(path.join(ROOT, "choi.html"), "utf8");
   const srcs = [...html.matchAll(/<script src="([^"]+)"><\/script>/g)].map((m) => m[1]);
   html = html.replace(/<script[\s\S]*?<\/script>/g, "");
 

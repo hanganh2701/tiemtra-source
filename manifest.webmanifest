@@ -4,7 +4,7 @@
   "short_name": "Tiệm Trà Nhỏ",
   "description": "Game mở tiệm trà sữa nhỏ: nấu nguyên liệu, pha đúng món, đón khách, quản lý lãi lỗ.",
   "lang": "vi",
-  "start_url": "./",
+  "start_url": "./choi.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",

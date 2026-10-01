@@ -318,7 +318,7 @@ async function veAnhKhoe() {
   tri.filter(Boolean).forEach((im, i) => g.drawImage(im, 540 - (n * 100) / 2 + i * 100 + 5, 1140, 90, 90));
   g.fillStyle = "#a07a5a";
   g.font = '600 32px "Baloo 2", system-ui, sans-serif';
-  g.fillText("Tiệm Trà Nhỏ · " + (location.host + location.pathname).replace(/index\.html$/, "").replace(/\/$/, ""), 540, n ? 1300 : 1220);
+  g.fillText("Tiệm Trà Nhỏ · " + (location.host + location.pathname).replace(/(index|choi)\.html$/, "").replace(/\/$/, ""), 540, n ? 1300 : 1220);
   return cv;
 }
 /* chia sẻ một ảnh canvas: Web Share có tệp thì gửi thẳng, không thì hiện ảnh để nhấn giữ lưu hoặc tải */
