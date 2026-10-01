@@ -7,4 +7,4 @@ Game mở tiệm trà sữa chạy trên trình duyệt (PWA), tiếng Việt. D
 - `index.html` là trang giới thiệu (tự viết, không nạp code game). Game ở `choi.html`.
 - Không bước build: `choi.html` nạp `data/*.js`, rồi `src/*.js`, rồi `game.js` (script thường, dùng chung biến toàn cục). Hàm trong `src/` chỉ được gọi lúc chơi, không gọi hàm của `game.js` lúc nạp file.
 - Test: `npm test`. Chạy thử: `python3 -m http.server 8765`. Mô phỏng tiền trong két theo nhánh: `node tools/mo-phong-kinh-te.mjs` (người chơi máy pha tức thì, chỉ để so nhánh); giống người chơi thật: `node tools/mo-phong-kinh-te.mjs nguoi`. Hình nhà xe trên trang giới thiệu lấy từ game: `node tools/hinh-gioi-thieu.mjs` (test báo khi cần chạy lại).
-- Không thêm tính năng qua máy chủ, quảng cáo hay thanh toán.
+- Không quảng cáo, không thanh toán. Máy chủ chỉ có bảng xếp hạng chung (`may-chu/bxh`: Cloudflare Worker + D1 ở bxh.meomeo.app, chủ dự án chốt 01/10/2026, tự nhận rủi ro pháp lý). Thêm tính năng máy chủ khác thì hỏi chủ dự án trước.

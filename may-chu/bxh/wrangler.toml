@@ -1,0 +1,10 @@
+# Máy chủ bảng xếp hạng chung của Tiệm Trà Nhỏ (bản 5.7). Đưa lên: xem README.md cùng thư mục.
+name = "tiemtra-bxh"
+main = "worker.js"
+compatibility_date = "2026-09-01"
+routes = [{ pattern = "bxh.meomeo.app", custom_domain = true }]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "tiemtra-bxh"
+database_id = "c58eb85b-dc57-4149-8d61-88916259d7b8"

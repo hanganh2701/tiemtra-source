@@ -472,6 +472,22 @@ Chủ dự án muốn cảnh truyện có hình cho sinh động (trước chỉ
 - [x] Bối cảnh từng cảnh ghi trong `data/tranh-canh.js`; cảnh không ghi thì toàn tin nhắn là điện thoại, `que_*` là quê, còn lại là quầy. Tết, Trung Thu, mưa thêm tự động theo điều kiện cảnh
 - [x] Ảnh cảnh truyện trên trang giới thiệu chụp lại có tranh
 
+### Bảng xếp hạng chung (bản 5.7)
+
+Chủ dự án muốn bảng xếp hạng chung trên mạng, xếp theo tiền kiếm được. Ngày 01/10/2026 chủ dự án chốt **bỏ luật không máy chủ cho riêng tính năng này** và tự nhận rủi ro. Theo bản nghiên cứu luật ngày 27/09: bảng xếp hạng qua máy chủ thì game ít nhất là loại G2 theo Nghị định 147/2024. Loại này cần giấy chứng nhận do doanh nghiệp đứng tên và xác thực người chơi bằng số điện thoại. Cá nhân làm mà không có giấy có thể bị phạt khoảng 35–50 triệu đồng hoặc bị chặn trang. Chưa thấy vụ xử phạt nào với game web nhỏ miễn phí.
+
+- [x] Máy chủ `may-chu/bxh`: Cloudflare Worker + D1 ở bxh.meomeo.app, gói miễn phí
+- [x] Chỉ lưu tên tiệm, lãi tích luỹ cao nhất, ngày, sao, phiên bản. Không lưu tên thật, số điện thoại hay IP. Khoá bí mật nằm trên máy người chơi (localStorage `tsBxhKhoa`, không nằm trong bản lưu); máy chủ chỉ lưu sha256 của khoá
+- [x] Người chơi tự bấm tham gia ở Hẻm 42 › Bảng chung; cuối mỗi ngày game tự gửi; rời bảng thì xoá dòng trên máy chủ
+- [x] Xếp theo lãi tích luỹ của tiệm, giữ mức cao nhất qua các lượt chơi lại; tiền mua nhà, xe không làm tụt hạng
+- [x] Chống gian lận được tới đâu hay tới đó (game chạy trên máy người chơi):
+  - trần lãi 15 triệu × số ngày + 5 triệu (cùng mức game tự kiểm, người chơi thật không chạm);
+  - chặn chơi nhanh hơn 3 phút đời thực mỗi ngày;
+  - hai lần gửi cách nhau ít nhất 30 giây;
+  - chủ dự án ẩn được dòng gian lận (cột `an`, lệnh trong `may-chu/bxh/README.md`)
+- [x] Đưa lên 01/10/2026: chủ dự án đăng nhập Cloudflare (`wrangler login`), cơ sở dữ liệu D1 `tiemtra-bxh` (vùng APAC), Worker chạy ở https://bxh.meomeo.app. Đã thử thật: đọc bảng, gửi, chặn số vô lý, rời bảng, gọi từ game qua CORS
+- [x] Mục Bảng chung tự tải bảng ngay khi vẽ, không nhờ hàm của file khác: sau mỗi lần cập nhật, trình duyệt có thể giữ bản cũ của từng file JS vài phút (game không có số phiên bản trong đường dẫn file)
+
 ## Cổng quyết định
 
 | Cổng | Ngày | Đi tiếp khi |

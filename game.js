@@ -6471,6 +6471,7 @@ function endDay() {
   }
   save();
   if (!broke) autoBak();
+  if (!broke && typeof bxhGui === "function") bxhGui(); /* đã tham gia bảng chung thì gửi lãi tích luỹ mới */
   if (broke) track(r.day < 10 ? "pha-san-truoc-ngay-10" : "pha-san");
   else {
     if (r.day === 1) track("xong-ngay-1");

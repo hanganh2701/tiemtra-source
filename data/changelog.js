@@ -1,7 +1,15 @@
 /* Phiên bản và danh sách "Có gì mới". Mỗi lần cập nhật: tăng GAME_VERSION và thêm một mục lên ĐẦU CHANGELOG. */
 /* ===== PHIÊN BẢN GAME: mỗi lần cập nhật, tăng số và thêm một mục lên ĐẦU danh sách ===== */
-const GAME_VERSION = "5.6";
+const GAME_VERSION = "5.7";
 const CHANGELOG = [
+  {
+    v: "5.7",
+    d: "01/10/2026",
+    items: [
+      "Bảng xếp hạng chung: tiệm nào kiếm được nhiều tiền nhất (lãi tích luỹ của tiệm). Vào Hẻm 42 › Bảng chung, bấm tham gia; cuối mỗi ngày game tự gửi",
+      "Chỉ gửi tên tiệm, lãi, số ngày, sao. Không gửi tên thật, số điện thoại hay bản lưu. Rời bảng lúc nào cũng được, dòng của bạn bị xoá",
+    ],
+  },
   {
     v: "5.6",
     d: "01/10/2026",
