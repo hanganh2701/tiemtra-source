@@ -229,7 +229,7 @@ function sangNhuongCN() {
   );
 }
 
-/* ---------- thẻ trong Nâng cấp › Trang bị ---------- */
+/* ---------- thẻ trong Nâng cấp › Mở rộng ---------- */
 function theChiNhanh() {
   if (buoc() < 2) return "";
   const c = S.cn,

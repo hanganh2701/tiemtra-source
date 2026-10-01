@@ -10,18 +10,6 @@ const choTri = () => triTong("cho") + (typeof evIs === "function" && evIs("hot")
 const heSoTipTri = () => 1 + triTong("tip");
 const heSoKhachTri = () => (1 + triTong("khach")) * (typeof evIs === "function" && evIs("rain") ? 1 + triTong("mua") : 1);
 
-/* mục Trang trí trong tab Trang bị */
-function theTrangTri() {
-  return (
-    `<div class="sec">Trang trí tiệm</div><div class="note">Mua một lần. Mỗi món có ưu đãi nhỏ, hiện trước tiệm và trong ảnh khoe tiệm.</div>` +
-    TRANG_TRI.map(
-      (t) =>
-        `<div class="rowi"><span class="icon"><img class="ico" src="img/tt_${t.id}.svg" alt=""></span><div><div class="nm">${esc(t.ten)}</div><div class="sub">${esc(t.uuDai)}</div></div>${
-          coTri(t.id) ? '<span class="okline">✓</span>' : `<button class="sbtn pri" data-tri="${t.id}" ${S.money < t.gia ? "disabled" : ""}><b>${fmt(t.gia)}</b>Mua</button>`
-        }</div>`,
-    ).join("")
-  );
-}
 function muaTri(id) {
   const t = TRANG_TRI.find((x) => x.id === id);
   if (!t || coTri(id) || S.money < t.gia) return false;

@@ -1,7 +1,16 @@
 /* Phiên bản và danh sách "Có gì mới". Mỗi lần cập nhật: tăng GAME_VERSION và thêm một mục lên ĐẦU CHANGELOG. */
 /* ===== PHIÊN BẢN GAME: mỗi lần cập nhật, tăng số và thêm một mục lên ĐẦU danh sách ===== */
-const GAME_VERSION = "5.4";
+const GAME_VERSION = "5.5";
 const CHANGELOG = [
+  {
+    v: "5.5",
+    d: "01/10/2026",
+    items: [
+      "Tab Nâng cấp gọn lại còn bốn mục: Menu, Quầy, Người, Mở rộng. Món chưa có lên trước, món đã có gọn một dòng hoặc gom vào ô Đã có",
+      "Mục Mở rộng là chuỗi nấc của tiệm: góc dưới gác, mặt tiền, đơn online (app và tablet cùng chỗ), chi nhánh. Nhìn là biết tiệm đang ở đâu, nấc kế tiếp cần gì",
+      "Chai hương (siro) giờ mua ở Kho, cạnh nấu trà và topping",
+    ],
+  },
   {
     v: "5.4",
     d: "01/10/2026",
