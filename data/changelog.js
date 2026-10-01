@@ -1,7 +1,15 @@
 /* Phiên bản và danh sách "Có gì mới". Mỗi lần cập nhật: tăng GAME_VERSION và thêm một mục lên ĐẦU CHANGELOG. */
 /* ===== PHIÊN BẢN GAME: mỗi lần cập nhật, tăng số và thêm một mục lên ĐẦU danh sách ===== */
-const GAME_VERSION = "5.5";
+const GAME_VERSION = "5.6";
 const CHANGELOG = [
+  {
+    v: "5.6",
+    d: "01/10/2026",
+    items: [
+      "Cảnh truyện có tranh: quầy dưới gác, con hẻm, căn gác bà Sáu, chợ Tết, quê nhà, bến xe, đầu hẻm, cổng trường… cùng mặt những người đang nói",
+      "Tranh đổi theo giờ (sáng, tối có trăng sao), theo mùa (Trung Thu, Tết), trời mưa, và theo tiệm của bạn (ra mặt tiền thì bảng hiệu có tên tiệm)",
+    ],
+  },
   {
     v: "5.5",
     d: "01/10/2026",
