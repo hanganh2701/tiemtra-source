@@ -8063,6 +8063,7 @@ function showSettings() {
     <button class="setb" id="sStory"><span>${ico("book")}</span>Cốt truyện Hẻm 42<small>${CHE_DO_TEN[cheDo()]}${cheDo() === "gon" ? " · gộp cả cảnh vào một khung" : cheDo() === "tat" ? " · không hiện cảnh, vẫn nhận trang sổ" : " · từng câu, bỏ qua được"}</small></button>
     <button class="setb" id="sRelax"><span>${ico("moon")}</span>Chế độ Thư giãn<small>${S.thuGian ? "Đang bật · khách không bỏ về, không sự cố, không thuế, không tiền sinh hoạt, giá nhập và khách không khó dần theo chương" : "Đang tắt · bấm để chơi thong thả"}</small></button>
     <button class="setb" id="sGopY"><span>${ico("pen")}</span>Góp ý cho tiệm<small>Trả lời vài câu rồi gửi qua tin nhắn</small></button>
+    <button class="setb" id="sTele"><span>${ico("chart")}</span>Đếm lượt chơi ẩn danh<small>${teleTat() ? "Đang tắt · bấm để bật" : "Đang bật · chỉ đếm vài mốc như xong ngày 1, quay lại hôm sau; không gửi tên tiệm, tiền hay bản lưu"}</small></button>
     <button class="setb" id="sXung"><span>${ico("people")}</span>Khách gọi bạn là<small>${hoaDau(xung())} · bấm để đổi</small></button>
     <button class="setb" id="sCoach"><span>${ico("book")}</span>Chỉ dẫn từng bước<small>${S.coach === true ? "Luôn bật" : S.coach === false ? "Tắt" : "Tự động"}</small></button>
     <button class="setb" id="sLen"><span>${ico("clock")}</span>Thời gian bán mỗi ngày<small>${S.dayLen || CFG.dayMin} phút${R.running ? " · áp dụng từ ngày sau" : ""}</small></button>
@@ -8097,6 +8098,14 @@ function showSettings() {
       hienCai();
     };
   $("sGopY").onclick = () => moGopY();
+  $("sTele").onclick = () => {
+    try {
+      if (teleTat()) localStorage.removeItem("tsNoTele");
+      else localStorage.setItem("tsNoTele", "1");
+    } catch (e) {}
+    toast(teleTat() ? "Đã tắt đếm lượt chơi trên máy này" : "Đã bật đếm lượt chơi ẩn danh");
+    showSettings();
+  };
   $("sRelax").onclick = () => {
     S.thuGian = !S.thuGian;
     save();
@@ -8173,11 +8182,19 @@ function showSettings() {
 
 /* ---------- ĐO LƯỜNG CHỈ ĐẾM GỘP ----------
    Không mã định danh, không gửi dữ liệu game, chỉ gửi tên sự kiện (ví dụ "xong-ngay-1") tới công cụ đếm không lưu IP.
-   Chưa gắn địa chỉ thì không gửi gì. Gắn GoatCounter: TELE_URL = "https://<mã>.goatcounter.com/count". */
-const TELE_URL = "";
+   Gửi tới GoatCounter của chủ dự án (gắn 01/10/2026, không cookie). Chỉ đếm khi chơi trên trang thật (github.io): chạy thử ở máy,
+   test và mô phỏng không gửi. Người chơi tắt được trong Cài đặt (lưu theo máy, khoá tsNoTele), trình duyệt bật Do Not Track thì cũng không gửi. */
+const TELE_URL = "https://tiemtranho.goatcounter.com/count";
 const teleSent = new Set();
+const teleTat = () => {
+  try {
+    return localStorage.getItem("tsNoTele") === "1";
+  } catch (e) {
+    return false;
+  }
+};
 function track(ev) {
-  if (!TELE_URL || teleSent.has(ev)) return;
+  if (!TELE_URL || teleSent.has(ev) || !/\.github\.io$/.test(location.hostname) || teleTat()) return;
   teleSent.add(ev);
   try {
     if (navigator.doNotTrack === "1") return;

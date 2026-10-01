@@ -46,7 +46,7 @@ Hệ quả: **không làm tính năng qua máy chủ** (bảng xếp hạng onli
 - [x] Vẽ 21 icon SVG còn thiếu (`img/ic_*.svg`, danh sách trong `ICO_SVG`)
 - [x] Bible nhân vật (`docs/NHAN-VAT.md`) và 6 cảnh Chương 0 (`data/cot-truyen.js`, chưa nối vào game)
 - [ ] Chủ dự án lập nhóm chơi thử
-- [ ] Chủ dự án tạo tài khoản GoatCounter nếu muốn có số liệu, rồi gắn vào `TELE_URL`
+- [x] Chủ dự án tạo tài khoản GoatCounter (01/10/2026, mã `tiemtranho`), gắn vào `TELE_URL` ở bản 5.3.1: chỉ đếm trên trang github.io, người chơi tắt được trong Cài đặt (khoá `tsNoTele` theo máy)
 
 ### Mốc 1 · Lý do quay lại ngày mai (bản 4.0 "Hẻm 42") — xong 28/09
 
