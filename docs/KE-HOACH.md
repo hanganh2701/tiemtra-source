@@ -441,6 +441,7 @@ Chủ dự án mua tên miền meomeo.app (DNS ở Cloudflare), game chạy ở 
 - [x] Link chia sẻ cũ `/#q=` (danh thiếp), `/#c=` (thử thách) và ứng dụng đã cài trước bản 5.4 (mở `/` ở chế độ standalone) chuyển thẳng vào `choi.html`; manifest `start_url` là `./choi.html` nên cài mới thì mở thẳng game
 - [x] Trang giới thiệu đếm lượt xem `/trang-chu` trên GoatCounter, cùng luật với game (chỉ trang thật, tôn trọng Do Not Track và nút tắt trong Cài đặt)
 - [x] Ảnh chụp game làm bằng Chrome chạy ẩn qua giao thức DevTools (script tạm, không nằm trong repo): dựng một tiệm ngày 40 đã ra mặt tiền, khung 390×844
+- [x] Chân trang ghi "Created by 1conmeo" (01/10). 1conmeo là biệt danh của chủ dự án: chỗ nào cần ghi tác giả thì dùng tên này
 
 ## Cổng quyết định
 
