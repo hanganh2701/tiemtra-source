@@ -89,8 +89,9 @@ function bxhVe(j) {
   const dong = (x) =>
     `<div class="crow ptr${x.minh ? " minh" : ""}"><span><b>${x.hang}.</b> ${esc(x.ten)}<small>Ngày ${x.ngay} · ${String(x.sao).replace(".", ",")}★</small></span><span>${fmtBig(x.lai)}</span></div>`;
   el.innerHTML =
-    `<div class="sec">Top ${j.bang.length} trên ${j.tong} tiệm</div>` +
-    (j.bang.length ? j.bang.map(dong).join("") : '<p class="note">Chưa có tiệm nào. Tiệm bạn có thể là tiệm đầu tiên!</p>') +
+    (j.bang.length
+      ? `<div class="sec">Top ${j.bang.length} trên ${j.tong} tiệm</div>${j.bang.map(dong).join("")}`
+      : '<p class="note" style="text-align:center">Chưa có tiệm nào trên bảng. Tiệm bạn có thể là tiệm đầu tiên!</p>') +
     (j.minh && !j.bang.some((x) => x.minh) ? `<div class="sec">Tiệm bạn</div>${dong({ hang: j.minh.hang, ten: shopName(), lai: j.minh.lai, ngay: j.minh.ngay, sao: rating().toFixed(1), minh: true })}` : "");
   if (j.minh) S.bxhHang = j.minh.hang;
   const sw = $("sw-hem");
