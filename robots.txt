@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+# ghi chép và công cụ làm game, không phải trang cho người chơi
+Disallow: /docs/
+Disallow: /tests/
+Disallow: /tools/
+Disallow: /CLAUDE.md
+
+Sitemap: https://tiemtra.meomeo.app/sitemap.xml

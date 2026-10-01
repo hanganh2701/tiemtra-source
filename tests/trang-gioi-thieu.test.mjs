@@ -116,3 +116,15 @@ test("trang giới thiệu: phần Đời sống khớp dữ liệu game (giá, 
   for (const s of $$(".noi p span")) assert.ok(nguon.includes(`"${s.textContent}"`), "không có trong game: " + s.textContent);
   for (const s of $$(".tin li span")) assert.ok(nguon.includes(`"Mẹ: ${s.textContent}"`), "mẹ không nhắn câu này: " + s.textContent);
 });
+
+test("sitemap.xml và robots.txt: sitemap có trang giới thiệu và game, robots trỏ tới sitemap", () => {
+  const sitemap = readFileSync(path.join(ROOT, "sitemap.xml"), "utf8");
+  const robots = readFileSync(path.join(ROOT, "robots.txt"), "utf8");
+  const goc = html.match(/<link rel="canonical" href="([^"]+)">/)[1];
+  const loc = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
+  assert.deepEqual(loc, [goc, goc + "choi.html"]);
+  for (const u of loc) assert.ok(existsSync(path.join(ROOT, new URL(u).pathname.slice(1) || "index.html")), "sitemap trỏ tới trang không có: " + u);
+  assert.match(robots, new RegExp(`^Sitemap: ${goc}sitemap\\.xml$`, "m"));
+  /* không chặn file mà trang và game cần để Google dựng trang */
+  for (const d of robots.matchAll(/^Disallow: (\S+)/gm)) assert.ok(!/^\/(img|fonts|src|data|snd|game\.js|choi\.html)/.test(d[1]), "đừng chặn " + d[1]);
+});
