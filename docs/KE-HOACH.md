@@ -447,6 +447,7 @@ Chủ dự án mua tên miền meomeo.app (DNS ở Cloudflare), game chạy ở 
   - Test so giá, số món, tiền góp, lời thoại trên trang với `data/doi-song.js`, và báo khi file hình cần tạo lại
 - [x] Ảnh mở đầu và ảnh xem trước khi chia sẻ link (`og.jpg`) mất đầu mèo (01/10, chủ dự án báo): tranh `img/splash2.jpg` vốn không có đầu, màn chào của game đặt `img/cathead.png` chồng lên. Trang giới thiệu đặt đầu mèo đúng chỗ theo khung cắt của từng cỡ màn hình, lắc đầu như màn chào; `og.jpg` ghép sẵn đầu mèo. Có test kiểm tra vị trí
 - [x] Sửa test danh thiếp tiệm chập chờn: đổi ký tự cuối của mã thành "z" để thử mã giả, mà mã ngẫu nhiên có khi đã tận cùng bằng "z"
+- [x] `sitemap.xml` (trang giới thiệu và `choi.html`) và `robots.txt` (chặn `docs/`, `tests/`, `tools/`, trỏ tới sitemap) để nộp cho Google Search Console (01/10). Thêm trang mới cho người chơi thì thêm vào sitemap
 
 ### Tab Nâng cấp gọn lại (bản 5.5) — xong 01/10
 
