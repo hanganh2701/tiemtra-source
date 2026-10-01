@@ -442,6 +442,11 @@ Chủ dự án mua tên miền meomeo.app (DNS ở Cloudflare), game chạy ở 
 - [x] Trang giới thiệu đếm lượt xem `/trang-chu` trên GoatCounter, cùng luật với game (chỉ trang thật, tôn trọng Do Not Track và nút tắt trong Cài đặt)
 - [x] Ảnh chụp game làm bằng Chrome chạy ẩn qua giao thức DevTools (script tạm, không nằm trong repo): dựng một tiệm ngày 40 đã ra mặt tiền, khung 390×844
 - [x] Chân trang ghi "Created by 1conmeo" (01/10). 1conmeo là biệt danh của chủ dự án: chỗ nào cần ghi tác giả thì dùng tên này
+- [x] Phần Đời sống riêng (01/10, chủ dự án muốn giới thiệu cả chuyện mua nhà mua xe): 6 nấc chỗ ở từ phòng trọ ghép tới biệt thự, 6 xe từ xe đạp tới Porsche 911, ví dụ trả góp Kia Morning, đồ sắm có lợi cho tiệm, mục tiêu để dành, tiền ăn ở mỗi ngày, 6 món cho bản thân, gửi tiền về quê và 6 món quà cho ba mẹ, lời người trong hẻm và tin nhắn của mẹ lấy nguyên từ game
+  - Hình nhà xe đồ dùng là hình vẽ của tab Đời sống (`src/hinh-doi-song.js`), gom vào `img/gioi-thieu/doi-song.svg` bằng `node tools/hinh-gioi-thieu.mjs`; trang dùng lại qua `<use>`
+  - Test so giá, số món, tiền góp, lời thoại trên trang với `data/doi-song.js`, và báo khi file hình cần tạo lại
+- [x] Ảnh mở đầu và ảnh xem trước khi chia sẻ link (`og.jpg`) mất đầu mèo (01/10, chủ dự án báo): tranh `img/splash2.jpg` vốn không có đầu, màn chào của game đặt `img/cathead.png` chồng lên. Trang giới thiệu đặt đầu mèo đúng chỗ theo khung cắt của từng cỡ màn hình, lắc đầu như màn chào; `og.jpg` ghép sẵn đầu mèo. Có test kiểm tra vị trí
+- [x] Sửa test danh thiếp tiệm chập chờn: đổi ký tự cuối của mã thành "z" để thử mã giả, mà mã ngẫu nhiên có khi đã tận cùng bằng "z"
 
 ### Tab Nâng cấp gọn lại (bản 5.5) — xong 01/10
 

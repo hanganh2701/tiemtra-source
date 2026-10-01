@@ -61,3 +61,58 @@ test("link chia sẻ cũ (#q= danh thiếp, #c= thử thách) và ứng dụng �
   assert.equal(chay("", true), "choi.html");
   assert.equal(chay("#hem-42", false), null, "neo trong trang thì ở lại");
 });
+
+test("trang giới thiệu: ảnh mở đầu có đầu mèo đặt đúng chỗ như màn chào của game", () => {
+  /* tranh nền img/splash2.jpg không có đầu mèo; game đặt img/cathead.png (83×77) ở (446, 684) trên tranh 768×1376 */
+  const w = moTrang();
+  assert.ok(w.document.querySelector('.tranh img.dau-meo[src="img/cathead.png"]'), "thiếu đầu mèo trên ảnh mở đầu");
+  const css = html.match(/<style>([\s\S]*?)<\/style>/)[1];
+  const dt = css.slice(css.indexOf("@media (min-width:860px)"));
+  const khung = (s) => +s.match(/\.tranh\{[^}]*aspect-ratio:768\/(\d+)/)[1];
+  const docY = (s) => +s.match(/\.tranh img\{[^}]*object-position:50% (\d+)%/)[1] / 100;
+  const dau = (s) => Object.fromEntries([...s.match(/\.tranh \.dau-meo\{([^}]*)\}/)[1].matchAll(/(left|top|width):([\d.]+)%/g)].map((m) => [m[1], +m[2]]));
+  const gan = (a, b, ten) => assert.ok(Math.abs(a - b) < 0.05, `${ten}: ${a}% mà phải là ${b.toFixed(2)}%`);
+  const dauDt = dau(css);
+  gan(dauDt.left, (446 / 768) * 100, "left");
+  gan(dauDt.width, (83 / 768) * 100, "width");
+  for (const [ten, cao, y, top] of [["điện thoại", khung(css), docY(css), dauDt.top], ["máy tính", khung(dt), docY(dt), dau(dt).top]])
+    gan(top, ((684 - y * (1376 - cao)) / cao) * 100, "top trên " + ten);
+});
+
+test("trang giới thiệu: phần Đời sống khớp dữ liệu game (giá, số món, trả góp, lời thoại, hình vẽ)", async () => {
+  const { taoHinh, napDoiSong, FILE_HINH } = await import("../tools/hinh-gioi-thieu.mjs");
+  const d = napDoiSong();
+  const nguon = readFileSync(path.join(ROOT, "data/doi-song.js"), "utf8");
+  const w = moTrang();
+  const $$ = (s) => [...w.document.querySelectorAll(s)];
+  const so = (x) => String(+x.toFixed(2)).replace(".", ",");
+  const tien = (v) => (v >= 1e9 ? so(v / 1e9) + " tỷ" : v >= 1e6 ? so(v / 1e6) + " triệu" : so(v / 1e3) + " nghìn");
+  const mon = Object.fromEntries([d.DS_TRO, d.DS_NHA, d.DS_XM, d.DS_OT, d.DS_DT, d.DS_DO, d.DS_QUA].flat().map((x) => [x.id, x]));
+
+  const the = $$("#doi-song [data-ds]");
+  assert.ok(the.length >= 20);
+  for (const li of the) {
+    const x = mon[li.dataset.ds];
+    assert.ok(x, "data/doi-song.js không có món " + li.dataset.ds);
+    const gia = x.gia ? tien(x.gia) : x.ngay ? tien(x.ngay) + "/ngày" : "Có sẵn";
+    assert.equal(li.querySelector(".gia").textContent, gia, "giá của " + x.id);
+    assert.equal(li.querySelector("use").getAttribute("href"), `${FILE_HINH}#ds-${x.id}`);
+  }
+  /* file hình phải tạo lại khi đổi hình vẽ trong game hay đổi món trên trang */
+  assert.equal(readFileSync(path.join(ROOT, FILE_HINH), "utf8"), taoHinh(html), "chạy lại: node tools/hinh-gioi-thieu.mjs");
+
+  const dem = { nha: d.DS_NHA.length, xe: d.DS_XM.filter((x) => x.gia).length + d.DS_OT.length, mon: [d.DS_DT, d.DS_DO, d.DS_QUA].flat().filter((x) => x.gia).length };
+  for (const b of $$("[data-dem]")) assert.equal(+b.textContent, dem[b.dataset.dem], "số " + b.dataset.dem);
+
+  /* ví dụ trả góp tính đúng như game (gopNgay trong src/doi-song.js) */
+  const gopNgay = new Function(readFileSync(path.join(ROOT, "src/doi-song.js"), "utf8").match(/function gopNgay[\s\S]*?\n}/)[0] + "; return gopNgay;")();
+  const xe = mon.morning, v = d.DS.vay.ot, vay = Math.round((xe.gia * (1 - v.truoc)) / 1000) * 1000;
+  const o = (k) => w.document.querySelector(`[data-${k}="morning"]`).textContent;
+  assert.equal(o("gia"), tien(xe.gia));
+  assert.equal(o("truoc"), tien(xe.gia - vay));
+  assert.equal(o("gop"), tien(gopNgay(vay, v.lai, v.ngay)));
+
+  /* lời người trong hẻm và tin nhắn của mẹ lấy nguyên từ game */
+  for (const s of $$(".noi p span")) assert.ok(nguon.includes(`"${s.textContent}"`), "không có trong game: " + s.textContent);
+  for (const s of $$(".tin li span")) assert.ok(nguon.includes(`"Mẹ: ${s.textContent}"`), "mẹ không nhắn câu này: " + s.textContent);
+});
