@@ -1,0 +1,17 @@
+# Mèo Tải: trang tải video TikTok ở snaptik.meomeo.app. Đưa lên: xem README.md cùng thư mục.
+name = "meotai-snaptik"
+main = "worker.js"
+compatibility_date = "2026-09-01"
+routes = [{ pattern = "snaptik.meomeo.app", custom_domain = true }]
+
+# trang tĩnh: index.html, style.css, app.js… (không khớp file nào thì chạy worker.js; worker trả 404.html)
+[assets]
+directory = "./public"
+binding = "ASSETS"
+not_found_handling = "404-page"
+
+# mỗi máy tìm tối đa 20 lần mỗi phút (chỉ tính /api/thong-tin; bấm tải không tính)
+[[ratelimits]]
+name = "GIOI_HAN"
+namespace_id = "2701"
+simple = { limit = 20, period = 60 }

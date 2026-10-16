@@ -4,6 +4,8 @@ Allow: /
 Disallow: /docs/
 Disallow: /tests/
 Disallow: /tools/
+# máy chủ và trang riêng (snaptik.meomeo.app), bản trên tên miền game không chạy được
+Disallow: /may-chu/
 Disallow: /CLAUDE.md
 
 Sitemap: https://tiemtra.meomeo.app/sitemap.xml

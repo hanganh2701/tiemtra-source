@@ -488,6 +488,16 @@ Chủ dự án muốn bảng xếp hạng chung trên mạng, xếp theo tiền 
 - [x] Đưa lên 01/10/2026: chủ dự án đăng nhập Cloudflare (`wrangler login`), cơ sở dữ liệu D1 `tiemtra-bxh` (vùng APAC), Worker chạy ở https://bxh.meomeo.app. Đã thử thật: đọc bảng, gửi, chặn số vô lý, rời bảng, gọi từ game qua CORS
 - [x] Mục Bảng chung tự tải bảng ngay khi vẽ, không nhờ hàm của file khác: sau mỗi lần cập nhật, trình duyệt có thể giữ bản cũ của từng file JS vài phút (game không có số phiên bản trong đường dẫn file)
 
+### Ngoài game: trang tải video TikTok (Mèo Tải)
+
+Ngày 16/10/2026 chủ dự án yêu cầu một trang tải video TikTok giống snaptik.vn, chạy ở snaptik.meomeo.app. Trang riêng, không dính tới game; chi tiết ở `may-chu/snaptik/README.md`.
+
+- [x] Worker + trang tĩnh `may-chu/snaptik`: video không logo, bản HD, nhạc MP3, ảnh bìa; bài ảnh tải từng ảnh, cả bộ ZIP, ghép thành video; xem trước, lịch sử trên máy, trang MP3/Ảnh/Hướng dẫn/Điều khoản/Bảo mật, cài lên màn hình chính, nhận link từ nút Chia sẻ (Android), nút đánh dấu
+- [x] Tên trên trang là Mèo Tải, icon tự vẽ, chữ tự viết: không dùng tên, logo hay nội dung của SnapTik
+- [x] Test `tests/snaptik.test.mjs` (mạng giả); đã chạy thử giao diện trong Chromium với máy chủ giả
+- [ ] Đưa lên: chủ dự án `wrangler login` rồi `wrangler deploy` trong `may-chu/snaptik`
+- [ ] Thử thật với TikTok sau khi lên: video thường, video 1080p, bài ảnh, link rút gọn (lúc làm chưa gọi được máy chủ file của TikTok)
+
 ## Cổng quyết định
 
 | Cổng | Ngày | Đi tiếp khi |

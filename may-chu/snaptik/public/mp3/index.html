@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Tải nhạc TikTok MP3, lấy âm thanh gốc của video | Mèo Tải</title>
+    <meta name="description" content="Tách nhạc từ video TikTok thành file MP3: dán link, bấm tải. Miễn phí, không quảng cáo, chạy trên điện thoại và máy tính." />
+    <link rel="canonical" href="https://snaptik.meomeo.app/mp3/" />
+    <meta name="theme-color" content="#ff3b6b" />
+    <meta name="referrer" content="no-referrer" />
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/icon-192.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Mèo Tải" />
+    <meta property="og:title" content="Mèo Tải: tải nhạc TikTok MP3" />
+    <meta property="og:description" content="Dán link TikTok, lấy riêng âm thanh gốc thành file MP3." />
+    <meta property="og:url" content="https://snaptik.meomeo.app/mp3/" />
+    <meta property="og:image" content="https://snaptik.meomeo.app/icon-512.png" />
+    <link rel="stylesheet" href="/style.css" />
+    <script type="module" src="/app.js"></script>
+  </head>
+  <body data-che-do="mp3">
+    <header class="dau">
+      <div class="khung">
+        <a class="logo" href="/"><img src="/icon.svg" alt="" width="32" height="32" />Mèo Tải</a>
+        <nav class="menu" aria-label="Công cụ">
+          <a href="/">Video</a>
+          <a href="/mp3/" aria-current="page">MP3</a>
+          <a href="/anh/">Ảnh</a>
+          <a href="/huong-dan/">Hướng dẫn</a>
+        </nav>
+        <button type="button" id="nut-cai" class="nut-cai" hidden>Cài ứng dụng</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="dau-trang">
+        <div class="khung">
+          <h1>Tải nhạc TikTok MP3</h1>
+          <p class="phu">Lấy riêng âm thanh gốc của một video hay bài ảnh TikTok thành file nhạc. Dán link rồi bấm Tải nhạc MP3.</p>
+          <form id="o-tim" class="o-tim" autocomplete="off">
+            <label class="an-chu" for="link">Link TikTok</label>
+            <div class="o-nhap">
+              <input id="link" name="url" type="text" inputmode="url" enterkeyhint="go" placeholder="Dán link TikTok vào đây" spellcheck="false" />
+              <button type="button" id="nut-dan" class="nut-dan">Dán</button>
+            </div>
+            <button type="submit" id="nut-tim" class="nut-chinh">Tải về</button>
+          </form>
+          <p id="loi" class="loi" role="alert" hidden></p>
+          <p class="nho">Dùng được cả link video lẫn link bài ảnh có nhạc.</p>
+        </div>
+      </section>
+
+      <section id="ket-qua" class="ket-qua" hidden></section>
+      <section id="lich-su" class="lich-su" hidden></section>
+
+      <section class="muc">
+        <h2>Lấy nhạc từ TikTok</h2>
+        <ol class="buoc">
+          <li>
+            <h3>Chép link bài đăng</h3>
+            <p>Mở video có đoạn nhạc bạn thích, bấm Chia sẻ › Sao chép liên kết.</p>
+          </li>
+          <li>
+            <h3>Dán vào ô phía trên</h3>
+            <p>Bấm Dán, trang tìm bài và hiện tên bản nhạc, người đăng, độ dài.</p>
+          </li>
+          <li>
+            <h3>Bấm Tải nhạc MP3</h3>
+            <p>File nhạc lưu vào thư mục Tải xuống, mở được bằng mọi trình nghe nhạc.</p>
+          </li>
+        </ol>
+      </section>
+
+      <section class="muc hoi-dap">
+        <h2>Hỏi đáp về nhạc TikTok</h2>
+        <details>
+          <summary>Nhạc tải về là bản nào?</summary>
+          <p>Là âm thanh gốc gắn với bài đăng trên TikTok: có thể là bài hát người đăng chọn, hoặc tiếng thu thẳng trong video.</p>
+        </details>
+        <details>
+          <summary>Sao có bài không hiện nút Tải nhạc MP3?</summary>
+          <p>Với một số bài hát có bản quyền, TikTok không cho lấy file nhạc riêng. Khi đó bạn vẫn tải được video, rồi dùng app chỉnh video để tách tiếng.</p>
+        </details>
+        <details>
+          <summary>File nhạc có đuôi .m4a thay vì .mp3?</summary>
+          <p>Mèo Tải giữ nguyên file TikTok gửi về, không chuyển định dạng để khỏi giảm chất lượng. Đa số là MP3; nếu là M4A thì điện thoại và máy tính vẫn mở bình thường.</p>
+        </details>
+        <details>
+          <summary>Dùng nhạc tải về thế nào cho đúng?</summary>
+          <p>Nhạc có bản quyền của nhạc sĩ, ca sĩ hoặc người thu. Nghe riêng thì thoải mái; đưa vào video đăng công khai hay dùng kiếm tiền thì cần xin phép. Xem <a href="/dieu-khoan/">Điều khoản</a>.</p>
+        </details>
+      </section>
+    </main>
+
+    <footer class="chan">
+      <div class="khung">
+        <p>© 2026 Mèo Tải · Không liên kết với TikTok hay ByteDance.</p>
+        <nav aria-label="Trang phụ">
+          <a href="/huong-dan/">Hướng dẫn</a>
+          <a href="/dieu-khoan/">Điều khoản</a>
+          <a href="/bao-mat/">Bảo mật</a>
+        </nav>
+      </div>
+    </footer>
+  </body>
+</html>
