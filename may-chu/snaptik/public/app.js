@@ -96,6 +96,7 @@ function ve(j) {
   if (j.loai === "video" && b.video) {
     const nutXem = el("button", { type: "button", class: "nut-xem", "aria-label": "Xem trước video" }, el("span", { class: "bieu-tuong phat" }));
     nutXem.addEventListener("click", () => {
+      hinh.parentElement?.classList.add("dang-xem"); /* điện thoại: thẻ chuyển một cột, video lên đầu */
       hinh.replaceChildren(el("video", { class: "bia", src: linkTai(j.id, "video", 0, true), controls: true, autoplay: true, playsinline: true }));
     });
     hinh.append(nutXem);

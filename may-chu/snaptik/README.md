@@ -34,6 +34,7 @@ Chủ dự án muốn trang mang "vibe" con mèo. Mọi hình đều tự vẽ b
 - Mèo ngó qua mép ô tìm, hai chân gác lên ô (`meo.js`, gắn lúc nạp `app.js`). Nét mặt theo `body[data-meo]`: ngồi chờ thì chớp mắt, giật tai; đang tìm thì đảo mắt, đạp chân; tìm thấy thì cười tít mắt; gặp lỗi thì cụp tai. Không đổi gì khi máy bật giảm chuyển động
 - Mèo cười ngó trên mép thẻ kết quả, mèo ngồi quay lưng trên mép chân trang vẫy đuôi, mèo cuộn tròn ngủ ở trang 404
 - Nền đầu trang có dấu chân mèo, số bước in trên đệm chân, tiêu đề tính năng có dấu chân, vòng chờ là cuộn len lăn, nút tìm ghi "Mèo đang tìm…"
+- Điện thoại (≤700px): thẻ kết quả gọn (ảnh nhỏ 96px bên trái; tên, mô tả 3 dòng, số liệu bên phải) để cả 4 nút tải hiện ngay sau khi tìm, không phải cuộn (375×812: nút cuối ở 622px; 320×640: thấy 3 nút đầu). Bấm xem trước thì thẻ chuyển một cột, video lên đầu. Đầu trang không dính (cao gần 100px, che thẻ). Nút bấm cao ít nhất 44px, chừa chỗ tai thỏ khi xoay ngang (`--le`, `env(safe-area-inset-*)`)
 - Logo: mặt mèo kem trên nền cam, góc có nút tải. `icon-192.png`, `icon-512.png`, `icon-maskable-512.png` và `og.png` (1200×630) chụp từ SVG bằng Chromium headless; sửa `icon.svg` thì chụp lại
 
 ## Đưa lên lần đầu
