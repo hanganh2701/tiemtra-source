@@ -5,9 +5,10 @@
      GET /api/tai?id=…&loai=video|hd|mp3|anh|bia&i=…  tải file; thêm xem=1 để phát hoặc xem ngay trên trang
    /api/tai chỉ nhận id bài đăng, không nhận link tuỳ ý, nên không ai mượn được máy chủ để tải thứ khác. */
 
-export const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36";
+/* chỉ export hàm: Cloudflare coi mỗi export của file này là một điểm vào, export chuỗi hay mảng thì Worker không chạy */
+const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36";
 const GIU_GIAY = 600; /* giữ thông tin một bài 10 phút ở bộ đệm Cloudflare: bấm tải không phải đọc lại trang TikTok */
-export const LOAI = ["video", "hd", "mp3", "anh", "bia"];
+const LOAI = ["video", "hd", "mp3", "anh", "bia"];
 const LOI_LINK = "Chưa thấy link TikTok. Link có dạng https://www.tiktok.com/@ten/video/123… hoặc https://vt.tiktok.com/abc…";
 const LOI_TRANG = "Không đọc được trang TikTok (TikTok có thể đang chặn máy chủ hoặc vừa đổi trang). Thử lại sau ít phút.";
 
@@ -269,6 +270,21 @@ export function tenFile(tt, loai, i, kieu) {
   return `tiktok_${ten ? ten + "_" : ""}${tt.id}${hau}.${duoi}`;
 }
 
+/* kiểu file gửi về trình duyệt. TikTok gửi nhạc kèm Content-Type video/mp4 dù file là MP3; kiểu thật nằm ở tham số mime_type=audio_mpeg của link */
+export function kieuGui(loai, kieu, link) {
+  if (/octet-stream/i.test(kieu)) kieu = KIEU_MAC_DINH[loai];
+  if (loai === "mp3" && !/^audio\//i.test(kieu)) {
+    let m = "";
+    try {
+      m = (new URL(link).searchParams.get("mime_type") || "").replace("_", "/");
+    } catch {
+      /* link lạ: dùng kiểu mặc định */
+    }
+    kieu = /^audio\/[\w.+-]+$/.test(m) ? m : KIEU_MAC_DINH.mp3;
+  }
+  return kieu;
+}
+
 async function tai(req, url, ctx) {
   /* trang khác nhúng thẳng file của trang này (thẻ video, ảnh) thì chặn; bấm link mở từ trang khác vẫn được */
   if (req.headers.get("Sec-Fetch-Site") === "cross-site" && req.headers.get("Sec-Fetch-Dest") !== "document") return json({ ok: false, loi: "Không nhúng từ trang khác." }, 403);
@@ -300,7 +316,7 @@ async function tai(req, url, ctx) {
       continue;
     }
     const h = new Headers();
-    h.set("Content-Type", /octet-stream/i.test(kieu) ? KIEU_MAC_DINH[loai] : kieu);
+    h.set("Content-Type", kieuGui(loai, kieu, link));
     for (const k of ["Content-Length", "Content-Range", "Accept-Ranges", "Last-Modified", "ETag"]) {
       const x = up.headers.get(k);
       if (x) h.set(k, x);

@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { readFileSync, existsSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import worker, { docLink, docTrang, chuanBi, layCookie, tenFile } from "../may-chu/snaptik/worker.js";
+import worker, { docLink, docTrang, chuanBi, layCookie, tenFile, kieuGui } from "../may-chu/snaptik/worker.js";
 import { soGon, coFile, thoiGian, linkTai, timLinkTrongChu, crc32, taoZip } from "../may-chu/snaptik/public/cong-cu.js";
 
 const PUB = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "may-chu", "snaptik", "public");
@@ -137,6 +137,15 @@ test("đọc trang TikTok: bài riêng tư báo mã lỗi, trang lạ báo lỗi
   assert.equal(chuanBi(docTrang(cu).bai).tt.tacGia.ten, "meo.nha");
 });
 
+test("kiểu file: nhạc TikTok gửi kèm video/mp4 thì lấy kiểu thật từ mime_type của link (thử thật 17/10/2026)", () => {
+  assert.equal(kieuGui("mp3", "video/mp4", "https://v16m.tiktokcdn.com/x/?a=1&mime_type=audio_mpeg&rc=1"), "audio/mpeg");
+  assert.equal(kieuGui("mp3", "video/mp4", "https://v16m.tiktokcdn.com/x/"), "audio/mpeg");
+  assert.equal(kieuGui("mp3", "audio/mp4", "https://v16m.tiktokcdn.com/x/"), "audio/mp4");
+  assert.equal(kieuGui("mp3", "video/mp4", "https://v16m.tiktokcdn.com/x/?mime_type=video_<script>"), "audio/mpeg", "tham số lạ thì bỏ");
+  assert.equal(kieuGui("video", "application/octet-stream", "https://x/"), "video/mp4");
+  assert.equal(kieuGui("video", "video/mp4", "https://x/?mime_type=audio_mpeg"), "video/mp4", "chỉ sửa kiểu cho nhạc");
+});
+
 test("cookie và tên file", () => {
   const h = new Headers();
   h.append("Set-Cookie", "tt_chain_token=abc; Path=/; HttpOnly");
@@ -235,6 +244,16 @@ test("API tải: xem ngay (inline), ảnh thứ i, yêu cầu sai, bản không 
       assert.equal((await goiWorker(`/api/tai?id=${ID}&loai=anh&i=1`, { headers: { "Sec-Fetch-Site": "cross-site", "Sec-Fetch-Dest": "video" } })).status, 403);
     },
   );
+});
+
+test("worker.js chỉ export hàm (Cloudflare coi mỗi export là một điểm vào; export chuỗi, mảng thì Worker không khởi động)", async () => {
+  const m = await import("../may-chu/snaptik/worker.js");
+  for (const [k, v] of Object.entries(m)) assert.ok(typeof v === "function" || (k === "default" && typeof v.fetch === "function"), "export không phải hàm: " + k);
+});
+
+test("wrangler.toml: /api/* chạy worker trước trang tĩnh (không thì bấm nút tải nhận trang 404, thử thật 17/10/2026)", () => {
+  const toml = readFileSync(path.join(PUB, "..", "wrangler.toml"), "utf8");
+  assert.match(toml, /^run_worker_first = \[[^\]]*"\/api\/\*"[^\]]*\]$/m);
 });
 
 test("API: chỉ nhận GET, đường lạ trả 404, ngoài /api/ chuyển cho trang tĩnh", async () => {

@@ -35,10 +35,16 @@ Chạy thử trên máy: `npx wrangler dev` rồi mở http://localhost:8787.
 
 Sau khi lên, thử thật vài link: một video thường, một video có bản 1080p, một bài ảnh, một link rút gọn từ app.
 
-## Chưa thử được, cần thử khi đưa lên
-- **Tải file thật từ máy chủ TikTok**: lúc làm chưa chạy được bước này (môi trường làm việc không cho), mới thử bằng dữ liệu giả. Cách làm giống yt-dlp (cookie `tt_chain_token` + Referer), nhưng TikTok có thể chặn dải IP của Cloudflare. Nếu `/api/thong-tin` hay `/api/tai` báo lỗi liên tục thì đó là chỗ cần xem trước.
-- **Bài ảnh**: đọc theo cấu trúc `imagePost.images[].imageURL.urlList` mà các công cụ mã nguồn mở đang dùng; chưa thử với một bài ảnh thật.
-- **`wrangler.toml`**: chưa chạy `wrangler deploy --dry-run` được. Nếu wrangler báo lỗi ở khối `[[ratelimits]]` thì xoá khối đó (trang vẫn chạy, chỉ mất giới hạn).
+## Đã thử thật (17/10/2026)
+Chạy `wrangler dev` (bộ chạy workerd của Cloudflare) trên máy làm việc, gọi TikTok thật:
+- `wrangler deploy --dry-run` qua: đọc 24 file tĩnh, nhận `ASSETS` và `GIOI_HAN`; `_headers` (CSP…) được áp dụng
+- Trang chạy trong Chromium với CSP bật đủ, không lỗi; dán chữ chia sẻ có link → thẻ kết quả đủ thông tin, ảnh bìa lấy thẳng từ TikTok vẫn hiện
+- Tải trọn video 540p (MP4 2,9 MB, H.264), xem 2 khung hình: không có logo TikTok hay tên tài khoản; tải nhạc ra MP3 thật; bản HD 720p (H.265), ảnh bìa JPEG, tua (Range 206) đều được
+- Lần thử thật tìm ra 3 lỗi đã sửa: Worker không khởi động vì export hằng (Cloudflare coi mỗi export là điểm vào); bấm nút tải nhận trang 404 vì trang tĩnh chặn lượt mở trang trước Worker (`run_worker_first`); TikTok gửi nhạc kèm kiểu `video/mp4` nên file nhạc thành `.mp4`. Mỗi lỗi có test giữ.
+
+## Còn chưa thử
+- **Chạy trên mạng của Cloudflare**: mới chạy trên máy làm việc. TikTok có thể đối xử khác với dải IP của Cloudflare; nếu `/api/thong-tin` báo "Không đọc được trang TikTok" liên tục sau khi lên thì đó là chỗ cần xem.
+- **Bài ảnh (slide) và link rút gọn thật**: chưa có link thật để thử. Bài ảnh đọc theo cấu trúc `imagePost.images[].imageURL.urlList` mà các công cụ mã nguồn mở đang dùng.
 
 ## Nên biết trước
 - TikTok không cho phép tải nội dung bằng công cụ ngoài trong điều khoản của họ; TikTok có thể chặn bất cứ lúc nào. Người dùng tải gì, dùng vào việc gì là trách nhiệm của họ, trang điều khoản đã ghi rõ phải tôn trọng bản quyền người làm video.

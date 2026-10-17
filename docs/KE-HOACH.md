@@ -495,8 +495,9 @@ Ngày 16/10/2026 chủ dự án yêu cầu một trang tải video TikTok giốn
 - [x] Worker + trang tĩnh `may-chu/snaptik`: video không logo, bản HD, nhạc MP3, ảnh bìa; bài ảnh tải từng ảnh, cả bộ ZIP, ghép thành video; xem trước, lịch sử trên máy, trang MP3/Ảnh/Hướng dẫn/Điều khoản/Bảo mật, cài lên màn hình chính, nhận link từ nút Chia sẻ (Android), nút đánh dấu
 - [x] Tên trên trang là Mèo Tải, icon tự vẽ, chữ tự viết: không dùng tên, logo hay nội dung của SnapTik
 - [x] Test `tests/snaptik.test.mjs` (mạng giả); đã chạy thử giao diện trong Chromium với máy chủ giả
-- [ ] Đưa lên: chủ dự án `wrangler login` rồi `wrangler deploy` trong `may-chu/snaptik`
-- [ ] Thử thật với TikTok sau khi lên: video thường, video 1080p, bài ảnh, link rút gọn (lúc làm chưa gọi được máy chủ file của TikTok)
+- [x] Thử thật 17/10/2026 bằng `wrangler dev` với TikTok thật: tải trọn video không logo, HD, MP3, ảnh bìa; sửa 3 lỗi chỉ lộ ra khi chạy thật (export hằng làm Worker không khởi động, nút tải nhận trang 404, nhạc thành `.mp4`)
+- [ ] Đưa lên: cần khoá Cloudflare (`CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` trong môi trường) hoặc chủ dự án tự `wrangler login` rồi `wrangler deploy` trong `may-chu/snaptik`
+- [ ] Sau khi lên: thử lại trên mạng Cloudflare, thử bài ảnh và link rút gọn thật
 
 ## Cổng quyết định
 
