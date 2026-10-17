@@ -182,6 +182,7 @@ function ve(j) {
     );
   }
   if (b.bia) cacNut.append(el("a", { class: "nut nut-phu", href: linkTai(j.id, "bia"), download: "" }, el("span", { class: "bieu-tuong anh" }), el("span", {}, "Tải ảnh bìa")));
+  if (b.avt) cacNut.append(el("a", { class: "nut nut-phu", href: linkTai(j.id, "avt"), download: "" }, el("span", { class: "bieu-tuong nguoi" }), el("span", {}, "Tải ảnh đại diện")));
 
   const nutLai = el("button", { type: "button", class: "nut-chu" }, "← Tải bài khác");
   nutLai.addEventListener("click", () => {

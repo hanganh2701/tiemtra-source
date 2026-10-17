@@ -190,6 +190,47 @@ test("trang chặn bot của TikTok (Please wait…): báo rõ là TikTok đang 
   assert.equal(docTrang("<html>trang lạ</html>").chan, undefined);
 });
 
+test("ảnh đại diện: lấy bản lớn trước, tải qua loai=avt, tên file theo tài khoản", async () => {
+  const tacGia = { uniqueId: "meo.nha", avatarThumb: "https://p16.tiktokcdn.com/avt-100.jpeg", avatarLarger: "https://p16.tiktokcdn.com/avt-1080.jpeg" };
+  const { tt, ng } = chuanBi(baiVideo({ author: tacGia }));
+  assert.equal(tt.ban.avt, true);
+  assert.deepEqual(ng.avt, ["https://p16.tiktokcdn.com/avt-1080.jpeg", "https://p16.tiktokcdn.com/avt-100.jpeg"]);
+  assert.equal(tt.tacGia.anh, "https://p16.tiktokcdn.com/avt-100.jpeg", "ảnh nhỏ vẫn dùng cho thẻ kết quả");
+  assert.equal(chuanBi(baiVideo({ author: { uniqueId: "a" } })).tt.ban.avt, false);
+  assert.equal(tenFile({ id: ID, tacGia: { ten: "meo.nha" } }, "avt", 0, "image/webp"), "tiktok_meo.nha_anhdaidien.webp");
+  await voiMangGia(
+    (url) => {
+      if (url === `https://www.tiktok.com/@/video/${ID}`) return traTrang(trangBai(baiVideo({ author: tacGia })));
+      if (url === "https://p16.tiktokcdn.com/avt-1080.jpeg") return new Response(new Uint8Array([1, 2]), { headers: { "Content-Type": "image/jpeg" } });
+      return new Response("không có", { status: 404 });
+    },
+    async () => {
+      const r = await goiWorker(`/api/tai?id=${ID}&loai=avt`);
+      assert.equal(r.status, 200);
+      assert.equal(r.headers.get("Content-Disposition"), 'attachment; filename="tiktok_meo.nha_anhdaidien.jpg"');
+    },
+  );
+});
+
+test("canh trang mỗi ngày: một bài còn chạy là được, cả hai hỏng hay trang chủ hỏng thì báo", async () => {
+  const { kiemTra, BAI } = await import("../may-chu/snaptik/canh.mjs");
+  const mang = (hong) => async (url, init = {}) => {
+    if (url === "https://snaptik.meomeo.app/") return new Response(hong.has("trang") ? "lỗi" : "<title>snaptik</title>", { status: hong.has("trang") ? 500 : 200 });
+    const id = new URL(url).searchParams.get("url") || new URL(url).searchParams.get("id");
+    if (url.includes("/api/thong-tin")) return Response.json(hong.has(id) ? { ok: false, loi: "Không đọc được trang TikTok" } : { ok: true, ban: { video: {} } }, { status: hong.has(id) ? 502 : 200 });
+    assert.equal(init.headers.Range, "bytes=0-0");
+    return new Response(new Uint8Array([0]), { status: 206, headers: { "Content-Type": "video/mp4" } });
+  };
+  assert.deepEqual(await kiemTra(mang(new Set())), { ok: true, loi: [] });
+  const motBai = await kiemTra(mang(new Set([BAI[0]])));
+  assert.equal(motBai.ok, true);
+  assert.equal(motBai.loi.length, 1);
+  const caHai = await kiemTra(mang(new Set(BAI)));
+  assert.equal(caHai.ok, false);
+  assert.match(caHai.loi[1], /Không đọc được trang TikTok/);
+  assert.equal((await kiemTra(mang(new Set(["trang"])))).ok, false);
+});
+
 test("cookie và tên file", () => {
   const h = new Headers();
   h.append("Set-Cookie", "tt_chain_token=abc; Path=/; HttpOnly");
@@ -340,11 +381,22 @@ test("_headers: trang HTML có no-transform (Cloudflare không chèn script Web 
   assert.doesNotMatch(khoi["/sw.js"], /no-transform/);
 });
 
-test("API: chỉ nhận GET, đường lạ trả 404, ngoài /api/ chuyển cho trang tĩnh", async () => {
+test("API: chỉ nhận GET, đường lạ trả 404", async () => {
   assert.equal((await goiWorker("/api/thong-tin", { method: "POST" })).status, 405);
   assert.equal((await goiWorker("/api/khac")).status, 404);
-  const r = await worker.fetch(new Request("https://snaptik.meomeo.app/mp3/"), { ASSETS: { fetch: async () => new Response("trang mp3") } }, {});
-  assert.equal(await r.text(), "trang mp3");
+});
+
+test("trang 404 do worker trả, kèm no-transform (Cloudflare tự trả 404.html thì chèn script Web Analytics; thử thật 17/10/2026)", async () => {
+  const toml = readFileSync(path.join(PUB, "..", "wrangler.toml"), "utf8");
+  assert.doesNotMatch(toml, /^not_found_handling/m, "không có file thì Cloudflare phải chuyển cho worker, không tự trả 404.html");
+  const hoi = [];
+  const ASSETS = { fetch: async (req) => (hoi.push(new URL(req.url).pathname), new Response("<title>Không có trang này</title>", { headers: { "Content-Type": "text/html", "X-Frame-Options": "DENY" } })) };
+  const r = await worker.fetch(new Request("https://snaptik.meomeo.app/khong-co-trang-nay"), { ASSETS }, {});
+  assert.equal(r.status, 404);
+  assert.deepEqual(hoi, ["/404.html"]);
+  assert.match(r.headers.get("Cache-Control"), /no-transform/);
+  assert.equal(r.headers.get("X-Frame-Options"), "DENY", "giữ header của trang tĩnh (CSP…)");
+  assert.match(await r.text(), /Không có trang này/);
 });
 
 test("mèo: ngó qua mép ô tìm, ngồi trên chân trang, đổi nét mặt theo lúc tìm", async () => {
