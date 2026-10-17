@@ -1,4 +1,4 @@
-/* Mèo Tải: trang tải video TikTok không logo ở snaptik.meomeo.app (Cloudflare Worker + trang tĩnh trong public/).
+/* snaptik: trang tải video TikTok không logo ở snaptik.meomeo.app (Cloudflare Worker + trang tĩnh trong public/).
    Máy chủ chỉ đọc trang công khai của TikTok rồi chuyển tiếp file từ máy chủ TikTok về trình duyệt.
    Không lưu video, không lưu link người dùng dán, không ghi IP.
      GET /api/thong-tin?url=…                         thông tin bài đăng (video hoặc bài ảnh) và các bản tải được

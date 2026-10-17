@@ -1,28 +1,53 @@
-/* Mèo Tải: kiểu chung cho mọi trang */
+/* snaptik: kiểu chung cho mọi trang (mèo mướp: cam, kem, hồng đệm chân) */
 :root {
-  --nen: #fff6f8;
+  /* màu mèo mướp: cam, kem, hồng đệm chân */
+  --nen: #fff8f0;
   --the: #ffffff;
-  --chu: #211b27;
-  --phu: #6c6477;
-  --vien: #efdfe6;
-  --chinh: #ff3b6b;
-  --chinh-dam: #e3204f;
-  --tim: #7b3fe4;
-  --xanh: #0fa9a4;
-  --loi: #c62845;
-  --bong: 0 10px 30px rgba(84, 24, 60, 0.12);
+  --chu: #3b2a20;
+  --phu: #6b564a;
+  --vien: #f1e0d0;
+  --chinh: #c2410c;
+  --chinh-dam: #a3360a;
+  --chu-tren-chinh: #ffffff;
+  --hong: #ffb3c4;
+  --loi: #b42318;
+  --bong: 0 10px 30px rgba(110, 60, 20, 0.13);
   --bo: 18px;
+  --chu-tron: ui-rounded, "SF Pro Rounded", "Nunito", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --nen-dau: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Cg fill='%23e3955e' fill-opacity='.2'%3E%3Cg transform='translate(32 38) rotate(-22)'%3E%3Cellipse cy='6' rx='7.5' ry='6.5'/%3E%3Ccircle cx='-8.5' cy='-3' r='3.2'/%3E%3Ccircle cx='-3' cy='-8.5' r='3.2'/%3E%3Ccircle cx='3' cy='-8.5' r='3.2'/%3E%3Ccircle cx='8.5' cy='-3' r='3.2'/%3E%3C/g%3E%3Cg transform='translate(108 104) rotate(18)'%3E%3Cellipse cy='6' rx='7.5' ry='6.5'/%3E%3Ccircle cx='-8.5' cy='-3' r='3.2'/%3E%3Ccircle cx='-3' cy='-8.5' r='3.2'/%3E%3Ccircle cx='3' cy='-8.5' r='3.2'/%3E%3Ccircle cx='8.5' cy='-3' r='3.2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"),
+    linear-gradient(160deg, #ffe7d1 0%, #ffe0d4 55%, #ffd7e1 100%);
+  /* mèo */
+  --meo-long: #f59e4a;
+  --meo-soc: #d9732a;
+  --meo-kem: #fff3e4;
+  --meo-hong: #ffa8bc;
+  --meo-mui: #ff7f9f;
+  --meo-mat: #3b2a20;
+  --meo-con-ngoi: #3b2a20;
+  --meo-net: #3b2a20;
+  --meo-rau: #3b2a20;
   color-scheme: light dark;
 }
 @media (prefers-color-scheme: dark) {
   :root {
-    --nen: #141118;
-    --the: #1f1a25;
-    --chu: #f4eff7;
-    --phu: #aba2b6;
-    --vien: #352d3d;
-    --loi: #ff7d93;
-    --bong: 0 10px 30px rgba(0, 0, 0, 0.4);
+    --nen: #17131a;
+    --the: #221c26;
+    --chu: #f6eee8;
+    --phu: #b8a89e;
+    --vien: #3a3038;
+    --chinh: #ff9a52;
+    --chinh-dam: #ffb175;
+    --chu-tren-chinh: #24150c;
+    --hong: #f2a0b4;
+    --loi: #ff8b7d;
+    --bong: 0 10px 30px rgba(0, 0, 0, 0.45);
+    --nen-dau: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Cg fill='%23ffffff' fill-opacity='.05'%3E%3Cg transform='translate(32 38) rotate(-22)'%3E%3Cellipse cy='6' rx='7.5' ry='6.5'/%3E%3Ccircle cx='-8.5' cy='-3' r='3.2'/%3E%3Ccircle cx='-3' cy='-8.5' r='3.2'/%3E%3Ccircle cx='3' cy='-8.5' r='3.2'/%3E%3Ccircle cx='8.5' cy='-3' r='3.2'/%3E%3C/g%3E%3Cg transform='translate(108 104) rotate(18)'%3E%3Cellipse cy='6' rx='7.5' ry='6.5'/%3E%3Ccircle cx='-8.5' cy='-3' r='3.2'/%3E%3Ccircle cx='-3' cy='-8.5' r='3.2'/%3E%3Ccircle cx='3' cy='-8.5' r='3.2'/%3E%3Ccircle cx='8.5' cy='-3' r='3.2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"),
+      linear-gradient(160deg, #2b2030 0%, #211a29 100%);
+    /* ban đêm mắt mèo sáng màu hổ phách */
+    --meo-mat: #ffc94d;
+    --meo-con-ngoi: #1b1410;
+    --meo-net: #2a1d15;
+    --meo-rau: #f6eee8;
   }
 }
 * {
@@ -49,6 +74,7 @@ h1,
 h2,
 h3 {
   line-height: 1.25;
+  font-family: var(--chu-tron);
 }
 .an-chu {
   position: absolute;
@@ -82,8 +108,10 @@ h3 {
   display: flex;
   align-items: center;
   gap: 10px;
+  font-family: var(--chu-tron);
   font-weight: 800;
-  font-size: 1.15rem;
+  font-size: 1.25rem;
+  letter-spacing: -0.01em;
   color: var(--chu);
   text-decoration: none;
   flex-shrink: 0;
@@ -140,9 +168,9 @@ h3 {
 
 /* phần ô tìm */
 .dau-trang {
-  background: linear-gradient(135deg, #ff3b6b 0%, #c2357f 45%, #7b3fe4 100%);
-  color: #fff;
-  padding: 48px 0 56px;
+  background: var(--nen-dau);
+  color: var(--chu);
+  padding: 44px 0 56px;
   text-align: center;
 }
 .dau-trang h1 {
@@ -152,13 +180,14 @@ h3 {
 .dau-trang .phu {
   margin: 0 auto 24px;
   max-width: 640px;
-  opacity: 0.92;
+  color: var(--phu);
 }
 .o-tim {
+  position: relative;
   display: flex;
   gap: 10px;
   max-width: 760px;
-  margin: 0 auto;
+  margin: 100px auto 0; /* chỗ cho mèo ngó qua mép ô */
   background: var(--the);
   padding: 8px;
   border-radius: calc(var(--bo) + 4px);
@@ -203,7 +232,7 @@ h3 {
 button.nut-chinh {
   border: 0;
   background: var(--chinh);
-  color: #fff;
+  color: var(--chu-tren-chinh);
   font: inherit;
   font-weight: 800;
   padding: 0 26px;
@@ -218,17 +247,18 @@ button.nut-chinh {
   opacity: 0.75;
   cursor: progress;
 }
+/* cuộn len lăn trong lúc mèo tìm */
 .dang-chay::before {
   content: "";
   display: inline-block;
-  width: 14px;
-  height: 14px;
+  width: 18px;
+  height: 18px;
   margin-right: 8px;
-  vertical-align: -2px;
-  border: 2px solid #fff;
-  border-right-color: transparent;
-  border-radius: 50%;
-  animation: quay 0.8s linear infinite;
+  vertical-align: -4px;
+  background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M4.5 8.5Q12 12 19.5 8.5M3.5 13Q12 17.5 20.5 13M9 3.6Q6.5 12 10 20.6M15 3.6Q17.5 12 14 20.6'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M4.5 8.5Q12 12 19.5 8.5M3.5 13Q12 17.5 20.5 13M9 3.6Q6.5 12 10 20.6M15 3.6Q17.5 12 14 20.6'/%3E%3C/svg%3E") center / contain no-repeat;
+  animation: quay 1s linear infinite;
 }
 @keyframes quay {
   to {
@@ -246,19 +276,15 @@ button.nut-chinh {
 .dau-trang .loi {
   max-width: 760px;
   margin: 14px auto 0;
-  background: #fff;
+  background: var(--the);
   color: var(--loi);
+  border: 1px solid color-mix(in srgb, var(--loi) 30%, transparent);
   border-radius: 12px;
   padding: 10px 14px;
   font-weight: 600;
 }
-@media (prefers-color-scheme: dark) {
-  .dau-trang .loi {
-    background: #2a1f2b;
-  }
-}
 .dau-trang .nho {
-  opacity: 0.85;
+  color: var(--phu);
   font-size: 0.9rem;
   margin: 14px 0 0;
 }
@@ -271,6 +297,7 @@ button.nut-chinh {
   scroll-margin-top: 80px;
 }
 .the {
+  position: relative;
   display: grid;
   grid-template-columns: minmax(200px, 300px) 1fr;
   gap: 24px;
@@ -304,7 +331,8 @@ button.nut-chinh {
   }
 }
 .bia.trong {
-  background: linear-gradient(135deg, #ff3b6b33, #7b3fe433);
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Cpath d='M20 72 L26 22 L48 42 Q60 37 72 42 L94 22 L100 72 Q100 104 60 104 Q20 104 20 72 Z' fill='%23d9732a' fill-opacity='.35'/%3E%3C/svg%3E") center / 38% no-repeat,
+    linear-gradient(135deg, #ffe0c2, #ffd3dc);
 }
 .nhan-gio {
   position: absolute;
@@ -431,11 +459,12 @@ button.nut-chinh {
 .nut.nut-chinh {
   background: var(--chinh);
   border-color: var(--chinh);
-  color: #fff;
+  color: var(--chu-tren-chinh);
   padding: 12px 16px;
 }
 .nut.nut-chinh small {
-  color: #ffe3ea;
+  color: inherit;
+  opacity: 0.85;
 }
 .nut.nut-phu {
   background: transparent;
@@ -476,6 +505,9 @@ button.nut-chinh {
 }
 
 /* biểu tượng vẽ bằng mặt nạ SVG, tô theo màu chữ */
+:root {
+  --dau-chan: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-12 -13 24 24'%3E%3Cellipse cy='5' rx='7.5' ry='6.5'/%3E%3Ccircle cx='-8.5' cy='-4' r='3.3'/%3E%3Ccircle cx='-3' cy='-9.3' r='3.3'/%3E%3Ccircle cx='3' cy='-9.3' r='3.3'/%3E%3Ccircle cx='8.5' cy='-4' r='3.3'/%3E%3C/svg%3E");
+}
 .bieu-tuong {
   width: 20px;
   height: 20px;
@@ -600,22 +632,42 @@ button.nut-chinh {
 .buoc li {
   counter-increment: buoc;
 }
+/* số bước in trên đệm chân mèo */
 .buoc li::before {
   content: counter(buoc);
-  display: grid;
-  place-items: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: var(--chinh);
-  color: #fff;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  padding-bottom: 6px;
+  box-sizing: border-box;
+  background:
+    radial-gradient(5.5px at 8px 15px, var(--hong) 92%, transparent),
+    radial-gradient(5.5px at 17px 6px, var(--hong) 92%, transparent),
+    radial-gradient(5.5px at 29px 6px, var(--hong) 92%, transparent),
+    radial-gradient(5.5px at 38px 15px, var(--hong) 92%, transparent),
+    radial-gradient(15px 12.5px at 23px 32px, var(--hong) 96%, transparent);
+  color: #3b2a20;
+  font-family: var(--chu-tron);
   font-weight: 800;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 .buoc h3,
 .o-tinh-nang h3 {
   margin: 0 0 6px;
   font-size: 1.05rem;
+}
+.o-tinh-nang h3::before {
+  content: "";
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  margin-right: 8px;
+  vertical-align: -2px;
+  background: var(--chinh);
+  -webkit-mask: var(--dau-chan) center / contain no-repeat;
+  mask: var(--dau-chan) center / contain no-repeat;
 }
 .buoc p,
 .o-tinh-nang p {
@@ -683,7 +735,8 @@ button.nut-chinh {
 
 /* chân trang */
 .chan {
-  margin-top: 64px;
+  position: relative;
+  margin-top: 96px;
   border-top: 1px solid var(--vien);
   padding: 28px 0 40px;
   color: var(--phu);
@@ -705,4 +758,268 @@ button.nut-chinh {
 }
 .chan p {
   margin: 0;
+}
+
+/* mèo (vẽ ở meo.js): ngó qua mép ô tìm, ngó trên thẻ kết quả, ngồi trên mép chân trang */
+.meo {
+  display: block;
+  pointer-events: none;
+  overflow: visible;
+}
+.meo .long {
+  fill: var(--meo-long);
+}
+.meo .soc {
+  fill: none;
+  stroke: var(--meo-soc);
+  stroke-width: 5;
+  stroke-linecap: round;
+}
+.meo .kem {
+  fill: var(--meo-kem);
+}
+.meo .hong {
+  fill: var(--meo-hong);
+}
+.meo .ma {
+  fill: var(--meo-hong);
+  opacity: 0.55;
+}
+.meo .mat {
+  fill: var(--meo-mat);
+}
+.meo .con-ngoi {
+  fill: var(--meo-con-ngoi);
+}
+.meo .sang {
+  fill: #fff;
+}
+.meo .net {
+  fill: none;
+  stroke: var(--meo-net);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+.meo .mui {
+  fill: var(--meo-mui);
+  stroke: var(--meo-mui);
+  stroke-width: 3;
+  stroke-linejoin: round;
+}
+.meo .rau {
+  stroke: var(--meo-rau);
+  stroke-width: 2;
+  stroke-linecap: round;
+  opacity: 0.5;
+}
+.meo .vien {
+  stroke: var(--meo-soc);
+  stroke-width: 2;
+}
+.meo .ngon {
+  stroke: var(--meo-soc);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+}
+.meo .duoi {
+  fill: none;
+  stroke: var(--meo-long);
+  stroke-width: 7;
+  stroke-linecap: round;
+}
+@media (prefers-color-scheme: dark) {
+  .meo .mat {
+    filter: drop-shadow(0 0 3px rgba(255, 201, 77, 0.7));
+  }
+}
+
+/* mèo ngó: đầu sau ô tìm, hai chân trước gác lên mép ô (đè 10px) */
+.meo-ngo {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% - 12px);
+  width: 168px;
+  margin-left: -84px;
+  z-index: 1;
+}
+@media (max-width: 560px) {
+  .o-tim {
+    margin-top: 86px;
+  }
+  .meo-ngo {
+    width: 140px;
+    margin-left: -70px;
+    bottom: calc(100% - 10px);
+  }
+}
+.meo-mat,
+.meo-mat-cuoi,
+.meo-tai,
+.meo-chan {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform 0.3s ease;
+}
+.meo-tai-trai {
+  transform-origin: 80% 100%;
+}
+.meo-tai-phai {
+  transform-origin: 20% 100%;
+}
+.meo-mat-cuoi {
+  display: none;
+}
+body[data-meo="vui"] .meo-mat {
+  display: none;
+}
+body[data-meo="vui"] .meo-mat-cuoi {
+  display: inline;
+}
+body[data-meo="buon"] .meo-tai-trai {
+  transform: rotate(-24deg);
+}
+body[data-meo="buon"] .meo-tai-phai {
+  transform: rotate(24deg);
+}
+body[data-meo="buon"] .meo-mat {
+  transform: scaleY(0.55);
+}
+
+/* mèo ngó trên thẻ kết quả, cười tít mắt */
+.the::before {
+  content: "";
+  position: absolute;
+  right: 36px;
+  bottom: calc(100% - 6px);
+  width: 76px;
+  height: 44px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 46'%3E%3Cpath d='M12 30 L15 4 Q16 0 20 2 L36 14 Z M68 30 L65 4 Q64 0 60 2 L44 14 Z' fill='%23f59e4a'/%3E%3Cpath d='M17 24 L19 8 L30 15 Z M63 24 L61 8 L50 15 Z' fill='%23ffa8bc'/%3E%3Cpath d='M8 40 C8 20 22 10 40 10 C58 10 72 20 72 40 Z' fill='%23f59e4a'/%3E%3Cpath d='M40 13 V20 M33 14 L34.5 20 M47 14 L45.5 20' stroke='%23d9732a' stroke-width='2.6' stroke-linecap='round'/%3E%3Cpath d='M23 32 Q28 25 33 32 M47 32 Q52 25 57 32' fill='none' stroke='%233b2a20' stroke-width='2.6' stroke-linecap='round'/%3E%3Cellipse cx='24' cy='41' rx='9' ry='5' fill='%23fff3e4' stroke='%23d9732a' stroke-width='1.4'/%3E%3Cellipse cx='56' cy='41' rx='9' ry='5' fill='%23fff3e4' stroke='%23d9732a' stroke-width='1.4'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+  pointer-events: none;
+}
+
+/* mèo ngồi quay lưng trên mép chân trang, đuôi thả xuống */
+.meo-ngoi {
+  position: absolute;
+  right: max(16px, calc((100% - 1040px) / 2 + 24px));
+  top: -62px;
+  width: 88px;
+}
+.meo-ngoi .soc {
+  stroke-width: 3.5;
+}
+.meo-duoi {
+  transform-box: view-box;
+  transform-origin: 74px 72px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .meo-mat {
+    animation: chop-mat 5s infinite;
+  }
+  .meo-tai-phai {
+    animation: giat-tai 7s infinite;
+  }
+  body[data-meo="tim"] .meo-mat {
+    animation: liec-mat 1.4s ease-in-out infinite;
+  }
+  body[data-meo="tim"] .meo-chan-trai {
+    animation: dap-chan 0.32s ease-in-out infinite alternate;
+  }
+  body[data-meo="tim"] .meo-chan-phai {
+    animation: dap-chan 0.32s ease-in-out 0.16s infinite alternate;
+  }
+  body[data-meo="buon"] .meo-mat,
+  body[data-meo="buon"] .meo-tai-phai {
+    animation: none;
+  }
+  .meo-duoi {
+    animation: vay-duoi 3.2s ease-in-out infinite;
+  }
+}
+@keyframes chop-mat {
+  0%,
+  92%,
+  100% {
+    transform: scaleY(1);
+  }
+  95% {
+    transform: scaleY(0.1);
+  }
+}
+@keyframes liec-mat {
+  0%,
+  100% {
+    transform: translateX(-4px);
+  }
+  50% {
+    transform: translateX(4px);
+  }
+}
+@keyframes dap-chan {
+  to {
+    transform: translateY(-4px);
+  }
+}
+@keyframes giat-tai {
+  0%,
+  80%,
+  86%,
+  100% {
+    transform: rotate(0);
+  }
+  83% {
+    transform: rotate(12deg);
+  }
+}
+@keyframes vay-duoi {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  50% {
+    transform: rotate(-26deg);
+  }
+}
+
+/* trang 404: mèo cuộn tròn ngủ */
+.trang-404 {
+  text-align: center;
+}
+.meo-ngu {
+  width: min(260px, 70%);
+  margin: 24px auto 0;
+}
+.meo-ngu .duoi-vien {
+  fill: none;
+  stroke: var(--meo-soc);
+  stroke-width: 15;
+  stroke-linecap: round;
+}
+.meo-ngu .duoi {
+  stroke-width: 11;
+}
+.meo-ngu .zzz {
+  fill: var(--phu);
+  font: 800 16px var(--chu-tron);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .meo-ngu .zzz {
+    animation: zzz 3s ease-in-out infinite;
+  }
+  .meo-ngu .zzz:nth-of-type(2) {
+    animation-delay: 0.5s;
+  }
+  .meo-ngu .zzz:nth-of-type(3) {
+    animation-delay: 1s;
+  }
+}
+@keyframes zzz {
+  0%,
+  100% {
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 1;
+  }
 }

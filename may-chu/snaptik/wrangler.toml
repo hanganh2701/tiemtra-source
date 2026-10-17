@@ -1,4 +1,4 @@
-# Mèo Tải: trang tải video TikTok ở snaptik.meomeo.app. Đưa lên: xem README.md cùng thư mục.
+# snaptik: trang tải video TikTok kiểu mèo ở snaptik.meomeo.app. Đưa lên: xem README.md cùng thư mục.
 name = "meotai-snaptik"
 main = "worker.js"
 compatibility_date = "2026-09-01"

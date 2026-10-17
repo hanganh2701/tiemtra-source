@@ -488,7 +488,7 @@ Chủ dự án muốn bảng xếp hạng chung trên mạng, xếp theo tiền 
 - [x] Đưa lên 01/10/2026: chủ dự án đăng nhập Cloudflare (`wrangler login`), cơ sở dữ liệu D1 `tiemtra-bxh` (vùng APAC), Worker chạy ở https://bxh.meomeo.app. Đã thử thật: đọc bảng, gửi, chặn số vô lý, rời bảng, gọi từ game qua CORS
 - [x] Mục Bảng chung tự tải bảng ngay khi vẽ, không nhờ hàm của file khác: sau mỗi lần cập nhật, trình duyệt có thể giữ bản cũ của từng file JS vài phút (game không có số phiên bản trong đường dẫn file)
 
-### Ngoài game: trang tải video TikTok (Mèo Tải)
+### Ngoài game: trang tải video TikTok (snaptik)
 
 Ngày 16/10/2026 chủ dự án yêu cầu một trang tải video TikTok giống snaptik.vn, chạy ở snaptik.meomeo.app. Trang riêng, không dính tới game; chi tiết ở `may-chu/snaptik/README.md`.
 
@@ -498,6 +498,7 @@ Ngày 16/10/2026 chủ dự án yêu cầu một trang tải video TikTok giốn
 - [x] Thử thật 17/10/2026 bằng `wrangler dev` với TikTok thật: tải trọn video không logo, HD, MP3, ảnh bìa; sửa 3 lỗi chỉ lộ ra khi chạy thật (export hằng làm Worker không khởi động, nút tải nhận trang 404, nhạc thành `.mp4`)
 - [x] Đưa lên 17/10/2026: `wrangler deploy` trong `may-chu/snaptik` (wrangler đã đăng nhập sẵn tài khoản giữ meomeo.app), Worker `meotai-snaptik` chạy ở https://snaptik.meomeo.app
 - [x] Thử lại trên mạng Cloudflare 17/10/2026: dán link trên trang thật, tải video không logo, HD, MP3, ảnh bìa đều được. Sửa 2 lỗi chỉ lộ ra trên Cloudflare: trạm Hồng Kông nhận trang báo khu vực của TikTok (TikTok không hoạt động ở Hồng Kông) nên Worker đặt chạy ở Singapore (`[placement]`); Cloudflare chèn script Web Analytics bị CSP chặn nên trang gắn `no-transform`
+- [x] Đổi tên thành snaptik và làm giao diện kiểu mèo (chủ dự án chốt 17/10/2026, tự nhận rủi ro nhãn hiệu vì SnapTik là tên trang khác): màu mèo mướp, mèo ngó qua ô tìm đổi nét mặt theo lúc tìm/thấy/lỗi, mèo trên thẻ kết quả, mèo ngồi chân trang, mèo ngủ trang 404, dấu chân, logo mới, ảnh chia sẻ `og.png`. Trang ghi rõ không liên kết với TikTok, ByteDance hay các trang SnapTik khác. Đã lên và thử trên trang thật
 - [ ] Thử bài ảnh và link rút gọn thật (cần link chép từ app)
 
 ## Cổng quyết định

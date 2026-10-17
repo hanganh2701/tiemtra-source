@@ -1,8 +1,8 @@
-# Mèo Tải: trang tải video TikTok
+# snaptik: trang tải video TikTok, kiểu mèo
 
 Trang riêng, không thuộc game Tiệm Trà Nhỏ. Chạy ở https://snaptik.meomeo.app bằng một Cloudflare Worker (gói miễn phí) kèm trang tĩnh. Chủ dự án yêu cầu ngày 16/10/2026.
 
-Tên hiện trên trang là **Mèo Tải**, không dùng tên hay logo SnapTik (tên đó là thương hiệu của người khác). Tên miền con vẫn là `snaptik` theo yêu cầu; muốn tránh hẳn rủi ro nhãn hiệu thì đổi tên miền con trong `wrangler.toml` và các link `snaptik.meomeo.app` trong `public/`.
+Tên hiện trên trang là **snaptik** (viết thường). Ban đầu trang tên Mèo Tải để tránh tên SnapTik, vốn là tên của trang tải TikTok khác; ngày 17/10/2026 chủ dự án chốt dùng tên snaptik và tự nhận rủi ro nhãn hiệu. Logo, hình mèo, chữ đều tự làm, không lấy logo hay nội dung của các trang SnapTik khác. Chân trang và mục hỏi đáp ghi rõ trang không liên kết với TikTok, ByteDance hay các trang SnapTik khác. Muốn đổi tên lại thì sửa chữ `snaptik` trong `public/` (tên Worker `meotai-snaptik` và khoá lịch sử `meotai-lich-su` là tên nội bộ, để nguyên).
 
 ## Làm được gì
 - Dán link TikTok (link đầy đủ, link rút gọn `vt.tiktok.com`/`vm.tiktok.com`/`tiktok.com/t/…`, chữ chia sẻ có kèm link, hoặc id bài)
@@ -10,14 +10,15 @@ Tên hiện trên trang là **Mèo Tải**, không dùng tên hay logo SnapTik (
 - Bài ảnh (slide): tải từng ảnh, tải cả bộ thành file ZIP, ghép ảnh và nhạc thành video ngay trên trình duyệt
 - Xem trước video, sao chép mô tả, số lượt xem/thích/bình luận/chia sẻ
 - Lịch sử 20 bài gần nhất (chỉ trên máy người dùng), trang MP3 và trang Ảnh riêng, trang hướng dẫn, điều khoản, bảo mật
-- Cài lên màn hình chính (PWA); trên Android, đã cài thì Mèo Tải hiện trong nút Chia sẻ của TikTok
+- Cài lên màn hình chính (PWA); trên Android, đã cài thì snaptik hiện trong nút Chia sẻ của TikTok
 - Nút đánh dấu (bookmarklet) cho máy tính, giao diện sáng/tối theo máy
 - Không quảng cáo, không tài khoản, không theo dõi
 
 ## Cách chạy
 ```
 public/            trang tĩnh: index.html (video), mp3/, anh/, huong-dan/, dieu-khoan/, bao-mat/, 404.html,
-                   app.js (chạy trên trang), cong-cu.js (hàm thuần, ZIP), style.css, sw.js, manifest, icon
+                   app.js (chạy trên trang), cong-cu.js (hàm thuần, ZIP), meo.js (hình mèo), style.css, sw.js,
+                   manifest, icon.svg + icon-*.png, og.png (ảnh hiện khi chia sẻ link)
 worker.js          API: /api/thong-tin?url=… và /api/tai?id=…&loai=video|hd|mp3|anh|bia&i=…[&xem=1]
 ```
 - `/api/thong-tin` đọc trang công khai `https://www.tiktok.com/@/video/<id>`, lấy dữ liệu trong thẻ `__UNIVERSAL_DATA_FOR_REHYDRATION__` (trang kiểu cũ: `SIGI_STATE`). Thông tin bài và cookie người xem TikTok cấp được giữ 10 phút ở bộ đệm Cloudflare.
@@ -26,6 +27,14 @@ worker.js          API: /api/thong-tin?url=… và /api/tai?id=…&loai=video|hd
 - `worker.js` luôn chạy ở Singapore (`[placement] region = "aws:ap-southeast-1"`). Người ở Việt Nam lúc vào trạm Cloudflare Hồng Kông, lúc vào Singapore; TikTok không hoạt động ở Hồng Kông nên trạm đó chỉ nhận trang báo khu vực. Trang tĩnh vẫn phát từ trạm gần nhất. Header `cf-placement: remote-SIN` cho biết yêu cầu đã được chuyển sang Singapore.
 - `_headers` gắn `no-transform` cho mọi trang để Cloudflare không chèn script Web Analytics của tên miền meomeo.app (trang hứa không theo dõi).
 - Test: `npm test` ở gốc kho (file `tests/snaptik.test.mjs`, mạng giả, không gọi TikTok).
+
+## Giao diện kiểu mèo (17/10/2026)
+Chủ dự án muốn trang mang "vibe" con mèo. Mọi hình đều tự vẽ bằng SVG:
+- Màu mèo mướp: cam `#c2410c` cho nút và link (chữ trắng trên nền cam đạt 5,2:1), nền kem, hồng đệm chân. Chế độ tối nền tím than, nút cam sáng chữ nâu, mắt mèo sáng màu hổ phách
+- Mèo ngó qua mép ô tìm, hai chân gác lên ô (`meo.js`, gắn lúc nạp `app.js`). Nét mặt theo `body[data-meo]`: ngồi chờ thì chớp mắt, giật tai; đang tìm thì đảo mắt, đạp chân; tìm thấy thì cười tít mắt; gặp lỗi thì cụp tai. Không đổi gì khi máy bật giảm chuyển động
+- Mèo cười ngó trên mép thẻ kết quả, mèo ngồi quay lưng trên mép chân trang vẫy đuôi, mèo cuộn tròn ngủ ở trang 404
+- Nền đầu trang có dấu chân mèo, số bước in trên đệm chân, tiêu đề tính năng có dấu chân, vòng chờ là cuộn len lăn, nút tìm ghi "Mèo đang tìm…"
+- Logo: mặt mèo kem trên nền cam, góc có nút tải. `icon-192.png`, `icon-512.png`, `icon-maskable-512.png` và `og.png` (1200×630) chụp từ SVG bằng Chromium headless; sửa `icon.svg` thì chụp lại
 
 ## Đưa lên lần đầu
 ```

@@ -1,5 +1,6 @@
-/* Phần chạy trên trang của Mèo Tải: tìm bài, vẽ kết quả, nút tải, tải ZIP ảnh, ghép ảnh thành video, lịch sử, cài ứng dụng */
+/* Phần chạy trên trang của snaptik: tìm bài, vẽ kết quả, nút tải, tải ZIP ảnh, ghép ảnh thành video, lịch sử, cài ứng dụng */
 import { soGon, coFile, thoiGian, ngayDang, linkTai, timLinkTrongChu, taoZip } from "./cong-cu.js";
+import { ganMeo, meo } from "./meo.js";
 
 const $ = (s) => document.querySelector(s);
 const CHE_DO = document.body.dataset.cheDo || "video";
@@ -40,11 +41,13 @@ function baoLoi(chu) {
   if (!hopLoi) return;
   hopLoi.textContent = chu;
   hopLoi.hidden = !chu;
+  if (chu) meo("buon");
 }
 function dangTim(co) {
   nutTim.disabled = co;
   nutTim.classList.toggle("dang-chay", co);
-  nutTim.textContent = co ? "Đang tìm…" : "Tải về";
+  nutTim.textContent = co ? "Mèo đang tìm…" : "Tải về";
+  if (co) meo("tim");
 }
 const capNhatNutDan = () => (nutDan.textContent = o.value ? "Xoá" : "Dán");
 
@@ -62,6 +65,7 @@ async function tim(chu) {
     if (!j) return baoLoi("Máy chủ đang bận, thử lại sau ít phút.");
     if (!j.ok) return baoLoi(j.loi || "Không lấy được bài này.");
     ve(j);
+    meo("vui");
     ghiLichSu(j);
   } catch {
     baoLoi("Không kết nối được máy chủ. Kiểm tra mạng rồi thử lại.");
@@ -173,6 +177,7 @@ function ve(j) {
   const nutLai = el("button", { type: "button", class: "nut-chu" }, "← Tải bài khác");
   nutLai.addEventListener("click", () => {
     ketQua.hidden = true;
+    meo("");
     o.value = "";
     capNhatNutDan();
     o.focus();
@@ -364,17 +369,22 @@ function veLichSu() {
 }
 
 /* ---------- gắn sự kiện ---------- */
+ganMeo();
 if (form) {
   form.addEventListener("submit", (e) => {
     e.preventDefault();
     tim(o.value);
   });
-  o.addEventListener("input", capNhatNutDan);
+  o.addEventListener("input", () => {
+    capNhatNutDan();
+    if (document.body.dataset.meo === "buon") meo("");
+  });
   nutDan.addEventListener("click", async () => {
     if (o.value) {
       o.value = "";
       capNhatNutDan();
       baoLoi("");
+      meo("");
       return o.focus();
     }
     try {

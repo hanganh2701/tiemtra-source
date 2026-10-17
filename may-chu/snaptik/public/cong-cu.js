@@ -1,4 +1,4 @@
-/* Hàm thuần dùng chung cho trang Mèo Tải (không đụng tới trang, test được bằng node: tests/snaptik.test.mjs) */
+/* Hàm thuần dùng chung cho trang snaptik (không đụng tới trang, test được bằng node: tests/snaptik.test.mjs) */
 
 /* 35200 → "35,2K", 1596000 → "1,6M" */
 export function soGon(n) {

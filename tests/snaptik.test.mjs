@@ -273,6 +273,23 @@ test("API: chỉ nhận GET, đường lạ trả 404, ngoài /api/ chuyển cho
   assert.equal(await r.text(), "trang mp3");
 });
 
+test("mèo: ngó qua mép ô tìm, ngồi trên chân trang, đổi nét mặt theo lúc tìm", async () => {
+  const { JSDOM } = await import("jsdom");
+  globalThis.document = new JSDOM(readFileSync(path.join(PUB, "index.html"), "utf8")).window.document;
+  try {
+    const { ganMeo, meo } = await import("../may-chu/snaptik/public/meo.js");
+    ganMeo();
+    assert.ok(document.querySelector('.o-tim > svg.meo-ngo[aria-hidden="true"] .meo-mat-cuoi'));
+    assert.ok(document.querySelector('.chan > svg.meo-ngoi[aria-hidden="true"] .meo-duoi'));
+    meo("tim");
+    assert.equal(document.body.dataset.meo, "tim");
+    meo("");
+    assert.equal(document.body.dataset.meo, undefined);
+  } finally {
+    delete globalThis.document;
+  }
+});
+
 test("hàm dùng chung của trang: định dạng số, dung lượng, thời gian, link tải, tìm link trong chữ", () => {
   assert.equal(soGon(35200), "35,2K");
   assert.equal(soGon(1596000), "1,6M");
