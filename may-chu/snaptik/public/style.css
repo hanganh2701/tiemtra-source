@@ -163,9 +163,72 @@ h3 {
     width: 100%;
     margin-left: 0;
   }
-  .nut-cai {
+  .ngon-ngu {
     margin-left: auto;
   }
+}
+
+/* chọn ngôn ngữ ở đầu trang: <details>, bấm ra danh sách tiếng (ngon-ngu.js nhớ tiếng đã chọn, đóng khi bấm ra ngoài) */
+.ngon-ngu {
+  position: relative;
+  flex-shrink: 0;
+}
+.ngon-ngu summary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 12px;
+  border-radius: 999px;
+  color: var(--phu);
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  list-style: none;
+}
+.ngon-ngu summary::-webkit-details-marker {
+  display: none;
+}
+.ngon-ngu summary:hover,
+.ngon-ngu[open] summary {
+  color: var(--chu);
+  background: var(--vien);
+}
+.ngon-ngu ul {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  z-index: 20;
+  list-style: none;
+  margin: 0;
+  padding: 6px;
+  min-width: 200px;
+  background: var(--the);
+  border: 1px solid var(--vien);
+  border-radius: 14px;
+  box-shadow: var(--bong);
+}
+.ngon-ngu a {
+  display: block;
+  padding: 10px 12px;
+  border-radius: 10px;
+  color: var(--chu);
+  text-decoration: none;
+  font-weight: 600;
+}
+.ngon-ngu a:hover {
+  background: var(--vien);
+}
+.ngon-ngu a[aria-current] {
+  color: var(--chinh);
+}
+.ngon-ngu a[aria-current]::after {
+  content: " ✓";
+}
+.dia-cau {
+  --hinh: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9.5'/%3E%3Cpath d='M2.5 12h19M12 2.5c2.7 2.6 4.1 5.8 4.1 9.5s-1.4 6.9-4.1 9.5c-2.7-2.6-4.1-5.8-4.1-9.5s1.4-6.9 4.1-9.5z'/%3E%3C/svg%3E");
+  width: 18px;
+  height: 18px;
 }
 
 /* phần ô tìm */
@@ -724,6 +787,9 @@ button.nut-chinh {
 .bai-viet li {
   margin-bottom: 6px;
 }
+.bai-viet code {
+  overflow-wrap: anywhere; /* link dài (https://snaptik.meomeo.app/en/?url=) không làm trang tràn ngang trên điện thoại */
+}
 .bai-viet .nho {
   color: var(--phu);
 }
@@ -1042,7 +1108,7 @@ body[data-meo="buon"] .meo-mat {
    (ảnh nhỏ bên trái, tên, mô tả, số liệu bên phải, nút tải ngay dưới) để bấm tải không phải cuộn */
 @media (max-width: 640px) {
   .dau {
-    position: static;
+    position: relative; /* không dính, nhưng vẫn nổi trên trang để danh sách tiếng không bị mèo, ô tìm đè */
   }
   .dau-trang {
     padding-top: 28px;

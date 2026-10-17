@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>틱톡 사진 다운로드, 슬라이드 사진 워터마크 없이 | snaptik</title>
+    <meta name="description" content="틱톡 슬라이드 게시물의 사진을 한 장씩, ZIP 파일로 한 번에, 또는 사진과 음악을 합친 영상으로 받으세요. 무료, 광고 없음." />
+    <link rel="canonical" href="https://snaptik.meomeo.app/ko/anh/" />
+    <link rel="alternate" hreflang="vi" href="https://snaptik.meomeo.app/anh/" />
+    <link rel="alternate" hreflang="en" href="https://snaptik.meomeo.app/en/anh/" />
+    <link rel="alternate" hreflang="id" href="https://snaptik.meomeo.app/id/anh/" />
+    <link rel="alternate" hreflang="th" href="https://snaptik.meomeo.app/th/anh/" />
+    <link rel="alternate" hreflang="ms" href="https://snaptik.meomeo.app/ms/anh/" />
+    <link rel="alternate" hreflang="fil" href="https://snaptik.meomeo.app/fil/anh/" />
+    <link rel="alternate" hreflang="es" href="https://snaptik.meomeo.app/es/anh/" />
+    <link rel="alternate" hreflang="pt" href="https://snaptik.meomeo.app/pt/anh/" />
+    <link rel="alternate" hreflang="ja" href="https://snaptik.meomeo.app/ja/anh/" />
+    <link rel="alternate" hreflang="ko" href="https://snaptik.meomeo.app/ko/anh/" />
+    <link rel="alternate" hreflang="x-default" href="https://snaptik.meomeo.app/en/anh/" />
+    <meta name="theme-color" content="#fff8f0" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#17131a" media="(prefers-color-scheme: dark)" />
+    <meta name="referrer" content="no-referrer" />
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/icon-192.png" />
+    <link rel="manifest" href="/ko/manifest.webmanifest" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="snaptik" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:title" content="snaptik: 틱톡 슬라이드 사진 다운로드" />
+    <meta property="og:description" content="틱톡 슬라이드 사진을 한 장씩, ZIP으로 한 번에 받거나 영상으로 합쳐 보세요." />
+    <meta property="og:url" content="https://snaptik.meomeo.app/ko/anh/" />
+    <meta property="og:image" content="https://snaptik.meomeo.app/og-ko.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <script src="/ngon-ngu.js"></script>
+    <link rel="stylesheet" href="/style.css" />
+    <script type="module" src="/app.js"></script>
+  </head>
+  <body data-che-do="anh">
+    <header class="dau">
+      <div class="khung">
+        <a class="logo" href="/ko/"><img src="/icon.svg" alt="" width="32" height="32" />snaptik</a>
+        <nav class="menu" aria-label="도구">
+          <a href="/ko/">동영상</a>
+          <a href="/ko/mp3/">MP3</a>
+          <a href="/ko/anh/" aria-current="page">사진</a>
+          <a href="/ko/huong-dan/">사용법</a>
+        </nav>
+        <details class="ngon-ngu">
+          <summary aria-label="언어: 한국어"><span class="bieu-tuong dia-cau"></span>KO</summary>
+          <ul>
+            <li><a href="/anh/" hreflang="vi" lang="vi" data-ngon-ngu="vi">Tiếng Việt</a></li>
+            <li><a href="/en/anh/" hreflang="en" lang="en" data-ngon-ngu="en">English</a></li>
+            <li><a href="/id/anh/" hreflang="id" lang="id" data-ngon-ngu="id">Bahasa Indonesia</a></li>
+            <li><a href="/th/anh/" hreflang="th" lang="th" data-ngon-ngu="th">ไทย</a></li>
+            <li><a href="/ms/anh/" hreflang="ms" lang="ms" data-ngon-ngu="ms">Bahasa Melayu</a></li>
+            <li><a href="/fil/anh/" hreflang="fil" lang="fil" data-ngon-ngu="fil">Filipino</a></li>
+            <li><a href="/es/anh/" hreflang="es" lang="es" data-ngon-ngu="es">Español</a></li>
+            <li><a href="/pt/anh/" hreflang="pt" lang="pt" data-ngon-ngu="pt">Português</a></li>
+            <li><a href="/ja/anh/" hreflang="ja" lang="ja" data-ngon-ngu="ja">日本語</a></li>
+            <li><a href="/ko/anh/" hreflang="ko" lang="ko" data-ngon-ngu="ko" aria-current="true">한국어</a></li>
+          </ul>
+        </details>
+        <button type="button" id="nut-cai" class="nut-cai" hidden>앱 설치</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="dau-trang">
+        <div class="khung">
+          <h1>틱톡 사진 다운로드(슬라이드 게시물)</h1>
+          <p class="phu">TikTok 사진 게시물 링크를 붙여넣고 원본 사진을 한 장씩, ZIP 파일로 한 번에 받거나, 사진과 음악을 합쳐 영상으로 만들어 보세요.</p>
+          <form id="o-tim" class="o-tim" autocomplete="off">
+            <label class="an-chu" for="link">TikTok 사진 게시물 링크</label>
+            <div class="o-nhap">
+              <input id="link" name="url" type="text" inputmode="url" enterkeyhint="go" placeholder="여기에 TikTok 사진 게시물 링크를 붙여넣으세요" spellcheck="false" />
+              <button type="button" id="nut-dan" class="nut-dan">붙여넣기</button>
+            </div>
+            <button type="submit" id="nut-tim" class="nut-chinh">다운로드</button>
+          </form>
+          <p id="loi" class="loi" role="alert" hidden></p>
+          <p class="nho">사진 게시물 링크는 보통 tiktok.com/@user/photo/… 또는 단축 링크 vt.tiktok.com/… 형태예요.</p>
+        </div>
+      </section>
+
+      <section id="ket-qua" class="ket-qua" hidden></section>
+      <section id="lich-su" class="lich-su" hidden></section>
+
+      <section class="muc">
+        <h2>TikTok 슬라이드 사진 받기</h2>
+        <ol class="buoc">
+          <li>
+            <h3>사진 게시물 링크 복사</h3>
+            <p>TikTok에서 사진 게시물을 열고 공유 › 링크 복사를 누르세요.</p>
+          </li>
+          <li>
+            <h3>위 입력란에 붙여넣기</h3>
+            <p>게시물의 모든 사진이 원래 순서대로 나와요.</p>
+          </li>
+          <li>
+            <h3>받는 방법 고르기</h3>
+            <p>사진을 한 장씩 받거나, 전부 한 번에(.zip) 받거나, 사진으로 영상 만들기를 눌러 음악이 들어간 영상으로 받으세요.</p>
+          </li>
+        </ol>
+      </section>
+
+      <section class="muc hoi-dap">
+        <h2>사진 게시물 관련 질문</h2>
+        <details>
+          <summary>받은 사진에 워터마크가 있나요?</summary>
+          <p>아니요. 올린 사람이 업로드한 원본 사진이라 TikTok 로고가 붙지 않아요.</p>
+        </details>
+        <details>
+          <summary>휴대폰에서 ZIP 파일은 어떻게 여나요?</summary>
+          <p>Android: 내 파일(또는 Files) 앱을 열고 ZIP 파일을 누른 뒤 › 압축 풀기. iPhone: 파일 앱에서 ZIP 파일을 누르면 자동으로 압축이 풀려 폴더가 생겨요.</p>
+        </details>
+        <details>
+          <summary>사진으로 영상 만들기는 어떻게 작동하나요?</summary>
+          <p>브라우저가 직접 합쳐요. 사진마다 2.5초씩 보여 주고, 서서히 바뀌는 전환 효과와 함께 원본 음악이 배경으로 깔려요. 실제 재생 시간만큼 걸리니(사진 10장이면 약 25초) 끝날 때까지 페이지를 열어 두세요. 최신 Chrome과 Safari는 MP4로, 다른 브라우저는 WebM으로 만들어질 수 있어요.</p>
+        </details>
+        <details>
+          <summary>.webp 확장자 사진이 안 열려요</summary>
+          <p>snaptik은 JPEG 버전을 먼저 받고, TikTok에 JPEG가 없을 때만 WebP 버전을 받아요. 요즘 컴퓨터와 휴대폰은 모두 WebP를 열 수 있어요.</p>
+        </details>
+      </section>
+    </main>
+
+    <footer class="chan">
+      <div class="khung">
+        <p>© 2026 snaptik · TikTok, ByteDance 및 다른 SnapTik 사이트와 관련이 없어요.</p>
+        <nav aria-label="기타 페이지">
+          <a href="/ko/huong-dan/">사용법</a>
+          <a href="/ko/dieu-khoan/">이용약관</a>
+          <a href="/ko/bao-mat/">개인정보 처리방침</a>
+        </nav>
+      </div>
+    </footer>
+  </body>
+</html>

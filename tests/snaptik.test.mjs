@@ -3,8 +3,9 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, existsSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
+import vm from "node:vm";
 import { fileURLToPath } from "node:url";
-import worker, { docLink, docTrang, chuanBi, layCookie, tenFile, kieuGui, dinhDangNhac } from "../may-chu/snaptik/worker.js";
+import worker, { docLink, docTrang, chuanBi, layCookie, tenFile, kieuGui, dinhDangNhac, maNgonNgu, noiLoi } from "../may-chu/snaptik/worker.js";
 import { soGon, coFile, thoiGian, linkTai, timLinkTrongChu, crc32, taoZip } from "../may-chu/snaptik/public/cong-cu.js";
 
 const PUB = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "may-chu", "snaptik", "public");
@@ -83,12 +84,15 @@ test("đọc link: link đầy đủ, link ảnh, link rút gọn, chữ chia s�
 });
 
 test("đọc link: báo lỗi dễ hiểu cho link không dùng được", () => {
-  assert.match(docLink("").loi, /Chưa thấy link TikTok/);
-  assert.match(docLink("https://youtube.com/watch?v=abc").loi, /Chưa thấy link TikTok/);
-  assert.match(docLink(`https://nottiktok.com/@a/video/${ID}`).loi, /Chưa thấy link TikTok/);
-  assert.match(docLink("https://www.tiktok.com/@meo.nha").loi, /trang cá nhân/);
-  assert.match(docLink("https://www.tiktok.com/@meo.nha/live").loi, /trực tiếp/);
-  assert.match(docLink("https://www.douyin.com/video/7234567890123456789").loi, /Douyin/);
+  /* lỗi là mã; câu báo theo tiếng do noiLoi dựng (mặc định tiếng Việt) */
+  assert.equal(docLink("").loi, "khongCoLink");
+  assert.match(noiLoi(docLink("").loi), /Chưa thấy link TikTok/);
+  assert.equal(docLink("https://youtube.com/watch?v=abc").loi, "khongCoLink");
+  assert.equal(docLink(`https://nottiktok.com/@a/video/${ID}`).loi, "khongCoLink");
+  assert.equal(docLink("https://www.tiktok.com/@meo.nha").loi, "trangCaNhan");
+  assert.match(noiLoi("trangCaNhan"), /trang cá nhân/);
+  assert.equal(docLink("https://www.tiktok.com/@meo.nha/live").loi, "live");
+  assert.equal(docLink("https://www.douyin.com/video/7234567890123456789").loi, "douyin");
 });
 
 test("đọc trang TikTok: bài video, bản HD ưu tiên H.264, nhạc, số liệu", () => {
@@ -131,8 +135,9 @@ test("đọc trang TikTok: bài ảnh ưu tiên JPEG, có nhạc, không có nú
 test("đọc trang TikTok: bài riêng tư báo mã lỗi, trang lạ báo lỗi chung, trang kiểu cũ SIGI_STATE vẫn đọc được", () => {
   const rieng = docTrang(trang({ "webapp.video-detail": { statusCode: 10216, statusMsg: "" } }));
   assert.equal(rieng.ma, 10216);
-  assert.match(rieng.loi, /riêng tư/);
-  assert.match(docTrang("<html>captcha</html>").loi, /Không đọc được trang TikTok/);
+  assert.equal(rieng.loi, "khongXemDuoc");
+  assert.match(noiLoi(rieng.loi, "vi", rieng), /mã 10216\).*riêng tư/);
+  assert.equal(docTrang("<html>captcha</html>").loi, "khongDocDuoc");
   const cu = `<script id="SIGI_STATE" type="application/json">${JSON.stringify({ ItemModule: { [ID]: { ...baiVideo(), author: "meo.nha" } } })}</script>`;
   assert.equal(chuanBi(docTrang(cu).bai).tt.tacGia.ten, "meo.nha");
 });
@@ -186,7 +191,8 @@ test("trang chặn bot của TikTok (Please wait…): báo rõ là TikTok đang 
   const waf = `<html><head><script id="slardar-config" type="application/json">{"slardarClient": "SlardarWAF", "bid": "slardar_us_waf"}</script></head><body> Please wait... <p id="wci" class="_wafchallengeid"></p></body></html>`;
   const d = docTrang(waf);
   assert.equal(d.chan, true);
-  assert.match(d.loi, /đang tạm chặn/);
+  assert.equal(d.loi, "biChan");
+  assert.match(noiLoi(d.loi), /đang tạm chặn/);
   assert.equal(docTrang("<html>trang lạ</html>").chan, undefined);
 });
 
@@ -393,7 +399,9 @@ test("trang 404 do worker trả, kèm no-transform (Cloudflare tự trả 404.ht
   const ASSETS = { fetch: async (req) => (hoi.push(new URL(req.url).pathname), new Response("<title>Không có trang này</title>", { headers: { "Content-Type": "text/html", "X-Frame-Options": "DENY" } })) };
   const r = await worker.fetch(new Request("https://snaptik.meomeo.app/khong-co-trang-nay"), { ASSETS }, {});
   assert.equal(r.status, 404);
-  assert.deepEqual(hoi, ["/404.html"]);
+  await worker.fetch(new Request("https://snaptik.meomeo.app/en/khong-co"), { ASSETS }, {});
+  await worker.fetch(new Request("https://snaptik.meomeo.app/xx/khong-co"), { ASSETS }, {});
+  assert.deepEqual(hoi, ["/404.html", "/en/404.html", "/404.html"], "404 theo tiếng của đường dẫn, tiếng lạ thì tiếng Việt");
   assert.match(r.headers.get("Cache-Control"), /no-transform/);
   assert.equal(r.headers.get("X-Frame-Options"), "DENY", "giữ header của trang tĩnh (CSP…)");
   assert.match(await r.text(), /Không có trang này/);
@@ -472,7 +480,7 @@ test("trang tĩnh: mọi link nội bộ có file, manifest và service worker t
   assert.ok(html.length >= 7);
   for (const f of html) {
     const s = readFileSync(f, "utf8");
-    assert.match(s, /<html lang="vi">/, f);
+    assert.match(s, /<html lang="(vi|en|id|th|ms|fil|es|pt|ja|ko)">/, f);
     assert.match(s, /<title>[^<]+<\/title>/, f);
     assert.doesNotMatch(s, /<script(?![^>]*\bsrc=)[^>]*>/, "không có script viết thẳng trong trang (CSP chặn): " + f);
     assert.doesNotMatch(s, /\sstyle="/, "không có style viết thẳng trong thẻ (CSP chặn): " + f);
@@ -485,4 +493,83 @@ test("trang tĩnh: mọi link nội bộ có file, manifest và service worker t
   for (const m of sw.match(/const VO = \[([^\]]+)\]/)[1].matchAll(/"([^"]+)"/g)) assert.ok(coFileTinh(m[1]), "sw.js giữ file không có: " + m[1]);
   for (const m of readFileSync(path.join(PUB, "sitemap.xml"), "utf8").matchAll(/<loc>https:\/\/snaptik\.meomeo\.app([^<]*)<\/loc>/g))
     assert.ok(coFileTinh(m[1]), "sitemap trỏ tới trang không có: " + m[1]);
+});
+
+/* ---------- đa ngôn ngữ (17/10/2026): 10 tiếng, mỗi tiếng một đường dẫn ---------- */
+const { NGON_NGU, sinhTatCa, napDich, soDich } = await import("../may-chu/snaptik/sinh-trang.mjs");
+
+test("đa ngôn ngữ: file dịch của mọi tiếng đủ khoá, giữ thẻ HTML, link và chỗ thay như bản tiếng Việt", async () => {
+  const dich = await napDich();
+  for (const ng of NGON_NGU) assert.deepEqual(soDich(dich.vi, dich[ng.ma]), [], "dich/" + ng.ma + ".js");
+});
+
+test("đa ngôn ngữ: file sinh ra khớp dich/ (sửa chữ mà quên chạy node may-chu/snaptik/sinh-trang.mjs thì báo)", async () => {
+  const tep = await sinhTatCa();
+  assert.ok(Object.keys(tep).length >= 10 * 9);
+  for (const [d, n] of Object.entries(tep)) assert.equal(readFileSync(path.join(PUB, "..", d), "utf8"), n, d + ": chạy lại node may-chu/snaptik/sinh-trang.mjs");
+});
+
+test("đa ngôn ngữ: mỗi trang khai đủ hreflang và x-default, nút chọn ngôn ngữ trỏ tới đúng trang cùng tên của tiếng kia", () => {
+  for (const ng of NGON_NGU) {
+    const goc = ng.ma === "vi" ? "" : ng.ma + "/";
+    const s = readFileSync(path.join(PUB, goc, "mp3", "index.html"), "utf8");
+    assert.match(s, new RegExp(`<html lang="${ng.ma}">`));
+    assert.equal((s.match(/rel="alternate" hreflang=/g) || []).length, NGON_NGU.length + 1, ng.ma);
+    assert.match(s, /hreflang="x-default" href="https:\/\/snaptik\.meomeo\.app\/en\/mp3\/"/);
+    assert.match(s, /<a href="\/mp3\/" hreflang="vi" lang="vi" data-ngon-ngu="vi"/);
+    assert.match(s, /<a href="\/ja\/mp3\/" hreflang="ja" lang="ja" data-ngon-ngu="ja"/);
+    assert.match(s, new RegExp(`data-ngon-ngu="${ng.ma}" aria-current="true"`));
+    assert.match(s, /<script src="\/ngon-ngu\.js"><\/script>/, "chọn tiếng chạy ngay trong <head>");
+    const og = s.match(/og:image" content="https:\/\/snaptik\.meomeo\.app\/([^"]+)"/)[1];
+    assert.ok(existsSync(path.join(PUB, og)), "ảnh chia sẻ " + og);
+  }
+});
+
+test("đa ngôn ngữ: ngon-ngu.js theo lựa chọn đã lưu, không thì theo ngôn ngữ máy (tiếng chưa có thì tiếng Anh), không chuyển máy tìm kiếm", () => {
+  const ma = readFileSync(path.join(PUB, "ngon-ngu.js"), "utf8");
+  assert.deepEqual(JSON.parse(ma.match(/const CO = (\[[^\]]+\])/)[1]), NGON_NGU.map((n) => n.ma), "cùng danh sách tiếng với sinh-trang.mjs");
+  const chay = ({ lang, duong, may, daChon, ua = "Mozilla/5.0 (iPhone)" }) => {
+    let toi = null;
+    const luu = daChon ? { "snaptik-ngon-ngu": daChon } : {};
+    vm.runInNewContext(ma, {
+      document: { documentElement: { lang }, addEventListener() {}, querySelectorAll: () => [] },
+      navigator: { languages: may, language: may[0], userAgent: ua },
+      localStorage: { getItem: (k) => luu[k] ?? null, setItem: (k, v) => (luu[k] = v) },
+      location: { pathname: duong, search: "?url=x", hash: "", replace: (u) => (toi = u) },
+    });
+    return toi;
+  };
+  assert.equal(chay({ lang: "vi", duong: "/mp3/", may: ["en-US"] }), "/en/mp3/?url=x");
+  assert.equal(chay({ lang: "en", duong: "/en/", may: ["vi-VN", "en"] }), "/?url=x");
+  assert.equal(chay({ lang: "vi", duong: "/", may: ["vi-VN"] }), null);
+  assert.equal(chay({ lang: "vi", duong: "/", may: ["fr-FR"] }), "/en/?url=x", "tiếng chưa có: tiếng Anh");
+  assert.equal(chay({ lang: "vi", duong: "/", may: ["fr-FR", "id-ID"] }), "/id/?url=x");
+  assert.equal(chay({ lang: "vi", duong: "/anh/", may: ["tl-PH"] }), "/fil/anh/?url=x");
+  assert.equal(chay({ lang: "ja", duong: "/ja/khong-co", may: ["ko-KR"] }), "/ko/khong-co?url=x");
+  assert.equal(chay({ lang: "en", duong: "/en/", may: ["en-GB"], daChon: "vi" }), "/?url=x", "đã chọn thì hơn ngôn ngữ máy");
+  assert.equal(chay({ lang: "vi", duong: "/", may: ["en-US"], daChon: "vi" }), null);
+  assert.equal(chay({ lang: "vi", duong: "/", may: ["en-US"], ua: "Mozilla/5.0 (compatible; Googlebot/2.1)" }), null);
+});
+
+test("đa ngôn ngữ: worker báo lỗi theo hl của trang, không có thì theo Accept-Language, rồi tiếng Việt", async () => {
+  assert.equal(maNgonNgu("pt-BR"), "pt");
+  assert.equal(maNgonNgu("tl"), "fil");
+  assert.equal(maNgonNgu("in-ID"), "id");
+  assert.equal(maNgonNgu("fr-FR"), null);
+  assert.match(noiLoi("khongXemDuoc", "en", { ma: 10216 }), /10216/);
+  const loi = async (duong, init) => (await (await goiWorker(duong, init)).json()).loi;
+  const sai = "/api/thong-tin?url=" + encodeURIComponent("https://youtube.com/x");
+  assert.equal(await loi(sai), noiLoi("khongCoLink", "vi"));
+  assert.equal(await loi(sai + "&hl=en"), noiLoi("khongCoLink", "en"));
+  assert.notEqual(noiLoi("khongCoLink", "en"), noiLoi("khongCoLink", "vi"));
+  assert.equal(await loi(sai, { headers: { "Accept-Language": "fr-FR,ja;q=0.8" } }), noiLoi("khongCoLink", "ja"));
+  assert.equal(await loi(sai + "&hl=xx", { headers: { "Accept-Language": "ko" } }), noiLoi("khongCoLink", "ko"));
+});
+
+test("đa ngôn ngữ: app.js chỉ dùng khoá chữ có trong dich/vi.js › chay", async () => {
+  const { chay } = (await napDich()).vi;
+  const app = readFileSync(path.join(PUB, "app.js"), "utf8");
+  const khoa = [...app.matchAll(/\bc\("(\w+)"/g)].map((m) => m[1]);
+  assert.ok(khoa.length > 30);
+  for (const k of khoa) assert.ok(k in chay, "thiếu chữ " + k);
 });

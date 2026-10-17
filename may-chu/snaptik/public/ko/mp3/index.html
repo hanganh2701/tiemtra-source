@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>틱톡 음악 MP3 다운로드, 영상 원본 소리 추출 | snaptik</title>
+    <meta name="description" content="틱톡 영상에서 음악만 MP3 파일로 추출하세요. 링크를 붙여넣고 다운로드만 누르면 돼요. 무료이고 광고 없이 휴대폰과 컴퓨터에서 쓸 수 있어요." />
+    <link rel="canonical" href="https://snaptik.meomeo.app/ko/mp3/" />
+    <link rel="alternate" hreflang="vi" href="https://snaptik.meomeo.app/mp3/" />
+    <link rel="alternate" hreflang="en" href="https://snaptik.meomeo.app/en/mp3/" />
+    <link rel="alternate" hreflang="id" href="https://snaptik.meomeo.app/id/mp3/" />
+    <link rel="alternate" hreflang="th" href="https://snaptik.meomeo.app/th/mp3/" />
+    <link rel="alternate" hreflang="ms" href="https://snaptik.meomeo.app/ms/mp3/" />
+    <link rel="alternate" hreflang="fil" href="https://snaptik.meomeo.app/fil/mp3/" />
+    <link rel="alternate" hreflang="es" href="https://snaptik.meomeo.app/es/mp3/" />
+    <link rel="alternate" hreflang="pt" href="https://snaptik.meomeo.app/pt/mp3/" />
+    <link rel="alternate" hreflang="ja" href="https://snaptik.meomeo.app/ja/mp3/" />
+    <link rel="alternate" hreflang="ko" href="https://snaptik.meomeo.app/ko/mp3/" />
+    <link rel="alternate" hreflang="x-default" href="https://snaptik.meomeo.app/en/mp3/" />
+    <meta name="theme-color" content="#fff8f0" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#17131a" media="(prefers-color-scheme: dark)" />
+    <meta name="referrer" content="no-referrer" />
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/icon-192.png" />
+    <link rel="manifest" href="/ko/manifest.webmanifest" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="snaptik" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:title" content="snaptik: 틱톡 음악 MP3 다운로드" />
+    <meta property="og:description" content="틱톡 링크를 붙여넣고 원본 소리만 MP3 파일로 받으세요." />
+    <meta property="og:url" content="https://snaptik.meomeo.app/ko/mp3/" />
+    <meta property="og:image" content="https://snaptik.meomeo.app/og-ko.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <script src="/ngon-ngu.js"></script>
+    <link rel="stylesheet" href="/style.css" />
+    <script type="module" src="/app.js"></script>
+  </head>
+  <body data-che-do="mp3">
+    <header class="dau">
+      <div class="khung">
+        <a class="logo" href="/ko/"><img src="/icon.svg" alt="" width="32" height="32" />snaptik</a>
+        <nav class="menu" aria-label="도구">
+          <a href="/ko/">동영상</a>
+          <a href="/ko/mp3/" aria-current="page">MP3</a>
+          <a href="/ko/anh/">사진</a>
+          <a href="/ko/huong-dan/">사용법</a>
+        </nav>
+        <details class="ngon-ngu">
+          <summary aria-label="언어: 한국어"><span class="bieu-tuong dia-cau"></span>KO</summary>
+          <ul>
+            <li><a href="/mp3/" hreflang="vi" lang="vi" data-ngon-ngu="vi">Tiếng Việt</a></li>
+            <li><a href="/en/mp3/" hreflang="en" lang="en" data-ngon-ngu="en">English</a></li>
+            <li><a href="/id/mp3/" hreflang="id" lang="id" data-ngon-ngu="id">Bahasa Indonesia</a></li>
+            <li><a href="/th/mp3/" hreflang="th" lang="th" data-ngon-ngu="th">ไทย</a></li>
+            <li><a href="/ms/mp3/" hreflang="ms" lang="ms" data-ngon-ngu="ms">Bahasa Melayu</a></li>
+            <li><a href="/fil/mp3/" hreflang="fil" lang="fil" data-ngon-ngu="fil">Filipino</a></li>
+            <li><a href="/es/mp3/" hreflang="es" lang="es" data-ngon-ngu="es">Español</a></li>
+            <li><a href="/pt/mp3/" hreflang="pt" lang="pt" data-ngon-ngu="pt">Português</a></li>
+            <li><a href="/ja/mp3/" hreflang="ja" lang="ja" data-ngon-ngu="ja">日本語</a></li>
+            <li><a href="/ko/mp3/" hreflang="ko" lang="ko" data-ngon-ngu="ko" aria-current="true">한국어</a></li>
+          </ul>
+        </details>
+        <button type="button" id="nut-cai" class="nut-cai" hidden>앱 설치</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="dau-trang">
+        <div class="khung">
+          <h1>틱톡 음악 MP3 다운로드</h1>
+          <p class="phu">TikTok 영상이나 사진 게시물의 원본 소리만 음악 파일로 받아요. 링크를 붙여넣고 MP3 음악 다운로드를 누르세요.</p>
+          <form id="o-tim" class="o-tim" autocomplete="off">
+            <label class="an-chu" for="link">TikTok 링크</label>
+            <div class="o-nhap">
+              <input id="link" name="url" type="text" inputmode="url" enterkeyhint="go" placeholder="여기에 TikTok 링크를 붙여넣으세요" spellcheck="false" />
+              <button type="button" id="nut-dan" class="nut-dan">붙여넣기</button>
+            </div>
+            <button type="submit" id="nut-tim" class="nut-chinh">다운로드</button>
+          </form>
+          <p id="loi" class="loi" role="alert" hidden></p>
+          <p class="nho">영상 링크도, 음악이 들어간 사진 게시물 링크도 쓸 수 있어요.</p>
+        </div>
+      </section>
+
+      <section id="ket-qua" class="ket-qua" hidden></section>
+      <section id="lich-su" class="lich-su" hidden></section>
+
+      <section class="muc">
+        <h2>TikTok에서 음악 받기</h2>
+        <ol class="buoc">
+          <li>
+            <h3>게시물 링크 복사</h3>
+            <p>마음에 드는 음악이 나오는 영상을 열고 공유 › 링크 복사를 누르세요.</p>
+          </li>
+          <li>
+            <h3>위 입력란에 붙여넣기</h3>
+            <p>붙여넣기를 누르면 게시물을 찾아서 음악 제목, 올린 사람, 길이를 보여 줘요.</p>
+          </li>
+          <li>
+            <h3>MP3 음악 다운로드 누르기</h3>
+            <p>음악 파일은 다운로드 폴더에 저장되고, 어떤 음악 앱으로도 열 수 있어요.</p>
+          </li>
+        </ol>
+      </section>
+
+      <section class="muc hoi-dap">
+        <h2>TikTok 음악 관련 질문</h2>
+        <details>
+          <summary>받은 음악은 어떤 버전인가요?</summary>
+          <p>TikTok 게시물에 붙은 원본 소리예요. 올린 사람이 고른 노래일 수도 있고, 영상에서 직접 녹음된 소리일 수도 있어요.</p>
+        </details>
+        <details>
+          <summary>왜 어떤 게시물에는 MP3 음악 다운로드 버튼이 없나요?</summary>
+          <p>저작권이 있는 일부 노래는 TikTok이 음악 파일만 따로 받지 못하게 해요. 이럴 때는 영상을 받은 뒤 영상 편집 앱으로 소리를 분리하세요.</p>
+        </details>
+        <details>
+          <summary>음악 파일 확장자가 .mp3가 아니라 .m4a예요</summary>
+          <p>snaptik은 음질이 떨어지지 않도록 TikTok이 보내 준 파일을 변환하지 않고 그대로 줘요. 대부분 MP3이고, M4A여도 휴대폰과 컴퓨터에서 문제없이 열려요.</p>
+        </details>
+        <details>
+          <summary>받은 음악은 어떻게 써야 하나요?</summary>
+          <p>음악의 저작권은 작곡가, 가수 또는 녹음한 사람에게 있어요. 혼자 듣는 건 괜찮지만, 공개 영상에 넣거나 수익을 내는 데 쓰려면 허락을 받아야 해요. <a href="/ko/dieu-khoan/">이용약관</a>을 참고하세요.</p>
+        </details>
+      </section>
+    </main>
+
+    <footer class="chan">
+      <div class="khung">
+        <p>© 2026 snaptik · TikTok, ByteDance 및 다른 SnapTik 사이트와 관련이 없어요.</p>
+        <nav aria-label="기타 페이지">
+          <a href="/ko/huong-dan/">사용법</a>
+          <a href="/ko/dieu-khoan/">이용약관</a>
+          <a href="/ko/bao-mat/">개인정보 처리방침</a>
+        </nav>
+      </div>
+    </footer>
+  </body>
+</html>

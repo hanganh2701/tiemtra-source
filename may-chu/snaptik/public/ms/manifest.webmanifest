@@ -1,0 +1,54 @@
+{
+  "name": "snaptik: muat turun video TikTok tanpa watermark",
+  "short_name": "snaptik",
+  "description": "Muat turun video TikTok tanpa watermark, versi HD, muzik MP3 dan slaid foto.",
+  "lang": "ms",
+  "id": "/",
+  "start_url": "/ms/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#fff8f0",
+  "theme_color": "#f0682a",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "share_target": {
+    "action": "/ms/",
+    "method": "GET",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  },
+  "shortcuts": [
+    {
+      "name": "Muat turun muzik MP3",
+      "url": "/ms/mp3/"
+    },
+    {
+      "name": "Muat turun slaid foto",
+      "url": "/ms/anh/"
+    }
+  ]
+}
