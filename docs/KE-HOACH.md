@@ -488,6 +488,22 @@ Chủ dự án muốn bảng xếp hạng chung trên mạng, xếp theo tiền 
 - [x] Đưa lên 01/10/2026: chủ dự án đăng nhập Cloudflare (`wrangler login`), cơ sở dữ liệu D1 `tiemtra-bxh` (vùng APAC), Worker chạy ở https://bxh.meomeo.app. Đã thử thật: đọc bảng, gửi, chặn số vô lý, rời bảng, gọi từ game qua CORS
 - [x] Mục Bảng chung tự tải bảng ngay khi vẽ, không nhờ hàm của file khác: sau mỗi lần cập nhật, trình duyệt có thể giữ bản cũ của từng file JS vài phút (game không có số phiên bản trong đường dẫn file)
 
+### Ngoài game: trang tải video TikTok (snaptik)
+
+Ngày 16/10/2026 chủ dự án yêu cầu một trang tải video TikTok giống snaptik.vn, chạy ở snaptik.meomeo.app. Trang riêng, không dính tới game; chi tiết ở `may-chu/snaptik/README.md`.
+
+- [x] Worker + trang tĩnh `may-chu/snaptik`: video không logo, bản HD, nhạc MP3, ảnh bìa; bài ảnh tải từng ảnh, cả bộ ZIP, ghép thành video; xem trước, lịch sử trên máy, trang MP3/Ảnh/Hướng dẫn/Điều khoản/Bảo mật, cài lên màn hình chính, nhận link từ nút Chia sẻ (Android), nút đánh dấu
+- [x] Tên trên trang là Mèo Tải, icon tự vẽ, chữ tự viết: không dùng tên, logo hay nội dung của SnapTik
+- [x] Test `tests/snaptik.test.mjs` (mạng giả); đã chạy thử giao diện trong Chromium với máy chủ giả
+- [x] Thử thật 17/10/2026 bằng `wrangler dev` với TikTok thật: tải trọn video không logo, HD, MP3, ảnh bìa; sửa 3 lỗi chỉ lộ ra khi chạy thật (export hằng làm Worker không khởi động, nút tải nhận trang 404, nhạc thành `.mp4`)
+- [x] Đưa lên 17/10/2026: `wrangler deploy` trong `may-chu/snaptik` (wrangler đã đăng nhập sẵn tài khoản giữ meomeo.app), Worker `meotai-snaptik` chạy ở https://snaptik.meomeo.app
+- [x] Thử lại trên mạng Cloudflare 17/10/2026: dán link trên trang thật, tải video không logo, HD, MP3, ảnh bìa đều được. Sửa 2 lỗi chỉ lộ ra trên Cloudflare: trạm Hồng Kông nhận trang báo khu vực của TikTok (TikTok không hoạt động ở Hồng Kông) nên Worker đặt chạy ở Singapore (`[placement]`); Cloudflare chèn script Web Analytics bị CSP chặn nên trang gắn `no-transform`
+- [x] Đổi tên thành snaptik và làm giao diện kiểu mèo (chủ dự án chốt 17/10/2026, tự nhận rủi ro nhãn hiệu vì SnapTik là tên trang khác): màu mèo mướp, mèo ngó qua ô tìm đổi nét mặt theo lúc tìm/thấy/lỗi, mèo trên thẻ kết quả, mèo ngồi chân trang, mèo ngủ trang 404, dấu chân, logo mới, ảnh chia sẻ `og.png`. Trang ghi rõ không liên kết với TikTok, ByteDance hay các trang SnapTik khác. Đã lên và thử trên trang thật
+- [x] Tối ưu điện thoại 17/10/2026: trước đó ở 375×812 nút tải đầu tiên nằm dưới mép màn hình (866px) và đầu thẻ bị thanh đầu trang dính che. Giờ thẻ kết quả gọn trên điện thoại, 4 nút tải hiện ngay; xem trước thì video mở hết bề ngang; đầu trang không dính; mọi nút ≥44px; chừa tai thỏ khi xoay ngang. Đã kiểm 320/375px, sáng/tối, mọi trang không cuộn ngang; thử trên trang thật
+- [x] Nén lại CSS/JS 17/10/2026: `no-transform` gắn cho mọi file làm Cloudflare thôi nén (trang chủ cùng CSS/JS ~55 KB thay vì ~25 KB); giờ chỉ gắn cho trang HTML, CSS/JS nén Brotli, script Web Analytics vẫn không bị chèn
+- [x] Sửa nhỏ 17/10/2026, đã lên và thử trên trang thật: nút nhạc ghi đúng định dạng (bài @patrox ra "Tải nhạc M4A"; nhạc kho TikTok không ghi định dạng trong link nên Worker hỏi 1 byte); tìm bị lỗi thì ẩn thẻ bài trước và dừng video xem trước; TikTok đưa trang chặn bot hoặc 403/429 thì báo rõ "TikTok đang tạm chặn máy chủ" (503, chỉ có test giữ vì không gây ra được trên trang thật)
+- [ ] Thử bài ảnh và link rút gọn thật (cần link chép từ app)
+
 ## Cổng quyết định
 
 | Cổng | Ngày | Đi tiếp khi |

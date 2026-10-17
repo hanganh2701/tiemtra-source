@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="nen" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffb35c" />
+      <stop offset="1" stop-color="#f0682a" />
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="116" fill="url(#nen)" />
+  <!-- tai -->
+  <path d="M112 246 L136 104 Q142 80 164 94 L250 156 Z M400 246 L376 104 Q370 80 348 94 L262 156 Z" fill="#fff4e6" />
+  <path d="M146 196 L160 126 L210 164 Z M366 196 L352 126 L302 164 Z" fill="#ffa8bc" />
+  <!-- đầu -->
+  <ellipse cx="256" cy="300" rx="158" ry="132" fill="#fff4e6" />
+  <path d="M256 176 V212 M218 182 L226 214 M294 182 L286 214" stroke="#f59e4a" stroke-width="15" stroke-linecap="round" />
+  <!-- mắt -->
+  <ellipse cx="194" cy="290" rx="22" ry="28" fill="#3b2a20" />
+  <ellipse cx="318" cy="290" rx="22" ry="28" fill="#3b2a20" />
+  <circle cx="202" cy="279" r="8" fill="#fff" />
+  <circle cx="326" cy="279" r="8" fill="#fff" />
+  <!-- má, mũi, miệng -->
+  <ellipse cx="160" cy="342" rx="24" ry="14" fill="#ff9eb5" opacity="0.6" />
+  <ellipse cx="352" cy="342" rx="24" ry="14" fill="#ff9eb5" opacity="0.6" />
+  <path d="M242 326 H270 L256 340 Z" fill="#ff7f9f" stroke="#ff7f9f" stroke-width="10" stroke-linejoin="round" />
+  <path d="M256 344 Q248 364 228 356 M256 344 Q264 364 284 356" fill="none" stroke="#3b2a20" stroke-width="9" stroke-linecap="round" />
+  <path d="M136 318 L84 306 M138 336 L88 344 M376 318 L428 306 M374 336 L424 344" stroke="#3b2a20" stroke-width="7" stroke-linecap="round" opacity="0.55" />
+  <!-- nút tải -->
+  <circle cx="392" cy="400" r="64" fill="#3b2a20" stroke="#fff4e6" stroke-width="12" />
+  <path d="M392 366 V428 M366 404 L392 430 L418 404" fill="none" stroke="#fff" stroke-width="15" stroke-linecap="round" stroke-linejoin="round" />
+</svg>

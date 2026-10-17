@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Tải ảnh TikTok, slide ảnh không logo | snaptik</title>
+    <meta name="description" content="Tải ảnh từ bài slide TikTok: từng ảnh, cả bộ trong một file ZIP, hoặc ghép ảnh và nhạc thành video. Miễn phí, không quảng cáo." />
+    <link rel="canonical" href="https://snaptik.meomeo.app/anh/" />
+    <meta name="theme-color" content="#ff3b6b" />
+    <meta name="referrer" content="no-referrer" />
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/icon-192.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="snaptik" />
+    <meta property="og:title" content="snaptik: tải ảnh slide TikTok" />
+    <meta property="og:description" content="Tải từng ảnh, cả bộ ZIP, hoặc ghép ảnh slide TikTok thành video." />
+    <meta property="og:url" content="https://snaptik.meomeo.app/anh/" />
+    <meta property="og:image" content="https://snaptik.meomeo.app/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="stylesheet" href="/style.css" />
+    <script type="module" src="/app.js"></script>
+  </head>
+  <body data-che-do="anh">
+    <header class="dau">
+      <div class="khung">
+        <a class="logo" href="/"><img src="/icon.svg" alt="" width="32" height="32" />snaptik</a>
+        <nav class="menu" aria-label="Công cụ">
+          <a href="/">Video</a>
+          <a href="/mp3/">MP3</a>
+          <a href="/anh/" aria-current="page">Ảnh</a>
+          <a href="/huong-dan/">Hướng dẫn</a>
+        </nav>
+        <button type="button" id="nut-cai" class="nut-cai" hidden>Cài ứng dụng</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="dau-trang">
+        <div class="khung">
+          <h1>Tải ảnh TikTok (bài slide)</h1>
+          <p class="phu">Dán link bài ảnh TikTok để tải từng ảnh gốc, cả bộ trong một file ZIP, hoặc ghép ảnh và nhạc thành video.</p>
+          <form id="o-tim" class="o-tim" autocomplete="off">
+            <label class="an-chu" for="link">Link bài ảnh TikTok</label>
+            <div class="o-nhap">
+              <input id="link" name="url" type="text" inputmode="url" enterkeyhint="go" placeholder="Dán link bài ảnh TikTok vào đây" spellcheck="false" />
+              <button type="button" id="nut-dan" class="nut-dan">Dán</button>
+            </div>
+            <button type="submit" id="nut-tim" class="nut-chinh">Tải về</button>
+          </form>
+          <p id="loi" class="loi" role="alert" hidden></p>
+          <p class="nho">Link bài ảnh thường có dạng tiktok.com/@ten/photo/… hoặc link rút gọn vt.tiktok.com/…</p>
+        </div>
+      </section>
+
+      <section id="ket-qua" class="ket-qua" hidden></section>
+      <section id="lich-su" class="lich-su" hidden></section>
+
+      <section class="muc">
+        <h2>Tải ảnh slide TikTok</h2>
+        <ol class="buoc">
+          <li>
+            <h3>Chép link bài ảnh</h3>
+            <p>Mở bài ảnh trên TikTok, bấm Chia sẻ › Sao chép liên kết.</p>
+          </li>
+          <li>
+            <h3>Dán vào ô phía trên</h3>
+            <p>Trang hiện tất cả ảnh trong bài theo đúng thứ tự.</p>
+          </li>
+          <li>
+            <h3>Chọn cách tải</h3>
+            <p>Tải từng ảnh, tải cả bộ (.zip), hoặc bấm Ghép ảnh thành video để có một video kèm nhạc.</p>
+          </li>
+        </ol>
+      </section>
+
+      <section class="muc hoi-dap">
+        <h2>Hỏi đáp về bài ảnh</h2>
+        <details>
+          <summary>Ảnh tải về có logo không?</summary>
+          <p>Không. Đây là ảnh gốc người đăng tải lên, không gắn logo TikTok.</p>
+        </details>
+        <details>
+          <summary>Mở file ZIP trên điện thoại thế nào?</summary>
+          <p>Android: mở ứng dụng Tệp, chạm vào file ZIP › Giải nén. iPhone: mở ứng dụng Tệp, chạm vào file ZIP là máy tự giải nén thành thư mục.</p>
+        </details>
+        <details>
+          <summary>Ghép ảnh thành video hoạt động ra sao?</summary>
+          <p>Trình duyệt của bạn tự ghép, mỗi ảnh hiện 2,5 giây, chuyển cảnh mờ dần, nhạc gốc chạy nền. Việc ghép chạy theo thời gian thật (bài 10 ảnh mất khoảng 25 giây), nên giữ trang mở tới khi xong. Chrome và Safari bản mới ra MP4, trình duyệt khác có thể ra WebM.</p>
+        </details>
+        <details>
+          <summary>Ảnh có đuôi .webp mở không được?</summary>
+          <p>snaptik ưu tiên bản JPEG; chỉ khi TikTok không có JPEG mới tải bản WebP. Máy tính và điện thoại đời mới đều mở được WebP.</p>
+        </details>
+      </section>
+    </main>
+
+    <footer class="chan">
+      <div class="khung">
+        <p>© 2026 snaptik · Không liên kết với TikTok, ByteDance hay các trang SnapTik khác.</p>
+        <nav aria-label="Trang phụ">
+          <a href="/huong-dan/">Hướng dẫn</a>
+          <a href="/dieu-khoan/">Điều khoản</a>
+          <a href="/bao-mat/">Bảo mật</a>
+        </nav>
+      </div>
+    </footer>
+  </body>
+</html>

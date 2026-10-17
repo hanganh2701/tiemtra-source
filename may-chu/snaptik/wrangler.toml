@@ -1,0 +1,25 @@
+# snaptik: trang tải video TikTok kiểu mèo ở snaptik.meomeo.app. Đưa lên: xem README.md cùng thư mục.
+name = "meotai-snaptik"
+main = "worker.js"
+compatibility_date = "2026-09-01"
+routes = [{ pattern = "snaptik.meomeo.app", custom_domain = true }]
+
+# worker.js luôn chạy ở Singapore. Người ở Việt Nam lúc vào trạm Cloudflare Hồng Kông, lúc vào Singapore;
+# TikTok không hoạt động ở Hồng Kông nên trạm đó chỉ nhận trang báo khu vực, không có dữ liệu bài.
+# Chạy một chỗ còn giúp bộ đệm 10 phút dùng chung (bộ đệm Cloudflare tách theo từng trạm). Trang tĩnh vẫn phát từ trạm gần nhất
+[placement]
+region = "aws:ap-southeast-1"
+
+# trang tĩnh: index.html, style.css, app.js… Không khớp file nào thì trả 404.html.
+# /api/* luôn chạy worker.js trước: không có dòng này thì bấm nút tải (trình duyệt mở như mở trang) nhận trang 404
+[assets]
+directory = "./public"
+binding = "ASSETS"
+not_found_handling = "404-page"
+run_worker_first = ["/api/*"]
+
+# mỗi máy tìm tối đa 20 lần mỗi phút (chỉ tính /api/thong-tin; bấm tải không tính)
+[[ratelimits]]
+name = "GIOI_HAN"
+namespace_id = "2701"
+simple = { limit = 20, period = 60 }
