@@ -256,6 +256,16 @@ test("wrangler.toml: /api/* chạy worker trước trang tĩnh (không thì bấ
   assert.match(toml, /^run_worker_first = \[[^\]]*"\/api\/\*"[^\]]*\]$/m);
 });
 
+test("wrangler.toml: worker.js luôn chạy ở Singapore (trạm Hồng Kông chỉ nhận trang báo khu vực của TikTok, thử thật trên Cloudflare 17/10/2026)", () => {
+  const toml = readFileSync(path.join(PUB, "..", "wrangler.toml"), "utf8");
+  assert.match(toml, /^\[placement\]\nregion = "aws:ap-southeast-1"$/m);
+});
+
+test("_headers: mọi trang có no-transform để Cloudflare không chèn script Web Analytics (CSP chặn nó, console báo lỗi; thử thật 17/10/2026)", () => {
+  const h = readFileSync(path.join(PUB, "_headers"), "utf8");
+  assert.match(h, /^\/\*\n(  .+\n)*  Cache-Control: [^\n]*no-transform/m);
+});
+
 test("API: chỉ nhận GET, đường lạ trả 404, ngoài /api/ chuyển cho trang tĩnh", async () => {
   assert.equal((await goiWorker("/api/thong-tin", { method: "POST" })).status, 405);
   assert.equal((await goiWorker("/api/khac")).status, 404);

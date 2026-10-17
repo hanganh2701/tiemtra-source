@@ -496,8 +496,9 @@ Ngày 16/10/2026 chủ dự án yêu cầu một trang tải video TikTok giốn
 - [x] Tên trên trang là Mèo Tải, icon tự vẽ, chữ tự viết: không dùng tên, logo hay nội dung của SnapTik
 - [x] Test `tests/snaptik.test.mjs` (mạng giả); đã chạy thử giao diện trong Chromium với máy chủ giả
 - [x] Thử thật 17/10/2026 bằng `wrangler dev` với TikTok thật: tải trọn video không logo, HD, MP3, ảnh bìa; sửa 3 lỗi chỉ lộ ra khi chạy thật (export hằng làm Worker không khởi động, nút tải nhận trang 404, nhạc thành `.mp4`)
-- [ ] Đưa lên: cần khoá Cloudflare (`CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` trong môi trường) hoặc chủ dự án tự `wrangler login` rồi `wrangler deploy` trong `may-chu/snaptik`
-- [ ] Sau khi lên: thử lại trên mạng Cloudflare, thử bài ảnh và link rút gọn thật
+- [x] Đưa lên 17/10/2026: `wrangler deploy` trong `may-chu/snaptik` (wrangler đã đăng nhập sẵn tài khoản giữ meomeo.app), Worker `meotai-snaptik` chạy ở https://snaptik.meomeo.app
+- [x] Thử lại trên mạng Cloudflare 17/10/2026: dán link trên trang thật, tải video không logo, HD, MP3, ảnh bìa đều được. Sửa 2 lỗi chỉ lộ ra trên Cloudflare: trạm Hồng Kông nhận trang báo khu vực của TikTok (TikTok không hoạt động ở Hồng Kông) nên Worker đặt chạy ở Singapore (`[placement]`); Cloudflare chèn script Web Analytics bị CSP chặn nên trang gắn `no-transform`
+- [ ] Thử bài ảnh và link rút gọn thật (cần link chép từ app)
 
 ## Cổng quyết định
 

@@ -1,4 +1,6 @@
+# no-transform: Cloudflare không tự chèn script Web Analytics của tên miền meomeo.app (trang hứa không theo dõi; CSP cũng chặn nó, nhưng mỗi trang báo lỗi trong console)
 /*
+  Cache-Control: public, max-age=0, must-revalidate, no-transform
   X-Content-Type-Options: nosniff
   Referrer-Policy: no-referrer
   Permissions-Policy: camera=(), microphone=(), geolocation=()
