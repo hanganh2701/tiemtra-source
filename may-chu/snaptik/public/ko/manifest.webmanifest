@@ -1,0 +1,54 @@
+{
+  "name": "snaptik: 틱톡 영상 워터마크 없이 다운로드",
+  "short_name": "snaptik",
+  "description": "틱톡 영상을 워터마크 없이, HD 화질로 받고 MP3 음악과 슬라이드 사진도 저장해요.",
+  "lang": "ko",
+  "id": "/",
+  "start_url": "/ko/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#fff8f0",
+  "theme_color": "#f0682a",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "share_target": {
+    "action": "/ko/",
+    "method": "GET",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  },
+  "shortcuts": [
+    {
+      "name": "MP3 음악 다운로드",
+      "url": "/ko/mp3/"
+    },
+    {
+      "name": "슬라이드 사진 다운로드",
+      "url": "/ko/anh/"
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "name": "snaptik: download TikTok videos without watermark",
+  "short_name": "snaptik",
+  "description": "Download TikTok videos without watermark, in HD, plus MP3 music and slideshow photos.",
+  "lang": "en",
+  "id": "/",
+  "start_url": "/en/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#fff8f0",
+  "theme_color": "#f0682a",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "share_target": {
+    "action": "/en/",
+    "method": "GET",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  },
+  "shortcuts": [
+    {
+      "name": "Download MP3 music",
+      "url": "/en/mp3/"
+    },
+    {
+      "name": "Download slideshow photos",
+      "url": "/en/anh/"
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "name": "snaptik: TikTok動画をロゴなしで保存",
+  "short_name": "snaptik",
+  "description": "TikTok動画をロゴなし・HD画質で保存。MP3音楽やスライド画像もダウンロードできます。",
+  "lang": "ja",
+  "id": "/",
+  "start_url": "/ja/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#fff8f0",
+  "theme_color": "#f0682a",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "share_target": {
+    "action": "/ja/",
+    "method": "GET",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  },
+  "shortcuts": [
+    {
+      "name": "MP3で音楽を保存",
+      "url": "/ja/mp3/"
+    },
+    {
+      "name": "スライド画像を保存",
+      "url": "/ja/anh/"
+    }
+  ]
+}

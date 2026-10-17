@@ -504,6 +504,8 @@ Ngày 16/10/2026 chủ dự án yêu cầu một trang tải video TikTok giốn
 - [x] Sửa nhỏ 17/10/2026, đã lên và thử trên trang thật: nút nhạc ghi đúng định dạng (bài @patrox ra "Tải nhạc M4A"; nhạc kho TikTok không ghi định dạng trong link nên Worker hỏi 1 byte); tìm bị lỗi thì ẩn thẻ bài trước và dừng video xem trước; TikTok đưa trang chặn bot hoặc 403/429 thì báo rõ "TikTok đang tạm chặn máy chủ" (503, chỉ có test giữ vì không gây ra được trên trang thật)
 - [x] Thử bài ảnh và link rút gọn thật 17/10/2026 (link chủ dự án gửi): video và bài 4 ảnh đều tải đủ, ZIP đủ 4 ảnh, ghép video có tiếng
 - [x] Thêm 17/10/2026, đã lên và thử trên trang thật: tải ảnh đại diện bản lớn; trang 404 do worker trả kèm no-transform (hết bị chèn script Web Analytics); hỏi đáp về Story ghi đúng là chưa chắc; hướng dẫn Phím tắt cho iPhone (thử đường `/?url=` trên trình duyệt, chưa thử trên iPhone thật); GitHub Actions canh trang mỗi ngày (`may-chu/snaptik/canh.mjs`, lịch chỉ chạy khi file nằm trên `main`)
+- [x] Đa ngôn ngữ 17/10/2026 (chủ dự án chọn 10 tiếng, mỗi tiếng một đường dẫn như snaptik): Việt ở `/`, Anh, Indonesia, Thái, Mã Lai, Philippines, Tây Ban Nha, Bồ Đào Nha, Nhật, Hàn ở `/<mã>/`. Chữ trong `may-chu/snaptik/dich/<tiếng>.js`, trang sinh bằng `sinh-trang.mjs`; tự chọn theo ngôn ngữ máy (`ngon-ngu.js`, chạy trong `<head>`, không nháy chữ, bỏ qua máy tìm kiếm), nút chọn ngôn ngữ nhớ lựa chọn; chữ lúc chạy, số, ngày, câu báo lỗi của máy chủ, trang 404, manifest, ảnh chia sẻ đều theo tiếng; hreflang + sitemap. Đã lên và thử trên trang thật
+- [ ] Nhờ người bản xứ đọc lại bản dịch (nhất là tên nút trên điện thoại trong trang Hướng dẫn)
 - [ ] Thử Phím tắt trên iPhone thật, thử link story
 
 ## Cổng quyết định

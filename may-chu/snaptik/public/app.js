@@ -2,6 +2,12 @@
 import { soGon, coFile, thoiGian, ngayDang, linkTai, timLinkTrongChu, taoZip } from "./cong-cu.js";
 import { ganMeo, meo } from "./meo.js";
 
+/* chữ theo tiếng của trang (<html lang>): public/chu/<tiếng>.js, sinh từ dich/<tiếng>.js */
+const NN = document.documentElement.lang || "vi";
+const CHU = (await import(`./chu/${NN}.js`).catch(() => import("./chu/vi.js"))).default;
+/* chữ đã thay số: c("dangTaiAnh", { i: 2, n: 5 }) */
+const c = (khoa, so = {}) => String(CHU[khoa] ?? khoa).replace(/\{(\w+)\}/g, (_, k) => so[k] ?? "");
+
 const $ = (s) => document.querySelector(s);
 const CHE_DO = document.body.dataset.cheDo || "video";
 const KHOA_LICH_SU = "meotai-lich-su";
@@ -53,36 +59,36 @@ function baoLoi(chu) {
 function dangTim(co) {
   nutTim.disabled = co;
   nutTim.classList.toggle("dang-chay", co);
-  nutTim.textContent = co ? "Mèo đang tìm…" : "Tải về";
+  nutTim.textContent = co ? c("dangTim") : c("tai");
   if (co) meo("tim");
 }
-const capNhatNutDan = () => (nutDan.textContent = o.value ? "Xoá" : "Dán");
+const capNhatNutDan = () => (nutDan.textContent = o.value ? c("xoa") : c("dan"));
 
 async function tim(chu) {
   const link = timLinkTrongChu(chu) || String(chu || "").trim();
-  if (!link) return baoLoi("Dán link TikTok vào ô trước đã nhé.");
-  if (!/tiktok\.com|^\d{15,22}$/i.test(link)) return baoLoi("Đây không phải link TikTok. Link đúng có dạng https://www.tiktok.com/@ten/video/… hoặc https://vt.tiktok.com/…");
+  if (!link) return baoLoi(c("chuaDan"));
+  if (!/tiktok\.com|^\d{15,22}$/i.test(link)) return baoLoi(c("khongPhaiLink"));
   o.value = link;
   capNhatNutDan();
   baoLoi("");
   dangTim(true);
   try {
-    const r = await fetch("/api/thong-tin?url=" + encodeURIComponent(link));
+    const r = await fetch("/api/thong-tin?url=" + encodeURIComponent(link) + "&hl=" + NN); /* hl: câu báo lỗi theo tiếng của trang */
     const j = await r.json().catch(() => null);
-    if (!j) return baoLoi("Máy chủ đang bận, thử lại sau ít phút.");
-    if (!j.ok) return baoLoi(j.loi || "Không lấy được bài này.");
+    if (!j) return baoLoi(c("mayChuBan"));
+    if (!j.ok) return baoLoi(j.loi || c("khongLayDuoc"));
     ve(j);
     meo("vui");
     ghiLichSu(j);
   } catch {
-    baoLoi("Không kết nối được máy chủ. Kiểm tra mạng rồi thử lại.");
+    baoLoi(c("khongKetNoi"));
   } finally {
     dangTim(false);
   }
 }
 
 /* ---------- kết quả ---------- */
-const moTaBan = (b) => [Math.min(b.w, b.h) ? Math.min(b.w, b.h) + "p" : "", b.codec === "h265" ? "H.265" : "", coFile(b.co)].filter(Boolean).join(" · ");
+const moTaBan = (b) => [Math.min(b.w, b.h) ? Math.min(b.w, b.h) + "p" : "", b.codec === "h265" ? "H.265" : "", coFile(b.co, NN)].filter(Boolean).join(" · ");
 
 function nutTai(href, chu, phu, chinh) {
   return el("a", { class: "nut" + (chinh ? " nut-chinh" : ""), href, download: "" }, el("span", { class: "bieu-tuong tai" }), el("span", {}, chu, phu ? el("small", {}, phu) : null));
@@ -96,12 +102,12 @@ function ve(j) {
   const hinh = el(
     "div",
     { class: "the-hinh" },
-    j.bia ? el("img", { class: "bia", src: j.bia, alt: "Ảnh bìa bài đăng", referrerpolicy: "no-referrer" }) : el("div", { class: "bia trong" }),
+    j.bia ? el("img", { class: "bia", src: j.bia, alt: c("anhBia"), referrerpolicy: "no-referrer" }) : el("div", { class: "bia trong" }),
     j.loai === "video" && j.thoiLuong ? el("span", { class: "nhan-gio" }, thoiGian(j.thoiLuong)) : null,
-    j.loai === "anh" ? el("span", { class: "nhan-gio" }, j.anh.length + " ảnh") : null,
+    j.loai === "anh" ? el("span", { class: "nhan-gio" }, c("soAnh", { n: j.anh.length })) : null,
   );
   if (j.loai === "video" && b.video) {
-    const nutXem = el("button", { type: "button", class: "nut-xem", "aria-label": "Xem trước video" }, el("span", { class: "bieu-tuong phat" }));
+    const nutXem = el("button", { type: "button", class: "nut-xem", "aria-label": c("xemTruoc") }, el("span", { class: "bieu-tuong phat" }));
     nutXem.addEventListener("click", () => {
       hinh.parentElement?.classList.add("dang-xem"); /* điện thoại: thẻ chuyển một cột, video lên đầu */
       hinh.replaceChildren(el("video", { class: "bia", src: linkTai(j.id, "video", 0, true), controls: true, autoplay: true, playsinline: true }));
@@ -114,32 +120,32 @@ function ve(j) {
     "div",
     { class: "tac-gia" },
     j.tacGia.anh ? el("img", { src: j.tacGia.anh, alt: "", referrerpolicy: "no-referrer", width: 44, height: 44 }) : el("span", { class: "anh-trong" }),
-    el("div", {}, el("b", {}, j.tacGia.tenHienThi || j.tacGia.ten || "Người dùng TikTok"), el("span", {}, (j.tacGia.ten ? "@" + j.tacGia.ten : "") + (j.luc ? " · " + ngayDang(j.luc) : ""))),
+    el("div", {}, el("b", {}, j.tacGia.tenHienThi || j.tacGia.ten || c("nguoiDung")), el("span", {}, (j.tacGia.ten ? "@" + j.tacGia.ten : "") + (j.luc ? " · " + ngayDang(j.luc, NN) : ""))),
   );
-  const moTa = el("p", { class: "mo-ta" }, j.moTa || "(không có mô tả)");
+  const moTa = el("p", { class: "mo-ta" }, j.moTa || c("khongMoTa"));
   const nutChep = j.moTa
-    ? el("button", { type: "button", class: "nut-chu" }, "Sao chép mô tả")
+    ? el("button", { type: "button", class: "nut-chu" }, c("chepMoTa"))
     : null;
   nutChep?.addEventListener("click", async () => {
     try {
       await navigator.clipboard.writeText(j.moTa);
-      nutChep.textContent = "Đã chép";
+      nutChep.textContent = c("daChep");
     } catch {
-      nutChep.textContent = "Không chép được";
+      nutChep.textContent = c("khongChep");
     }
-    setTimeout(() => (nutChep.textContent = "Sao chép mô tả"), 2000);
+    setTimeout(() => (nutChep.textContent = c("chepMoTa")), 2000);
   });
   const soLieu = el(
     "ul",
     { class: "so-lieu" },
     [
-      ["xem", "lượt xem"],
-      ["thich", "thích"],
-      ["binhLuan", "bình luận"],
-      ["chiaSe", "chia sẻ"],
+      ["xem", c("luotXem")],
+      ["thich", c("thich")],
+      ["binhLuan", c("binhLuan")],
+      ["chiaSe", c("chiaSe")],
     ]
       .filter(([k]) => j.soLieu[k] != null)
-      .map(([k, chu]) => el("li", {}, el("b", {}, soGon(j.soLieu[k])), " " + chu)),
+      .map(([k, chu]) => el("li", {}, el("b", {}, soGon(j.soLieu[k], NN)), " " + chu)),
   );
   /* tên nhạc gốc của TikTok thường đã kèm tên người đăng ("nhạc nền - Mèo Nhà"): khỏi ghi lại lần nữa */
   const tenNhac = j.nhac && (j.nhac.ten.includes(j.nhac.tacGia) ? j.nhac.ten : [j.nhac.ten, j.nhac.tacGia].filter(Boolean).join(" – "));
@@ -147,10 +153,10 @@ function ve(j) {
 
   /* nút tải: trang MP3 đưa nhạc lên đầu */
   const nut = [];
-  if (b.video) nut.push(["video", linkTai(j.id, "video"), "Tải video không logo", moTaBan(b.video)]);
-  if (b.hd) nut.push(["hd", linkTai(j.id, "hd"), "Tải video HD", moTaBan(b.hd)]);
+  if (b.video) nut.push(["video", linkTai(j.id, "video"), c("taiVideo"), moTaBan(b.video)]);
+  if (b.hd) nut.push(["hd", linkTai(j.id, "hd"), c("taiHd"), moTaBan(b.hd)]);
   /* có bài TikTok để nhạc dạng M4A: máy chủ đọc định dạng thật (b.nhac); thông tin cũ trong bộ đệm chưa có thì ghi MP3 */
-  if (b.mp3) nut.push(["mp3", linkTai(j.id, "mp3"), "Tải nhạc " + (b.nhac || "MP3"), j.nhac?.thoiLuong ? thoiGian(j.nhac.thoiLuong) : ""]);
+  if (b.mp3) nut.push(["mp3", linkTai(j.id, "mp3"), c("taiNhac", { dinhDang: b.nhac || "MP3" }), j.nhac?.thoiLuong ? thoiGian(j.nhac.thoiLuong) : ""]);
   if (CHE_DO === "mp3") nut.sort((a, c) => (c[0] === "mp3") - (a[0] === "mp3"));
   const cacNut = el(
     "div",
@@ -160,11 +166,11 @@ function ve(j) {
 
   let phanAnh = null;
   if (j.loai === "anh") {
-    const nutZip = el("button", { type: "button", class: "nut nut-chinh" }, el("span", { class: "bieu-tuong tai" }), el("span", {}, `Tải cả ${j.anh.length} ảnh`, el("small", {}, "file .zip")));
+    const nutZip = el("button", { type: "button", class: "nut nut-chinh" }, el("span", { class: "bieu-tuong tai" }), el("span", {}, c("taiCaAnh", { n: j.anh.length }), el("small", {}, c("tepZip"))));
     nutZip.addEventListener("click", () => taiZip(j, nutZip, tienDo));
     cacNut.prepend(nutZip);
     if (window.MediaRecorder && HTMLCanvasElement.prototype.captureStream) {
-      const nutGhep = el("button", { type: "button", class: "nut" }, el("span", { class: "bieu-tuong phim" }), el("span", {}, "Ghép ảnh thành video", el("small", {}, b.mp3 ? "có nhạc" : "không nhạc")));
+      const nutGhep = el("button", { type: "button", class: "nut" }, el("span", { class: "bieu-tuong phim" }), el("span", {}, c("ghepVideo"), el("small", {}, b.mp3 ? c("coNhac") : c("khongNhac"))));
       nutGhep.addEventListener("click", () => ghepVideo(j, nutGhep, tienDo));
       cacNut.append(nutGhep);
     }
@@ -175,16 +181,16 @@ function ve(j) {
         el(
           "figure",
           {},
-          el("img", { src: a.xem, alt: `Ảnh ${i + 1}`, loading: "lazy", referrerpolicy: "no-referrer" }),
-          el("a", { class: "nut nut-nho", href: linkTai(j.id, "anh", i), download: "" }, el("span", { class: "bieu-tuong tai" }), `Ảnh ${i + 1}`),
+          el("img", { src: a.xem, alt: c("anhThu", { i: i + 1 }), loading: "lazy", referrerpolicy: "no-referrer" }),
+          el("a", { class: "nut nut-nho", href: linkTai(j.id, "anh", i), download: "" }, el("span", { class: "bieu-tuong tai" }), c("anhThu", { i: i + 1 })),
         ),
       ),
     );
   }
-  if (b.bia) cacNut.append(el("a", { class: "nut nut-phu", href: linkTai(j.id, "bia"), download: "" }, el("span", { class: "bieu-tuong anh" }), el("span", {}, "Tải ảnh bìa")));
-  if (b.avt) cacNut.append(el("a", { class: "nut nut-phu", href: linkTai(j.id, "avt"), download: "" }, el("span", { class: "bieu-tuong nguoi" }), el("span", {}, "Tải ảnh đại diện")));
+  if (b.bia) cacNut.append(el("a", { class: "nut nut-phu", href: linkTai(j.id, "bia"), download: "" }, el("span", { class: "bieu-tuong anh" }), el("span", {}, c("taiBia"))));
+  if (b.avt) cacNut.append(el("a", { class: "nut nut-phu", href: linkTai(j.id, "avt"), download: "" }, el("span", { class: "bieu-tuong nguoi" }), el("span", {}, c("taiAnhDaiDien"))));
 
-  const nutLai = el("button", { type: "button", class: "nut-chu" }, "← Tải bài khác");
+  const nutLai = el("button", { type: "button", class: "nut-chu" }, c("taiBaiKhac"));
   nutLai.addEventListener("click", () => {
     anKetQua();
     meo("");
@@ -223,14 +229,14 @@ async function taiZip(j, nut, tienDo) {
   try {
     const tep = [];
     for (let i = 0; i < j.anh.length; i++) {
-      tienDo.textContent = `Đang tải ảnh ${i + 1}/${j.anh.length}…`;
+      tienDo.textContent = c("dangTaiAnh", { i: i + 1, n: j.anh.length });
       const r = await taiAnh(j, i);
       tep.push({ ten: tenTuDau(r) || `${tenGon(j)}_anh${i + 1}.jpg`, du: new Uint8Array(await r.arrayBuffer()) });
     }
     luuBlob(taoZip(tep), `${tenGon(j)}_anh.zip`);
-    tienDo.textContent = "Xong, file ZIP đã tải về.";
+    tienDo.textContent = c("xongZip");
   } catch {
-    tienDo.textContent = "Tải ảnh bị lỗi, thử lại nhé.";
+    tienDo.textContent = c("loiTaiAnh");
   } finally {
     nut.disabled = false;
   }
@@ -241,7 +247,7 @@ async function ghepVideo(j, nut, tienDo) {
   const kieu = ["video/mp4;codecs=avc1.42E01E,mp4a.40.2", "video/mp4", "video/webm;codecs=vp9,opus", "video/webm;codecs=vp8,opus", "video/webm"].find((k) =>
     MediaRecorder.isTypeSupported(k),
   );
-  if (!kieu) return (tienDo.textContent = "Trình duyệt này chưa ghép video được, thử Chrome hoặc Safari bản mới.");
+  if (!kieu) return (tienDo.textContent = c("chuaGhepDuoc"));
   nut.disabled = true;
   /* tạo bộ âm thanh ngay lúc bấm thì trình duyệt mới cho phát */
   const ac = j.ban.mp3 && window.AudioContext ? new AudioContext() : null;
@@ -249,7 +255,7 @@ async function ghepVideo(j, nut, tienDo) {
   try {
     const hinh = [];
     for (let i = 0; i < j.anh.length; i++) {
-      tienDo.textContent = `Đang tải ảnh ${i + 1}/${j.anh.length}…`;
+      tienDo.textContent = c("dangTaiAnh", { i: i + 1, n: j.anh.length });
       hinh.push(await createImageBitmap(await (await taiAnh(j, i, true)).blob()));
     }
     const W = 1080,
@@ -259,7 +265,7 @@ async function ghepVideo(j, nut, tienDo) {
     const luong = cv.captureStream(30);
     if (ac) {
       try {
-        tienDo.textContent = "Đang tải nhạc…";
+        tienDo.textContent = c("dangTaiNhac");
         const r = await fetch(linkTai(j.id, "mp3", 0, true));
         nguonAm = ac.createBufferSource();
         nguonAm.buffer = await ac.decodeAudioData(await r.arrayBuffer());
@@ -303,7 +309,7 @@ async function ghepVideo(j, nut, tienDo) {
         g.fillRect(0, 0, W, H);
         veAnh(hinh[k], 1);
         if (k + 1 < hinh.length && du > MOI - CHUYEN) veAnh(hinh[k + 1], (du - (MOI - CHUYEN)) / CHUYEN);
-        tienDo.textContent = `Đang ghép video… ${Math.round((t / tong) * 100)}% (giữ trang này mở)`;
+        tienDo.textContent = c("dangGhep", { phan: Math.round((t / tong) * 100) });
         setTimeout(buoc, 1000 / 30);
       };
       buoc();
@@ -313,9 +319,9 @@ async function ghepVideo(j, nut, tienDo) {
     await daDung;
     const mp4 = kieu.startsWith("video/mp4");
     luuBlob(new Blob(khuc, { type: kieu.split(";")[0] }), `${tenGon(j)}_slide.${mp4 ? "mp4" : "webm"}`);
-    tienDo.textContent = mp4 ? "Xong, video MP4 đã tải về." : "Xong, video đã tải về dạng WebM (trình duyệt này chưa ghi được MP4).";
+    tienDo.textContent = mp4 ? c("xongMp4") : c("xongWebm");
   } catch {
-    tienDo.textContent = "Ghép video bị lỗi, thử lại nhé.";
+    tienDo.textContent = c("loiGhep");
   } finally {
     nut.disabled = false;
     ac?.close();
@@ -345,7 +351,7 @@ function veLichSu() {
   if (!hop) return;
   const ds = docLichSu();
   hop.hidden = !ds.length;
-  const nutXoa = el("button", { type: "button", class: "nut-chu" }, "Xoá lịch sử");
+  const nutXoa = el("button", { type: "button", class: "nut-chu" }, c("xoaLichSu"));
   nutXoa.addEventListener("click", () => {
     try {
       localStorage.removeItem(KHOA_LICH_SU);
@@ -355,7 +361,7 @@ function veLichSu() {
     veLichSu();
   });
   hop.replaceChildren(
-    el("div", { class: "dau-muc" }, el("h2", {}, "Đã tìm gần đây"), nutXoa),
+    el("div", { class: "dau-muc" }, el("h2", {}, c("daTimGanDay")), nutXoa),
     el(
       "ul",
       {},
@@ -364,7 +370,7 @@ function veLichSu() {
           "button",
           { type: "button" },
           x.bia ? el("img", { src: x.bia, alt: "", loading: "lazy", referrerpolicy: "no-referrer" }) : el("span", { class: "bia trong" }),
-          el("span", {}, el("b", {}, x.ten ? "@" + x.ten : "TikTok"), el("span", {}, x.moTa || (x.loai === "anh" ? "Bài ảnh" : "Video"))),
+          el("span", {}, el("b", {}, x.ten ? "@" + x.ten : "TikTok"), el("span", {}, x.moTa || (x.loai === "anh" ? c("baiAnh") : c("video")))),
         );
         b.querySelector("img")?.addEventListener("error", (e) => e.target.replaceWith(el("span", { class: "bia trong" })));
         b.addEventListener("click", () => {
@@ -374,7 +380,7 @@ function veLichSu() {
         return el("li", {}, b);
       }),
     ),
-    el("p", { class: "nho" }, "Lịch sử chỉ lưu trên trình duyệt này, máy chủ không giữ."),
+    el("p", { class: "nho" }, c("lichSuNho")),
   );
 }
 
@@ -399,11 +405,11 @@ if (form) {
     }
     try {
       const chu = await navigator.clipboard.readText();
-      if (!chu.trim()) return baoLoi("Bộ nhớ tạm đang trống. Sao chép link TikTok trước đã nhé.");
+      if (!chu.trim()) return baoLoi(c("boNhoTrong"));
       tim(chu);
     } catch {
       o.focus();
-      baoLoi("Trình duyệt không cho đọc bộ nhớ tạm: nhấn giữ vào ô rồi chọn Dán.");
+      baoLoi(c("khongDocBoNho"));
     }
   });
   veLichSu();

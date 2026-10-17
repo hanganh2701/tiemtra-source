@@ -5,13 +5,15 @@
      GET /api/tai?id=…&loai=video|hd|mp3|anh|bia|avt&i=…  tải file (avt: ảnh đại diện người đăng); thêm xem=1 để phát hoặc xem ngay trên trang
    /api/tai chỉ nhận id bài đăng, không nhận link tuỳ ý, nên không ai mượn được máy chủ để tải thứ khác. */
 
+import { LOI } from "./loi-dich.js";
+
 /* chỉ export hàm: Cloudflare coi mỗi export của file này là một điểm vào, export chuỗi hay mảng thì Worker không chạy */
 const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36";
 const GIU_GIAY = 600; /* giữ thông tin một bài 10 phút ở bộ đệm Cloudflare: bấm tải không phải đọc lại trang TikTok */
 const LOAI = ["video", "hd", "mp3", "anh", "bia", "avt"];
-const LOI_LINK = "Chưa thấy link TikTok. Link có dạng https://www.tiktok.com/@ten/video/123… hoặc https://vt.tiktok.com/abc…";
-const LOI_TRANG = "Không đọc được trang TikTok (TikTok có thể đang chặn máy chủ hoặc vừa đổi trang). Thử lại sau ít phút.";
-const LOI_CHAN = "TikTok đang tạm chặn máy chủ của trang (nghi là máy tự động). Đợi vài phút rồi thử lại nhé.";
+/* lỗi trả về là mã (khoá trong dich/<tiếng>.js › loi); câu báo theo tiếng do noiLoi dựng lúc trả cho trình duyệt */
+const LOI_TRANG = "khongDocDuoc";
+const LOI_CHAN = "biChan";
 
 /* kiểu file nhận từ máy chủ TikTok cho từng loại; khác kiểu (trang lỗi HTML, SVG…) thì bỏ, không gửi về trình duyệt */
 const KIEU_DUNG = {
@@ -48,7 +50,7 @@ const laH265 = (codec) => /265|hevc|hvc1|bytevc1/i.test(codec || "");
 export function docLink(chu) {
   const s = String(chu || "").trim();
   if (/^\d{15,22}$/.test(s)) return { id: s, kieu: "video" };
-  if (/douyin\.com/i.test(s) && !/tiktok\.com/i.test(s)) return { loi: "Trang chỉ tải được TikTok, chưa tải được Douyin." };
+  if (/douyin\.com/i.test(s) && !/tiktok\.com/i.test(s)) return { loi: "douyin" };
   for (const m of s.matchAll(/(?:https?:\/\/)?(?:[\w-]+\.)+[a-z]{2,}\/[^\s"'<>]*/gi)) {
     let u;
     try {
@@ -65,11 +67,11 @@ export function docLink(chu) {
       if (/^\d{15,22}$/.test(q)) return { id: q, kieu: "video" };
     }
     if (/^(vm|vt)\.tiktok\.com$/i.test(u.hostname) || /^\/t\/[\w-]+/.test(u.pathname)) return { ngan: `https://${u.hostname.toLowerCase()}${u.pathname}` };
-    if (/^\/@[\w.-]+\/?$/.test(u.pathname)) return { loi: "Đây là link trang cá nhân. Hãy mở một video rồi bấm Chia sẻ › Sao chép liên kết." };
-    if (/\/live\/?$/.test(u.pathname)) return { loi: "Trang chưa tải được video phát trực tiếp (live)." };
-    return { loi: "Link này không phải link video hay bài ảnh TikTok." };
+    if (/^\/@[\w.-]+\/?$/.test(u.pathname)) return { loi: "trangCaNhan" };
+    if (/\/live\/?$/.test(u.pathname)) return { loi: "live" };
+    return { loi: "khongPhaiBai" };
   }
-  return { loi: LOI_LINK };
+  return { loi: "khongCoLink" };
 }
 
 /* lấy dữ liệu bài đăng từ HTML trang TikTok; trả { bai } hoặc { loi, ma } */
@@ -84,8 +86,7 @@ export function docTrang(html) {
     }
     const d = j?.__DEFAULT_SCOPE__?.["webapp.video-detail"];
     if (d?.itemInfo?.itemStruct?.id) return { bai: d.itemInfo.itemStruct };
-    if (d && d.statusCode)
-      return { loi: `TikTok báo không xem được bài này (mã ${d.statusCode}): bài để riêng tư, đã bị xoá, hoặc bị chặn ở khu vực.`, ma: d.statusCode };
+    if (d && d.statusCode) return { loi: "khongXemDuoc", ma: d.statusCode };
   }
   const s = String(html).match(/<script[^>]+id="SIGI_STATE"[^>]*>([\s\S]*?)<\/script>/);
   if (s) {
@@ -220,7 +221,7 @@ export async function moLinkNgan(link) {
     if (d.id) return d;
     u = t.href;
   }
-  return { loi: "Link rút gọn này không mở ra video nào (link sai hoặc bài đã bị xoá)." };
+  return { loi: "linkNganHong" };
 }
 
 /* đọc trang công khai của bài đăng; tên tài khoản để trống TikTok vẫn mở đúng bài */
@@ -277,6 +278,28 @@ async function layCoDem(id, kieu, ctx) {
   return r;
 }
 
+/* tiếng của câu báo lỗi: tham số hl (trang gửi kèm, theo tiếng của trang), không có thì Accept-Language, rồi tiếng Việt */
+export function maNgonNgu(l) {
+  l = String(l || "").toLowerCase();
+  if (/^(fil|tl)\b/.test(l)) return "fil";
+  if (/^in\b/.test(l)) return "id";
+  const g = l.split(/[-_]/)[0];
+  return LOI[g] ? g : null;
+}
+export function chonNgonNgu(req, url) {
+  const hl = url.searchParams.get("hl");
+  if (LOI[hl]) return hl;
+  for (const phan of (req.headers.get("Accept-Language") || "").split(",")) {
+    const ma = maNgonNgu(phan.split(";")[0].trim());
+    if (ma) return ma;
+  }
+  return "vi";
+}
+/* câu báo của một mã lỗi theo tiếng; {ma} thay bằng mã lỗi TikTok */
+export function noiLoi(khoa, nn = "vi", ts = {}) {
+  return String(LOI[nn]?.[khoa] || LOI.vi[khoa] || khoa).replace(/\{(\w+)\}/g, (_, k) => ts[k] ?? "");
+}
+
 const json = (body, status = 200) =>
   new Response(JSON.stringify(body), {
     status,
@@ -297,13 +320,13 @@ async function quaNhanh(req, env) {
 /* bài không xem được 404, TikTok đang chặn 503, còn lại 502 */
 const maLoi = (r) => (r.ma ? 404 : r.chan ? 503 : 502);
 
-async function thongTin(req, url, env, ctx) {
-  if (await quaNhanh(req, env)) return json({ ok: false, loi: "Bạn tìm hơi nhanh, chờ một phút rồi thử lại nhé." }, 429);
+async function thongTin(req, url, env, ctx, nn) {
+  if (await quaNhanh(req, env)) return json({ ok: false, loi: noiLoi("quaNhanh", nn) }, 429);
   let d = docLink(url.searchParams.get("url"));
   if (d.ngan) d = await moLinkNgan(d.ngan);
-  if (d.loi) return json({ ok: false, loi: d.loi }, d.chan ? 503 : 400);
+  if (d.loi) return json({ ok: false, loi: noiLoi(d.loi, nn, d) }, d.chan ? 503 : 400);
   const r = await layCoDem(d.id, d.kieu, ctx);
-  if (r.loi) return json({ ok: false, loi: r.loi }, maLoi(r));
+  if (r.loi) return json({ ok: false, loi: noiLoi(r.loi, nn, r) }, maLoi(r));
   return json({ ok: true, ...r.tt });
 }
 
@@ -331,18 +354,18 @@ export function kieuGui(loai, kieu, link) {
   return kieu;
 }
 
-async function tai(req, url, ctx) {
+async function tai(req, url, ctx, nn) {
   /* trang khác nhúng thẳng file của trang này (thẻ video, ảnh) thì chặn; bấm link mở từ trang khác vẫn được */
-  if (req.headers.get("Sec-Fetch-Site") === "cross-site" && req.headers.get("Sec-Fetch-Dest") !== "document") return json({ ok: false, loi: "Không nhúng từ trang khác." }, 403);
+  if (req.headers.get("Sec-Fetch-Site") === "cross-site" && req.headers.get("Sec-Fetch-Dest") !== "document") return json({ ok: false, loi: noiLoi("khongNhung", nn) }, 403);
   const id = url.searchParams.get("id") || "",
     loai = url.searchParams.get("loai") || "video",
     i = Math.floor(+url.searchParams.get("i") || 0),
     xem = url.searchParams.get("xem") === "1";
-  if (!/^\d{15,22}$/.test(id) || !LOAI.includes(loai) || !(i >= 0 && i < 100)) return json({ ok: false, loi: "Yêu cầu tải không hợp lệ." }, 400);
+  if (!/^\d{15,22}$/.test(id) || !LOAI.includes(loai) || !(i >= 0 && i < 100)) return json({ ok: false, loi: noiLoi("yeuCauSai", nn) }, 400);
   const r = await layCoDem(id, "video", ctx);
-  if (r.loi) return json({ ok: false, loi: r.loi }, maLoi(r));
+  if (r.loi) return json({ ok: false, loi: noiLoi(r.loi, nn, r) }, maLoi(r));
   const ds = loai === "anh" ? r.ng.anh[i] || [] : r.ng[loai] || [];
-  if (!ds.length) return json({ ok: false, loi: "Bài này không có bản tải đó." }, 404);
+  if (!ds.length) return json({ ok: false, loi: noiLoi("khongCoBan", nn) }, 404);
 
   const hdr = { "User-Agent": UA, Referer: "https://www.tiktok.com/", Accept: "*/*" };
   if (r.cookie) hdr.Cookie = r.cookie;
@@ -373,13 +396,16 @@ async function tai(req, url, ctx) {
     h.set("Content-Security-Policy", "default-src 'none'; sandbox");
     return new Response(up.body, { status: up.status, headers: h });
   }
-  return json({ ok: false, loi: "Máy chủ TikTok không trả file lúc này. Thử lại sau ít phút." }, 502);
+  return json({ ok: false, loi: noiLoi("khongTraFile", nn) }, 502);
 }
 
-/* trang 404 lấy từ public/404.html, kèm no-transform để Cloudflare không chèn script Web Analytics */
+/* trang 404 lấy từ public/[<tiếng>/]404.html theo tiếng của đường dẫn (/en/… → /en/404.html),
+   kèm no-transform để Cloudflare không chèn script Web Analytics */
 async function trang404(req, env) {
   if (!env?.ASSETS) return new Response("Không có.", { status: 404 });
-  const r = await env.ASSETS.fetch(new Request(new URL("/404.html", req.url)));
+  const tien = new URL(req.url).pathname.match(/^\/([a-z]{2,3})\//)?.[1];
+  const tep = tien && tien !== "vi" && LOI[tien] ? `/${tien}/404.html` : "/404.html";
+  const r = await env.ASSETS.fetch(new Request(new URL(tep, req.url)));
   const h = new Headers(r.headers);
   h.set("Cache-Control", "no-store, no-transform");
   return new Response(r.body, { status: 404, headers: h });
@@ -389,14 +415,15 @@ export default {
   async fetch(req, env, ctx) {
     const url = new URL(req.url);
     if (url.pathname.startsWith("/api/")) {
-      if (req.method !== "GET") return json({ ok: false, loi: "Chỉ nhận GET." }, 405);
+      const nn = chonNgonNgu(req, url);
+      if (req.method !== "GET") return json({ ok: false, loi: noiLoi("chiGet", nn) }, 405);
       try {
-        if (url.pathname === "/api/thong-tin") return await thongTin(req, url, env, ctx);
-        if (url.pathname === "/api/tai") return await tai(req, url, ctx);
+        if (url.pathname === "/api/thong-tin") return await thongTin(req, url, env, ctx, nn);
+        if (url.pathname === "/api/tai") return await tai(req, url, ctx, nn);
       } catch {
-        return json({ ok: false, loi: "Máy chủ lỗi, thử lại sau." }, 500);
+        return json({ ok: false, loi: noiLoi("mayChuLoi", nn) }, 500);
       }
-      return json({ ok: false, loi: "Không có." }, 404);
+      return json({ ok: false, loi: noiLoi("khongCo", nn) }, 404);
     }
     /* trang tĩnh có file thì Cloudflare trả thẳng, không chạy tới đây: tới đây là đường dẫn không có trang nào */
     return trang404(req, env);

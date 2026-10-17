@@ -16,9 +16,12 @@ Tên hiện trên trang là **snaptik** (viết thường). Ban đầu trang tê
 
 ## Cách chạy
 ```
-public/            trang tĩnh: index.html (video), mp3/, anh/, huong-dan/, dieu-khoan/, bao-mat/, 404.html,
-                   app.js (chạy trên trang), cong-cu.js (hàm thuần, ZIP), meo.js (hình mèo), style.css, sw.js,
-                   manifest, icon.svg + icon-*.png, og.png (ảnh hiện khi chia sẻ link)
+public/            trang tĩnh: index.html (video), mp3/, anh/, huong-dan/, dieu-khoan/, bao-mat/, 404.html (tiếng Việt),
+                   en/, id/, th/, ms/, fil/, es/, pt/, ja/, ko/ (các tiếng khác, cùng tên trang), chu/<tiếng>.js,
+                   ngon-ngu.js (chọn tiếng), app.js (chạy trên trang), cong-cu.js (hàm thuần, ZIP), meo.js (hình mèo),
+                   style.css, sw.js, manifest, icon.svg + icon-*.png, og.png (ảnh hiện khi chia sẻ link)
+dich/<tiếng>.js    chữ của mọi trang theo tiếng (vi.js là bản gốc); sinh-trang.mjs sinh trang HTML, chu/, manifest,
+                   sitemap và loi-dich.js (câu báo lỗi của worker) từ đây. Trang HTML trong public/ là file sinh ra
 worker.js          API: /api/thong-tin?url=… và /api/tai?id=…&loai=video|hd|mp3|anh|bia|avt&i=…[&xem=1] (avt: ảnh đại diện);
                    đường dẫn không có trang nào thì trả 404.html kèm no-transform
 canh.mjs           kiểm tra trang thật (tìm một video, tải thử 1 byte); GitHub Actions chạy mỗi ngày, xem dưới
@@ -32,6 +35,18 @@ canh.mjs           kiểm tra trang thật (tìm một video, tải thử 1 byte
 - `worker.js` luôn chạy ở Singapore (`[placement] region = "aws:ap-southeast-1"`). Người ở Việt Nam lúc vào trạm Cloudflare Hồng Kông, lúc vào Singapore; TikTok không hoạt động ở Hồng Kông nên trạm đó chỉ nhận trang báo khu vực. Trang tĩnh vẫn phát từ trạm gần nhất. Header `cf-placement: remote-SIN` cho biết yêu cầu đã được chuyển sang Singapore.
 - `_headers` gắn `no-transform` cho riêng các trang HTML (`/` và `/*/`) để Cloudflare không chèn script Web Analytics của tên miền meomeo.app (trang hứa không theo dõi). Không gắn cho CSS/JS/ảnh: có `no-transform` thì Cloudflare thôi nén, `style.css` 26 KB thay vì 7 KB (Brotli).
 - Test: `npm test` ở gốc kho (file `tests/snaptik.test.mjs`, mạng giả, không gọi TikTok).
+
+## Đa ngôn ngữ (17/10/2026)
+Chủ dự án muốn trang tự đổi theo ngôn ngữ máy và có nút chọn ngôn ngữ như snaptik. 10 tiếng: Việt (ở `/`), Anh, Indonesia, Thái, Mã Lai, Philippines, Tây Ban Nha, Bồ Đào Nha (Brazil), Nhật, Hàn (ở `/en/`, `/id/`, `/th/`, `/ms/`, `/fil/`, `/es/`, `/pt/`, `/ja/`, `/ko/`), cùng tên trang (`/en/mp3/`, `/ja/huong-dan/`…).
+- **Sửa chữ**: sửa `dich/<tiếng>.js` (chữ là HTML; `{goc}` là gốc đường dẫn của tiếng) rồi chạy `node may-chu/snaptik/sinh-trang.mjs`. Đừng sửa tay trang HTML trong `public/`, `public/chu/`, `loi-dich.js`: lần sinh sau sẽ ghi đè. Test báo khi file dịch thiếu khoá, mất thẻ HTML hay chỗ thay, và khi quên chạy lại script.
+- **Sửa khung trang** (đầu trang, chân trang, thẻ meta): sửa trong `sinh-trang.mjs` rồi chạy lại.
+- **Tự chọn tiếng** (`public/ngon-ngu.js`, nạp ngay trong `<head>` nên chuyển trang trước khi vẽ): đã bấm chọn ở nút ngôn ngữ thì theo lựa chọn (lưu `snaptik-ngon-ngu` trong trình duyệt); chưa chọn thì theo `navigator.languages`, máy dùng tiếng trang chưa có thì tiếng Anh. Máy tìm kiếm không bị chuyển; mỗi trang khai `hreflang` đủ 10 tiếng, `x-default` là bản tiếng Anh; sitemap liệt kê đủ.
+- **Chữ lúc chạy** (nút tải, tiến độ…) nằm ở `chay` của file dịch, sinh ra `public/chu/<tiếng>.js`; `app.js` nạp theo `<html lang>`. Số, dung lượng, ngày viết theo tiếng (`35.2K`, `2019/07/27`…; tiếng Thái dùng năm Phật lịch).
+- **Câu báo lỗi của máy chủ** ở `loi` của file dịch, sinh ra `loi-dich.js`. Worker trả mã lỗi nội bộ, câu báo theo tham số `hl` trang gửi kèm, không có thì theo `Accept-Language`, rồi tiếng Việt. Trang 404 theo tiếng của đường dẫn (`/en/…` → `/en/404.html`).
+- **Thêm một tiếng**: thêm vào `NGON_NGU` trong `sinh-trang.mjs` và `CO` trong `public/ngon-ngu.js`, tạo `dich/<mã>.js` theo đúng khoá của `vi.js`, chạy lại script.
+- **Ảnh chia sẻ**: `og.png` (tiếng Việt) và `og-<tiếng>.png`, chụp bằng Chromium headless từ cùng khung với `og.png`, dòng chữ lớn là `trangChu.h1` của tiếng đó. Sửa `h1` thì chụp lại.
+- Bản dịch do Claude dịch từ tiếng Việt (mỗi tiếng một tác tử, kiểm bằng `soDich`), chưa có người bản xứ đọc lại. Chỗ dễ sai nhất là tên nút, tên mục trên điện thoại theo từng tiếng (ứng dụng Phím tắt của iPhone, mục "Khác" trong nút Chia sẻ của TikTok, "Thêm vào màn hình chính").
+- Đã thử 17/10/2026, trên máy và trên trang thật: 60 trang (10 tiếng × 6) trả đúng tiếng; quét 70 trang (gồm 404) ở bề ngang 320px không trang nào tràn ngang; trình duyệt tiếng Anh mở `/` thì sang `/en/`, bấm chọn tiếng thì nhớ và không tự đổi nữa; tìm bài thật bằng tiếng Anh, báo lỗi bài đã xoá bằng tiếng Nhật; API trả câu báo đúng tiếng theo `hl` và theo `Accept-Language`; 404 đúng tiếng.
 
 ## Giao diện kiểu mèo (17/10/2026)
 Chủ dự án muốn trang mang "vibe" con mèo. Mọi hình đều tự vẽ bằng SVG:

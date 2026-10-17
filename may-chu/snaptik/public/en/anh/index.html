@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Download TikTok photos and slideshows without watermark | snaptik</title>
+    <meta name="description" content="Download photos from TikTok slideshow posts: one by one, the whole set in a ZIP file, or combined with the music into a video. Free, no ads." />
+    <link rel="canonical" href="https://snaptik.meomeo.app/en/anh/" />
+    <link rel="alternate" hreflang="vi" href="https://snaptik.meomeo.app/anh/" />
+    <link rel="alternate" hreflang="en" href="https://snaptik.meomeo.app/en/anh/" />
+    <link rel="alternate" hreflang="id" href="https://snaptik.meomeo.app/id/anh/" />
+    <link rel="alternate" hreflang="th" href="https://snaptik.meomeo.app/th/anh/" />
+    <link rel="alternate" hreflang="ms" href="https://snaptik.meomeo.app/ms/anh/" />
+    <link rel="alternate" hreflang="fil" href="https://snaptik.meomeo.app/fil/anh/" />
+    <link rel="alternate" hreflang="es" href="https://snaptik.meomeo.app/es/anh/" />
+    <link rel="alternate" hreflang="pt" href="https://snaptik.meomeo.app/pt/anh/" />
+    <link rel="alternate" hreflang="ja" href="https://snaptik.meomeo.app/ja/anh/" />
+    <link rel="alternate" hreflang="ko" href="https://snaptik.meomeo.app/ko/anh/" />
+    <link rel="alternate" hreflang="x-default" href="https://snaptik.meomeo.app/en/anh/" />
+    <meta name="theme-color" content="#fff8f0" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#17131a" media="(prefers-color-scheme: dark)" />
+    <meta name="referrer" content="no-referrer" />
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/icon-192.png" />
+    <link rel="manifest" href="/en/manifest.webmanifest" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="snaptik" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:title" content="snaptik: download TikTok slideshow photos" />
+    <meta property="og:description" content="Download photos one by one, the whole set as a ZIP, or turn a TikTok slideshow into a video." />
+    <meta property="og:url" content="https://snaptik.meomeo.app/en/anh/" />
+    <meta property="og:image" content="https://snaptik.meomeo.app/og-en.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <script src="/ngon-ngu.js"></script>
+    <link rel="stylesheet" href="/style.css" />
+    <script type="module" src="/app.js"></script>
+  </head>
+  <body data-che-do="anh">
+    <header class="dau">
+      <div class="khung">
+        <a class="logo" href="/en/"><img src="/icon.svg" alt="" width="32" height="32" />snaptik</a>
+        <nav class="menu" aria-label="Tools">
+          <a href="/en/">Video</a>
+          <a href="/en/mp3/">MP3</a>
+          <a href="/en/anh/" aria-current="page">Photos</a>
+          <a href="/en/huong-dan/">Guide</a>
+        </nav>
+        <details class="ngon-ngu">
+          <summary aria-label="Language: English"><span class="bieu-tuong dia-cau"></span>EN</summary>
+          <ul>
+            <li><a href="/anh/" hreflang="vi" lang="vi" data-ngon-ngu="vi">Tiếng Việt</a></li>
+            <li><a href="/en/anh/" hreflang="en" lang="en" data-ngon-ngu="en" aria-current="true">English</a></li>
+            <li><a href="/id/anh/" hreflang="id" lang="id" data-ngon-ngu="id">Bahasa Indonesia</a></li>
+            <li><a href="/th/anh/" hreflang="th" lang="th" data-ngon-ngu="th">ไทย</a></li>
+            <li><a href="/ms/anh/" hreflang="ms" lang="ms" data-ngon-ngu="ms">Bahasa Melayu</a></li>
+            <li><a href="/fil/anh/" hreflang="fil" lang="fil" data-ngon-ngu="fil">Filipino</a></li>
+            <li><a href="/es/anh/" hreflang="es" lang="es" data-ngon-ngu="es">Español</a></li>
+            <li><a href="/pt/anh/" hreflang="pt" lang="pt" data-ngon-ngu="pt">Português</a></li>
+            <li><a href="/ja/anh/" hreflang="ja" lang="ja" data-ngon-ngu="ja">日本語</a></li>
+            <li><a href="/ko/anh/" hreflang="ko" lang="ko" data-ngon-ngu="ko">한국어</a></li>
+          </ul>
+        </details>
+        <button type="button" id="nut-cai" class="nut-cai" hidden>Install app</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="dau-trang">
+        <div class="khung">
+          <h1>Download TikTok photos (slideshows)</h1>
+          <p class="phu">Paste a TikTok photo post link to download each original photo, the whole set in a ZIP file, or turn the photos and music into a video.</p>
+          <form id="o-tim" class="o-tim" autocomplete="off">
+            <label class="an-chu" for="link">TikTok photo post link</label>
+            <div class="o-nhap">
+              <input id="link" name="url" type="text" inputmode="url" enterkeyhint="go" placeholder="Paste a TikTok photo post link here" spellcheck="false" />
+              <button type="button" id="nut-dan" class="nut-dan">Paste</button>
+            </div>
+            <button type="submit" id="nut-tim" class="nut-chinh">Download</button>
+          </form>
+          <p id="loi" class="loi" role="alert" hidden></p>
+          <p class="nho">Photo post links usually look like tiktok.com/@name/photo/… or a short link like vt.tiktok.com/…</p>
+        </div>
+      </section>
+
+      <section id="ket-qua" class="ket-qua" hidden></section>
+      <section id="lich-su" class="lich-su" hidden></section>
+
+      <section class="muc">
+        <h2>Download TikTok slideshow photos</h2>
+        <ol class="buoc">
+          <li>
+            <h3>Copy the photo post link</h3>
+            <p>Open the photo post on TikTok and tap Share › Copy link.</p>
+          </li>
+          <li>
+            <h3>Paste it in the box above</h3>
+            <p>The site shows every photo in the post, in the original order.</p>
+          </li>
+          <li>
+            <h3>Choose how to download</h3>
+            <p>Download photos one by one, the whole set (.zip), or tap Turn photos into a video to get a video with music.</p>
+          </li>
+        </ol>
+      </section>
+
+      <section class="muc hoi-dap">
+        <h2>Photo post FAQ</h2>
+        <details>
+          <summary>Do downloaded photos have a watermark?</summary>
+          <p>No. These are the original photos the creator uploaded, with no TikTok logo.</p>
+        </details>
+        <details>
+          <summary>How do I open a ZIP file on my phone?</summary>
+          <p>Android: open the Files app and tap the ZIP file › Extract. iPhone: open the Files app and tap the ZIP file; it unzips into a folder automatically.</p>
+        </details>
+        <details>
+          <summary>How does turning photos into a video work?</summary>
+          <p>Your browser puts it together on its own: each photo shows for 2.5 seconds with a fade between them, and the original music plays in the background. It runs in real time (a 10-photo post takes about 25 seconds), so keep the page open until it's done. Recent versions of Chrome and Safari make an MP4; other browsers may make a WebM.</p>
+        </details>
+        <details>
+          <summary>Can't open a photo ending in .webp?</summary>
+          <p>snaptik prefers the JPEG version and only downloads WebP when TikTok has no JPEG. Modern computers and phones can all open WebP.</p>
+        </details>
+      </section>
+    </main>
+
+    <footer class="chan">
+      <div class="khung">
+        <p>© 2026 snaptik · Not affiliated with TikTok, ByteDance or any other SnapTik site.</p>
+        <nav aria-label="More pages">
+          <a href="/en/huong-dan/">Guide</a>
+          <a href="/en/dieu-khoan/">Terms</a>
+          <a href="/en/bao-mat/">Privacy</a>
+        </nav>
+      </div>
+    </footer>
+  </body>
+</html>

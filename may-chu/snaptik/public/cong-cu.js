@@ -1,20 +1,23 @@
 /* Hàm thuần dùng chung cho trang snaptik (không đụng tới trang, test được bằng node: tests/snaptik.test.mjs) */
 
-/* 35200 → "35,2K", 1596000 → "1,6M" */
-export function soGon(n) {
+/* tiếng của trang → định dạng số, ngày: "vi" → "vi-VN"; tiếng khác để Intl tự chọn theo mã */
+const vung = (nn) => (nn === "vi" ? "vi-VN" : nn || "vi-VN");
+
+/* 35200 → "35,2K" (tiếng Anh: "35.2K"), 1596000 → "1,6M" */
+export function soGon(n, nn = "vi") {
   if (n == null || !Number.isFinite(+n)) return "";
   n = +n;
-  const gon = (x, d) => (Math.round(x * 10) / 10).toLocaleString("vi-VN", { maximumFractionDigits: 1 }) + d;
+  const gon = (x, d) => (Math.round(x * 10) / 10).toLocaleString(vung(nn), { maximumFractionDigits: 1 }) + d;
   if (n >= 1e9) return gon(n / 1e9, "B");
   if (n >= 1e6) return gon(n / 1e6, "M");
   if (n >= 1e3) return gon(n / 1e3, "K");
   return String(n);
 }
 
-/* số byte → "2,8 MB" */
-export function coFile(b) {
+/* số byte → "2,8 MB" (tiếng Anh: "2.8 MB") */
+export function coFile(b, nn = "vi") {
   if (!(b > 0)) return "";
-  if (b >= 1048576) return (Math.round((b / 1048576) * 10) / 10).toLocaleString("vi-VN") + " MB";
+  if (b >= 1048576) return (Math.round((b / 1048576) * 10) / 10).toLocaleString(vung(nn)) + " MB";
   return Math.max(1, Math.round(b / 1024)) + " KB";
 }
 
@@ -25,11 +28,10 @@ export function thoiGian(s) {
   return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0");
 }
 
-/* giây unix → "28/07/2019" */
-export function ngayDang(t) {
+/* giây unix → "28/07/2019" (tiếng khác theo cách viết ngày của tiếng đó: "07/28/2019", "2019/07/28"…) */
+export function ngayDang(t, nn = "vi") {
   if (!(t > 0)) return "";
-  const d = new Date(t * 1000);
-  return [d.getDate(), d.getMonth() + 1].map((x) => String(x).padStart(2, "0")).join("/") + "/" + d.getFullYear();
+  return new Date(t * 1000).toLocaleDateString(vung(nn), { day: "2-digit", month: "2-digit", year: "numeric" });
 }
 
 export const linkTai = (id, loai, i = 0, xem = false) => `/api/tai?id=${encodeURIComponent(id)}&loai=${loai}` + (loai === "anh" ? `&i=${i}` : "") + (xem ? "&xem=1" : "");
