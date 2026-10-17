@@ -549,6 +549,9 @@ test("đa ngôn ngữ: ngon-ngu.js theo lựa chọn đã lưu, không thì theo
   assert.equal(chay({ lang: "en", duong: "/en/", may: ["en-GB"], daChon: "vi" }), "/?url=x", "đã chọn thì hơn ngôn ngữ máy");
   assert.equal(chay({ lang: "vi", duong: "/", may: ["en-US"], daChon: "vi" }), null);
   assert.equal(chay({ lang: "vi", duong: "/", may: ["en-US"], ua: "Mozilla/5.0 (compatible; Googlebot/2.1)" }), null);
+  assert.equal(chay({ lang: "vi", duong: "/", may: ["en-US"], ua: "Mozilla/5.0 (Linux; Android 6.0.1) Chrome/130 Mobile Safari/537.36 (compatible; Google-InspectionTool/1.0;)" }), null, "Kiểm tra URL của Search Console");
+  assert.equal(chay({ lang: "vi", duong: "/", may: ["en-US"], ua: "Mozilla/5.0 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm)" }), null);
+  assert.equal(chay({ lang: "vi", duong: "/", may: ["en-US"], ua: "Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Chrome/131.0 Mobile Safari/537.36" }), "/en/?url=x", "Chrome Android vẫn được chuyển");
 });
 
 test("đa ngôn ngữ: worker báo lỗi theo hl của trang, không có thì theo Accept-Language, rồi tiếng Việt", async () => {
@@ -572,4 +575,13 @@ test("đa ngôn ngữ: app.js chỉ dùng khoá chữ có trong dich/vi.js › c
   const khoa = [...app.matchAll(/\bc\("(\w+)"/g)].map((m) => m[1]);
   assert.ok(khoa.length > 30);
   for (const k of khoa) assert.ok(k in chay, "thiếu chữ " + k);
+});
+
+test("IndexNow: file khoá nằm trên trang đúng nội dung, danh sách gửi là mọi trang trong sitemap", async () => {
+  const { KHOA, danhSachTrang } = await import("../may-chu/snaptik/indexnow.mjs");
+  assert.match(KHOA, /^[0-9a-f]{32}$/);
+  assert.equal(readFileSync(path.join(PUB, KHOA + ".txt"), "utf8"), KHOA);
+  const ds = danhSachTrang();
+  assert.equal(ds.length, NGON_NGU.length * 6);
+  for (const u of ds) assert.match(u, /^https:\/\/snaptik\.meomeo\.app\//);
 });
