@@ -2,13 +2,13 @@
    Máy chủ chỉ đọc trang công khai của TikTok rồi chuyển tiếp file từ máy chủ TikTok về trình duyệt.
    Không lưu video, không lưu link người dùng dán, không ghi IP.
      GET /api/thong-tin?url=…                         thông tin bài đăng (video hoặc bài ảnh) và các bản tải được
-     GET /api/tai?id=…&loai=video|hd|mp3|anh|bia&i=…  tải file; thêm xem=1 để phát hoặc xem ngay trên trang
+     GET /api/tai?id=…&loai=video|hd|mp3|anh|bia|avt&i=…  tải file (avt: ảnh đại diện người đăng); thêm xem=1 để phát hoặc xem ngay trên trang
    /api/tai chỉ nhận id bài đăng, không nhận link tuỳ ý, nên không ai mượn được máy chủ để tải thứ khác. */
 
 /* chỉ export hàm: Cloudflare coi mỗi export của file này là một điểm vào, export chuỗi hay mảng thì Worker không chạy */
 const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36";
 const GIU_GIAY = 600; /* giữ thông tin một bài 10 phút ở bộ đệm Cloudflare: bấm tải không phải đọc lại trang TikTok */
-const LOAI = ["video", "hd", "mp3", "anh", "bia"];
+const LOAI = ["video", "hd", "mp3", "anh", "bia", "avt"];
 const LOI_LINK = "Chưa thấy link TikTok. Link có dạng https://www.tiktok.com/@ten/video/123… hoặc https://vt.tiktok.com/abc…";
 const LOI_TRANG = "Không đọc được trang TikTok (TikTok có thể đang chặn máy chủ hoặc vừa đổi trang). Thử lại sau ít phút.";
 const LOI_CHAN = "TikTok đang tạm chặn máy chủ của trang (nghi là máy tự động). Đợi vài phút rồi thử lại nhé.";
@@ -20,8 +20,9 @@ const KIEU_DUNG = {
   mp3: /^(audio\/|video\/mp4|application\/octet-stream)/i,
   anh: /^image\/(jpeg|jpg|webp|png|heic|heif|avif)/i,
   bia: /^image\/(jpeg|jpg|webp|png|heic|heif|avif)/i,
+  avt: /^image\/(jpeg|jpg|webp|png|heic|heif|avif)/i,
 };
-const KIEU_MAC_DINH = { video: "video/mp4", hd: "video/mp4", mp3: "audio/mpeg", anh: "image/jpeg", bia: "image/jpeg" };
+const KIEU_MAC_DINH = { video: "video/mp4", hd: "video/mp4", mp3: "audio/mpeg", anh: "image/jpeg", bia: "image/jpeg", avt: "image/jpeg" };
 const DUOI = {
   "video/mp4": "mp4",
   "audio/mpeg": "mp3",
@@ -37,7 +38,7 @@ const DUOI = {
   "image/heif": "heif",
   "image/avif": "avif",
 };
-const DUOI_MAC_DINH = { video: "mp4", hd: "mp4", mp3: "mp3", anh: "jpg", bia: "jpg" };
+const DUOI_MAC_DINH = { video: "mp4", hd: "mp4", mp3: "mp3", anh: "jpg", bia: "jpg", avt: "jpg" };
 
 export const laTikTok = (host) => /(^|\.)tiktok\.com$/i.test(host || "");
 const laH265 = (codec) => /265|hevc|hvc1|bytevc1/i.test(codec || "");
@@ -182,6 +183,8 @@ export function chuanBi(b) {
   }
   const nhacUrl = chuoi(m.playUrl) || chuoi(m.playUrl?.urlList?.[0]) || chuoi(m.playUrl?.UrlList?.[0]);
   const bia = [v.originCover, v.cover, v.dynamicCover, b.imagePost?.cover?.imageURL?.urlList?.[0], anh[0]?.ds[0]].filter((u) => chuoi(u));
+  /* ảnh đại diện: bản lớn trước (TikTok để 1080×1080), không có thì bản vừa, bản nhỏ */
+  const avt = [tg.avatarLarger, tg.avatarMedium, tg.avatarThumb, b.avatarLarger].filter((u) => chuoi(u));
   const banGon = (x) => x && { w: x.w, h: x.h, codec: laH265(x.codec) ? "h265" : "h264", co: x.co };
 
   return {
@@ -196,9 +199,9 @@ export function chuanBi(b) {
       nhac: m.title || m.authorName ? { ten: chuoi(m.title), tacGia: chuoi(m.authorName), thoiLuong: so(m.duration) } : null,
       bia: bia[0] || "",
       anh: anh.map((a) => ({ xem: sapAnh(a.ds)[0], w: a.w, h: a.h })),
-      ban: { video: banGon(thuong), hd: banGon(hd), mp3: !!nhacUrl, nhac: nhacUrl ? dinhDangNhac(nhacUrl) : null, bia: bia.length > 0 },
+      ban: { video: banGon(thuong), hd: banGon(hd), mp3: !!nhacUrl, nhac: nhacUrl ? dinhDangNhac(nhacUrl) : null, bia: bia.length > 0, avt: avt.length > 0 },
     },
-    ng: { video: thuong?.ds || [], hd: hd?.ds || [], mp3: nhacUrl ? [nhacUrl] : [], bia, anh: anh.map((a) => sapAnh(a.ds)) },
+    ng: { video: thuong?.ds || [], hd: hd?.ds || [], mp3: nhacUrl ? [nhacUrl] : [], bia, avt, anh: anh.map((a) => sapAnh(a.ds)) },
   };
 }
 
@@ -260,7 +263,7 @@ export async function layBai(id, kieu = "video") {
 /* như layBai, có giữ 10 phút ở bộ đệm Cloudflare (mỗi trạm một bản; chạy thử trên máy thì không có bộ đệm) */
 async function layCoDem(id, kieu, ctx) {
   const dem = typeof caches !== "undefined" ? caches.default : null;
-  const khoa = `https://snaptik.meomeo.app/__dem/bai3/${id}`; /* đổi số khi đổi dạng thông tin (bai3: ban.nhac hỏi từ máy chủ nhạc) */
+  const khoa = `https://snaptik.meomeo.app/__dem/bai4/${id}`; /* đổi số khi đổi dạng thông tin (bai4: thêm ảnh đại diện) */
   if (dem) {
     const c = await dem.match(khoa);
     if (c) return c.json();
@@ -304,11 +307,12 @@ async function thongTin(req, url, env, ctx) {
   return json({ ok: true, ...r.tt });
 }
 
-/* tên file: tiktok_<tài khoản>_<id>[_hd|_nhac|_anh3|_bia].<đuôi> */
+/* tên file: tiktok_<tài khoản>_<id>[_hd|_nhac|_anh3|_bia].<đuôi>; ảnh đại diện: tiktok_<tài khoản>_anhdaidien.<đuôi> */
 export function tenFile(tt, loai, i, kieu) {
   const ten = (tt.tacGia?.ten || "").replace(/[^\w.-]/g, "").slice(0, 40);
-  const hau = { video: "", hd: "_hd", mp3: "_nhac", anh: `_anh${i + 1}`, bia: "_bia" }[loai];
   const duoi = DUOI[String(kieu).split(";")[0].trim().toLowerCase()] || DUOI_MAC_DINH[loai];
+  if (loai === "avt") return `tiktok_${ten || tt.id}_anhdaidien.${duoi}`;
+  const hau = { video: "", hd: "_hd", mp3: "_nhac", anh: `_anh${i + 1}`, bia: "_bia" }[loai];
   return `tiktok_${ten ? ten + "_" : ""}${tt.id}${hau}.${duoi}`;
 }
 
@@ -372,6 +376,15 @@ async function tai(req, url, ctx) {
   return json({ ok: false, loi: "Máy chủ TikTok không trả file lúc này. Thử lại sau ít phút." }, 502);
 }
 
+/* trang 404 lấy từ public/404.html, kèm no-transform để Cloudflare không chèn script Web Analytics */
+async function trang404(req, env) {
+  if (!env?.ASSETS) return new Response("Không có.", { status: 404 });
+  const r = await env.ASSETS.fetch(new Request(new URL("/404.html", req.url)));
+  const h = new Headers(r.headers);
+  h.set("Cache-Control", "no-store, no-transform");
+  return new Response(r.body, { status: 404, headers: h });
+}
+
 export default {
   async fetch(req, env, ctx) {
     const url = new URL(req.url);
@@ -385,7 +398,7 @@ export default {
       }
       return json({ ok: false, loi: "Không có." }, 404);
     }
-    /* phần còn lại là trang tĩnh trong public/ (không có file thì Cloudflare trả 404.html) */
-    return env?.ASSETS ? env.ASSETS.fetch(req) : new Response("Không có.", { status: 404 });
+    /* trang tĩnh có file thì Cloudflare trả thẳng, không chạy tới đây: tới đây là đường dẫn không có trang nào */
+    return trang404(req, env);
   },
 };

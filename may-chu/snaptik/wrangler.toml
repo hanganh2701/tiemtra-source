@@ -10,12 +10,12 @@ routes = [{ pattern = "snaptik.meomeo.app", custom_domain = true }]
 [placement]
 region = "aws:ap-southeast-1"
 
-# trang tĩnh: index.html, style.css, app.js… Không khớp file nào thì trả 404.html.
+# trang tĩnh: index.html, style.css, app.js… Không khớp file nào thì chuyển cho worker.js, worker trả 404.html kèm
+# no-transform (để Cloudflare tự trả 404.html thì nó chèn script Web Analytics của tên miền vào trang, CSP chặn, console lỗi).
 # /api/* luôn chạy worker.js trước: không có dòng này thì bấm nút tải (trình duyệt mở như mở trang) nhận trang 404
 [assets]
 directory = "./public"
 binding = "ASSETS"
-not_found_handling = "404-page"
 run_worker_first = ["/api/*"]
 
 # mỗi máy tìm tối đa 20 lần mỗi phút (chỉ tính /api/thong-tin; bấm tải không tính)

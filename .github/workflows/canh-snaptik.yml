@@ -1,0 +1,20 @@
+name: Canh snaptik
+# Mỗi ngày tìm thử một video và tải thử 1 byte trên snaptik.meomeo.app (may-chu/snaptik/canh.mjs).
+# Hỏng (TikTok đổi trang, chặn máy chủ…) thì lượt chạy đỏ, GitHub gửi email cho người sửa dòng cron gần nhất.
+# Repo công khai không có commit nào trong 60 ngày thì GitHub tự tắt lịch chạy; bật lại ở tab Actions.
+on:
+  schedule:
+    - cron: "17 1 * * *" # 8:17 sáng giờ Việt Nam
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  canh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node may-chu/snaptik/canh.mjs

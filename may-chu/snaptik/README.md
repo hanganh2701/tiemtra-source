@@ -19,7 +19,9 @@ Tên hiện trên trang là **snaptik** (viết thường). Ban đầu trang tê
 public/            trang tĩnh: index.html (video), mp3/, anh/, huong-dan/, dieu-khoan/, bao-mat/, 404.html,
                    app.js (chạy trên trang), cong-cu.js (hàm thuần, ZIP), meo.js (hình mèo), style.css, sw.js,
                    manifest, icon.svg + icon-*.png, og.png (ảnh hiện khi chia sẻ link)
-worker.js          API: /api/thong-tin?url=… và /api/tai?id=…&loai=video|hd|mp3|anh|bia&i=…[&xem=1]
+worker.js          API: /api/thong-tin?url=… và /api/tai?id=…&loai=video|hd|mp3|anh|bia|avt&i=…[&xem=1] (avt: ảnh đại diện);
+                   đường dẫn không có trang nào thì trả 404.html kèm no-transform
+canh.mjs           kiểm tra trang thật (tìm một video, tải thử 1 byte); GitHub Actions chạy mỗi ngày, xem dưới
 ```
 - `/api/thong-tin` đọc trang công khai `https://www.tiktok.com/@/video/<id>`, lấy dữ liệu trong thẻ `__UNIVERSAL_DATA_FOR_REHYDRATION__` (trang kiểu cũ: `SIGI_STATE`). Thông tin bài và cookie người xem TikTok cấp được giữ 10 phút ở bộ đệm Cloudflare.
 - `/api/tai` chỉ nhận id bài, không nhận link tuỳ ý, nên không ai mượn máy chủ tải thứ khác được. Worker lấy file từ máy chủ TikTok (gửi kèm cookie và `Referer: https://www.tiktok.com/` như trình duyệt) rồi chuyển thẳng về người dùng, có hỗ trợ `Range` để tua video xem trước. Chỉ nhận kiểu file đúng loại (video/âm thanh/ảnh), trang lỗi HTML hay SVG thì bỏ.
@@ -65,8 +67,17 @@ Chạy `wrangler dev` (bộ chạy workerd của Cloudflare) trên máy làm vi�
   - Cloudflare chèn script Web Analytics vào mọi trang, CSP chặn nên console báo lỗi. Sửa: `no-transform` cho trang HTML (lúc đầu gắn cho mọi file thì Cloudflare thôi nén cả CSS/JS, sửa lại cùng ngày)
 - Lúc thử, TikTok tạm chặn IP máy làm việc (trang "Please wait…", oEmbed trả 429) sau nhiều lượt thử liên tiếp. Máy chủ ở Singapore không bị. Nếu sau này TikTok chặn cả máy chủ thì trang chỉ báo lỗi; không làm cách vượt lớp chặn bot của TikTok.
 
+## Canh trang mỗi ngày
+`.github/workflows/canh-snaptik.yml` chạy `node may-chu/snaptik/canh.mjs` lúc 8:17 sáng (giờ Việt Nam) mỗi ngày, bấm chạy tay được ở tab Actions. Mở trang chủ, tìm một trong hai video công khai lâu năm, tải thử 1 byte video. Cả hai bài cùng hỏng (TikTok đổi trang, chặn máy chủ…) thì lượt chạy đỏ, GitHub gửi email cho người sửa dòng cron gần nhất. Repo công khai, không có commit nào trong 60 ngày thì GitHub tự tắt lịch; bật lại ở tab Actions.
+
+## Thử thêm (17/10/2026)
+- Link rút gọn và bài ảnh thật (chủ dự án gửi từ app): `vt.tiktok.com/ZSg2oaNvU/` (video 43 giây: 576p H.264, HD 1080p H.265, MP3, bìa; khung hình không logo) và `vt.tiktok.com/ZSg2oa9xY/` (bài 4 ảnh JPEG gốc tới 2252×1938, nhạc, ZIP đủ 4 ảnh, ghép thành video MP4 1080×1920 10 giây có tiếng) đều chạy
+- Ảnh đại diện bản lớn 1080×1080 (tài khoản để ảnh nhỏ hơn thì ra đúng cỡ gốc)
+- Phím tắt iPhone: trang mở bằng `/?url=<chữ chia sẻ>` tự tìm bài (thử trên trình duyệt); chưa thử trên iPhone thật
+
 ## Còn chưa thử
-- **Bài ảnh (slide) và link rút gọn thật**: chưa có link thật để thử. Bài ảnh đọc theo cấu trúc `imagePost.images[].imageURL.urlList` mà các công cụ mã nguồn mở đang dùng. Chủ dự án dán một link bài ảnh và một link `vt.tiktok.com` chép từ app là thử được.
+- **Story**: chưa có link story để thử; hỏi đáp trên trang ghi là chưa chắc.
+- **Phím tắt trên iPhone thật**: các bước trong trang hướng dẫn viết theo tên tác vụ của ứng dụng Phím tắt, chưa làm thử trên máy.
 
 ## Nên biết trước
 - TikTok không cho phép tải nội dung bằng công cụ ngoài trong điều khoản của họ; TikTok có thể chặn bất cứ lúc nào. Người dùng tải gì, dùng vào việc gì là trách nhiệm của họ, trang điều khoản đã ghi rõ phải tôn trọng bản quyền người làm video.
