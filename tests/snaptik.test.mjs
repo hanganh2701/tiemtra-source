@@ -261,9 +261,17 @@ test("wrangler.toml: worker.js luôn chạy ở Singapore (trạm Hồng Kông c
   assert.match(toml, /^\[placement\]\nregion = "aws:ap-southeast-1"$/m);
 });
 
-test("_headers: mọi trang có no-transform để Cloudflare không chèn script Web Analytics (CSP chặn nó, console báo lỗi; thử thật 17/10/2026)", () => {
-  const h = readFileSync(path.join(PUB, "_headers"), "utf8");
-  assert.match(h, /^\/\*\n(  .+\n)*  Cache-Control: [^\n]*no-transform/m);
+test("_headers: trang HTML có no-transform (Cloudflare không chèn script Web Analytics), CSS/JS/ảnh thì không (no-transform làm Cloudflare thôi nén)", () => {
+  const khoi = {};
+  let duongDangDoc = "";
+  for (const dong of readFileSync(path.join(PUB, "_headers"), "utf8").split("\n")) {
+    if (!dong.trim() || dong.startsWith("#")) continue;
+    if (/^\S/.test(dong)) khoi[(duongDangDoc = dong.trim())] = "";
+    else khoi[duongDangDoc] += dong.trim() + "\n";
+  }
+  for (const duong of ["/", "/*/"]) assert.match(khoi[duong] || "", /Cache-Control: [^\n]*no-transform/, duong);
+  assert.doesNotMatch(khoi["/*"], /no-transform/);
+  assert.doesNotMatch(khoi["/sw.js"], /no-transform/);
 });
 
 test("API: chỉ nhận GET, đường lạ trả 404, ngoài /api/ chuyển cho trang tĩnh", async () => {

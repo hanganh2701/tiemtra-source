@@ -1,6 +1,4 @@
-# no-transform: Cloudflare không tự chèn script Web Analytics của tên miền meomeo.app (trang hứa không theo dõi; CSP cũng chặn nó, nhưng mỗi trang báo lỗi trong console)
 /*
-  Cache-Control: public, max-age=0, must-revalidate, no-transform
   X-Content-Type-Options: nosniff
   Referrer-Policy: no-referrer
   Permissions-Policy: camera=(), microphone=(), geolocation=()
@@ -9,3 +7,12 @@
 
 /sw.js
   Cache-Control: no-cache
+
+# chỉ các trang HTML: no-transform để Cloudflare không tự chèn script Web Analytics của tên miền meomeo.app
+# (trang hứa không theo dõi; CSP cũng chặn nó, nhưng console báo lỗi). Không gắn cho CSS/JS/ảnh:
+# có no-transform thì Cloudflare thôi nén (gzip/br), style.css 26 KB thay vì 6,5 KB
+/
+  Cache-Control: public, max-age=0, must-revalidate, no-transform
+
+/*/
+  Cache-Control: public, max-age=0, must-revalidate, no-transform

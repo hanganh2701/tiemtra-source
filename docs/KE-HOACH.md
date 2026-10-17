@@ -500,6 +500,7 @@ Ngày 16/10/2026 chủ dự án yêu cầu một trang tải video TikTok giốn
 - [x] Thử lại trên mạng Cloudflare 17/10/2026: dán link trên trang thật, tải video không logo, HD, MP3, ảnh bìa đều được. Sửa 2 lỗi chỉ lộ ra trên Cloudflare: trạm Hồng Kông nhận trang báo khu vực của TikTok (TikTok không hoạt động ở Hồng Kông) nên Worker đặt chạy ở Singapore (`[placement]`); Cloudflare chèn script Web Analytics bị CSP chặn nên trang gắn `no-transform`
 - [x] Đổi tên thành snaptik và làm giao diện kiểu mèo (chủ dự án chốt 17/10/2026, tự nhận rủi ro nhãn hiệu vì SnapTik là tên trang khác): màu mèo mướp, mèo ngó qua ô tìm đổi nét mặt theo lúc tìm/thấy/lỗi, mèo trên thẻ kết quả, mèo ngồi chân trang, mèo ngủ trang 404, dấu chân, logo mới, ảnh chia sẻ `og.png`. Trang ghi rõ không liên kết với TikTok, ByteDance hay các trang SnapTik khác. Đã lên và thử trên trang thật
 - [x] Tối ưu điện thoại 17/10/2026: trước đó ở 375×812 nút tải đầu tiên nằm dưới mép màn hình (866px) và đầu thẻ bị thanh đầu trang dính che. Giờ thẻ kết quả gọn trên điện thoại, 4 nút tải hiện ngay; xem trước thì video mở hết bề ngang; đầu trang không dính; mọi nút ≥44px; chừa tai thỏ khi xoay ngang. Đã kiểm 320/375px, sáng/tối, mọi trang không cuộn ngang; thử trên trang thật
+- [x] Nén lại CSS/JS 17/10/2026: `no-transform` gắn cho mọi file làm Cloudflare thôi nén (trang chủ cùng CSS/JS ~55 KB thay vì ~25 KB); giờ chỉ gắn cho trang HTML, CSS/JS nén Brotli, script Web Analytics vẫn không bị chèn
 - [ ] Thử bài ảnh và link rút gọn thật (cần link chép từ app)
 
 ## Cổng quyết định

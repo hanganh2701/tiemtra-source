@@ -25,7 +25,7 @@ worker.js          API: /api/thong-tin?url=… và /api/tai?id=…&loai=video|hd
 - `/api/tai` chỉ nhận id bài, không nhận link tuỳ ý, nên không ai mượn máy chủ tải thứ khác được. Worker lấy file từ máy chủ TikTok (gửi kèm cookie và `Referer: https://www.tiktok.com/` như trình duyệt) rồi chuyển thẳng về người dùng, có hỗ trợ `Range` để tua video xem trước. Chỉ nhận kiểu file đúng loại (video/âm thanh/ảnh), trang lỗi HTML hay SVG thì bỏ.
 - Mỗi máy tìm tối đa 20 lần mỗi phút (`[[ratelimits]]` trong `wrangler.toml`; xoá khối đó thì worker bỏ qua giới hạn).
 - `worker.js` luôn chạy ở Singapore (`[placement] region = "aws:ap-southeast-1"`). Người ở Việt Nam lúc vào trạm Cloudflare Hồng Kông, lúc vào Singapore; TikTok không hoạt động ở Hồng Kông nên trạm đó chỉ nhận trang báo khu vực. Trang tĩnh vẫn phát từ trạm gần nhất. Header `cf-placement: remote-SIN` cho biết yêu cầu đã được chuyển sang Singapore.
-- `_headers` gắn `no-transform` cho mọi trang để Cloudflare không chèn script Web Analytics của tên miền meomeo.app (trang hứa không theo dõi).
+- `_headers` gắn `no-transform` cho riêng các trang HTML (`/` và `/*/`) để Cloudflare không chèn script Web Analytics của tên miền meomeo.app (trang hứa không theo dõi). Không gắn cho CSS/JS/ảnh: có `no-transform` thì Cloudflare thôi nén, `style.css` 26 KB thay vì 7 KB (Brotli).
 - Test: `npm test` ở gốc kho (file `tests/snaptik.test.mjs`, mạng giả, không gọi TikTok).
 
 ## Giao diện kiểu mèo (17/10/2026)
@@ -59,7 +59,7 @@ Chạy `wrangler dev` (bộ chạy workerd của Cloudflare) trên máy làm vi�
 - Dán chữ chia sẻ có link vào trang trong trình duyệt → thẻ kết quả đủ thông tin; bấm 4 nút tải đều nhận file: video không logo 576p H.264 (xem khung hình: không logo, đúng video của ảnh bìa), HD 720p H.265, MP3 thật (ID3, 44,1 kHz), ảnh bìa JPEG. Xem trước tua được (Range 206), trang khác nhúng file thì bị chặn (403); bài đã xoá báo mã 10204
 - Lần thử thật tìm ra 2 lỗi đã sửa, mỗi lỗi có test giữ:
   - lượt nào vào trạm Hồng Kông cũng báo "Không đọc được trang TikTok" (TikTok trả trang khu vực `__REGION__DATA__INJECTED__`), kể cả bấm tải ngay sau khi tìm thấy bài (bộ đệm tách theo trạm). Sửa: đặt Worker chạy ở Singapore
-  - Cloudflare chèn script Web Analytics vào mọi trang, CSP chặn nên console báo lỗi. Sửa: `no-transform`
+  - Cloudflare chèn script Web Analytics vào mọi trang, CSP chặn nên console báo lỗi. Sửa: `no-transform` cho trang HTML (lúc đầu gắn cho mọi file thì Cloudflare thôi nén cả CSS/JS, sửa lại cùng ngày)
 - Lúc thử, TikTok tạm chặn IP máy làm việc (trang "Please wait…", oEmbed trả 429) sau nhiều lượt thử liên tiếp. Máy chủ ở Singapore không bị. Nếu sau này TikTok chặn cả máy chủ thì trang chỉ báo lỗi; không làm cách vượt lớp chặn bot của TikTok.
 
 ## Còn chưa thử
