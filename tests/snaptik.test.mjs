@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { readFileSync, existsSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import worker, { docLink, docTrang, chuanBi, layCookie, tenFile, kieuGui } from "../may-chu/snaptik/worker.js";
+import worker, { docLink, docTrang, chuanBi, layCookie, tenFile, kieuGui, dinhDangNhac } from "../may-chu/snaptik/worker.js";
 import { soGon, coFile, thoiGian, linkTai, timLinkTrongChu, crc32, taoZip } from "../may-chu/snaptik/public/cong-cu.js";
 
 const PUB = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "may-chu", "snaptik", "public");
@@ -146,6 +146,50 @@ test("kiểu file: nhạc TikTok gửi kèm video/mp4 thì lấy kiểu thật t
   assert.equal(kieuGui("video", "video/mp4", "https://x/?mime_type=audio_mpeg"), "video/mp4", "chỉ sửa kiểu cho nhạc");
 });
 
+test("định dạng nhạc ghi trên nút: đọc mime_type của link nhạc (bài @patrox ra M4A, thử thật 17/10/2026)", () => {
+  assert.equal(dinhDangNhac("https://v16m.tiktokcdn.com/x/?a=1&mime_type=audio_mpeg&rc=1"), "MP3");
+  assert.equal(dinhDangNhac("https://v16m.tiktokcdn.com/x/?mime_type=audio_mp4"), "M4A");
+  assert.equal(dinhDangNhac("https://v16m.tiktokcdn.com/x/?mime_type=audio_aac"), "AAC");
+  assert.equal(dinhDangNhac("https://v16m.tiktokcdn.com/x/"), "MP3", "không ghi thì coi là MP3");
+  assert.equal(dinhDangNhac("https://v16m.tiktokcdn.com/x/?mime_type=video_mp4"), "MP3", "chỉ nhận kiểu âm thanh");
+  assert.equal(dinhDangNhac("không phải link"), "MP3");
+  const bai = baiVideo({ music: { title: "nhạc", playUrl: "https://v16m.tiktokcdn.com/nhac?mime_type=audio_mp4" } });
+  assert.equal(chuanBi(bai).tt.ban.nhac, "M4A");
+  assert.equal(chuanBi(baiVideo()).tt.ban.nhac, "MP3");
+  assert.equal(chuanBi(baiVideo({ music: {} })).tt.ban.nhac, null, "không có nhạc");
+});
+
+test("API thông tin: nhạc trong kho nhạc TikTok (link không có mime_type) thì hỏi 1 byte để biết M4A hay MP3", async () => {
+  const KHO = "https://sf16-ies-music-sg.tiktokcdn.com/obj/tos-alisg-ve-2774/abc";
+  const GOC = "https://v16m.tiktokcdn.com/nhac/?mime_type=audio_mpeg";
+  await voiMangGia(
+    (url) => {
+      if (url === `https://www.tiktok.com/@/video/${ID}`) return traTrang(trangBai(baiVideo({ music: { title: "Big Fun", playUrl: KHO } })));
+      if (url === "https://www.tiktok.com/@/video/7000000000000000005") return traTrang(trangBai(baiVideo({ id: "7000000000000000005", music: { title: "nhạc gốc", playUrl: GOC } })));
+      if (url === KHO) return new Response(new Uint8Array([0]), { status: 206, headers: { "Content-Type": "audio/mp4", "Content-Range": "bytes 0-0/206709" } });
+      return new Response("không có", { status: 404 });
+    },
+    async (goi) => {
+      let j = await (await goiWorker(`/api/thong-tin?url=${ID}`)).json();
+      assert.equal(j.ban.nhac, "M4A");
+      const hoi = goi.find((g) => g.url === KHO);
+      assert.equal(hoi.init.headers.Range, "bytes=0-0");
+      assert.match(hoi.init.headers.Cookie, /tt_chain_token=abc/);
+      j = await (await goiWorker("/api/thong-tin?url=7000000000000000005")).json();
+      assert.equal(j.ban.nhac, "MP3");
+      assert.equal(goi.some((g) => g.url === GOC), false, "link đã ghi mime_type thì khỏi hỏi");
+    },
+  );
+});
+
+test("trang chặn bot của TikTok (Please wait…): báo rõ là TikTok đang chặn, không báo lỗi chung", () => {
+  const waf = `<html><head><script id="slardar-config" type="application/json">{"slardarClient": "SlardarWAF", "bid": "slardar_us_waf"}</script></head><body> Please wait... <p id="wci" class="_wafchallengeid"></p></body></html>`;
+  const d = docTrang(waf);
+  assert.equal(d.chan, true);
+  assert.match(d.loi, /đang tạm chặn/);
+  assert.equal(docTrang("<html>trang lạ</html>").chan, undefined);
+});
+
 test("cookie và tên file", () => {
   const h = new Headers();
   h.append("Set-Cookie", "tt_chain_token=abc; Path=/; HttpOnly");
@@ -194,9 +238,31 @@ test("API thông tin: link sai, chuyển hướng ra ngoài TikTok, bài riêng 
       r = await goiWorker("/api/thong-tin?url=" + encodeURIComponent("https://www.tiktok.com/@a/video/7000000000000000001"));
       assert.equal(r.status, 404);
       assert.match((await r.json()).loi, /riêng tư/);
+      const truoc = goi.length;
       r = await goiWorker("/api/thong-tin?url=" + encodeURIComponent("https://www.tiktok.com/@a/video/7000000000000000002"));
+      assert.equal(r.status, 503, "TikTok trả 403: báo đang chặn");
+      assert.match((await r.json()).loi, /đang tạm chặn/);
+      assert.equal(goi.length - truoc, 1, "bị chặn thì không thử thêm kiểu photo");
+    },
+  );
+});
+
+test("API thông tin: TikTok đưa trang Please wait thì báo đang chặn (503), không gọi thêm; trang lạ vẫn 502", async () => {
+  await voiMangGia(
+    (url) => {
+      if (url.includes("/7000000000000000003")) return traTrang(`<body> Please wait... <p id="wci" class="_wafchallengeid"></p></body>`);
+      return traTrang("<html>trang lạ</html>");
+    },
+    async (goi) => {
+      let r = await goiWorker("/api/thong-tin?url=7000000000000000003");
+      assert.equal(r.status, 503);
+      assert.match((await r.json()).loi, /đang tạm chặn/);
+      assert.equal(goi.length, 1);
+      r = await goiWorker(`/api/tai?id=7000000000000000003&loai=video`);
+      assert.equal(r.status, 503, "nút tải cũng báo đang chặn");
+      r = await goiWorker("/api/thong-tin?url=7000000000000000004");
       assert.equal(r.status, 502);
-      assert.equal((await r.json()).ok, false);
+      assert.match((await r.json()).loi, /Không đọc được trang TikTok/);
     },
   );
 });

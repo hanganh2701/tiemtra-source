@@ -11,6 +11,7 @@ const GIU_GIAY = 600; /* giữ thông tin một bài 10 phút ở bộ đệm Cl
 const LOAI = ["video", "hd", "mp3", "anh", "bia"];
 const LOI_LINK = "Chưa thấy link TikTok. Link có dạng https://www.tiktok.com/@ten/video/123… hoặc https://vt.tiktok.com/abc…";
 const LOI_TRANG = "Không đọc được trang TikTok (TikTok có thể đang chặn máy chủ hoặc vừa đổi trang). Thử lại sau ít phút.";
+const LOI_CHAN = "TikTok đang tạm chặn máy chủ của trang (nghi là máy tự động). Đợi vài phút rồi thử lại nhé.";
 
 /* kiểu file nhận từ máy chủ TikTok cho từng loại; khác kiểu (trang lỗi HTML, SVG…) thì bỏ, không gửi về trình duyệt */
 const KIEU_DUNG = {
@@ -94,6 +95,8 @@ export function docTrang(html) {
       /* rơi xuống lỗi chung */
     }
   }
+  /* trang "Please wait…" TikTok đưa khi nghi máy tự động (thử thật 17/10/2026: SlardarWAF, thẻ _wafchallengeid) */
+  if (/_wafchallengeid|"slardarClient"\s*:\s*"SlardarWAF"/.test(html)) return { loi: LOI_CHAN, chan: true };
   return { loi: LOI_TRANG };
 }
 
@@ -110,6 +113,30 @@ const chuoi = (x) => (typeof x === "string" ? x : "");
 const so = (x) => (x == null || x === "" || !Number.isFinite(Number(x)) ? null : Number(x));
 /* ảnh JPEG trước (mở được ở mọi máy), WebP/HEIC sau */
 const sapAnh = (ds) => [...ds].sort((a, b) => /jpe?g/i.test(b) - /jpe?g/i.test(a));
+
+/* định dạng nhạc ghi trên nút tải (MP3, M4A…), tính như lúc tải (kieuGui): theo kiểu file máy chủ TikTok trả nếu đã hỏi,
+   không thì theo tham số mime_type của link (nhạc gốc: audio_mpeg); không rõ thì MP3 */
+export function dinhDangNhac(link, kieu = "") {
+  const k = kieuGui("mp3", kieu || "video/mp4", link).split(";")[0].trim().toLowerCase();
+  return (DUOI[k] || "mp3").toUpperCase();
+}
+
+/* nhạc trong kho nhạc TikTok (sf16-ies-music…/obj/…) không có đuôi hay mime_type, có bài là M4A (thử thật 17/10/2026, bài @patrox):
+   hỏi máy chủ TikTok 1 byte để biết kiểu thật. Hỏi không được thì giữ MP3 */
+async function hoiDinhDangNhac(kq) {
+  const link = kq.ng.mp3[0];
+  if (!link || /[?&]mime_type=/.test(link)) return;
+  try {
+    const hdr = { "User-Agent": UA, Referer: "https://www.tiktok.com/", Accept: "*/*", Range: "bytes=0-0" };
+    if (kq.cookie) hdr.Cookie = kq.cookie;
+    const r = await fetch(link, { headers: hdr, signal: AbortSignal.timeout(2500) });
+    await r.body?.cancel();
+    const kieu = r.headers.get("Content-Type") || "";
+    if ((r.ok || r.status === 206) && KIEU_DUNG.mp3.test(kieu)) kq.tt.ban.nhac = dinhDangNhac(link, kieu);
+  } catch {
+    /* hết giờ hoặc lỗi mạng: giữ MP3 */
+  }
+}
 
 /* gọn dữ liệu TikTok thành: tt = thông tin gửi cho trang, ng = link file gốc chỉ máy chủ dùng */
 export function chuanBi(b) {
@@ -169,7 +196,7 @@ export function chuanBi(b) {
       nhac: m.title || m.authorName ? { ten: chuoi(m.title), tacGia: chuoi(m.authorName), thoiLuong: so(m.duration) } : null,
       bia: bia[0] || "",
       anh: anh.map((a) => ({ xem: sapAnh(a.ds)[0], w: a.w, h: a.h })),
-      ban: { video: banGon(thuong), hd: banGon(hd), mp3: !!nhacUrl, bia: bia.length > 0 },
+      ban: { video: banGon(thuong), hd: banGon(hd), mp3: !!nhacUrl, nhac: nhacUrl ? dinhDangNhac(nhacUrl) : null, bia: bia.length > 0 },
     },
     ng: { video: thuong?.ds || [], hd: hd?.ds || [], mp3: nhacUrl ? [nhacUrl] : [], bia, anh: anh.map((a) => sapAnh(a.ds)) },
   };
@@ -182,6 +209,7 @@ export async function moLinkNgan(link) {
     const r = await fetch(u, { redirect: "manual", headers: { "User-Agent": UA } });
     const toi = r.headers.get("Location");
     await r.body?.cancel();
+    if (!toi && (r.status === 403 || r.status === 429)) return { loi: LOI_CHAN, chan: true };
     if (!toi) break;
     const t = new URL(toi, u);
     if (!laTikTok(t.hostname)) break;
@@ -195,7 +223,8 @@ export async function moLinkNgan(link) {
 /* đọc trang công khai của bài đăng; tên tài khoản để trống TikTok vẫn mở đúng bài */
 export async function layBai(id, kieu = "video") {
   let loi = LOI_TRANG,
-    ma;
+    ma,
+    chan = false;
   for (const k of kieu === "photo" ? ["photo", "video"] : ["video", "photo"]) {
     let r;
     try {
@@ -207,21 +236,31 @@ export async function layBai(id, kieu = "video") {
     }
     if (!r.ok) {
       await r.body?.cancel();
+      if (r.status === 403 || r.status === 429) {
+        loi = LOI_CHAN;
+        chan = true;
+        break;
+      }
       continue;
     }
     const d = docTrang(await r.text());
-    if (d.bai) return { ...chuanBi(d.bai), cookie: layCookie(r.headers) };
+    if (d.bai) {
+      const kq = { ...chuanBi(d.bai), cookie: layCookie(r.headers) };
+      await hoiDinhDangNhac(kq);
+      return kq;
+    }
     loi = d.loi;
     ma = d.ma;
-    if (ma) break; /* TikTok đã nói rõ bài không xem được: khỏi thử kiểu kia */
+    chan = !!d.chan;
+    if (ma || chan) break; /* TikTok đã nói rõ bài không xem được, hoặc đang chặn: khỏi thử kiểu kia */
   }
-  return ma ? { loi, ma } : { loi };
+  return ma ? { loi, ma } : chan ? { loi, chan } : { loi };
 }
 
 /* như layBai, có giữ 10 phút ở bộ đệm Cloudflare (mỗi trạm một bản; chạy thử trên máy thì không có bộ đệm) */
 async function layCoDem(id, kieu, ctx) {
   const dem = typeof caches !== "undefined" ? caches.default : null;
-  const khoa = `https://snaptik.meomeo.app/__dem/bai/${id}`;
+  const khoa = `https://snaptik.meomeo.app/__dem/bai3/${id}`; /* đổi số khi đổi dạng thông tin (bai3: ban.nhac hỏi từ máy chủ nhạc) */
   if (dem) {
     const c = await dem.match(khoa);
     if (c) return c.json();
@@ -252,13 +291,16 @@ async function quaNhanh(req, env) {
   }
 }
 
+/* bài không xem được 404, TikTok đang chặn 503, còn lại 502 */
+const maLoi = (r) => (r.ma ? 404 : r.chan ? 503 : 502);
+
 async function thongTin(req, url, env, ctx) {
   if (await quaNhanh(req, env)) return json({ ok: false, loi: "Bạn tìm hơi nhanh, chờ một phút rồi thử lại nhé." }, 429);
   let d = docLink(url.searchParams.get("url"));
   if (d.ngan) d = await moLinkNgan(d.ngan);
-  if (d.loi) return json({ ok: false, loi: d.loi }, 400);
+  if (d.loi) return json({ ok: false, loi: d.loi }, d.chan ? 503 : 400);
   const r = await layCoDem(d.id, d.kieu, ctx);
-  if (r.loi) return json({ ok: false, loi: r.loi }, r.ma ? 404 : 502);
+  if (r.loi) return json({ ok: false, loi: r.loi }, maLoi(r));
   return json({ ok: true, ...r.tt });
 }
 
@@ -294,7 +336,7 @@ async function tai(req, url, ctx) {
     xem = url.searchParams.get("xem") === "1";
   if (!/^\d{15,22}$/.test(id) || !LOAI.includes(loai) || !(i >= 0 && i < 100)) return json({ ok: false, loi: "Yêu cầu tải không hợp lệ." }, 400);
   const r = await layCoDem(id, "video", ctx);
-  if (r.loi) return json({ ok: false, loi: r.loi }, r.ma ? 404 : 502);
+  if (r.loi) return json({ ok: false, loi: r.loi }, maLoi(r));
   const ds = loai === "anh" ? r.ng.anh[i] || [] : r.ng[loai] || [];
   if (!ds.length) return json({ ok: false, loi: "Bài này không có bản tải đó." }, 404);
 

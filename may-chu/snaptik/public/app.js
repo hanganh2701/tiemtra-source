@@ -37,11 +37,18 @@ const form = $("#o-tim"),
   hopLoi = $("#loi"),
   ketQua = $("#ket-qua");
 
+/* ẩn thẻ kết quả; video xem trước đang phát thì dừng (ẩn đi nó vẫn phát tiếng) */
+function anKetQua() {
+  ketQua.querySelector("video")?.pause();
+  ketQua.hidden = true;
+}
 function baoLoi(chu) {
   if (!hopLoi) return;
   hopLoi.textContent = chu;
   hopLoi.hidden = !chu;
-  if (chu) meo("buon");
+  if (!chu) return;
+  meo("buon");
+  anKetQua(); /* thẻ của bài trước còn đó thì dễ tưởng bài vừa dán vẫn tải được */
 }
 function dangTim(co) {
   nutTim.disabled = co;
@@ -142,7 +149,8 @@ function ve(j) {
   const nut = [];
   if (b.video) nut.push(["video", linkTai(j.id, "video"), "Tải video không logo", moTaBan(b.video)]);
   if (b.hd) nut.push(["hd", linkTai(j.id, "hd"), "Tải video HD", moTaBan(b.hd)]);
-  if (b.mp3) nut.push(["mp3", linkTai(j.id, "mp3"), "Tải nhạc MP3", j.nhac?.thoiLuong ? thoiGian(j.nhac.thoiLuong) : ""]);
+  /* có bài TikTok để nhạc dạng M4A: máy chủ đọc định dạng thật (b.nhac); thông tin cũ trong bộ đệm chưa có thì ghi MP3 */
+  if (b.mp3) nut.push(["mp3", linkTai(j.id, "mp3"), "Tải nhạc " + (b.nhac || "MP3"), j.nhac?.thoiLuong ? thoiGian(j.nhac.thoiLuong) : ""]);
   if (CHE_DO === "mp3") nut.sort((a, c) => (c[0] === "mp3") - (a[0] === "mp3"));
   const cacNut = el(
     "div",
@@ -177,7 +185,7 @@ function ve(j) {
 
   const nutLai = el("button", { type: "button", class: "nut-chu" }, "← Tải bài khác");
   nutLai.addEventListener("click", () => {
-    ketQua.hidden = true;
+    anKetQua();
     meo("");
     o.value = "";
     capNhatNutDan();
