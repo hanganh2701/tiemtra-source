@@ -26,7 +26,8 @@
   }
   if (!CO.includes(chon)) chon = null;
 
-  const may = /bot|crawl|spider|slurp|lighthouse|headless/i.test(navigator.userAgent);
+  /* máy tìm kiếm và công cụ của họ: Googlebot, Google-InspectionTool (Kiểm tra URL trong Search Console), bingbot… */
+  const may = /bot|crawl|spider|slurp|google|bing|yandex|baidu|duckduck|lighthouse|headless/i.test(navigator.userAgent);
   const muon = chon || (may ? null : (navigator.languages || [navigator.language]).map(maCua).find(Boolean) || "en");
   if (muon && muon !== hien) {
     const duong = location.pathname.replace(hien === "vi" ? /^\// : new RegExp("^/" + hien + "/"), "/");

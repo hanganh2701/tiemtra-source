@@ -48,6 +48,16 @@ Chủ dự án muốn trang tự đổi theo ngôn ngữ máy và có nút chọ
 - Bản dịch do Claude dịch từ tiếng Việt (mỗi tiếng một tác tử, kiểm bằng `soDich`), chưa có người bản xứ đọc lại. Chỗ dễ sai nhất là tên nút, tên mục trên điện thoại theo từng tiếng (ứng dụng Phím tắt của iPhone, mục "Khác" trong nút Chia sẻ của TikTok, "Thêm vào màn hình chính").
 - Đã thử 17/10/2026, trên máy và trên trang thật: 60 trang (10 tiếng × 6) trả đúng tiếng; quét 70 trang (gồm 404) ở bề ngang 320px không trang nào tràn ngang; trình duyệt tiếng Anh mở `/` thì sang `/en/`, bấm chọn tiếng thì nhớ và không tự đổi nữa; tìm bài thật bằng tiếng Anh, báo lỗi bài đã xoá bằng tiếng Nhật; API trả câu báo đúng tiếng theo `hl` và theo `Accept-Language`; 404 đúng tiếng.
 
+## Máy tìm kiếm (17/10/2026)
+- Sẵn cho máy tìm kiếm: `robots.txt` chỉ chặn `/api/` và chỉ tới `sitemap.xml` (60 trang, có hreflang); mỗi trang có title, description, canonical riêng; 404 trả mã 404 kèm `noindex`. `ngon-ngu.js` không chuyển tiếng với Googlebot, bingbot và công cụ Kiểm tra URL của Search Console (`Google-InspectionTool`).
+- **Bing** (và Yandex, Naver, Seznam): IndexNow, không cần tài khoản. Khoá ở `public/<khoá>.txt`; `node may-chu/snaptik/indexnow.mjs` gửi mọi trang trong sitemap. Đã gửi 17/10/2026 (202 Accepted). Chạy lại khi có trang mới hay đổi chữ nhiều.
+- **Google**: không nhận IndexNow, phải qua Google Search Console bằng tài khoản Google của chủ dự án: thêm thuộc tính kiểu Miền `meomeo.app` (xác minh bằng bản ghi TXT trong DNS Cloudflare, Google tự làm được với Cloudflare), gửi `https://snaptik.meomeo.app/sitemap.xml`, rồi Kiểm tra URL › Yêu cầu lập chỉ mục cho `/` và `/en/`.
+- Bing Webmaster Tools có nút nhập thẳng từ Google Search Console (kèm sitemap) sau khi Google đã xác minh.
+- **Đã làm 17/10/2026** (tài khoản Google hieuncph05659@gmail.com, cùng tài khoản Cloudflare):
+  - Search Console: thuộc tính Miền `meomeo.app`, xác minh bằng bản ghi TXT `google-site-verification=1AhE9iL0…` ở gốc `meomeo.app` trong DNS Cloudflare. **Đừng xoá bản ghi này**, xoá là mất xác minh. Bên cạnh còn một bản ghi `google-site-verification=5tAb2iWj…` có từ trước, không rõ của tài khoản nào, để nguyên.
+  - Thuộc tính riêng `https://snaptik.meomeo.app/` (tự xác minh nhờ Miền); đã gửi sitemap, Google đọc được 60 trang; đã yêu cầu lập chỉ mục `/` và `/en/`.
+  - Bing Webmaster Tools: nhập từ Search Console, chỉ chọn `snaptik.meomeo.app` (kèm sitemap). Bing có quyền chỉ xem Search Console; gỡ ở Tài khoản Google › Bảo mật › Kết nối bên thứ ba nếu không cần nữa.
+
 ## Giao diện kiểu mèo (17/10/2026)
 Chủ dự án muốn trang mang "vibe" con mèo. Mọi hình đều tự vẽ bằng SVG:
 - Màu mèo mướp: cam `#c2410c` cho nút và link (chữ trắng trên nền cam đạt 5,2:1), nền kem, hồng đệm chân. Chế độ tối nền tím than, nút cam sáng chữ nâu, mắt mèo sáng màu hổ phách
