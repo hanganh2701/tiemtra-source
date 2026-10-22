@@ -13,7 +13,7 @@
      giuTapTrung  true thì không chuyển tiêu điểm khi đổi màn (khung soạn, đang gõ bên trái)
      homNay       "YYYY-MM-DD" (test)
    Trả về { den(man), the }. */
-import { bienXung, tachCho, ngayDep, homNayVN, thuCua, laGio, SO_CAU_NE, MOI_CAU_NE } from "./chung.js";
+import { bienXung, tachCho, ngayDep, homNayVN, thuCua, laGio, SO_CAU_NE, MOI_CAU_NE } from "./chung.js?v=3";
 
 export function h(ten, tt = {}, ...con) {
   const el = document.createElement(ten);
@@ -68,7 +68,7 @@ export function lichIcs(t, tl, id = "thu") {
 export function veThiep(goc, t, tuy = {}) {
   const v = bienXung(t);
   const homNay = tuy.homNay || homNayVN();
-  const st = { man: null, soLanNe: 0, ngay: "", gio: "", gioKhac: false, chon: "", khac: false, traLoi: null, boQuaClick: 0 };
+  const st = { man: null, soLanNe: 0, ngay: "", gio: "", gioKhac: false, chon: "", khac: false, traLoi: null, lucNe: 0 };
   const coBuocChon = t.hoiNgay || t.hoiGio || t.chonBat;
 
   goc.replaceChildren();
@@ -129,9 +129,15 @@ export function veThiep(goc, t, tuy = {}) {
   /* nút Không né: chuột lướt tới hay ngón tay chạm vào là chạy chỗ khác; né đủ 9 lần thì trốn luôn */
   function ne(e) {
     e?.preventDefault?.();
+    st.lucNe = Date.now();
     st.soLanNe++;
     diChuyen();
-    nutCo.style.transform = `scale(${1 + Math.min(st.soLanNe, 8) * 0.06})`;
+    /* to dần nhưng không vượt mép thiệp: tính từ tâm nút (nút có thể nằm lệch tâm thiệp) */
+    const r = nutCo.getBoundingClientRect();
+    const k = the.getBoundingClientRect();
+    const tam = r.left + r.width / 2;
+    const toiDa = nutCo.offsetWidth ? Math.max(1, Math.min(tam - k.left - 8, k.right - 8 - tam) / (nutCo.offsetWidth / 2)) : 2;
+    nutCo.style.transform = `scale(${Math.min(1 + Math.min(st.soLanNe, 8) * 0.06, toiDa).toFixed(3)})`;
     if (st.soLanNe % MOI_CAU_NE === 0) {
       const cau = t.cauNe[st.soLanNe / MOI_CAU_NE - 1];
       if (cau) goiY.textContent = cau;
@@ -147,6 +153,11 @@ export function veThiep(goc, t, tuy = {}) {
     const n = nutKhong.getBoundingClientRect();
     const c = nutCo.getBoundingClientRect();
     if (!nutKhong.classList.contains("t-dang-ne")) {
+      /* giữ chỗ cũ của nút: trang không ngắn lại, nút Có không trượt vào chỗ ngón tay vừa chạm */
+      const cho = h("span", { class: "t-cho-nut", "aria-hidden": "true" });
+      cho.style.width = `${n.width}px`;
+      cho.style.height = `${n.height}px`;
+      nutKhong.after(cho);
       nutKhong.style.left = `${n.left - k.left}px`;
       nutKhong.style.top = `${n.top - k.top}px`;
       nutKhong.classList.add("t-dang-ne");
@@ -174,18 +185,26 @@ export function veThiep(goc, t, tuy = {}) {
       if (t.ne && e.pointerType === "mouse") ne(e);
     });
     nutKhong.addEventListener("pointerdown", (e) => {
-      if (!t.ne) return;
-      st.boQuaClick = Date.now();
-      ne(e);
+      if (t.ne && e.pointerType !== "touch") ne(e); // chuột, bút
     });
+    /* ngón tay: chặn ngay từ touchstart. Không chặn thì Safari trên iPhone bắn một cú click giả vào chỗ vừa chạm
+       sau khi nhấc tay, lúc đó nút đã chạy đi và cú click rơi vào nút Có */
+    nutKhong.addEventListener(
+      "touchstart",
+      (e) => {
+        if (t.ne) ne(e);
+      },
+      { passive: false },
+    );
     nutKhong.addEventListener("click", (e) => {
       if (!t.ne) return xong(false);
-      if (Date.now() - st.boQuaClick < 500) return e.preventDefault();
+      if (Date.now() - st.lucNe < 700) return e.preventDefault();
       ne(e); // bấm bằng bàn phím
     });
   }
 
   function dongY() {
+    if (Date.now() - st.lucNe < 700) return; // cú chạm vừa làm nút Không né đi, không phải bấm Có
     if (coBuocChon) den("chon");
     else xong(true);
   }
@@ -525,7 +544,7 @@ export function veThiep(goc, t, tuy = {}) {
     st.man = man;
     for (const [k, el] of Object.entries(cacMan)) el.hidden = k !== man;
     if (!tuy.giuTapTrung) {
-      cacMan[man].querySelector('[tabindex="-1"]')?.focus();
+      cacMan[man].querySelector('[tabindex="-1"]')?.focus({ preventScroll: true });
       if (typeof scrollTo === "function") scrollTo(0, 0);
     }
   }

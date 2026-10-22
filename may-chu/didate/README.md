@@ -26,6 +26,7 @@ lay-chat-id.mjs      tìm mã kênh Telegram cho TG_CHAT
 - Chữ người dùng chỉ vào `textContent`; dữ liệu thiệp đặt trong `<script type="application/json">` có thoát `<`. CSP chặn script và style viết thẳng trong trang (test kiểm). API chỉ nhận POST từ chính trang (kiểm `Origin`).
 - Ảnh được thu nhỏ trên máy người tạo (cạnh dài 1280px, JPEG, tối đa 1,5 MB), vẽ lại qua canvas nên mất hết EXIF (vị trí chụp). Worker kiểm byte đầu, chỉ nhận JPG/PNG/WebP tới 2 MB. Ảnh trả về có `Cross-Origin-Resource-Policy: same-origin` (trang khác không mượn làm chỗ để ảnh được), giữ 6 giờ ở bộ đệm Cloudflare.
 - Mỗi máy tạo tối đa 6 thiệp/phút; mở, trả lời, báo cáo tối đa 40 lần/phút (`[[ratelimits]]`).
+- **Sửa CSS hay JS của trang thì tăng số `?v=`** ở mọi đường dẫn CSS/JS trong HTML và mọi `import` giữa các module trong `public/` (cùng một số; test kiểm). Safari trên iPhone giữ bản cũ rất lâu dù máy chủ báo `max-age=0`, không đổi số thì người từng mở trang vẫn chạy code cũ.
 - Test: `npm test` ở gốc kho (file `tests/didate.test.mjs`: D1 giả bằng `node:sqlite`, Telegram giả, tấm thiệp và trang soạn trong jsdom).
 - Chạy thử trên máy: `npx wrangler d1 execute didate --local --file=may-chu/didate/schema.sql --config may-chu/didate/wrangler.toml` một lần, rồi `npx wrangler dev --config may-chu/didate/wrangler.toml --port 8788 --var KHO_ANH:d1` và mở http://localhost:8788 (ảnh nằm trong D1 trên máy, không cần bot).
 
@@ -74,8 +75,16 @@ Trên máy bằng `wrangler dev` (ảnh vào D1 trên máy), trong trình duyệ
 - Google Search Console: gửi `https://didate.meomeo.app/sitemap.xml` trong thuộc tính Miền `meomeo.app` (đã xác minh từ lúc làm snaptik), Google đọc thành công, thấy 4 trang; đã yêu cầu lập chỉ mục `https://didate.meomeo.app/`. Trang thiệp `/<id>` và `/quan-ly/` không vào chỉ mục (noindex, robots.txt).
 - Bing chưa gửi (dùng IndexNow như snaptik, hoặc nhập lại từ Search Console).
 
+## Thử trên Safari iPhone (22/10/2026)
+Chủ dự án báo: trên Safari điện thoại, chạm nút từ chối vẫn nhảy vào màn chọn. Thử lại bằng Safari thật trong iOS Simulator (iPhone 16 Pro) và WebKit giả lập điện thoại (320, 375, 390px):
+- Nguyên nhân: Safari bắn một cú click giả vào chỗ vừa chạm sau khi nhấc ngón tay. Lúc đó nút từ chối đã chạy đi; nút này chuyển sang `position: absolute` làm trang ngắn lại, cả trang tụt xuống, nút Có trượt đúng vào chỗ ngón tay, nên cú click rơi vào nút Có. Chromium không bị vì click của ngón tay đi theo phần tử nhận `pointerdown`.
+- Sửa: nút từ chối né ngay ở `touchstart` và chặn mặc định (Safari thôi bắn click giả); giữ chỗ cũ của nút (`.t-cho-nut`) để trang không co lại; bỏ qua cú bấm Có trong 0,7 giây sau một lần né. Có test giữ.
+- Sửa thêm: nhãn trên cùng bị viền xanh khi mở trang; ảnh trên điện thoại nhỏ lại để câu hỏi và hai nút hiện sớm hơn; nút Có to dần không vượt mép thiệp; 4 mẫu trên trang soạn xếp 2 cột (quy tắc cho điện thoại bị quy tắc gốc đè); thanh Xem thử/Tạo link ẩn khi bàn phím bật; ô link ≥16px cho Safari khỏi phóng to; trang chủ hết tràn ngang ở 320px; màn mới cuộn về đầu.
+- Safari giữ CSS/JS cũ dù máy chủ báo `max-age=0`: thêm số `?v=` vào đường dẫn (xem mục Cách chạy).
+- Đã chạy được trên Safari iPhone: mở thư, né 4 lần liên tiếp không nhảy màn, chọn ngày và món, màn kết, thêm vào lịch (.ics mở đúng sự kiện cả ngày), chọn ảnh từ Thư viện ảnh, gõ tên không bị phóng to, Xem thử toàn màn hình.
+
 ## Còn chưa thử
-- Điện thoại thật (iPhone, Android): né bằng ngón tay, chọn ảnh HEIC trên iPhone, file .ics.
+- Điện thoại thật (iPhone, Android); Android mới thử bằng Chromium giả lập.
 - Dán link thiệp vào Messenger, Zalo xem thẻ xem trước.
 
 ## Nên biết trước

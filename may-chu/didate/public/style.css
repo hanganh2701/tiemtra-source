@@ -245,19 +245,6 @@ legend {
   .hai-cot {
     grid-template-columns: 1fr;
   }
-  /* điện thoại: mẫu xếp 2 cột, chỉ biểu tượng và tên */
-  .ds-mau {
-    grid-template-columns: 1fr 1fr;
-  }
-  .the-mau {
-    flex-direction: column;
-    gap: 4px;
-    padding: 10px 8px;
-    text-align: center;
-  }
-  .the-mau-chu small {
-    display: none;
-  }
 }
 .hop-chon {
   display: flex;
@@ -537,7 +524,9 @@ details summary {
 .thanh-gui .nut {
   flex: 1;
   min-height: 54px;
+  padding: 8px 12px;
   font-size: 1.1rem;
+  white-space: nowrap;
 }
 .trang-thai {
   min-height: 1.4em;
@@ -628,6 +617,9 @@ details summary {
   }
   body.dang-xem {
     overflow: hidden;
+  }
+  body.dang-go .thanh-gui {
+    display: none;
   }
   body.dang-xem .cot-xem {
     position: fixed;
@@ -771,7 +763,7 @@ body.dang-xong {
     margin: 10px 0 30px;
   }
   .hinh-nut-khong {
-    right: -50px;
+    right: -18px;
   }
 }
 .khoi {
@@ -971,4 +963,30 @@ blockquote cite {
 }
 .chu-dai li {
   margin: 6px 0;
+}
+
+/* điện thoại: mẫu xếp 2 cột, chỉ biểu tượng và tên (để cuối file cho đè được quy tắc gốc ở trên) */
+@media (max-width: 480px) {
+  .ds-mau {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .the-mau {
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
+    padding: 10px 6px;
+    text-align: center;
+  }
+  .the-mau-chu small {
+    display: none;
+  }
+  .o-link input {
+    font-size: 1rem; /* dưới 16px thì Safari iPhone phóng to trang khi chạm vào ô */
+  }
+}
+@media (max-width: 340px) {
+  .thanh-gui .nut {
+    font-size: 1rem;
+  }
 }

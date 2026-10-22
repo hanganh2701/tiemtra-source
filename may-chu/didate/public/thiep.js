@@ -1,7 +1,7 @@
 /* didate: trang thiệp /<id>. Worker đặt dữ liệu thiệp vào <script id="du-lieu">; /thiep?thu=<mẫu> là thiệp mẫu ở trang chủ. */
-import { veThiep, h } from "./the.js";
-import { MAU, thiepMau } from "./chung.js";
-import { goiApi, timCuaToi, linkQuanLy } from "./trang.js";
+import { veThiep, h } from "./the.js?v=3";
+import { MAU, thiepMau } from "./chung.js?v=3";
+import { goiApi, timCuaToi, linkQuanLy } from "./trang.js?v=3";
 
 const goc = document.getElementById("thiep");
 let du = null;

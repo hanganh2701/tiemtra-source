@@ -1,9 +1,9 @@
 /* didate: trang soạn thiệp /tao/. ?mau=<mẫu> chọn sẵn mẫu; #sua=<id>.<khoá> sửa thiệp đã tạo.
    Chữ của mẫu đổi theo tên, xưng hô và các bước đang bật. Ô nào người dùng đã sửa (daSua) thì giữ nguyên,
    chỉ thay tên cũ bằng tên mới khi rời ô tên. Bản đang soạn được nhớ trong trình duyệt (không kèm ảnh). */
-import { MAU, MAU_SAC, MO_DAU, XUNG_HO, TRUONG_CHU, thiepMau, chuMau, bienXung, lamSach, choDung, laGio } from "./chung.js";
-import { veThiep, h } from "./the.js";
-import { goiApi, themCuaToi, docManh, linkThiep, linkQuanLy, nutChep, chiaSe } from "./trang.js";
+import { MAU, MAU_SAC, MO_DAU, XUNG_HO, TRUONG_CHU, thiepMau, chuMau, bienXung, lamSach, choDung, laGio } from "./chung.js?v=3";
+import { veThiep, h } from "./the.js?v=3";
+import { goiApi, themCuaToi, docManh, linkThiep, linkQuanLy, nutChep, chiaSe } from "./trang.js?v=3";
 
 const $ = (s, g = document) => g.querySelector(s);
 const $$ = (s, g = document) => [...g.querySelectorAll(s)];
@@ -518,6 +518,11 @@ function ganSuKien() {
     document.body.classList.remove("dang-xem");
     $("#xem-dt").focus();
   });
+  /* điện thoại: bàn phím bật lên thì thanh Xem thử/Tạo link nổi giữa màn hình, che ô đang gõ. Ẩn đi lúc gõ */
+  form.addEventListener("focusin", (e) => {
+    if (e.target.matches('input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), textarea, select')) document.body.classList.add("dang-go");
+  });
+  form.addEventListener("focusout", () => document.body.classList.remove("dang-go"));
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && document.body.classList.contains("dang-xem")) $("#dong-xem").click();
   });

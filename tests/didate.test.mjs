@@ -406,6 +406,12 @@ test("didate: tấm thiệp: mở thư, nút Không né 9 lần rồi trốn, ch
   assert.equal(goiY.textContent, t.cauNe[2]);
   await cho(350);
   assert.equal(khong.hidden, true);
+  /* chỗ cũ của nút vẫn được giữ: trang không co lại */
+  assert.ok(goc.querySelector(".t-hai-nut .t-cho-nut"));
+  /* cú click rơi vào nút Có ngay sau khi nút Không né (Safari iPhone bắn click giả sau khi nhấc tay): bỏ qua */
+  goc.querySelector(".t-nut-co").click();
+  assert.ok(man().classList.contains("t-man-hoi"));
+  await cho(400);
 
   goc.querySelector(".t-nut-co").click();
   assert.ok(man().classList.contains("t-man-chon"));
@@ -430,6 +436,24 @@ test("didate: tấm thiệp: mở thư, nút Không né 9 lần rồi trốn, ch
   await cho(0);
   assert.equal(gui[1].loiNhan, "Hẹn nha");
   assert.equal(gui[1].chon, "Lẩu");
+});
+
+test("didate: tấm thiệp: ngón tay chạm nút Không thì chặn ngay từ touchstart (iPhone không bắn click giả)", async () => {
+  const w = datDom('<!doctype html><main id="g"></main>', "https://didate.meomeo.app/abc23456");
+  const { veThiep } = await import("../may-chu/didate/public/the.js");
+  const goc = w.document.getElementById("g");
+  veThiep(goc, lamSach(thiepThu({ moDau: "khong" })), { xemThu: true });
+  const khong = goc.querySelector(".t-nut-khong");
+  const cham = new w.Event("touchstart", { bubbles: true, cancelable: true });
+  khong.dispatchEvent(cham);
+  assert.equal(cham.defaultPrevented, true);
+  /* pointerdown của ngón tay đi kèm touchstart: không tính thêm lần né */
+  const pd = new w.Event("pointerdown", { bubbles: true, cancelable: true });
+  pd.pointerType = "touch";
+  khong.dispatchEvent(pd);
+  khong.dispatchEvent(new w.Event("touchstart", { bubbles: true, cancelable: true }));
+  khong.dispatchEvent(new w.Event("touchstart", { bubbles: true, cancelable: true }));
+  assert.equal(goc.querySelector(".t-man-hoi .t-goi-y").textContent, lamSach(thiepThu()).cauNe[0]);
 });
 
 test("didate: tấm thiệp: nút Không không né thì bấm được, xem thử không gửi gì", async () => {
@@ -522,4 +546,25 @@ test("didate: trang tĩnh không có script, style viết thẳng trong HTML (CS
     assert.ok(existsSync(path.join(PUB, u, "index.html")), `sitemap: ${u}`);
   }
   assert.match(readFileSync(path.join(PUB, "thiep.html"), "utf8"), /<!--META-->[\s\S]*<!--DU_LIEU-->/);
+});
+
+test("didate: CSS, JS của trang có cùng một số phiên bản ?v= ở mọi chỗ (khỏi nạp hai bản của một module)", () => {
+  const tep = [];
+  const duyet = (d) => {
+    for (const f of readdirSync(d, { withFileTypes: true })) {
+      const p = path.join(d, f.name);
+      if (f.isDirectory()) duyet(p);
+      else if (/\.(html|js)$/.test(f.name)) tep.push(p);
+    }
+  };
+  duyet(PUB);
+  const so = new Set();
+  for (const p of tep) {
+    const s = readFileSync(p, "utf8");
+    for (const [, v] of s.matchAll(/(?:href|src)="\/[\w-]+\.(?:css|js)\?v=(\w+)"/g)) so.add(v);
+    for (const [, v] of s.matchAll(/from "\.\/[\w-]+\.js\?v=(\w+)"/g)) so.add(v);
+    assert.ok(!/(?:href|src)="\/[\w-]+\.(?:css|js)"/.test(s), `${p}: CSS/JS thiếu ?v=`);
+    assert.ok(!/from "\.\/[\w-]+\.js"/.test(s), `${p}: import thiếu ?v=`);
+  }
+  assert.equal(so.size, 1, `nhiều số phiên bản: ${[...so]}`);
 });

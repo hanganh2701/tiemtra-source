@@ -145,8 +145,8 @@ h1.t-nhan-dan {
   line-height: 1.22;
   overflow-wrap: anywhere;
 }
-.t-tieu-de:focus {
-  outline: none;
+.t-man [tabindex="-1"]:focus {
+  outline: none; /* tiêu đề nhận tiêu điểm khi đổi màn (cho máy đọc màn hình), không cần viền */
 }
 .t-loi {
   margin: 0 0 14px;
@@ -250,6 +250,9 @@ h1.t-nhan-dan {
     top 0.28s cubic-bezier(0.3, 1.4, 0.5, 1),
     opacity 0.3s,
     transform 0.3s;
+}
+.t-cho-nut {
+  flex: none;
 }
 .t-nut-khong.t-tron {
   opacity: 0;
@@ -782,6 +785,16 @@ textarea.t-o {
   .t-trang *,
   .t-trang *::before {
     transition-duration: 0.01s !important;
+  }
+}
+@media (max-width: 480px) {
+  /* điện thoại: ảnh nhỏ lại để câu hỏi và hai nút hiện ngay, khỏi phải cuộn */
+  .t-polaroid {
+    width: min(62%, 230px);
+    margin-bottom: 14px;
+  }
+  .t-tieu-de {
+    font-size: 1.45rem;
   }
 }
 @media (max-width: 360px) {
