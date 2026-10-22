@@ -617,6 +617,10 @@ details summary {
 }
 @media (max-width: 959px) {
   .soan {
+    padding-bottom: 20px;
+  }
+  .trang-tao .chan {
+    margin-top: 0;
     padding-bottom: 110px;
   }
   .cot-xem {
