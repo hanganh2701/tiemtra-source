@@ -69,6 +69,11 @@ Trên máy bằng `wrangler dev` (ảnh vào D1 trên máy), trong trình duyệ
 - Cron bị Cloudflare từ chối (lỗi 10063: tài khoản chưa có tên miền workers.dev), nên bỏ cron: thiệp quá hạn được dọn mỗi khi có thiệp mới. Muốn bật lại cron thì mở trang Workers trên bảng điều khiển Cloudflare một lần (tự tạo tên miền workers.dev) rồi thêm `[triggers]` vào `wrangler.toml`.
 - Thử trên trang thật: trang chủ, trang soạn, 404; đường dẫn `/<id>` tới được worker (không cần `run_worker_first`); tạo thiệp có ảnh trong trình duyệt, ảnh vào kênh với chú thích `didate <id>`; ảnh tải từ Telegram lần đầu 2,7 giây, lần sau lấy từ bộ đệm 0,13 giây; tạo thiệp có ảnh khoảng 2 giây (lần đầu sau khi deploy 10 giây); mở thiệp, trả lời, trang quản lý thấy đủ; trang khác gọi API bị chặn (403); thẻ xem trước có `og:title` theo tên người nhận. Xoá thiệp (bằng API và bằng trang quản lý) thì bot xoá luôn ảnh trong kênh. Đã xoá hết thiệp thử, D1 thật đang trống.
 
+## Máy tìm kiếm (22/10/2026)
+- Title trang chủ: "Tạo thiệp mời dễ thương Online - Đi date, đi ăn, sinh nhật, tỏ tình". Chân trang các trang ghi "Created by 1conmeo".
+- Google Search Console: gửi `https://didate.meomeo.app/sitemap.xml` trong thuộc tính Miền `meomeo.app` (đã xác minh từ lúc làm snaptik), Google đọc thành công, thấy 4 trang; đã yêu cầu lập chỉ mục `https://didate.meomeo.app/`. Trang thiệp `/<id>` và `/quan-ly/` không vào chỉ mục (noindex, robots.txt).
+- Bing chưa gửi (dùng IndexNow như snaptik, hoặc nhập lại từ Search Console).
+
 ## Còn chưa thử
 - Điện thoại thật (iPhone, Android): né bằng ngón tay, chọn ảnh HEIC trên iPhone, file .ics.
 - Dán link thiệp vào Messenger, Zalo xem thẻ xem trước.

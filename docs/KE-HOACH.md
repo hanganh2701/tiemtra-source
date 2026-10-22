@@ -520,6 +520,8 @@ Ngày 22/10/2026 chủ dự án yêu cầu một trang tạo thiệp kiểu "r�
 - [x] Test `tests/didate.test.mjs` (D1 giả bằng `node:sqlite`, Telegram giả, jsdom); chạy thử bằng `wrangler dev` trong trình duyệt của app, cả bề ngang 375px
 - [x] Telegram 22/10/2026 (Claude làm trên Telegram Web, chủ dự án đăng nhập và tự đặt secret token): bot @didate_anh_bot, kênh riêng tư "didate ảnh", bot chỉ có quyền đăng và xoá tin
 - [x] Đưa lên 22/10/2026: D1 `didate`, `wrangler deploy`, Worker `didate` chạy ở https://didate.meomeo.app. Cron bị từ chối vì tài khoản chưa có tên miền workers.dev, nên thiệp quá hạn được dọn mỗi khi có thiệp mới. Thử thật: tạo thiệp có ảnh, ảnh vào kênh, mở, trả lời, trang quản lý, xoá thiệp thì bot xoá ảnh; đã xoá hết thiệp thử
+- [x] 22/10/2026 (chủ dự án yêu cầu): title trang chủ "Tạo thiệp mời dễ thương Online - Đi date, đi ăn, sinh nhật, tỏ tình", chân trang ghi "Created by 1conmeo"; đã deploy. Gửi sitemap trong Google Search Console (thuộc tính Miền `meomeo.app`, đọc thành công 4 trang), đã yêu cầu lập chỉ mục trang chủ
+- [ ] Vài ngày sau: xem Search Console đã lập chỉ mục trang chủ didate chưa
 - [ ] Thử trên điện thoại thật (né bằng ngón tay, ảnh HEIC, file .ics) và thẻ xem trước trong Messenger/Zalo
 
 ## Cổng quyết định
