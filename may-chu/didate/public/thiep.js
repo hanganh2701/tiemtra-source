@@ -1,7 +1,7 @@
 /* didate: trang thiệp /<id>. Worker đặt dữ liệu thiệp vào <script id="du-lieu">; /thiep?thu=<mẫu> là thiệp mẫu ở trang chủ. */
-import { veThiep, h } from "./the.js?v=5";
-import { MAU, thiepMau } from "./chung.js?v=5";
-import { goiApi, timCuaToi, linkQuanLy } from "./trang.js?v=5";
+import { veThiep, h } from "./the.js?v=6";
+import { MAU, thiepMau } from "./chung.js?v=6";
+import { goiApi, timCuaToi, linkQuanLy } from "./trang.js?v=6";
 
 const goc = document.getElementById("thiep");
 let du = null;
@@ -40,7 +40,6 @@ if (du?.thiep) {
       id: du.id,
       anh: du.anh,
       guiTraLoi: (traLoi) => goiApi(`/api/thiep/${du.id}/tra-loi`, { json: traLoi }),
-      baoCao: (lyDo) => goiApi(`/api/thiep/${du.id}/bao-cao`, { json: { lyDo } }),
     });
     demLuotMo(du.id);
   }

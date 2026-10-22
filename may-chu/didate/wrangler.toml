@@ -24,7 +24,7 @@ run_worker_first = ["/api/*", "/anh/*"]
 # Không dùng cron: tài khoản chưa có tên miền workers.dev nên Cloudflare không nhận lịch (lỗi 10063, 22/10/2026).
 # Thiệp quá hạn được dọn mỗi khi có thiệp mới (worker.js, donKhiTao); trang vẫn chặn thiệp quá hạn ngay khi hết 90 ngày
 
-# mỗi máy tạo tối đa 6 thiệp mỗi phút; mở, trả lời, báo cáo tối đa 40 lần mỗi phút
+# mỗi máy tạo tối đa 6 thiệp mỗi phút; mở, trả lời tối đa 40 lần mỗi phút
 [[ratelimits]]
 name = "GIOI_HAN_TAO"
 namespace_id = "2702"

@@ -345,7 +345,7 @@ test("didate: kho Telegram gửi ảnh vào kênh, đọc lại qua getFile, kh�
   await assert.rejects(luuAnh({ KHO_ANH: "telegram" }, "abc23456", { bytes: JPEG, kieu: "image/jpeg" }), /TG_TOKEN/);
 });
 
-test("didate: tạo thiệp có ảnh qua Telegram; Telegram lỗi thì không để lại thiệp mất ảnh", async () => {
+test("didate: tạo thiệp có ảnh qua Telegram; Telegram lỗi thì không để lại thiệp mất ảnh; không còn API báo cáo", async () => {
   const env = moiTruong({ KHO_ANH: "telegram", TG_TOKEN: "1:x", TG_CHAT: "-1" });
   await voiTelegramGia(
     async () => tg(null, false, 500, { description: "Internal" }),
@@ -364,21 +364,9 @@ test("didate: tạo thiệp có ảnh qua Telegram; Telegram lỗi thì không �
       assert.equal((await goi(env, `/${c.id}`)).status, 404);
     },
   );
-  /* báo thiệp xấu thì nhắn cho chủ dự án */
+  /* thiệp bỏ nút báo thiệp xấu: API báo cáo không còn */
   const { id } = await taoThiep(env);
-  await voiTelegramGia(
-    async (url, init) => {
-      assert.ok(url.endsWith("/sendMessage"));
-      assert.match(JSON.parse(init.body).text, new RegExp(`didate.meomeo.app/${id}[\\s\\S]*quấy rối`));
-      return tg({ message_id: 2 });
-    },
-    async (goiDi) => {
-      const r = await goi(env, `/api/thiep/${id}/bao-cao`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ lyDo: "quấy rối" }) });
-      assert.equal(r.status, 200);
-      assert.equal(goiDi.length, 1);
-    },
-  );
-  assert.equal(env.DB.db.prepare("SELECT bao_cao FROM thiep WHERE id = ?").get(id).bao_cao, 1);
+  assert.equal((await goi(env, `/api/thiep/${id}/bao-cao`, { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" })).status, 404);
 });
 
 /* ---------- tấm thiệp và trang soạn trong jsdom ---------- */
@@ -441,6 +429,9 @@ test("didate: tấm thiệp: mở thư, nút Không né 9 lần rồi trốn, ch
     ["Thứ Bảy, 24/10", "19:00", "Lẩu"],
   );
   assert.match(man().querySelector(".t-trang-thai").textContent, /Đã báo cho Nam/);
+  /* người nhận chỉ xem nội dung: không có chân thiệp, link tạo thiệp, nút báo thiệp xấu */
+  assert.equal(goc.querySelector("footer"), null);
+  assert.ok(!/Báo thiệp xấu|Tạo thiệp như này|sẽ biết/.test(goc.textContent));
 
   man().querySelector("textarea").value = "Hẹn nha";
   man().querySelector(".t-loi-nhan .t-nut").click();

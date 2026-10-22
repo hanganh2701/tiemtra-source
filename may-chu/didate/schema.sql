@@ -16,8 +16,8 @@ CREATE TABLE IF NOT EXISTS thiep (
   so_lan_mo INTEGER NOT NULL DEFAULT 0,
   tra_loi TEXT,                        -- JSON câu trả lời mới nhất (public/chung.js, lamSachTraLoi)
   tra_loi_luc INTEGER,
-  bao_cao INTEGER NOT NULL DEFAULT 0,  -- số lần bị báo thiệp xấu
-  bao_cao_ly_do TEXT,                  -- lý do lần báo gần nhất
+  bao_cao INTEGER NOT NULL DEFAULT 0,  -- không dùng nữa: thiệp bỏ nút báo thiệp xấu (22/10/2026)
+  bao_cao_ly_do TEXT,                  -- không dùng nữa
   an INTEGER NOT NULL DEFAULT 0        -- 1 = chủ dự án đã gỡ, trang báo không có thiệp
 );
 CREATE INDEX IF NOT EXISTS thiep_het_han ON thiep (het_han);

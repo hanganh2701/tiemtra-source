@@ -8,7 +8,7 @@ Trang riêng, không thuộc game Tiệm Trà Nhỏ, chạy ở https://didate.m
 - Người nhận: mở phong thư/hộp quà, nút từ chối né chuột và ngón tay (9 lần thì trốn, nút đồng ý to dần), chọn ngày trên lịch (giờ Việt Nam, không chọn ngày đã qua), giờ, lựa chọn; màn kết điền câu trả lời, thêm vào lịch (.ics), nhắn lại cho người gửi
 - Người gửi: link quản lý riêng để xem đã mở chưa (mấy lần), trả lời gì, cố bấm từ chối mấy lần, lời nhắn; sửa, xoá thiệp. Trình duyệt nhớ các thiệp đã tạo ở mục Thiệp của tôi
 - Người tạo mở thiệp của mình thì là bản xem thử, không tính câu trả lời, không đếm lượt mở
-- Báo thiệp xấu ở cuối thiệp: bot nhắn cho chủ dự án kèm lệnh gỡ
+- Người nhận chỉ thấy nội dung thiệp: không có chân thiệp, link tạo thiệp hay nút báo thiệp xấu (chủ dự án bỏ ngày 22/10/2026; cột `bao_cao` trong D1 còn lại nhưng không dùng)
 - Thiệp tự xoá sau 90 ngày. Không quảng cáo, không tài khoản, không theo dõi
 
 ## Cách chạy
@@ -58,7 +58,6 @@ Sau khi lên: tạo một thiệp có ảnh, mở bằng trình duyệt khác (h
 
 ## Việc thường gặp
 - Gỡ thiệp xấu: `npx wrangler d1 execute didate --remote --command "UPDATE thiep SET an = 1 WHERE id = '<id>'"` (hiện lại: `an = 0`). Xoá hẳn: `DELETE FROM thiep WHERE id = '<id>'`, rồi xoá tay ảnh trong kênh.
-- Thiệp bị báo: `npx wrangler d1 execute didate --remote --command "SELECT id, bao_cao, bao_cao_ly_do FROM thiep WHERE bao_cao > 0"`
 - Số thiệp: `… --command "SELECT mau, COUNT(*) FROM thiep GROUP BY mau"`
 
 ## Đã thử (22/10/2026)
@@ -92,4 +91,4 @@ Chủ dự án báo: trên Safari điện thoại, chạm nút từ chối vẫn
 ## Nên biết trước
 - Gói Workers miễn phí: 100.000 lượt gọi worker mỗi ngày (file tĩnh không tính). Mỗi lần mở thiệp tốn 2–3 lượt (trang, lượt mở, ảnh nếu chưa có trong bộ đệm), trả lời thêm 1–2 lượt. Vượt thì trang báo lỗi tới 7 giờ sáng hôm sau.
 - D1 miễn phí: 5 GB, 100.000 dòng ghi mỗi ngày; mỗi thiệp chỉ vài KB chữ.
-- Người dùng tải ảnh người thật lên: điều khoản cấm quấy rối, giả mạo, ảnh người khác chưa đồng ý; có nút báo thiệp xấu.
+- Người dùng tải ảnh người thật lên: điều khoản cấm quấy rối, giả mạo, ảnh người khác chưa đồng ý. Thiệp không còn nút báo thiệp xấu và trang chưa ghi cách liên hệ, nên người nhận thiệp xấu hay người bị dùng ảnh chưa có đường báo cho chủ dự án.

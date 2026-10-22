@@ -618,8 +618,7 @@ textarea.t-o {
   margin-top: 18px;
   text-align: left;
 }
-.t-loi-nhan label > span,
-.t-bao label > span {
+.t-loi-nhan label > span {
   font-weight: 800;
 }
 .t-loi-nhan .t-nut {
@@ -635,29 +634,7 @@ textarea.t-o {
   margin-top: 14px;
 }
 
-/* ----- chân thiệp, khung trên cùng ----- */
-.t-chan {
-  margin-top: 22px;
-  padding-top: 12px;
-  border-top: 1px dashed var(--vien);
-  color: var(--chu-nhat);
-  font-size: 0.86rem;
-  text-align: center;
-}
-.t-chan p {
-  margin: 4px 0;
-}
-.t-chan a {
-  color: var(--chinh-dam);
-}
-.t-bao {
-  margin-top: 10px;
-  text-align: left;
-}
-.t-bao .t-hai-nut {
-  justify-content: flex-start;
-  margin-top: 8px;
-}
+/* ----- khung trên cùng (thiệp của bạn, thiệp mẫu) ----- */
 .t-banner {
   position: relative;
   z-index: 2;

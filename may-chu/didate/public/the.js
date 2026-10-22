@@ -7,13 +7,11 @@
      xemThu       không gửi gì lên máy chủ (người tạo bấm thử, khung soạn thiệp, thiệp mẫu)
      manDau       màn bắt đầu: "mo" | "hoi" | "chon" | "ket" | "tu-choi" (mặc định: "mo" nếu có phong thư/hộp quà)
      guiTraLoi    async (traLoi) => …, ném lỗi khi không gửi được
-     baoCao       async (lyDo) => …
      banner       nút DOM đặt trên cùng (vd "đây là thiệp của bạn")
-     chan         false thì không vẽ chân thiệp (khung soạn)
      giuTapTrung  true thì không chuyển tiêu điểm khi đổi màn (khung soạn, đang gõ bên trái)
      homNay       "YYYY-MM-DD" (test)
    Trả về { den(man), the }. */
-import { bienXung, tachCho, ngayDep, homNayVN, thuCua, laGio, SO_CAU_NE, MOI_CAU_NE } from "./chung.js?v=5";
+import { bienXung, tachCho, ngayDep, homNayVN, thuCua, laGio, SO_CAU_NE, MOI_CAU_NE } from "./chung.js?v=6";
 
 export function h(ten, tt = {}, ...con) {
   const el = document.createElement(ten);
@@ -485,55 +483,8 @@ export function veThiep(goc, t, tuy = {}) {
     setTimeout(() => p.remove(), 2600);
   }
 
-  /* ----- chân thiệp: nói rõ người gửi thấy gì, báo thiệp xấu ----- */
-  let chan = null;
-  if (tuy.chan !== false) {
-    const hopBao = h("div", { class: "t-bao", hidden: true });
-    const lyDo = h("textarea", { class: "t-o", rows: "2", maxlength: "300", placeholder: "Thiệp này có gì không ổn? (quấy rối, lừa đảo, ảnh của bạn bị dùng trái phép…)" });
-    const ttBao = h("p", { class: "t-trang-thai", "aria-live": "polite" });
-    hopBao.append(
-      h("label", {}, h("span", {}, "Báo thiệp xấu cho người quản lý didate"), lyDo),
-      h(
-        "div",
-        { class: "t-hai-nut" },
-        h(
-          "button",
-          {
-            type: "button",
-            class: "t-nut t-nut-phu",
-            onclick: async (e) => {
-              e.target.disabled = true;
-              try {
-                if (tuy.baoCao) await tuy.baoCao(lyDo.value.trim());
-                ttBao.textContent = "Đã gửi. Cảm ơn bạn, người quản lý sẽ xem và gỡ thiệp nếu vi phạm.";
-              } catch (err) {
-                ttBao.textContent = `Chưa gửi được: ${err?.message || "mất mạng"}`;
-                e.target.disabled = false;
-              }
-            },
-          },
-          "Gửi báo cáo",
-        ),
-        h("button", { type: "button", class: "t-lien-ket", onclick: () => (hopBao.hidden = true) }, "Thôi"),
-      ),
-      ttBao,
-    );
-    chan = h(
-      "footer",
-      { class: "t-chan" },
-      h("p", {}, tuy.xemThu ? "Bản xem thử, bấm thoải mái." : `${t.gui} sẽ biết thiệp đã được mở và bạn chọn gì.`),
-      h(
-        "p",
-        {},
-        h("a", { href: "/" }, "Tạo thiệp như này 💌"),
-        tuy.baoCao ? [" · ", h("button", { type: "button", class: "t-lien-ket", onclick: () => ((hopBao.hidden = false), lyDo.focus()) }, "Báo thiệp xấu")] : null,
-      ),
-      hopBao,
-    );
-  }
-
   const cacMan = { mo: manMo, hoi: manHoi, chon: manChon, ket: manKet, "tu-choi": manTuChoi };
-  the.append(...Object.values(cacMan), ...(chan ? [chan] : []));
+  the.append(...Object.values(cacMan));
 
   function den(man) {
     if (man === "ket" && !st.traLoi) {

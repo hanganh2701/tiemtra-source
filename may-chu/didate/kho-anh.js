@@ -88,14 +88,3 @@ export async function xoaAnhHetHan(env, ds) {
     await env.DB.prepare(`DELETE FROM anh_d1 WHERE ma IN (${nhom.map(() => "?").join(",")})`).bind(...nhom).run();
   }
 }
-
-/* nhắn cho chủ dự án qua bot (báo thiệp xấu). Chưa cài bot thì thôi */
-export async function nhanChuDuAn(env, noiDung) {
-  if (!coTelegram(env)) return false;
-  try {
-    await goiTG(env, "sendMessage", { chat_id: env.TG_BAO || env.TG_CHAT, text: noiDung, link_preview_options: { is_disabled: true } });
-    return true;
-  } catch {
-    return false;
-  }
-}

@@ -7,11 +7,10 @@
      POST /api/thiep/<id>/xoa          xoá (X-Khoa)
      POST /api/thiep/<id>/mo           người nhận mở thiệp (đếm lượt mở)
      POST /api/thiep/<id>/tra-loi      người nhận trả lời (JSON, kiểm bằng lamSachTraLoi)
-     POST /api/thiep/<id>/bao-cao      báo thiệp xấu (nhắn cho chủ dự án qua bot Telegram)
    Thiệp quá hạn 90 ngày bị xoá mỗi khi có thiệp mới (donKhiTao); hàm scheduled để dành nếu sau này bật cron.
    Không lưu IP; giới hạn tốc độ theo IP do Cloudflare đếm. */
-import { lamSach, lamSachTraLoi, LoiDuLieu, HAN_NGAY, ANH_TOI_DA, chu } from "./public/chung.js";
-import { luuAnh, docAnh, xoaAnh, xoaAnhHetHan, nhanChuDuAn } from "./kho-anh.js";
+import { lamSach, lamSachTraLoi, LoiDuLieu, HAN_NGAY, ANH_TOI_DA } from "./public/chung.js";
+import { luuAnh, docAnh, xoaAnh, xoaAnhHetHan } from "./kho-anh.js";
 
 const NGAY = 86400000;
 const MA = /^[a-z2-9]{8}$/;
@@ -296,21 +295,6 @@ async function traLoi(req, env, id) {
   return json({ ok: true });
 }
 
-async function baoCao(req, env, ctx, url, id) {
-  if (await quaNhanh(env, "GIOI_HAN_GHI", req)) return loi("Chậm lại một xíu nha", 429);
-  const d = await docJson(req);
-  const lyDo = chu(d?.lyDo, 300, true) || "(không ghi lý do)";
-  const r = await env.DB.prepare("UPDATE thiep SET bao_cao = bao_cao + 1, bao_cao_ly_do = ? WHERE id = ?").bind(lyDo, id).run();
-  if (!r.meta?.changes) return loi("Thiệp này không còn nữa", 404);
-  ctx.waitUntil(
-    nhanChuDuAn(
-      env,
-      `⚠️ Có người báo thiệp ${url.origin}/${id}\nLý do: ${lyDo}\n\nGỡ thiệp: npx wrangler d1 execute didate --remote --command "UPDATE thiep SET an = 1 WHERE id = '${id}'"`,
-    ),
-  );
-  return json({ ok: true });
-}
-
 async function api(req, env, ctx, url) {
   /* chỉ trang của didate gọi được (trình duyệt luôn gửi Origin với POST) */
   const nguon = req.headers.get("Origin");
@@ -325,7 +309,6 @@ async function api(req, env, ctx, url) {
   if (viec === "xoa") return xoaThiep(req, env, ctx, id);
   if (viec === "mo") return moThiep(req, env, id);
   if (viec === "tra-loi") return traLoi(req, env, id);
-  if (viec === "bao-cao") return baoCao(req, env, ctx, url, id);
   return loi("Không có", 404);
 }
 
