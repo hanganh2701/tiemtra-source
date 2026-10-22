@@ -65,7 +65,7 @@ export const MAU = {
       nhanDan: `Dành riêng cho ${v.nhan} 💌`,
       tieuDe: `${v.Toi} có chuyện muốn nói với ${v.ban}...`,
       loiDau: `Không phải chuyện gì to tát đâu, chỉ là ${v.toi} muốn rủ ${v.ban} đi ăn theo cách dễ thương một xíu thôi 💕`,
-      cauHoi: `Hôm nào mình đi ăn với nhau nha? 🍽️🥺`,
+      cauHoi: `Hôm tới mình đi ăn với nhau nha? 🍽️🥺`,
       nutCo: v.da ? "Dạ cóoo 💖" : "Cóoo 💖",
       nutKhong: `Để ${v.nt} nghĩ đã 🙈`,
       cauNe: ["Ơ kìa 😝", "Bấm “có” đi mà 🥺", "Nút này trốn mất tiêu rồi 😌"],

@@ -1,9 +1,9 @@
 /* didate: trang quản lý /quan-ly/#<id>.<khoá>: người tạo xem người nhận đã mở thiệp chưa, chọn gì, nhắn gì; sửa, xoá.
    Không có khoá trên đường dẫn thì liệt kê thiệp đã tạo trên trình duyệt này. Khoá nằm sau dấu #, không đi tới máy chủ
    theo đường dẫn mà chỉ đi trong header X-Khoa. */
-import { MAU, ngayDep, lucVN, homNayVN } from "./chung.js?v=4";
-import { h } from "./the.js?v=4";
-import { goiApi, docCuaToi, themCuaToi, boCuaToi, docManh, linkThiep, linkQuanLy, nutChep, chiaSe } from "./trang.js?v=4";
+import { MAU, ngayDep, lucVN, homNayVN } from "./chung.js?v=5";
+import { h } from "./the.js?v=5";
+import { goiApi, docCuaToi, themCuaToi, boCuaToi, docManh, linkThiep, linkQuanLy, nutChep, chiaSe } from "./trang.js?v=5";
 
 const goc = document.getElementById("noi-dung");
 const daLuu = new URLSearchParams(location.search).get("luu") === "1";

@@ -1,9 +1,9 @@
 /* didate: trang soạn thiệp /tao/. ?mau=<mẫu> chọn sẵn mẫu; #sua=<id>.<khoá> sửa thiệp đã tạo.
    Chữ của mẫu đổi theo tên, xưng hô và các bước đang bật. Ô nào người dùng đã sửa (daSua) thì giữ nguyên,
    chỉ thay tên cũ bằng tên mới khi rời ô tên. Bản đang soạn được nhớ trong trình duyệt (không kèm ảnh). */
-import { MAU, MAU_SAC, MO_DAU, XUNG_HO, TRUONG_CHU, thiepMau, chuMau, bienXung, lamSach, choDung, laGio } from "./chung.js?v=4";
-import { veThiep, h } from "./the.js?v=4";
-import { goiApi, themCuaToi, docManh, linkThiep, linkQuanLy, nutChep, chiaSe } from "./trang.js?v=4";
+import { MAU, MAU_SAC, MO_DAU, XUNG_HO, TRUONG_CHU, thiepMau, chuMau, bienXung, lamSach, choDung, laGio } from "./chung.js?v=5";
+import { veThiep, h } from "./the.js?v=5";
+import { goiApi, themCuaToi, docManh, linkThiep, linkQuanLy, nutChep, chiaSe } from "./trang.js?v=5";
 
 const $ = (s, g = document) => g.querySelector(s);
 const $$ = (s, g = document) => [...g.querySelectorAll(s)];
