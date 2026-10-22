@@ -4,7 +4,8 @@
    Ảnh mới vào kho ghi ở biến KHO_ANH (wrangler.toml); ảnh cũ vẫn đọc từ kho cũ, nên đổi kho không hỏng thiệp đang có.
    - telegram: bot (secret TG_TOKEN) gửi ảnh dạng file vào kênh riêng tư (secret TG_CHAT). Token chỉ nằm trong worker,
      link tải file của Telegram có token nên trang không bao giờ lấy ảnh thẳng từ Telegram.
-     Bot API chỉ cho xoá tin gửi trong vòng 48 giờ: xoá thiệp sau đó thì ảnh vẫn nằm trong kênh (chủ dự án xoá tay được).
+     Ảnh trên Telegram không bao giờ bị xoá (chủ dự án chốt 22/10/2026): thiệp bị xoá, đổi ảnh hay hết hạn 90 ngày thì ảnh
+     vẫn nằm trong kênh. Cần xoá thì chủ dự án xoá tay trong kênh (tìm "didate <id>").
      Điều khoản bot của Telegram không cho dùng bot làm kho lưu trữ; chủ dự án biết và tự nhận rủi ro (22/10/2026).
    - d1: ảnh nằm thẳng trong bảng anh_d1. Dùng khi chạy thử trên máy (không cần bot), hoặc khi thôi dùng Telegram. */
 
@@ -69,18 +70,17 @@ export async function docAnh(env, a) {
   return null;
 }
 
-/* xoá một ảnh; ảnh Telegram quá 48 giờ thì bot không xoá được, bỏ qua */
+/* người tạo xoá thiệp hay đổi ảnh: chỉ xoá ảnh trong D1 (chỗ có hạn), ảnh Telegram giữ lại */
 export async function xoaAnh(env, a) {
+  if (a.kho !== "d1") return;
   try {
-    if (a.kho === "d1") await env.DB.prepare("DELETE FROM anh_d1 WHERE ma = ?").bind(a.ma).run();
-    else if (a.kho === "telegram" && coTelegram(env)) await goiTG(env, "deleteMessage", { chat_id: env.TG_CHAT, message_id: a.tin });
-    return true;
-  } catch {
-    return false;
+    await env.DB.prepare("DELETE FROM anh_d1 WHERE ma = ?").bind(a.ma).run();
+  } catch (e) {
+    console.error("xoá ảnh:", e?.message);
   }
 }
 
-/* xoá ảnh của các thiệp quá hạn (lúc dọn hằng ngày). Ảnh Telegram đã quá 48 giờ nên không gọi Telegram */
+/* xoá ảnh trong D1 của các thiệp quá hạn; ảnh Telegram giữ lại */
 export async function xoaAnhHetHan(env, ds) {
   const ma = ds.filter((a) => a?.kho === "d1").map((a) => a.ma);
   for (let i = 0; i < ma.length; i += 50) {
@@ -89,14 +89,11 @@ export async function xoaAnhHetHan(env, ds) {
   }
 }
 
-/* nhắn cho chủ dự án qua bot (báo thiệp xấu, ảnh cần xoá tay). traLoiTin: id tin có ảnh trong kênh,
-   tin nhắn sẽ trả lời thẳng vào tin đó (chỉ khi báo cáo đi chung kênh với ảnh). Chưa cài bot thì thôi */
-export async function nhanChuDuAn(env, noiDung, traLoiTin) {
+/* nhắn cho chủ dự án qua bot (báo thiệp xấu). Chưa cài bot thì thôi */
+export async function nhanChuDuAn(env, noiDung) {
   if (!coTelegram(env)) return false;
-  const tin = { chat_id: env.TG_BAO || env.TG_CHAT, text: noiDung, link_preview_options: { is_disabled: true } };
-  if (traLoiTin && !env.TG_BAO) tin.reply_parameters = { message_id: traLoiTin, allow_sending_without_reply: true };
   try {
-    await goiTG(env, "sendMessage", tin);
+    await goiTG(env, "sendMessage", { chat_id: env.TG_BAO || env.TG_CHAT, text: noiDung, link_preview_options: { is_disabled: true } });
     return true;
   } catch {
     return false;

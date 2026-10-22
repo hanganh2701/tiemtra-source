@@ -33,7 +33,7 @@ lay-chat-id.mjs      tìm mã kênh Telegram cho TG_CHAT
 ## Kho ảnh Telegram (chủ dự án chốt 22/10/2026, tự nhận rủi ro)
 Bot gửi ảnh dạng file vào một kênh riêng tư; D1 giữ mã file. Mỗi lần ảnh chưa có trong bộ đệm, worker gọi `getFile` rồi tải file (link tải có token nên chỉ worker gọi, trang không bao giờ thấy token).
 - **Trái điều khoản bot của Telegram** (mục 5.2(e): không dùng bot làm kho lưu trữ đám mây). Telegram có thể xoá ảnh hay khoá bot bất cứ lúc nào (mục 6.3, 10). Khi đó mọi thiệp mất ảnh cùng lúc, phần chữ vẫn chạy. Muốn thôi Telegram: đổi `KHO_ANH = "d1"` rồi `wrangler deploy`, ảnh mới vào D1 (500 MB mỗi cơ sở dữ liệu).
-- **Bot chỉ xoá được tin trong 48 giờ.** Người tạo xoá thiệp hay đổi ảnh sau đó thì bot nhắn vào kênh (trả lời thẳng tin có ảnh) để chủ dự án xoá tay. Thiệp hết hạn 90 ngày thì ảnh vẫn nằm trong kênh; thỉnh thoảng dọn kênh bằng Telegram trên máy tính (chọn nhiều tin, xoá). Trang Bảo mật đã ghi rõ điều này.
+- **Không xoá ảnh trên Telegram** (chủ dự án chốt 22/10/2026): thiệp bị xoá, đổi ảnh hay hết hạn 90 ngày thì thiệp mất nhưng ảnh vẫn nằm trong kênh. Thiệp vẫn tự xoá sau 90 ngày như cũ. Ảnh trong D1 (khi `KHO_ANH = "d1"`) thì vẫn xoá theo thiệp vì D1 có hạn dung lượng. Cần xoá ảnh nào thì chủ dự án xoá tay trong kênh (tìm "didate <id>"). Trang Bảo mật, trang chủ và chỗ chọn ảnh đều ghi rõ ảnh được giữ lại.
 - Chủ dự án thấy mọi ảnh trong kênh (trang Bảo mật đã ghi). Mỗi ảnh có chú thích `didate <id>`, tìm trong kênh theo id thiệp được.
 - Gửi vào cùng một kênh, Telegram cho khoảng 1 tin/giây; bị chặn (429) mà chỉ phải chờ ≤ 5 giây thì worker chờ rồi thử lại một lần, lâu hơn thì báo người dùng thử lại.
 

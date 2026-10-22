@@ -304,7 +304,7 @@ async function voiTelegramGia(xuLy, f) {
 }
 const tg = (result, ok = true, status = 200, them = {}) => new Response(JSON.stringify({ ok, result, ...them }), { status, headers: { "Content-Type": "application/json" } });
 
-test("didate: kho Telegram gửi ảnh vào kênh, đọc lại qua getFile, token không lọt ra lỗi", async () => {
+test("didate: kho Telegram gửi ảnh vào kênh, đọc lại qua getFile, không xoá ảnh, token không lọt ra lỗi", async () => {
   const env = { TG_TOKEN: "123:BI-MAT", TG_CHAT: "-1001", KHO_ANH: "telegram" };
   await voiTelegramGia(
     async (url, init) => {
@@ -320,7 +320,6 @@ test("didate: kho Telegram gửi ảnh vào kênh, đọc lại qua getFile, tok
         return tg({ file_path: "documents/file_1.jpg" });
       }
       if (url === "https://api.telegram.org/file/bot123:BI-MAT/documents/file_1.jpg") return new Response(JPEG);
-      if (url.endsWith("/deleteMessage")) return tg(false, false, 400, { description: "Bad Request: message can't be deleted" });
       throw new Error(`gọi lạ ${url}`);
     },
     async (goiDi) => {
@@ -328,7 +327,10 @@ test("didate: kho Telegram gửi ảnh vào kênh, đọc lại qua getFile, tok
       assert.deepEqual(a, { kho: "telegram", file: "FILE1", tin: 77, kieu: "image/jpeg" });
       const body = await docAnh(env, a);
       assert.deepEqual(new Uint8Array(await new Response(body).arrayBuffer()), JPEG);
-      assert.equal(await xoaAnh(env, a), false);
+      /* ảnh Telegram không bao giờ bị xoá: xoaAnh không gọi Telegram */
+      const truocKhiXoa = goiDi.length;
+      await xoaAnh(env, a);
+      assert.equal(goiDi.length, truocKhiXoa);
       assert.ok(goiDi.every((g) => g.url.startsWith("https://api.telegram.org/")));
     },
   );
@@ -351,6 +353,15 @@ test("didate: tạo thiệp có ảnh qua Telegram; Telegram lỗi thì không �
       const r = await goi(env, "/api/thiep", { method: "POST", body: formThiep(thiepThu(), JPEG) });
       assert.equal(r.status, 503);
       assert.equal(env.DB.db.prepare("SELECT COUNT(*) AS n FROM thiep").get().n, 0);
+    },
+  );
+  /* xoá thiệp có ảnh Telegram: thiệp mất, không gọi Telegram xoá ảnh */
+  await voiTelegramGia(
+    async (url) => (url.endsWith("/sendDocument") ? tg({ message_id: 9, document: { file_id: "F9" } }) : assert.fail(`không được gọi ${url}`)),
+    async () => {
+      const c = await taoThiep(env, thiepThu(), JPEG);
+      assert.equal((await goi(env, `/api/thiep/${c.id}/xoa`, { method: "POST", headers: { "X-Khoa": c.khoa } })).status, 200);
+      assert.equal((await goi(env, `/${c.id}`)).status, 404);
     },
   );
   /* báo thiệp xấu thì nhắn cho chủ dự án */

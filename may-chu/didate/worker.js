@@ -222,13 +222,6 @@ async function taoThiep(req, env, ctx) {
   return json({ id, khoa, hetHan }, 201);
 }
 
-/* người tạo xoá thiệp hay đổi ảnh: xoá ảnh cũ. Ảnh Telegram quá 48 giờ bot không xoá được, nên nhắn chủ dự án
-   (trả lời thẳng vào tin có ảnh) để xoá tay */
-async function boAnhCu(env, id, a) {
-  if (await xoaAnh(env, a)) return;
-  if (a.kho === "telegram") await nhanChuDuAn(env, `🗑️ Người tạo vừa xoá hoặc đổi ảnh của thiệp ${id}. Bot không xoá được ảnh này vì đã quá 48 giờ, xoá tay giúp nha.`, a.tin);
-}
-
 async function xemThiep(req, env, id) {
   const row = await voiKhoa(req, env, id);
   if (!row) return loi("Link quản lý không đúng, hoặc thiệp đã bị xoá", 404);
@@ -266,7 +259,7 @@ async function suaThiep(req, env, ctx, id) {
   await env.DB.prepare("UPDATE thiep SET mau = ?, du_lieu = ?, anh = ?, anh_ver = ?, sua_luc = ? WHERE id = ?")
     .bind(thiep.mau, JSON.stringify(thiep), anhMoi, ver, Date.now(), id)
     .run();
-  if (row.anh && anhMoi !== row.anh) ctx.waitUntil(boAnhCu(env, id, JSON.parse(row.anh)));
+  if (row.anh && anhMoi !== row.anh) ctx.waitUntil(xoaAnh(env, JSON.parse(row.anh)));
   return json({ ok: true, anh: anhMoi ? `/anh/${id}?v=${ver}` : null });
 }
 
@@ -274,7 +267,7 @@ async function xoaThiep(req, env, ctx, id) {
   const row = await voiKhoa(req, env, id);
   if (!row) return loi("Link quản lý không đúng, hoặc thiệp đã bị xoá", 404);
   await env.DB.prepare("DELETE FROM thiep WHERE id = ?").bind(id).run();
-  if (row.anh) ctx.waitUntil(boAnhCu(env, id, JSON.parse(row.anh)));
+  if (row.anh) ctx.waitUntil(xoaAnh(env, JSON.parse(row.anh)));
   return json({ ok: true });
 }
 
