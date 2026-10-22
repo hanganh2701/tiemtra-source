@@ -532,6 +532,10 @@ details summary {
   min-height: 1.4em;
   font-weight: 800;
 }
+.trang-thai:empty {
+  min-height: 0;
+  margin: 0;
+}
 .cot-xem {
   display: flex;
   flex-direction: column;
@@ -608,9 +612,13 @@ details summary {
   .soan {
     padding-bottom: 20px;
   }
+  /* chừa đúng chỗ cho thanh Xem thử/Tạo link ghim dưới đáy (cao khoảng 76px) */
   .trang-tao .chan {
     margin-top: 0;
-    padding-bottom: 110px;
+    padding-bottom: calc(84px + env(safe-area-inset-bottom));
+  }
+  .trang-tao.dang-go .chan {
+    padding-bottom: 20px;
   }
   .cot-xem {
     display: none;

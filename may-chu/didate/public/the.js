@@ -13,7 +13,7 @@
      giuTapTrung  true thì không chuyển tiêu điểm khi đổi màn (khung soạn, đang gõ bên trái)
      homNay       "YYYY-MM-DD" (test)
    Trả về { den(man), the }. */
-import { bienXung, tachCho, ngayDep, homNayVN, thuCua, laGio, SO_CAU_NE, MOI_CAU_NE } from "./chung.js?v=3";
+import { bienXung, tachCho, ngayDep, homNayVN, thuCua, laGio, SO_CAU_NE, MOI_CAU_NE } from "./chung.js?v=4";
 
 export function h(ten, tt = {}, ...con) {
   const el = document.createElement(ten);

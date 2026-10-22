@@ -83,6 +83,8 @@ Chủ dự án báo: trên Safari điện thoại, chạm nút từ chối vẫn
 - Safari giữ CSS/JS cũ dù máy chủ báo `max-age=0`: thêm số `?v=` vào đường dẫn (xem mục Cách chạy).
 - Đã chạy được trên Safari iPhone: mở thư, né 4 lần liên tiếp không nhảy màn, chọn ngày và món, màn kết, thêm vào lịch (.ics mở đúng sự kiện cả ngày), chọn ảnh từ Thư viện ảnh, gõ tên không bị phóng to, Xem thử toàn màn hình.
 
+- Chrome Android (chủ dự án báo 22/10/2026): cuối trang soạn có khoảng trắng dài, không thấy nút Tạo link. Thanh Xem thử/Tạo link ẩn khi ô nhập giữ tiêu điểm, mà trên Android tắt bàn phím bằng nút quay lại thì ô vẫn giữ tiêu điểm, chỉ còn khoảng đệm 110px chừa cho thanh. Sửa: chỉ ẩn thanh khi bàn phím đang mở (`visualViewport` thấp hẳn đi), khoảng đệm vừa đúng chiều cao thanh, dòng trạng thái trống không chiếm chỗ.
+
 ## Còn chưa thử
 - Điện thoại thật (iPhone, Android); Android mới thử bằng Chromium giả lập.
 - Dán link thiệp vào Messenger, Zalo xem thẻ xem trước.

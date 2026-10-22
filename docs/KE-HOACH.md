@@ -524,6 +524,7 @@ Ngày 22/10/2026 chủ dự án yêu cầu một trang tạo thiệp kiểu "r�
 - [ ] Vài ngày sau: xem Search Console đã lập chỉ mục trang chủ didate chưa
 - [x] Sửa lỗi chủ dự án báo 22/10/2026: trên Safari iPhone, chạm nút từ chối lại nhảy vào màn chọn (cú click giả của Safari rơi vào nút Có vì trang co lại). Thử bằng Safari trong iOS Simulator và WebKit giả lập ở 320/375/390px, sửa thêm 8 lỗi giao diện điện thoại, thêm số phiên bản `?v=` cho CSS/JS; chi tiết ở `may-chu/didate/README.md`
 - [x] Không xoá ảnh trên Telegram nữa 22/10/2026 (chủ dự án yêu cầu): thiệp vẫn tự xoá sau 90 ngày, nhưng xoá thiệp, đổi ảnh hay hết hạn thì ảnh vẫn nằm trong kênh; bỏ tin nhắc xoá tay. Trang Bảo mật, trang chủ, chỗ chọn ảnh ghi rõ ảnh được giữ lại
+- [x] Sửa lỗi chủ dự án báo 22/10/2026 trên Chrome Android: cuối trang soạn có khoảng trắng dài, mất nút Tạo link (thanh nút ẩn theo tiêu điểm ô nhập; giờ ẩn theo bàn phím)
 - [ ] Thử trên điện thoại thật (iPhone, Android) và thẻ xem trước trong Messenger/Zalo
 
 ## Cổng quyết định
