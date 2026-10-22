@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>didate: thiệp mời dễ thương, gửi bằng một đường link</title>
+    <meta name="description" content="Rủ đi ăn, tỏ tình, xin lỗi, chúc sinh nhật bằng một tấm thiệp online. Thêm tên, ảnh, lời nhắn, gửi link; người ấy chọn ngày, giờ, món và bạn thấy câu trả lời ngay. Miễn phí, không quảng cáo." />
+    <link rel="canonical" href="https://didate.meomeo.app/" />
+    <meta property="og:title" content="didate: thiệp mời dễ thương 💌" />
+    <meta property="og:description" content="Rủ đi ăn, tỏ tình, xin lỗi, chúc sinh nhật bằng một đường link. Nút Không biết né 😌" />
+    <meta property="og:image" content="https://didate.meomeo.app/og.png" />
+    <meta property="og:url" content="https://didate.meomeo.app/" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="referrer" content="no-referrer" />
+    <meta name="theme-color" content="#ffe3ee" />
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/icon-192.png" />
+    <link rel="stylesheet" href="/style.css" />
+    <script type="module" src="/trang-chu.js"></script>
+  </head>
+  <body class="trang-chu">
+    <header class="dau">
+      <a class="logo" href="/"><img src="/icon.svg" alt="" width="32" height="32" />didate</a>
+      <nav aria-label="Trang"><a href="/quan-ly/">Thiệp của tôi<span id="so-thiep" class="so-nho" hidden></span></a></nav>
+    </header>
+
+    <main>
+      <section class="mo-dau">
+        <div class="mo-dau-chu">
+          <h1>Thiệp mời dễ thương, gửi bằng một đường link 💌</h1>
+          <p>Rủ đi ăn, tỏ tình, xin lỗi hay chúc sinh nhật. Chọn mẫu, thêm tên, ảnh và lời nhắn rồi gửi link. Người ấy chọn ngày, giờ, món, còn bạn xem câu trả lời ngay.</p>
+          <div class="hang-nut">
+            <a class="nut nut-chinh nut-lon" href="/tao/">Tạo thiệp ngay</a>
+            <a class="nut nut-phu nut-lon" href="/thiep?thu=an">Xem thiệp mẫu</a>
+          </div>
+          <p class="nho">Miễn phí · không quảng cáo · không cần tài khoản</p>
+        </div>
+        <figure class="mo-dau-hinh" aria-hidden="true">
+          <span class="hinh-thu">💌</span>
+          <img src="/anh-mau.svg" alt="" width="240" height="300" />
+          <span class="hinh-nut-co">Cóoo 💖</span>
+          <span class="hinh-nut-khong">Để em nghĩ đã 🙈</span>
+        </figure>
+      </section>
+
+      <section class="khoi" aria-labelledby="mau-td">
+        <h2 id="mau-td">Chọn một mẫu</h2>
+        <p class="nho">Mẫu nào cũng sửa được hết chữ, ảnh, màu và các lựa chọn.</p>
+        <ul class="luoi-mau">
+          <li>
+            <a class="the-mau-lon" href="/tao/?mau=an"><span class="the-mau-bieu" aria-hidden="true">🍜</span><b>Rủ đi ăn, đi chơi</b><small>Hỏi có đi không, rồi cho người ấy chọn ngày, giờ và món.</small></a>
+            <a class="xem-mau" href="/thiep?thu=an">Xem mẫu</a>
+          </li>
+          <li>
+            <a class="the-mau-lon" href="/tao/?mau=to-tinh"><span class="the-mau-bieu" aria-hidden="true">💘</span><b>Tỏ tình</b><small>Nói ra điều giấu lâu nay, nút Không thì… hơi khó bấm.</small></a>
+            <a class="xem-mau" href="/thiep?thu=to-tinh">Xem mẫu</a>
+          </li>
+          <li>
+            <a class="the-mau-lon" href="/tao/?mau=xin-loi"><span class="the-mau-bieu" aria-hidden="true">🥺</span><b>Xin lỗi, làm lành</b><small>Lời xin lỗi đàng hoàng, kèm cách chuộc lỗi để người ấy chọn.</small></a>
+            <a class="xem-mau" href="/thiep?thu=xin-loi">Xem mẫu</a>
+          </li>
+          <li>
+            <a class="the-mau-lon" href="/tao/?mau=sinh-nhat"><span class="the-mau-bieu" aria-hidden="true">🎂</span><b>Chúc sinh nhật</b><small>Lời chúc, ảnh, rồi hẹn ngày đi ăn mừng và chọn quà.</small></a>
+            <a class="xem-mau" href="/thiep?thu=sinh-nhat">Xem mẫu</a>
+          </li>
+        </ul>
+      </section>
+
+      <section class="khoi" aria-labelledby="cach-td">
+        <h2 id="cach-td">Dùng thế nào?</h2>
+        <ol class="buoc-dung">
+          <li><b>Soạn thiệp</b><span>Chọn mẫu, nhập tên hai người, thêm ảnh, sửa lời nhắn và các lựa chọn. Bên cạnh có bản xem thử.</span></li>
+          <li><b>Gửi link</b><span>Bấm Tạo link rồi gửi qua Messenger, Zalo, Instagram… Người ấy mở là thấy phong thư nhỏ.</span></li>
+          <li><b>Xem câu trả lời</b><span>Trang quản lý cho biết người ấy đã mở thiệp chưa, chọn ngày giờ nào, nhắn gì, và đã cố bấm nút từ chối mấy lần 😝</span></li>
+        </ol>
+      </section>
+
+      <section class="khoi" aria-labelledby="hoi-td">
+        <h2 id="hoi-td">Hỏi nhanh</h2>
+        <details>
+          <summary>Có mất tiền không?</summary>
+          <p>Không. didate là một dự án nhỏ làm cho vui: không quảng cáo, không thu tiền, không cần tài khoản.</p>
+        </details>
+        <details>
+          <summary>Làm sao biết người ấy trả lời?</summary>
+          <p>Tạo thiệp xong bạn nhận thêm một link quản lý của riêng mình. Mở link đó để xem người ấy đã mở thiệp chưa và chọn gì. Trình duyệt bạn dùng để tạo thiệp cũng nhớ giúp ở mục Thiệp của tôi.</p>
+        </details>
+        <details>
+          <summary>Ảnh và lời nhắn lưu ở đâu?</summary>
+          <p>Chữ của thiệp lưu trên máy chủ Cloudflare. Ảnh được thu nhỏ và xoá thông tin vị trí ngay trên máy bạn, rồi lưu qua một bot Telegram trong kênh riêng tư của người làm didate. Chi tiết ở trang <a href="/bao-mat/">Bảo mật</a>.</p>
+        </details>
+        <details>
+          <summary>Thiệp tồn tại bao lâu?</summary>
+          <p>90 ngày rồi tự xoá. Muốn xoá sớm hơn thì vào trang quản lý của thiệp.</p>
+        </details>
+        <details>
+          <summary>Người nhận có biết ai gửi không?</summary>
+          <p>Có. Thiệp hiện tên bạn và ghi rõ bạn sẽ thấy người nhận chọn gì. didate không làm thiệp ẩn danh.</p>
+        </details>
+        <details>
+          <summary>Nhận được thiệp quấy rối thì sao?</summary>
+          <p>Bấm “Báo thiệp xấu” ở cuối thiệp. Người quản lý didate nhận được báo cáo và gỡ thiệp nếu vi phạm <a href="/dieu-khoan/">điều khoản</a>.</p>
+        </details>
+      </section>
+    </main>
+
+    <footer class="chan">
+      <p><a href="/bao-mat/">Bảo mật</a> · <a href="/dieu-khoan/">Điều khoản</a></p>
+      <p class="nho">didate là một trang nhỏ của meomeo.app, làm cho vui.</p>
+    </footer>
+  </body>
+</html>

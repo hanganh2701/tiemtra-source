@@ -511,6 +511,16 @@ Ngày 16/10/2026 chủ dự án yêu cầu một trang tải video TikTok giốn
 - [ ] Nhờ người bản xứ đọc lại bản dịch (nhất là tên nút trên điện thoại trong trang Hướng dẫn)
 - [ ] Thử Phím tắt trên iPhone thật, thử link story
 
+### Ngoài game: thiệp mời didate
+
+Ngày 22/10/2026 chủ dự án yêu cầu một trang tạo thiệp kiểu "rủ đi ăn, nút Không biết né" cho nhiều người dùng: chọn mẫu, sửa tên, ảnh, lựa chọn, sinh link gửi đi. Chạy ở didate.meomeo.app; trang riêng, không dính tới game; chi tiết ở `may-chu/didate/README.md`. Đã chốt: Worker + D1 (tính năng máy chủ mới, chủ dự án đồng ý), ảnh lưu qua bot Telegram vào kênh riêng tư (chủ dự án biết là trái điều khoản bot của Telegram, bot chỉ xoá được tin trong 48 giờ, và tự nhận rủi ro), thiệp tự xoá sau 90 ngày, 4 mẫu.
+
+- [x] Worker + D1 + trang tĩnh `may-chu/didate`: 4 mẫu (rủ đi ăn, tỏ tình, xin lỗi, sinh nhật) sửa được hết chữ, ảnh, màu, xưng hô, lựa chọn; trang soạn có xem thử; thiệp có phong thư/hộp quà, nút từ chối né, chọn ngày giờ món, nhắn lại, thêm vào lịch; trang quản lý xem lượt mở và câu trả lời, sửa, xoá; báo thiệp xấu qua bot; trang Bảo mật, Điều khoản; ảnh chia sẻ `og.png`
+- [x] Kho ảnh tách riêng (`kho-anh.js`): Telegram hoặc D1, đổi bằng biến `KHO_ANH`, ảnh cũ vẫn đọc được
+- [x] Test `tests/didate.test.mjs` (D1 giả bằng `node:sqlite`, Telegram giả, jsdom); chạy thử bằng `wrangler dev` trong trình duyệt của app, cả bề ngang 375px
+- [ ] Chủ dự án tạo bot và kênh Telegram riêng tư, lấy mã kênh (`lay-chat-id.mjs`), đặt secret `TG_TOKEN`, `TG_CHAT`
+- [ ] Tạo D1 `didate`, chạy `schema.sql`, `wrangler deploy`; thử thật trên Cloudflare (đường dẫn `/<id>`, ảnh qua Telegram, thẻ xem trước trong Messenger/Zalo) và trên điện thoại thật
+
 ## Cổng quyết định
 
 | Cổng | Ngày | Đi tiếp khi |

@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Bảo mật | didate</title>
+    <meta name="description" content="didate lưu gì, lưu ở đâu, lưu bao lâu, và ai xem được." />
+    <link rel="canonical" href="https://didate.meomeo.app/bao-mat/" />
+    <meta name="referrer" content="no-referrer" />
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <header class="dau">
+      <a class="logo" href="/"><img src="/icon.svg" alt="" width="32" height="32" />didate</a>
+      <nav aria-label="Trang"><a href="/tao/">Tạo thiệp</a></nav>
+    </header>
+    <main class="chu-dai">
+      <h1>Bảo mật</h1>
+      <p class="nho">Cập nhật 22/10/2026</p>
+      <p>didate là một trang nhỏ làm cho vui, không quảng cáo, không bán dữ liệu, không có tài khoản. Trang này nói thật rõ didate lưu gì về bạn.</p>
+
+      <h2>didate lưu gì</h2>
+      <ul>
+        <li><b>Thiệp bạn tạo</b>: tên hai người, chữ, các lựa chọn, màu, và ảnh nếu bạn thêm.</li>
+        <li><b>Câu trả lời của người nhận</b>: đồng ý hay không, ngày giờ và lựa chọn, lời nhắn, số lần cố bấm nút từ chối.</li>
+        <li><b>Lượt mở</b>: thiệp được mở lần đầu và lần gần nhất lúc nào, bao nhiêu lần. Không lưu ai mở, từ máy nào.</li>
+        <li><b>Báo cáo thiệp xấu</b>: lý do người báo viết.</li>
+      </ul>
+      <p>didate không lưu địa chỉ IP, không gắn mã theo dõi, không dùng cookie. Cloudflare (nơi chạy didate) đếm số lần gọi theo địa chỉ IP trong một phút để chặn spam, rồi bỏ.</p>
+
+      <h2>Lưu ở đâu</h2>
+      <ul>
+        <li><b>Chữ của thiệp và câu trả lời</b>: cơ sở dữ liệu D1 của Cloudflare.</li>
+        <li><b>Ảnh</b>: trước khi gửi, ảnh được thu nhỏ ngay trên máy bạn và xoá hết thông tin kèm theo (vị trí chụp, loại máy…). Sau đó ảnh được gửi vào một kênh Telegram riêng tư bằng bot của didate. <b>Người quản lý didate xem được ảnh trong kênh đó.</b> Ảnh cũng chịu <a href="https://telegram.org/privacy" rel="noopener">chính sách của Telegram</a>.</li>
+        <li><b>Link quản lý</b>: nằm trên trình duyệt bạn dùng để tạo thiệp (bộ nhớ của trang). Máy chủ chỉ giữ một dạng băm của khoá, không đọc ngược lại được.</li>
+      </ul>
+
+      <h2>Ai xem được</h2>
+      <ul>
+        <li>Ai có link thiệp đều mở được thiệp. Link có 8 ký tự ngẫu nhiên nên rất khó đoán, và máy tìm kiếm không được phép lưu.</li>
+        <li>Người tạo thiệp (có link quản lý) xem được câu trả lời và lời nhắn của người nhận. Thiệp ghi rõ điều này cho người nhận biết.</li>
+        <li>Người quản lý didate xem được dữ liệu khi cần xử lý báo cáo hay sửa lỗi, và thấy ảnh trong kênh Telegram.</li>
+      </ul>
+
+      <h2>Lưu bao lâu</h2>
+      <ul>
+        <li>Thiệp tự xoá sau 90 ngày, cùng câu trả lời. Người tạo xoá sớm hơn được ở trang quản lý.</li>
+        <li><b>Ảnh trên Telegram</b>: bot chỉ xoá được ảnh trong 48 giờ đầu (giới hạn của Telegram). Bạn xoá thiệp hay đổi ảnh sau đó thì bot nhắn người quản lý xoá tay. Riêng thiệp tự hết hạn sau 90 ngày thì ảnh không còn hiện trên didate nhưng có thể vẫn nằm trong kênh riêng tư cho tới khi người quản lý dọn kênh.</li>
+        <li>Ảnh có thể còn trong bộ đệm của Cloudflare tối đa 6 giờ sau khi xoá thiệp.</li>
+      </ul>
+
+      <h2>Ảnh của người khác</h2>
+      <p>Chỉ dùng ảnh của chính bạn, hoặc ảnh người trong ảnh đồng ý cho dùng. Nếu ảnh của bạn bị dùng trên thiệp mà bạn không muốn, bấm “Báo thiệp xấu” ở cuối thiệp.</p>
+
+      <p><a href="/dieu-khoan/">Điều khoản</a> · <a href="/">Về trang chủ</a></p>
+    </main>
+    <footer class="chan"><a href="/bao-mat/">Bảo mật</a> · <a href="/dieu-khoan/">Điều khoản</a></footer>
+  </body>
+</html>
