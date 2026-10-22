@@ -1,0 +1,5 @@
+User-agent: *
+Disallow: /api/
+Disallow: /anh/
+Disallow: /quan-ly/
+Sitemap: https://didate.meomeo.app/sitemap.xml

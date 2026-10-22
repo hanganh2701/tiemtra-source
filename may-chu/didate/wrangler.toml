@@ -1,0 +1,36 @@
+# didate: thiệp mời dễ thương ở didate.meomeo.app (chủ dự án yêu cầu 22/10/2026). Đưa lên: xem README.md cùng thư mục.
+name = "didate"
+main = "worker.js"
+compatibility_date = "2026-09-01"
+routes = [{ pattern = "didate.meomeo.app", custom_domain = true }]
+
+# kho ảnh: "telegram" (bot gửi ảnh vào kênh riêng tư) hoặc "d1" (ảnh nằm trong D1). Xem kho-anh.js.
+# Bot dùng hai secret, đặt bằng: npx wrangler secret put TG_TOKEN  rồi  npx wrangler secret put TG_CHAT
+[vars]
+KHO_ANH = "telegram"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "didate"
+database_id = "7ee09579-a6b4-41e1-9d2d-c67038069cb2"
+
+# trang tĩnh: index.html, tao/, quan-ly/, thiep.html… Không khớp file nào (vd /<id> của thiệp) thì chuyển cho worker.js.
+# /api/* và /anh/* luôn chạy worker.js trước
+[assets]
+directory = "./public"
+binding = "ASSETS"
+run_worker_first = ["/api/*", "/anh/*"]
+
+# Không dùng cron: tài khoản chưa có tên miền workers.dev nên Cloudflare không nhận lịch (lỗi 10063, 22/10/2026).
+# Thiệp quá hạn được dọn mỗi khi có thiệp mới (worker.js, donKhiTao); trang vẫn chặn thiệp quá hạn ngay khi hết 90 ngày
+
+# mỗi máy tạo tối đa 6 thiệp mỗi phút; mở, trả lời, báo cáo tối đa 40 lần mỗi phút
+[[ratelimits]]
+name = "GIOI_HAN_TAO"
+namespace_id = "2702"
+simple = { limit = 6, period = 60 }
+
+[[ratelimits]]
+name = "GIOI_HAN_GHI"
+namespace_id = "2703"
+simple = { limit = 40, period = 60 }

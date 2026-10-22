@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Tạo thiệp | didate</title>
+    <meta name="description" content="Chọn mẫu, sửa tên, ảnh, lời nhắn và các lựa chọn, rồi lấy link gửi cho người ấy." />
+    <meta name="referrer" content="no-referrer" />
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/icon-192.png" />
+    <link rel="stylesheet" href="/the.css" />
+    <link rel="stylesheet" href="/style.css" />
+    <script type="module" src="/tao.js"></script>
+  </head>
+  <body class="trang-tao">
+    <header class="dau">
+      <a class="logo" href="/"><img src="/icon.svg" alt="" width="32" height="32" />didate</a>
+      <nav aria-label="Trang"><a href="/quan-ly/">Thiệp của tôi</a></nav>
+    </header>
+
+    <div class="soan">
+      <form id="form" class="cot-soan" novalidate>
+        <h1 id="tieu-de-trang">Tạo thiệp</h1>
+        <p id="thong-bao-nhap" class="thong-bao" hidden></p>
+
+        <section class="buoc" aria-labelledby="b1">
+          <h2 id="b1"><span class="so">1</span>Chọn mẫu</h2>
+          <div id="ds-mau" class="ds-mau" role="radiogroup" aria-labelledby="b1"></div>
+        </section>
+
+        <section class="buoc" aria-labelledby="b2">
+          <h2 id="b2"><span class="so">2</span>Ai gửi cho ai?</h2>
+          <div class="hai-cot">
+            <label>Tên của bạn <input id="gui" data-truong="gui" maxlength="40" autocomplete="given-name" placeholder="vd: Nam" required /></label>
+            <label>Tên người ấy <input id="nhan" data-truong="nhan" maxlength="40" autocomplete="off" placeholder="vd: Mai" required /></label>
+          </div>
+          <label>Xưng hô <select id="xung" data-truong="xung"></select></label>
+        </section>
+
+        <section class="buoc" aria-labelledby="b3">
+          <h2 id="b3"><span class="so">3</span>Ảnh và màu</h2>
+          <div class="chon-anh">
+            <div id="xem-anh" class="xem-anh" hidden><img alt="Ảnh đã chọn" /></div>
+            <div>
+              <label class="nut nut-phu nut-tep">📷 Chọn ảnh <input id="anh" type="file" accept="image/*" /></label>
+              <button id="bo-anh" class="nut nut-chu" type="button" hidden>Bỏ ảnh</button>
+              <p class="nho">Không bắt buộc. Ảnh được thu nhỏ và xoá thông tin vị trí ngay trên máy bạn trước khi gửi lên.</p>
+              <p id="loi-anh" class="loi" role="alert"></p>
+            </div>
+          </div>
+          <fieldset>
+            <legend>Màu thiệp</legend>
+            <div id="ds-mau-sac" class="ds-mau-sac"></div>
+          </fieldset>
+          <fieldset>
+            <legend>Lúc mở thiệp</legend>
+            <div id="ds-mo-dau" class="ds-chip"></div>
+          </fieldset>
+        </section>
+
+        <section class="buoc" aria-labelledby="b4">
+          <h2 id="b4"><span class="so">4</span>Lời nhắn và câu hỏi</h2>
+          <label>Nhãn nhỏ trên cùng <input data-truong="nhanDan" maxlength="60" /></label>
+          <label>Tiêu đề <input data-truong="tieuDe" maxlength="120" /></label>
+          <label>Lời mở đầu <textarea data-truong="loiDau" maxlength="600" rows="4"></textarea></label>
+          <label>Câu hỏi <input data-truong="cauHoi" maxlength="160" required /></label>
+          <div class="hai-cot">
+            <label>Nút đồng ý <input data-truong="nutCo" maxlength="40" required /></label>
+            <label>Nút từ chối <input data-truong="nutKhong" maxlength="40" placeholder="Để trống: không có nút này" /></label>
+          </div>
+          <label class="hop-chon"><input id="ne" type="checkbox" /> Nút từ chối né, không cho bấm (người ấy chỉ bấm được đồng ý)</label>
+          <div id="khoi-ne" class="khoi-con">
+            <p class="nho">Câu hiện ra sau khi người ấy cố bấm 3, 6 và 9 lần. Sau 9 lần thì nút từ chối trốn luôn.</p>
+            <input data-ne="0" maxlength="80" aria-label="Câu sau 3 lần" />
+            <input data-ne="1" maxlength="80" aria-label="Câu sau 6 lần" />
+            <input data-ne="2" maxlength="80" aria-label="Câu sau 9 lần" />
+          </div>
+        </section>
+
+        <section class="buoc" aria-labelledby="b5">
+          <h2 id="b5"><span class="so">5</span>Hẹn hò và lựa chọn</h2>
+          <p class="nho">Sau khi đồng ý, người ấy chọn những gì bạn bật dưới đây.</p>
+          <label class="hop-chon"><input id="hoiNgay" type="checkbox" /> Chọn ngày</label>
+          <label class="hop-chon"><input id="hoiGio" type="checkbox" /> Chọn giờ</label>
+          <div id="khoi-gio" class="khoi-con">
+            <p class="nho">Giờ gợi ý (người ấy vẫn chọn được giờ khác)</p>
+            <div id="ds-gio" class="ds-chip"></div>
+            <div class="them-dong">
+              <input id="gio-moi" type="time" aria-label="Giờ muốn thêm" />
+              <button id="them-gio" class="nut nut-phu" type="button">Thêm giờ</button>
+            </div>
+          </div>
+          <label class="hop-chon"><input id="chonBat" type="checkbox" /> Cho chọn một thứ (món ăn, chỗ đi, quà…)</label>
+          <div id="khoi-chon" class="khoi-con">
+            <label>Câu hỏi cho phần chọn <input data-truong="chonTieuDe" maxlength="100" /></label>
+            <div id="ds-chon" class="ds-chon"></div>
+            <button id="them-chon" class="nut nut-phu" type="button">+ Thêm lựa chọn</button>
+            <label class="hop-chon"><input id="chonKhac" type="checkbox" /> Cho người ấy tự viết ý khác</label>
+          </div>
+        </section>
+
+        <section class="buoc" aria-labelledby="b6">
+          <h2 id="b6"><span class="so">6</span>Lời kết</h2>
+          <label>Tiêu đề khi đồng ý <input data-truong="ketTieuDe" maxlength="100" /></label>
+          <label
+            >Lời kết <textarea id="ket-loi" data-truong="ketLoi" maxlength="600" rows="4"></textarea>
+          </label>
+          <p class="nho">
+            Chèn câu trả lời của người ấy:
+            <button class="chip-chen" type="button" data-chen="{ngay}">ngày</button>
+            <button class="chip-chen" type="button" data-chen="{gio}">giờ</button>
+            <button class="chip-chen" type="button" data-chen="{chon}">lựa chọn</button>
+          </p>
+          <p id="canh-ket" class="canh" hidden></p>
+          <label>Dòng cuối <input data-truong="ketCuoi" maxlength="200" /></label>
+          <details id="khoi-tu-choi">
+            <summary>Khi người ấy bấm từ chối</summary>
+            <label>Tiêu đề <input data-truong="tuChoiTieuDe" maxlength="100" /></label>
+            <label>Lời nhắn <textarea data-truong="tuChoiLoi" maxlength="600" rows="3"></textarea></label>
+          </details>
+          <button id="dat-lai" class="nut nut-chu" type="button">↺ Đặt lại mọi chữ theo mẫu</button>
+        </section>
+
+        <div class="thanh-gui">
+          <button id="xem-dt" class="nut nut-phu chi-dt" type="button">👀 Xem thử</button>
+          <button id="gui-thiep" class="nut nut-chinh" type="submit">Tạo link 💌</button>
+        </div>
+        <p id="trang-thai" class="trang-thai" role="status"></p>
+        <p class="nho">Thiệp tự xoá sau 90 ngày. Khi tạo thiệp, bạn đồng ý với <a href="/dieu-khoan/">điều khoản</a> và <a href="/bao-mat/">chính sách bảo mật</a>.</p>
+      </form>
+
+      <aside class="cot-xem" aria-label="Xem thử">
+        <div class="thanh-xem">
+          <div id="tab-xem" class="tab-xem" role="tablist" aria-label="Màn của thiệp">
+            <button type="button" role="tab" data-man="mo">Mở</button>
+            <button type="button" role="tab" data-man="hoi">Câu hỏi</button>
+            <button type="button" role="tab" data-man="chon">Chọn</button>
+            <button type="button" role="tab" data-man="ket">Kết</button>
+            <button type="button" role="tab" data-man="tu-choi">Từ chối</button>
+          </div>
+          <button id="dong-xem" class="nut nut-chu chi-dt" type="button">Đóng ✕</button>
+        </div>
+        <div id="khung-xem" class="khung-xem"></div>
+      </aside>
+    </div>
+
+    <section id="xong" class="xong" hidden aria-labelledby="xong-td">
+      <div class="hop-xong">
+        <h2 id="xong-td" tabindex="-1">Xong rồi 🎉</h2>
+        <p>Gửi link này cho <b id="xong-nhan"></b> qua Messenger, Zalo, Instagram… gì cũng được:</p>
+        <div class="o-link"><input id="link-thiep" readonly aria-label="Link thiệp" /><button id="chep-thiep" class="nut nut-phu" type="button">Chép</button></div>
+        <div class="hang-nut">
+          <button id="chia-se" class="nut nut-chinh" type="button">Gửi link 💌</button>
+          <a id="mo-thu" class="nut nut-phu" target="_blank" rel="noopener">Mở thử</a>
+        </div>
+        <h3>Link quản lý, của riêng bạn</h3>
+        <p class="nho">Dùng để xem người ấy đã mở thiệp chưa, chọn gì, nhắn gì; sửa hoặc xoá thiệp. <b>Đừng gửi link này cho ai.</b> Trình duyệt này cũng nhớ giúp ở mục Thiệp của tôi, nhưng xoá dữ liệu trình duyệt là mất, nên chép lại cất đi nha.</p>
+        <div class="o-link"><input id="link-quan-ly" readonly aria-label="Link quản lý" /><button id="chep-quan-ly" class="nut nut-phu" type="button">Chép</button></div>
+        <div class="hang-nut">
+          <a id="den-quan-ly" class="nut nut-phu">Tới trang quản lý</a>
+          <a class="nut nut-chu" href="/tao/">Tạo thiệp khác</a>
+        </div>
+      </div>
+    </section>
+  </body>
+</html>
