@@ -518,8 +518,9 @@ Ngày 22/10/2026 chủ dự án yêu cầu một trang tạo thiệp kiểu "r�
 - [x] Worker + D1 + trang tĩnh `may-chu/didate`: 4 mẫu (rủ đi ăn, tỏ tình, xin lỗi, sinh nhật) sửa được hết chữ, ảnh, màu, xưng hô, lựa chọn; trang soạn có xem thử; thiệp có phong thư/hộp quà, nút từ chối né, chọn ngày giờ món, nhắn lại, thêm vào lịch; trang quản lý xem lượt mở và câu trả lời, sửa, xoá; báo thiệp xấu qua bot; trang Bảo mật, Điều khoản; ảnh chia sẻ `og.png`
 - [x] Kho ảnh tách riêng (`kho-anh.js`): Telegram hoặc D1, đổi bằng biến `KHO_ANH`, ảnh cũ vẫn đọc được
 - [x] Test `tests/didate.test.mjs` (D1 giả bằng `node:sqlite`, Telegram giả, jsdom); chạy thử bằng `wrangler dev` trong trình duyệt của app, cả bề ngang 375px
-- [ ] Chủ dự án tạo bot và kênh Telegram riêng tư, lấy mã kênh (`lay-chat-id.mjs`), đặt secret `TG_TOKEN`, `TG_CHAT`
-- [ ] Tạo D1 `didate`, chạy `schema.sql`, `wrangler deploy`; thử thật trên Cloudflare (đường dẫn `/<id>`, ảnh qua Telegram, thẻ xem trước trong Messenger/Zalo) và trên điện thoại thật
+- [x] Telegram 22/10/2026 (Claude làm trên Telegram Web, chủ dự án đăng nhập và tự đặt secret token): bot @didate_anh_bot, kênh riêng tư "didate ảnh", bot chỉ có quyền đăng và xoá tin
+- [x] Đưa lên 22/10/2026: D1 `didate`, `wrangler deploy`, Worker `didate` chạy ở https://didate.meomeo.app. Cron bị từ chối vì tài khoản chưa có tên miền workers.dev, nên thiệp quá hạn được dọn mỗi khi có thiệp mới. Thử thật: tạo thiệp có ảnh, ảnh vào kênh, mở, trả lời, trang quản lý, xoá thiệp thì bot xoá ảnh; đã xoá hết thiệp thử
+- [ ] Thử trên điện thoại thật (né bằng ngón tay, ảnh HEIC, file .ics) và thẻ xem trước trong Messenger/Zalo
 
 ## Cổng quyết định
 

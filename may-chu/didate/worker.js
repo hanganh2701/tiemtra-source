@@ -8,7 +8,8 @@
      POST /api/thiep/<id>/mo           người nhận mở thiệp (đếm lượt mở)
      POST /api/thiep/<id>/tra-loi      người nhận trả lời (JSON, kiểm bằng lamSachTraLoi)
      POST /api/thiep/<id>/bao-cao      báo thiệp xấu (nhắn cho chủ dự án qua bot Telegram)
-   Cron mỗi ngày xoá thiệp quá hạn 90 ngày. Không lưu IP; giới hạn tốc độ theo IP do Cloudflare đếm. */
+   Thiệp quá hạn 90 ngày bị xoá mỗi khi có thiệp mới (donKhiTao); hàm scheduled để dành nếu sau này bật cron.
+   Không lưu IP; giới hạn tốc độ theo IP do Cloudflare đếm. */
 import { lamSach, lamSachTraLoi, LoiDuLieu, HAN_NGAY, ANH_TOI_DA, chu } from "./public/chung.js";
 import { luuAnh, docAnh, xoaAnh, xoaAnhHetHan, nhanChuDuAn } from "./kho-anh.js";
 
@@ -188,7 +189,7 @@ async function voiKhoa(req, env, id) {
 
 const linkAnh = (id, row) => (row.anh ? `/anh/${id}?v=${row.anh_ver}` : null);
 
-async function taoThiep(req, env) {
+async function taoThiep(req, env, ctx) {
   if (await quaNhanh(env, "GIOI_HAN_TAO", req)) return loi("Bạn tạo nhanh quá, chờ một phút rồi thử lại nha", 429);
   const { thiep, anh } = await docForm(req);
   const khoa = taoKhoa();
@@ -217,6 +218,7 @@ async function taoThiep(req, env) {
       return loi("Chưa lưu được ảnh, thử lại sau một chút nha", 503);
     }
   }
+  ctx.waitUntil(donKhiTao(env));
   return json({ id, khoa, hetHan }, 201);
 }
 
@@ -322,7 +324,7 @@ async function api(req, env, ctx, url) {
   if (req.method === "POST" && nguon && nguon !== url.origin) return loi("Không cho phép", 403);
   const [, , loai, id, viec] = url.pathname.split("/");
   if (loai !== "thiep") return loi("Không có", 404);
-  if (!id && req.method === "POST") return taoThiep(req, env);
+  if (!id && req.method === "POST") return taoThiep(req, env, ctx);
   if (!MA.test(id || "")) return loi("Không có", 404);
   if (!viec && req.method === "GET") return xemThiep(req, env, id);
   if (req.method !== "POST") return loi("Không có", 404);
@@ -334,10 +336,19 @@ async function api(req, env, ctx, url) {
   return loi("Không có", 404);
 }
 
-/* dọn thiệp quá hạn (cron mỗi ngày) */
-async function donDep(env) {
+/* có thiệp mới thì dọn luôn thiệp quá hạn: một lần đọc theo chỉ mục het_han, chỉ xoá khi có */
+async function donKhiTao(env) {
+  try {
+    if (await env.DB.prepare("SELECT 1 FROM thiep WHERE het_han <= ? LIMIT 1").bind(Date.now()).first()) await donDep(env, 1);
+  } catch (e) {
+    console.error("dọn thiệp:", e?.message);
+  }
+}
+
+/* xoá thiệp quá hạn và ảnh trong D1 của chúng, mỗi vòng 200 thiệp */
+async function donDep(env, soVong = 20) {
   const luc = Date.now();
-  for (let vong = 0; vong < 20; vong++) {
+  for (let vong = 0; vong < soVong; vong++) {
     const { results } = await env.DB.prepare("SELECT id, anh FROM thiep WHERE het_han <= ? LIMIT 200").bind(luc).all();
     if (!results.length) return;
     await xoaAnhHetHan(env, results.filter((r) => r.anh).map((r) => JSON.parse(r.anh)));

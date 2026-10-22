@@ -266,6 +266,16 @@ test("didate: thiệp hết hạn, bị gỡ; dọn hằng ngày xoá thiệp v�
   assert.equal(env.DB.db.prepare("SELECT COUNT(*) AS n FROM anh_d1").get().n, 0);
 });
 
+test("didate: có thiệp mới thì thiệp quá hạn bị dọn luôn (không cần cron)", async () => {
+  const env = moiTruong();
+  const cu = await taoThiep(env, thiepThu(), JPEG);
+  env.DB.db.prepare("UPDATE thiep SET het_han = ? WHERE id = ?").run(Date.now() - 1, cu.id);
+  const moi = await taoThiep(env);
+  const con = env.DB.db.prepare("SELECT id FROM thiep").all().map((r) => r.id);
+  assert.deepEqual(con, [moi.id]);
+  assert.equal(env.DB.db.prepare("SELECT COUNT(*) AS n FROM anh_d1").get().n, 0);
+});
+
 test("didate: giới hạn tốc độ, đường dẫn lạ trả trang 404", async () => {
   const env = moiTruong({ GIOI_HAN_TAO: { limit: async () => ({ success: false }) } });
   const r = await goi(env, "/api/thiep", { method: "POST", body: formThiep(thiepThu()) });

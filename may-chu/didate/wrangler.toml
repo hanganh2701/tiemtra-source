@@ -12,7 +12,7 @@ KHO_ANH = "telegram"
 [[d1_databases]]
 binding = "DB"
 database_name = "didate"
-database_id = "00000000-0000-0000-0000-000000000000" # chưa tạo: npx wrangler d1 create didate rồi dán id vào đây
+database_id = "7ee09579-a6b4-41e1-9d2d-c67038069cb2"
 
 # trang tĩnh: index.html, tao/, quan-ly/, thiep.html… Không khớp file nào (vd /<id> của thiệp) thì chuyển cho worker.js.
 # /api/* và /anh/* luôn chạy worker.js trước
@@ -21,9 +21,8 @@ directory = "./public"
 binding = "ASSETS"
 run_worker_first = ["/api/*", "/anh/*"]
 
-# 3:17 sáng giờ Việt Nam: xoá thiệp quá hạn 90 ngày
-[triggers]
-crons = ["17 20 * * *"]
+# Không dùng cron: tài khoản chưa có tên miền workers.dev nên Cloudflare không nhận lịch (lỗi 10063, 22/10/2026).
+# Thiệp quá hạn được dọn mỗi khi có thiệp mới (worker.js, donKhiTao); trang vẫn chặn thiệp quá hạn ngay khi hết 90 ngày
 
 # mỗi máy tạo tối đa 6 thiệp mỗi phút; mở, trả lời, báo cáo tối đa 40 lần mỗi phút
 [[ratelimits]]

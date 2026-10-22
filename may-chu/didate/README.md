@@ -16,7 +16,7 @@ Trang riêng, không thuộc game Tiệm Trà Nhỏ, chạy ở https://didate.m
 public/              trang tĩnh: index.html (trang chủ), tao/ (soạn), quan-ly/ (quản lý, Thiệp của tôi), thiep.html (khung trang thiệp),
                      bao-mat/, dieu-khoan/, 404.html; chung.js (mẫu, làm sạch dữ liệu: dùng chung với worker), the.js + the.css (tấm thiệp),
                      tao.js, quan-ly.js, thiep.js, trang-chu.js, trang.js (việc chung của trang), style.css, fonts/ (Baloo 2 rút gọn, OFL)
-worker.js            /<id> trang thiệp (dữ liệu đặt vào thiep.html), /anh/<id> ảnh, /api/thiep… (xem đầu file), cron dọn thiệp quá hạn
+worker.js            /<id> trang thiệp (dữ liệu đặt vào thiep.html), /anh/<id> ảnh, /api/thiep… (xem đầu file); có thiệp mới thì dọn thiệp quá hạn
 kho-anh.js           chỗ để ảnh: "telegram" hoặc "d1" (biến KHO_ANH). Đổi kho chỉ sửa file này; ảnh cũ vẫn đọc từ kho cũ
 schema.sql           bảng thiep, anh_d1
 hinh/                nguồn og.png, icon-*.png; chụp lại: node may-chu/didate/hinh/chup.mjs
@@ -53,7 +53,7 @@ npx wrangler deploy
 ```
 Báo cáo thiệp xấu muốn về kênh khác (vd chat riêng với bot) thì thêm secret `TG_BAO`.
 
-Sau khi lên: tạo một thiệp có ảnh, mở bằng trình duyệt khác (hoặc cửa sổ ẩn danh) trả lời thử, xem trang quản lý; dán link thiệp vào Messenger/Zalo xem thẻ xem trước.
+Sau khi lên: tạo một thiệp có ảnh, mở bằng trình duyệt khác (hoặc cửa sổ ẩn danh) trả lời thử, xem trang quản lý; dán link thiệp vào Messenger/Zalo xem thẻ xem trước. Đã làm 22/10/2026, xem mục Đã lên.
 
 ## Việc thường gặp
 - Gỡ thiệp xấu: `npx wrangler d1 execute didate --remote --command "UPDATE thiep SET an = 1 WHERE id = '<id>'"` (hiện lại: `an = 0`). Xoá hẳn: `DELETE FROM thiep WHERE id = '<id>'`, rồi xoá tay ảnh trong kênh.
@@ -63,10 +63,15 @@ Sau khi lên: tạo một thiệp có ảnh, mở bằng trình duyệt khác (h
 ## Đã thử (22/10/2026)
 Trên máy bằng `wrangler dev` (ảnh vào D1 trên máy), trong trình duyệt của app: tạo thiệp có ảnh, mở như người nhận (phong thư mở, nút từ chối né theo chuột, 9 lần thì trốn, nút đồng ý to dần), chọn ngày giờ món, màn kết điền đúng câu trả lời, gửi lời nhắn; trang quản lý thấy lượt mở, câu trả lời, số lần cố bấm từ chối, lời nhắn; sửa thiệp (đổi màu) rồi lưu; người tạo mở thiệp của mình thì là bản xem thử. Bề ngang 375px: trang soạn, nút Xem thử toàn màn hình, tấm thiệp không tràn ngang.
 
+## Đã lên (22/10/2026)
+- Telegram (Claude làm trên Telegram Web, chủ dự án tự đăng nhập): bot **@didate_anh_bot** ("didate kho ảnh"), kênh riêng tư **didate ảnh**; bot là quản trị kênh, chỉ có quyền đăng tin và xoá tin. Chủ dự án tự đặt secret `TG_TOKEN`; `TG_CHAT` là mã kênh.
+- D1 `didate` (vùng APAC), `wrangler deploy` bằng tài khoản Cloudflare đang giữ meomeo.app, Worker `didate` chạy ở https://didate.meomeo.app.
+- Cron bị Cloudflare từ chối (lỗi 10063: tài khoản chưa có tên miền workers.dev), nên bỏ cron: thiệp quá hạn được dọn mỗi khi có thiệp mới. Muốn bật lại cron thì mở trang Workers trên bảng điều khiển Cloudflare một lần (tự tạo tên miền workers.dev) rồi thêm `[triggers]` vào `wrangler.toml`.
+- Thử trên trang thật: trang chủ, trang soạn, 404; đường dẫn `/<id>` tới được worker (không cần `run_worker_first`); tạo thiệp có ảnh trong trình duyệt, ảnh vào kênh với chú thích `didate <id>`; ảnh tải từ Telegram lần đầu 2,7 giây, lần sau lấy từ bộ đệm 0,13 giây; tạo thiệp có ảnh khoảng 2 giây (lần đầu sau khi deploy 10 giây); mở thiệp, trả lời, trang quản lý thấy đủ; trang khác gọi API bị chặn (403); thẻ xem trước có `og:title` theo tên người nhận. Xoá thiệp (bằng API và bằng trang quản lý) thì bot xoá luôn ảnh trong kênh. Đã xoá hết thiệp thử, D1 thật đang trống.
+
 ## Còn chưa thử
-- **Telegram thật**: kho ảnh Telegram mới thử bằng mạng giả trong test, chưa gửi ảnh thật (chờ chủ dự án tạo bot và kênh).
-- **Trên Cloudflare thật**: chưa deploy. Trên máy, đường dẫn thiệp `/<id>` tới được worker mà không cần `run_worker_first`; lên thật thì thử lại.
 - Điện thoại thật (iPhone, Android): né bằng ngón tay, chọn ảnh HEIC trên iPhone, file .ics.
+- Dán link thiệp vào Messenger, Zalo xem thẻ xem trước.
 
 ## Nên biết trước
 - Gói Workers miễn phí: 100.000 lượt gọi worker mỗi ngày (file tĩnh không tính). Mỗi lần mở thiệp tốn 2–3 lượt (trang, lượt mở, ảnh nếu chưa có trong bộ đệm), trả lời thêm 1–2 lượt. Vượt thì trang báo lỗi tới 7 giờ sáng hôm sau.
